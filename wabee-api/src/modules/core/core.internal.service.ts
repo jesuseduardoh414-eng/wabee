@@ -736,17 +736,26 @@ export class CoreInternalService {
             select: { id: true }
         });
 
-        const where: any = wabeeProduct ? { productId: wabeeProduct.id } : { productId: null };
+        // Incluir orgs sin productId asignado (migración) y las del producto wabee
+        const productFilter: any = wabeeProduct
+            ? [{ productId: wabeeProduct.id }, { productId: null }]
+            : [];
+        const where: any = productFilter.length ? { OR: productFilter } : {};
 
         if (search) {
-            where.OR = [
+            const searchConditions: any[] = [
                 { name: { contains: search, mode: 'insensitive' } },
                 { slug: { contains: search, mode: 'insensitive' } }
             ];
             const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
             if (uuidRegex.test(search)) {
-                where.OR.push({ id: search });
+                searchConditions.push({ id: search });
             }
+            where.AND = [
+                ...(productFilter.length ? [{ OR: productFilter }] : []),
+                { OR: searchConditions }
+            ];
+            delete where.OR;
         }
 
         if (status) {

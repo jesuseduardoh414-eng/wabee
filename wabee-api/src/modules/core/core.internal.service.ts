@@ -784,9 +784,7 @@ export class CoreInternalService {
                     },
                     subscriptions: {
                         select: {
-                            planNameSnapshot: true,
-                            priceSnapshot: true,
-                            snapshotJson: true,
+                            planSnapshot: true,
                             planTemplate: { select: { name: true, price: true } }
                         }
                     }
@@ -806,9 +804,9 @@ export class CoreInternalService {
             let isPro = false;
 
             if (activeSub) {
-                planName = activeSub.planNameSnapshot || (activeSub.snapshotJson as any)?.planName || activeSub.planTemplate?.name || 'FREE';
-                const priceStr = activeSub.priceSnapshot ?? (activeSub.snapshotJson as any)?.price ?? activeSub.planTemplate?.price;
-                const price = Number(priceStr);
+                const snap = activeSub.planSnapshot as any;
+                planName = snap?.planName || snap?.name || activeSub.planTemplate?.name || 'FREE';
+                const price = Number(snap?.price ?? activeSub.planTemplate?.price ?? 0);
                 isPro = !isNaN(price) && price > 0;
             } else if (fallbackPlan) {
                 planName = fallbackPlan.name;

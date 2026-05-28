@@ -1,0 +1,128 @@
+diff --git a/node_modules/@r4d-26/core/dist/AuthFactory.js b/node_modules/@r4d-26/core/dist/AuthFactory.js
+index 8e5dc74..96b18dc 100644
+--- a/node_modules/@r4d-26/core/dist/AuthFactory.js
++++ b/node_modules/@r4d-26/core/dist/AuthFactory.js
+@@ -76,6 +76,8 @@ import { ActivatePaidSubscriptionUseCase } from './application/usecases/billing/
+ import { QuotaGuardService } from './application/services/QuotaGuardService.js';
+ import { RedisUsageEventBus } from './infrastructure/events/RedisUsageEventBus.js';
+ import { RedisCacheInvalidationBus } from './infrastructure/events/RedisCacheInvalidationBus.js';
++import { InMemoryUsageEventBus } from './application/events/InMemoryUsageEventBus.js';
++import { InMemoryCacheInvalidationBus } from './application/events/InMemoryCacheInvalidationBus.js';
+ import { UsageEventHandler } from './application/events/UsageEventHandler.js';
+ import { PrismaResourceUsageRepository } from './infrastructure/repositories/PrismaResourceUsageRepository.js';
+ import { PrismaRoleRepository } from './infrastructure/repositories/PrismaRoleRepository.js';
+@@ -202,20 +204,56 @@ export class AuthFactory {
+         const storageStatsRepo = new PrismaStorageStatsRepository(this.prisma);
+         // Resource Usage Repository, Event Bus & QuotaGuard
+         const resourceUsageRepo = new PrismaResourceUsageRepository(this.prisma);
+-        // Instantiate two new Redis clients specifically for the buses: redisPublisher and redisSubscriber.
+-        // One for publishing and a separate one for subscribing (Redis Pub/Sub requirement).
+-        const redisPublisher = new Redis(this.redisConnection);
+-        const redisSubscriber = new Redis(this.redisConnection);
+-        const usageEventBus = new RedisUsageEventBus(redisPublisher, redisSubscriber, this.logger);
+-        const cacheInvalidationBus = new RedisCacheInvalidationBus(redisPublisher, redisSubscriber, this.logger);
+-        new UsageEventHandler(usageEventBus, resourceUsageRepo, cacheInvalidationBus, this.logger).register();
+-        // Redis Client for Cache
+-        const cacheRedisClient = new Redis(this.redisConnection);
+-        const cacheManager = new RedisCacheManager(cacheRedisClient);
+-        // Rate Limiter
+-        const rateLimiter = new RedisRateLimiter(cacheRedisClient);
+-        // Circuit Breaker
+-        const circuitBreaker = new RedisCircuitBreaker(cacheRedisClient);
++        let usageEventBus;
++        let cacheInvalidationBus;
++        let cacheManager;
++        let rateLimiter;
++        let circuitBreaker;
++        // ── Redis guard: skip ALL Redis initialization when REDIS_ENABLED=false ──
++        const _redisEnabled = process.env.REDIS_ENABLED !== 'false';
++        if (_redisEnabled) {
++            // Instantiate two new Redis clients specifically for the buses: redisPublisher and redisSubscriber.
++            // One for publishing and a separate one for subscribing (Redis Pub/Sub requirement).
++            const noop = () => {};
++            const redisPublisher = new Redis(this.redisConnection);
++            redisPublisher.on('error', noop);
++            const redisSubscriber = new Redis(this.redisConnection);
++            redisSubscriber.on('error', noop);
++            usageEventBus = new RedisUsageEventBus(redisPublisher, redisSubscriber, this.logger);
++            cacheInvalidationBus = new RedisCacheInvalidationBus(redisPublisher, redisSubscriber, this.logger);
++            new UsageEventHandler(usageEventBus, resourceUsageRepo, cacheInvalidationBus, this.logger).register();
++            // Redis Client for Cache
++            const cacheRedisClient = new Redis(this.redisConnection);
++            cacheRedisClient.on('error', noop);
++            cacheManager = new RedisCacheManager(cacheRedisClient);
++            // Rate Limiter
++            rateLimiter = new RedisRateLimiter(cacheRedisClient);
++            // Circuit Breaker
++            circuitBreaker = new RedisCircuitBreaker(cacheRedisClient);
++        } else {
++            // In-memory fallback when Redis is disabled (REDIS_ENABLED=false).
++            // Uses the Core's own InMemory implementations — they satisfy all interfaces
++            // exactly. No Redis connections are created, no errors appear in console.
++            usageEventBus = new InMemoryUsageEventBus();
++            cacheInvalidationBus = new InMemoryCacheInvalidationBus();
++            new UsageEventHandler(usageEventBus, resourceUsageRepo, cacheInvalidationBus, this.logger).register();
++            cacheManager = {
++                get: async () => null,
++                set: async () => {},
++                del: async () => {},
++                invalidate: async () => {},
++                invalidatePattern: async () => {},
++            };
++            rateLimiter = {
++                consume: async () => ({ allowed: true, remaining: 999, resetAt: new Date() }),
++                isAllowed: async () => ({ allowed: true, remaining: 999, resetAt: new Date() }),
++            };
++            circuitBreaker = {
++                execute: async (fn) => fn(),
++                isOpen: () => false,
++                getState: () => 'CLOSED',
++            };
++        }
+         const quotaGuard = new QuotaGuardService(cacheManager, this.billingRepository, this.productRepository, resourceUsageRepo, storageStatsRepo, featureService, usageEventBus, cacheInvalidationBus, this.logger);
+         // Role Repository
+         const roleRepo = new PrismaRoleRepository(this.prisma);
+@@ -233,7 +271,17 @@ export class AuthFactory {
+         activeGateways.set('stripe', this.paymentGateway);
+         const billingSyncService = new BillingSyncService(activeGateways, this.productRepository, this.logger);
+         // Job Queue (BullMQ)
+-        const jobQueue = new BullMQAdapter(this.redisConnection, this.logger);
++        let jobQueue;
++        if (_redisEnabled) {
++            jobQueue = new BullMQAdapter(this.redisConnection, this.logger);
++        } else {
++            jobQueue = {
++                enqueue: async (jobName) => {
++                    this.logger?.warn(`[JobQueue] Redis is disabled. Job ${jobName} will NOT be enqueued.`);
++                    return `noop-${Date.now()}`;
++                }
++            };
++        }
+         const mediaAccessTokenRepo = new PrismaMediaAccessTokenRepository(this.prisma);
+         const notificationTemplateRepo = new PrismaNotificationTemplateRepository(this.prisma);
+         const apiKeyRepo = new PrismaApiKeyRepository(this.prisma);
+@@ -457,7 +505,7 @@ export class AuthFactory {
+                 register: new RegisterWebhookUseCase(webhookRepo, this.auditService),
+                 dispatch: new DispatchWebhookUseCase(webhookRepo, jobQueue),
+                 revoke: new RevokeWebhookUseCase(webhookRepo, this.auditService),
+-                worker: new WebhookDeliveryWorker(this.redisConnection),
++                worker: _redisEnabled ? new WebhookDeliveryWorker(this.redisConnection) : { close: async () => {} },
+             },
+             rateLimiting: {
+                 limiter: rateLimiter,
+diff --git a/node_modules/@r4d-26/core/dist/providers/ConfigProvider.js b/node_modules/@r4d-26/core/dist/providers/ConfigProvider.js
+index c6242dc..b186e18 100644
+--- a/node_modules/@r4d-26/core/dist/providers/ConfigProvider.js
++++ b/node_modules/@r4d-26/core/dist/providers/ConfigProvider.js
+@@ -164,6 +164,11 @@ export class ConfigProvider {
+         webhookValidator, {
+             host: process.env.REDIS_HOST || 'localhost',
+             port: parseInt(process.env.REDIS_PORT || '6379'),
++            // Prevent connection spam when Redis is unavailable in local dev
++            enableOfflineQueue: false,
++            maxRetriesPerRequest: 0,
++            lazyConnect: true,
++            retryStrategy: () => null,
+         }, this.config.baseDomain, this.logger);
+         // 3. Return initialized core
+         return factory.initialize();

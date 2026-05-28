@@ -1,0 +1,2821 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── TEMA OSCURO (por defecto) ── */
+:root {
+  --background: #121208;
+  --bg-subtle: #0a0a05;
+  --foreground: #ffffff;
+  --foreground-muted: #a0a080;
+  --primary: var(--brand-primary);
+  --primary-foreground: var(--brand-primary-foreground);
+  --secondary: #2a2a1a;
+  --muted: #a0a080;
+  --card: #1c1c10;
+  --border: #2a2a1a;
+  --border-subtle: #3a3a2a;
+  --sidebar-active-bg: var(--brand-primary);
+  --sidebar-active-text: var(--brand-primary-foreground);
+
+  /* ╔══════════════════════════════════════════════════════╗
+     ║   SISTEMA DE TIPOGRAFÍA — WABEE TEXT DESIGN TOKENS  ║
+     ╚══════════════════════════════════════════════════════╝
+
+     Los tamaños de texto se gestionan en `src/lib/text-tokens.ts` (textSize).
+     Aquí solo se definen los COLORES semánticos de texto para soporte
+     de tema oscuro (default) y tema claro (.light-theme).
+
+     Roles de color:
+       --ty-strong   : texto principal (blanco / marrón muy oscuro)
+       --ty-muted    : texto secundario apagado
+       --ty-dimmed   : texto terciario muy apagado
+       --ty-accent   : amarillo primario de marca
+       --ty-danger   : rojo para errores y acciones destructivas
+       --ty-success  : verde para confirmaciones
+  */
+
+  /* DARK THEME (default) */
+  --ty-strong:  #ffffff;
+  --ty-muted:   #a0a080;
+  --ty-dimmed:  #4a4a3a;
+  --ty-accent:  var(--brand-primary);
+  --ty-danger:  #ef4444;
+  --ty-success: #22c55e;
+
+  /* Text Design Tokens Color variables (TX) - Dark Mode */
+  --tx-pageTitle-color: var(--text-strong);
+  --tx-pageSubtitle-color: var(--text-muted);
+  --tx-cardTitle-color: var(--text-strong);
+  --tx-sectionTitle-color: var(--brand-primary);
+  --tx-sectionSubtitle-color: var(--text-muted);
+  --tx-cardSubtitle-color: var(--text-muted);
+  --tx-kpiLabel-color: var(--text-muted);
+  --tx-kpiValue-color: var(--text-strong);
+  --tx-labelText-color: var(--text-muted);
+  --tx-inputText-color: var(--text-strong);
+  --tx-buttonText-color: var(--text-strong);
+  --tx-buttonPrimaryText-color: var(--text-inverse);
+  --tx-navText-color: var(--text-muted);
+  --tx-menuText-color: var(--text-strong);
+  --tx-tableHeader-color: var(--text-muted);
+  --tx-tableCell-color: var(--text-strong);
+  --tx-statusText-color: var(--text-strong);
+  --tx-emptyStateTitle-color: var(--text-strong);
+  --tx-emptyStateBody-color: var(--text-muted);
+  --tx-messageText-color: var(--text-strong);
+  --tx-helperText-color: var(--text-muted);
+
+  /* ── TOKENS SEMÁNTICOS GLOBALES (Theming System) ── */
+  --brand-primary: #FFC21A;
+  --brand-primary-foreground: #1F1A17;
+
+  /* Backgrounds */
+  --bg-page: #1A1A1A;
+  --bg-surface: #232323;
+  --bg-card: #242424;
+  --bg-elevated: #2D2D2D;
+  --bg-input: #202020;
+  --bg-hover: #303030;
+  --bg-selected: rgba(255, 215, 0, 0.12);
+
+  /* Foregrounds (Texts) */
+  --text-strong: #F4F4DC;
+  --text-body: #E7E2BF;
+  --text-muted: #B9B28E;
+  --text-inverse: #1A1A1A;
+
+  /* Borders */
+  --border-default: #3A382F;
+  --border-strong: #5B5749;
+  --border-focus: #FFD700;
+
+  /* Status */
+  --state-success: #22c55e;
+  --state-warning: #f59e0b;
+  --state-danger: #ef4444;
+  --state-info: #3b82f6;
+
+  /* Charts */
+  --chart-1: #FFD700;
+  --chart-2: #22c55e;
+  --chart-3: #3b82f6;
+  --chart-4: #9524E3;
+  --chart-5: #FF8C00;
+  --chart-grid: #3A382F;
+  --chart-axis: #B9B28E;
+  --chart-tooltip-bg: #242424;
+  --chart-tooltip-text: #F4F4DC;
+
+  /* ── TOKENS SEMÁNTICOS DE FORMULARIO ── */
+  --input-bg: var(--bg-input);
+  --input-text: var(--tx-inputText-color, var(--text-strong));
+  --input-placeholder: var(--text-muted);
+  --input-border: var(--border-default);
+  --input-border-hover: var(--border-focus);
+  --input-focus: var(--brand-primary);
+  --input-disabled-bg: var(--bg-surface);
+  --input-disabled-text: var(--text-muted);
+  --input-disabled-border: var(--border-default);
+  --input-readonly-bg: var(--bg-surface);
+  --input-label: var(--tx-labelText-color, var(--text-muted));
+  --input-helper: var(--tx-helperText-color, var(--text-muted));
+  --input-selection-bg: color-mix(in srgb, var(--brand-primary), transparent 70%);
+  --input-selection-text: var(--tx-inputText-color, var(--text-strong));
+}
+
+/* ── LIGHT THEME — overrides de color tipográfico ── */
+/* Se activa con la clase .light-theme en <html> o <body> */
+.light-theme {
+  /* Texto principal: marrón/negro cálido para legibilidad cálida */
+  --ty-strong:  #1a1a10;
+
+  /* Texto secundario: gris cálido oscuro — contraste mínimo WCAG AA */
+  --ty-muted:   #5a5a48;
+
+  /* Texto terciario: gris muy cálido — para labels, helpers, hints */
+  --ty-dimmed:  #888878;
+
+  /* Acento: amarillo más oscuro para mantener contraste sobre fondo claro */
+  --ty-accent:  var(--brand-primary);
+
+  /* Peligro y éxito — se oscurecen ligeramente para contrasto sobre blanco */
+  --ty-danger:  #cc2222;
+  --ty-success: #16a34a;
+
+  /* Text Design Tokens Color variables (TX) - Light Mode */
+  --tx-pageTitle-color: var(--text-strong);
+  --tx-pageSubtitle-color: var(--text-muted);
+  --tx-cardTitle-color: var(--text-strong);
+  --tx-sectionTitle-color: var(--brand-primary);
+  --tx-sectionSubtitle-color: var(--text-muted);
+  --tx-cardSubtitle-color: var(--text-muted);
+  --tx-kpiLabel-color: var(--text-muted);
+  --tx-kpiValue-color: var(--text-strong);
+  --tx-labelText-color: var(--text-muted);
+  --tx-inputText-color: var(--text-strong);
+  --tx-buttonText-color: var(--text-strong);
+  --tx-buttonPrimaryText-color: var(--text-inverse);
+  --tx-navText-color: var(--text-muted);
+  --tx-menuText-color: var(--text-strong);
+  --tx-tableHeader-color: var(--text-muted);
+  --tx-tableCell-color: var(--text-strong);
+  --tx-statusText-color: var(--text-strong);
+  --tx-emptyStateTitle-color: var(--text-strong);
+  --tx-emptyStateBody-color: var(--text-muted);
+  --tx-messageText-color: var(--text-strong);
+  --tx-helperText-color: var(--text-muted);
+
+  /* ── TOKENS SEMÁNTICOS GLOBALES (Theming System) ── */
+  --brand-primary: #FFD700;
+  --brand-primary-foreground: #1A1A1A;
+
+  /* Backgrounds */
+  --bg-page: #FAF6EF;
+  --bg-surface: #F4EEE5;
+  --bg-card: #FFFAF3;
+  --bg-elevated: #FFFFFF;
+  --bg-input: #FFFBF6;
+  --bg-hover: #EEE6DA;
+  --bg-selected: rgba(255, 194, 26, 0.14);
+
+  /* Foregrounds (Texts) */
+  --text-strong: #1F1A1F;
+  --text-body: #5C5752;
+  --text-muted: #766F69;
+  --text-inverse: #FFFAF3;
+
+  /* Borders */
+  --border-default: #E7DDD0;
+  --border-strong: #D8CCBC;
+  --border-focus: #FFB000;
+
+  /* Status */
+  --state-success: #16a34a;
+  --state-warning: #d97706;
+  --state-danger: #cc2222;
+  --state-info: #2563eb;
+
+  /* Charts */
+  --chart-1: #FFC21A;
+  --chart-2: #16a34a;
+  --chart-3: #2563eb;
+  --chart-4: #9524E3;
+  --chart-5: #FF8C00;
+  --chart-grid: #E8DED0;
+  --chart-axis: #837A72;
+  --chart-tooltip-bg: #FFFAF3;
+  --chart-tooltip-text: #1F1A1F;
+
+  /* ── TOKENS SEMÁNTICOS DE FORMULARIO ── */
+  --input-bg: var(--bg-input);
+  --input-text: var(--tx-inputText-color, var(--text-strong));
+  --input-placeholder: var(--text-muted);
+  --input-border: var(--border-default);
+  --input-border-hover: var(--border-focus);
+  --input-focus: var(--brand-primary);
+  --input-disabled-bg: var(--bg-surface);
+  --input-disabled-text: var(--text-muted);
+  --input-disabled-border: var(--border-default);
+  --input-readonly-bg: var(--bg-surface);
+  --input-label: var(--tx-labelText-color, var(--text-muted));
+  --input-helper: var(--tx-helperText-color, var(--text-muted));
+  --input-selection-bg: color-mix(in srgb, var(--brand-primary), transparent 70%);
+  --input-selection-text: var(--tx-inputText-color, var(--text-strong));
+}
+
+/* ── CAPA DE COMPATIBILIDAD TEMPORAL (Transición a Tokens Semánticos) ── */
+/* 
+   IMPORTANTE: Estas reglas sobreescriben las clases de utilidad de Tailwind 
+   que usan hexágonos hardcodeados. El objetivo es que los temas dinámicos 
+   funcionen sin tener que refactorizar cada componente inmediatamente.
+*/
+
+/* Fondos (Backgrounds) */
+.bg-\[\#121208\] { background-color: var(--bg-page) !important; }
+.bg-\[\#121208\]\/80 { background-color: color-mix(in srgb, var(--bg-page), transparent 20%) !important; }
+.bg-\[\#0a0a05\] { background-color: var(--bg-surface) !important; }
+.bg-\[\#1c1c10\] { background-color: var(--bg-card) !important; }
+.bg-\[\#2a2a1a\] { background-color: var(--bg-elevated) !important; }
+.bg-\[\#2a2a1a\]\/50 { background-color: color-mix(in srgb, var(--bg-elevated), transparent 50%) !important; }
+.hover\:bg-\[\#2a2a1a\]:hover { background-color: var(--bg-hover) !important; }
+.bg-\[\#ead018\]\/10 { background-color: color-mix(in srgb, var(--brand-primary), transparent 90%) !important; }
+
+/* Bordes */
+.border-\[\#2a2a1a\] { border-color: var(--border-default) !important; }
+.border-\[\#3a3a2a\] { border-color: var(--border-strong) !important; }
+.focus\:border-\[\#ead018\]:focus { border-color: var(--border-focus) !important; }
+.hover\:border-\[\#ead018\]\/30:hover { border-color: color-mix(in srgb, var(--brand-primary), transparent 70%) !important; }
+.hover\:border-\[\#ead018\]\/50:hover { border-color: color-mix(in srgb, var(--brand-primary), transparent 50%) !important; }
+
+/* Textos (Foregrounds) */
+.text-white { color: var(--text-strong); }
+.text-\[\#ffffff\] { color: var(--text-strong); }
+.text-\[\#a0a080\] { color: var(--text-muted); }
+.text-\[\#4a4a3a\] { color: var(--text-body); }
+.text-\[\#121208\] { color: var(--text-inverse); }
+.text-\[\#ead018\]\/40 { color: color-mix(in srgb, var(--brand-primary), transparent 60%); }
+
+/* Marca (Brand) */
+.bg-\[\#ead018\] { background-color: var(--brand-primary) !important; }
+.text-\[\#ead018\] { color: var(--brand-primary) !important; }
+.border-\[\#ead018\] { border-color: var(--brand-primary) !important; }
+.hover\:text-\[\#ead018\]:hover { color: var(--brand-primary) !important; }
+.hover\:border-\[\#ead018\]:hover { border-color: var(--brand-primary) !important; }
+.fill-current.text-\[\#ead018\] { color: var(--brand-primary) !important; }
+.border-b-4.border-\[\#c4ae14\] { border-color: color-mix(in srgb, var(--brand-primary), black 20%) !important; }
+.from-\[\#ead018\] { --tw-gradient-from: var(--brand-primary) !important; --tw-gradient-to: color-mix(in srgb, var(--brand-primary), transparent 100%) !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important; }
+.to-\[\#c4ae14\] { --tw-gradient-to: color-mix(in srgb, var(--brand-primary), black 20%) !important; }
+
+/* Mapeos de sombras nativas de Tailwind con variables */
+.shadow-\[\#ead018\]\/5 { --tw-shadow-color: color-mix(in srgb, var(--brand-primary), transparent 95%) !important; }
+.shadow-\[\#ead018\]\/10 { --tw-shadow-color: color-mix(in srgb, var(--brand-primary), transparent 90%) !important; }
+.shadow-\[\#ead018\]\/20 { --tw-shadow-color: color-mix(in srgb, var(--brand-primary), transparent 80%) !important; }
+
+/* Variaciones de opacidad y estados de foco */
+.bg-\[\#ead018\]\/10 { background-color: color-mix(in srgb, var(--brand-primary), transparent 90%) !important; }
+.bg-\[\#ead018\]\/20 { background-color: color-mix(in srgb, var(--brand-primary), transparent 80%) !important; }
+.bg-\[\#ead018\]\/50 { background-color: color-mix(in srgb, var(--brand-primary), transparent 50%) !important; }
+.text-\[\#ead018\]\/50 { color: color-mix(in srgb, var(--brand-primary), transparent 50%); }
+.text-\[\#ead018\]\/60 { color: color-mix(in srgb, var(--brand-primary), transparent 40%); }
+.text-\[\#ead018\]\/80 { color: color-mix(in srgb, var(--brand-primary), transparent 20%); }
+.border-\[\#ead018\]\/20 { border-color: color-mix(in srgb, var(--brand-primary), transparent 80%) !important; }
+.border-\[\#ead018\]\/30 { border-color: color-mix(in srgb, var(--brand-primary), transparent 70%) !important; }
+.border-\[\#ead018\]\/50 { border-color: color-mix(in srgb, var(--brand-primary), transparent 50%) !important; }
+.focus\:border-\[\#ead018\]\/50:focus { border-color: color-mix(in srgb, var(--brand-primary), transparent 50%) !important; }
+.focus\:border-\[\#ead018\] { border-color: var(--brand-primary) !important; }
+
+/* Anillos (Rings) Dinámicos */
+.ring-\[\#ead018\] { --tw-ring-color: var(--brand-primary) !important; }
+.ring-\[\#ead018\]\/10 { --tw-ring-color: color-mix(in srgb, var(--brand-primary), transparent 90%) !important; }
+.ring-\[\#ead018\]\/20 { --tw-ring-color: color-mix(in srgb, var(--brand-primary), transparent 80%) !important; }
+.ring-\[\#ead018\]\/30 { --tw-ring-color: color-mix(in srgb, var(--brand-primary), transparent 70%) !important; }
+.ring-\[\#ead018\]\/50 { --tw-ring-color: color-mix(in srgb, var(--brand-primary), transparent 50%) !important; }
+.focus\:ring-\[\#ead018\]\/50:focus { --tw-ring-color: color-mix(in srgb, var(--brand-primary), transparent 50%) !important; }
+.group-hover\:border-\[\#ead018\]\/30:hover { border-color: color-mix(in srgb, var(--brand-primary), transparent 70%) !important; }
+.group-hover\:border-\[\#ead018\]\/50:hover { border-color: color-mix(in srgb, var(--brand-primary), transparent 50%) !important; }
+.group-hover\:text-\[\#ead018\]:hover { color: var(--brand-primary) !important; }
+.group:hover .group-hover\:text-\[\#ead018\] { color: var(--brand-primary) !important; }
+.group:hover .group-hover\:text-\[\#ead018\]\/40 { color: color-mix(in srgb, var(--brand-primary), transparent 60%) !important; }
+.group:hover .group-hover\:border-\[\#ead018\]\/30 { border-color: color-mix(in srgb, var(--brand-primary), transparent 70%) !important; }
+.group:hover .group-hover\:border-\[\#ead018\]\/50 { border-color: color-mix(in srgb, var(--brand-primary), transparent 50%) !important; }
+
+/* Sombras y Resplandores Dinámicos (Soporte para múltiples variantes de espacios) */
+.shadow-\[0_0_20px_rgba\(234\2c 208\2c 24\2c 0\.3\)\] { box-shadow: 0 0 20px color-mix(in srgb, var(--brand-primary), transparent 70%) !important; }
+.shadow-\[0_0_20px_rgba\(234\2c _208\2c _24\2c _0\.3\)\] { box-shadow: 0 0 20px color-mix(in srgb, var(--brand-primary), transparent 70%) !important; }
+.shadow-\[0_5px_15px_rgba\(234\2c 208\2c 24\2c 0\.2\)\] { box-shadow: 0 5px 15px color-mix(in srgb, var(--brand-primary), transparent 80%) !important; }
+.shadow-\[0_5px_15px_rgba\(234\2c _208\2c _24\2c _0\.2\)\] { box-shadow: 0 5px 15px color-mix(in srgb, var(--brand-primary), transparent 80%) !important; }
+.shadow-\[0_10px_30px_rgba\(234\2c 208\2c 24\2c 0\.15\)\] { box-shadow: 0 10px 30px color-mix(in srgb, var(--brand-primary), transparent 85%) !important; }
+.shadow-\[0_10px_30px_rgba\(234\2c _208\2c _24\2c _0\.15\)\] { box-shadow: 0 10px 30px color-mix(in srgb, var(--brand-primary), transparent 85%) !important; }
+.shadow-\[0_10px_20px_rgba\(234\2c 208\2c 24\2c 0\.15\)\] { box-shadow: 0 10px 20px color-mix(in srgb, var(--brand-primary), transparent 85%) !important; }
+.shadow-\[0_10px_20px_rgba\(234\2c _208\2c _24\2c _0\.15\)\] { box-shadow: 0 10px 20px color-mix(in srgb, var(--brand-primary), transparent 85%) !important; }
+.shadow-\[0_0_15px_rgba\(234\2c 208\2c 24\2c 0\.2\)\] { box-shadow: 0 0 15px color-mix(in srgb, var(--brand-primary), transparent 80%) !important; }
+.shadow-\[0_0_15px_rgba\(234\2c _208\2c _24\2c _0\.2\)\] { box-shadow: 0 0 15px color-mix(in srgb, var(--brand-primary), transparent 80%) !important; }
+
+/* Utilidades de Gradiente Dinámico */
+.text-brand-gradient {
+  background: linear-gradient(to right, var(--brand-primary), color-mix(in srgb, var(--brand-primary), black 30%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Estados */
+.text-green-500 { color: var(--state-success) !important; }
+.text-red-500 { color: var(--state-danger) !important; }
+.bg-green-500\/10 { background-color: color-mix(in srgb, var(--state-success), transparent 90%) !important; }
+.bg-red-500\/10 { background-color: color-mix(in srgb, var(--state-danger), transparent 90%) !important; }
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  margin: 0;
+  overflow-x: hidden;
+  font-size: 14px;
+  /* Compactación Ultra-Extrema */
+}
+
+/* ── REGLAS GLOBALES PARA CAMPOS DE FORMULARIO ── */
+
+/* Chrome autofill — evitar el fondo azul y mantener texto adaptativo */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--input-text) !important;
+  box-shadow: 0 0 0 1000px var(--input-bg) inset !important;
+  caret-color: var(--input-focus) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Selección global dentro de inputs (para que ::selection funcione bien) */
+input::selection, textarea::selection {
+  background-color: var(--input-selection-bg);
+  color: var(--input-selection-text);
+}
+
+/* ─────────────────────────────────────────── */
+
+@layer components {
+  /* ── CLASES COMPONENTIZADAS DE FORMULARIO (UI COMPONENTS) ── */
+  .ui-input, .ui-textarea, .ui-select {
+    background-color: var(--input-bg);
+    color: var(--input-text) !important;
+    border: 1px solid var(--input-border);
+    -webkit-text-fill-color: var(--input-text) !important;
+    caret-color: var(--input-focus);
+    @apply w-full rounded-lg outline-none transition-all px-3 py-2 text-[12px];
+  }
+
+  .ui-input::placeholder, .ui-textarea::placeholder, .ui-select::placeholder {
+    color: var(--input-placeholder) !important;
+    -webkit-text-fill-color: var(--input-placeholder) !important;
+    opacity: 1;
+  }
+
+  .ui-input:hover, .ui-textarea:hover, .ui-select:hover {
+    border-color: var(--input-border-hover);
+  }
+
+  .ui-input:focus, .ui-textarea:focus, .ui-select:focus,
+  .ui-input:focus-visible, .ui-textarea:focus-visible, .ui-select:focus-visible {
+    border-color: var(--input-focus);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--input-focus), transparent 50%);
+  }
+
+  .ui-input:disabled, .ui-textarea:disabled, .ui-select:disabled {
+    background-color: var(--input-disabled-bg);
+    color: var(--input-disabled-text) !important;
+    border-color: var(--input-disabled-border);
+    -webkit-text-fill-color: var(--input-disabled-text) !important;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  .ui-input[readonly], .ui-textarea[readonly], .ui-select[readonly] {
+    background-color: var(--input-readonly-bg);
+    cursor: default;
+  }
+
+  .ui-textarea {
+    @apply resize-y min-h-[4rem];
+  }
+
+  .ui-select {
+    @apply appearance-none cursor-pointer;
+  }
+  
+  .ui-select option {
+    background-color: var(--input-bg);
+    color: var(--input-text);
+  }
+
+  .ui-label {
+    color: var(--input-label) !important;
+    @apply block px-1 mb-1.5;
+  }
+
+  .ui-helper {
+    color: var(--input-helper) !important;
+    @apply block px-1 mt-1;
+  }
+
+  .dashboard-card {
+    background-color: var(--bg-card);
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-default);
+    padding: 0.75rem;
+    transition: all 0.2s;
+  }
+  .dashboard-card:hover {
+    border-color: var(--border-strong);
+  }
+
+  .metric-value {
+    color: var(--text-strong);
+    @apply text-xl font-black mt-0.5 uppercase tracking-tighter italic;
+  }
+
+  .metric-label {
+    color: var(--text-muted);
+    @apply text-[9px] font-black uppercase tracking-[0.15em] opacity-60;
+  }
+
+  .sidebar-item {
+    color: var(--text-muted);
+    background-color: transparent;
+    @apply flex items-center gap-2 px-2.5 py-1.5 rounded-md transition-all cursor-pointer text-[12px] font-bold;
+  }
+  .sidebar-item:hover {
+    background-color: var(--bg-hover);
+    color: var(--brand-primary);
+  }
+
+  .sidebar-item-active {
+    background-color: var(--bg-card);
+    color: var(--brand-primary);
+    border: 1px solid var(--border-default);
+    @apply shadow-inner;
+  }
+
+  .glow-animation {
+    animation: glow-pulse 3s infinite alternate;
+  }
+
+  @keyframes glow-pulse {
+    from {
+      box-shadow: 0 0 10px color-mix(in srgb, var(--brand-primary), transparent 90%);
+    }
+
+    to {
+      box-shadow: 0 0 20px color-mix(in srgb, var(--brand-primary), transparent 70%);
+    }
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--secondary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}/* Fondos principales */
+.light-theme .bg-\[\#121208\] {
+  background-color: var(--bg-page) !important;
+}
+
+.light-theme .bg-\[\#1c1c10\] {
+  background-color: var(--bg-card) !important;
+}
+
+.light-theme .bg-\[\#0a0a05\] {
+  background-color: var(--bg-surface) !important;
+}
+
+.light-theme .bg-\[\#2a2a1a\] {
+  background-color: var(--bg-elevated) !important;
+}
+
+.light-theme .bg-\[\#2a2a1a\/50\] {
+  background-color: color-mix(in srgb, var(--bg-elevated), transparent 50%) !important;
+}
+
+/* Bordes */
+.light-theme .border-\[\#2a2a1a\] {
+  border-color: var(--border-default) !important;
+}
+
+.light-theme .border-\[\#3a3a2a\] {
+  border-color: var(--border-strong) !important;
+}
+
+/* Textos oscuros */
+.light-theme .text-white {
+  color: var(--text-strong);
+}
+
+.light-theme .text-\[\#a0a080\] {
+  color: var(--text-muted);
+}
+
+.light-theme .text-\[\#4a4a3a\] {
+  color: var(--text-body);
+}
+
+/* Sidebar activo - mantener el amarillo */
+.light-theme .bg-\[\#ead018\] {
+  background-color: var(--brand-primary) !important;
+}
+
+.light-theme .text-\[\#121208\] {
+  color: var(--text-inverse) !important;
+}
+
+/* Dropdown menú del perfil */
+.light-theme .bg-\[\#1c1c10\].border.border-\[\#2a2a1a\].rounded-2xl {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-default) !important;
+}
+
+/* Dashboard sidebar */
+.light-theme aside.border-r {
+  background-color: var(--bg-page) !important;
+  border-color: var(--border-default) !important;
+}
+
+/* Header */
+.light-theme header.border-b {
+  background-color: var(--bg-page) !important;
+  border-color: var(--border-default) !important;
+}
+
+/* Main content area */
+.light-theme main.bg-\[\#0a0a05\] {
+  background-color: var(--bg-surface) !important;
+}
+
+/* Hover behaviors */
+.light-theme .hover\:bg-\[\#2a2a1a\]:hover {
+  background-color: var(--bg-hover) !important;
+}
+
+.light-theme .hover\:text-white:hover {
+  color: var(--text-strong) !important;
+}
+
+/* Separadores */
+.light-theme .bg-\[\#2a2a1a\].h-px,
+.light-theme .w-px.bg-\[\#2a2a1a\] {
+  background-color: var(--border-default) !important;
+}
+.light-theme,
+.light-theme body {
+  background-color: var(--bg-page);
+  color: var(--text-strong);
+}
+
+/* ── ANIMACIONES PREMIUM ── */
+
+@keyframes progress-loading {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(0); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-progress-indeterminate {
+  animation: progress-loading 1.5s infinite linear;
+  width: 100%;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-in-from-top {
+  from { transform: translateY(-10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-in {
+  animation-duration: 300ms;
+  animation-fill-mode: both;
+}
+
+.fade-in { animation-name: fade-in; }
+.slide-in-from-top { animation-name: slide-in-from-top; }
+
+.duration-300 { animation-duration: 300ms; }
+.duration-500 { animation-duration: 500ms; }
+
+.wabee-redesign {
+  --wabee-orange: var(--chart-5);
+  --wabee-yellow: var(--brand-primary);
+  --wabee-charcoal: var(--text-strong);
+  --wabee-cream: color-mix(in srgb, var(--bg-card), white 22%);
+  --wabee-purple: var(--chart-4);
+  --wabee-sand: color-mix(in srgb, var(--bg-page), white 10%);
+  --wabee-stroke: color-mix(in srgb, var(--text-strong), transparent 92%);
+  --wabee-copy: var(--text-body);
+  --wabee-page-top: color-mix(in srgb, var(--bg-page), white 6%);
+  --wabee-page-bottom: color-mix(in srgb, var(--bg-page), var(--bg-surface) 28%);
+  --wabee-surface-glass: color-mix(in srgb, var(--bg-card), transparent 20%);
+  --wabee-surface-solid: color-mix(in srgb, var(--bg-card), white 8%);
+  --wabee-shadow: color-mix(in srgb, var(--text-strong), transparent 94%);
+  --wabee-selection-bg: color-mix(in srgb, var(--brand-primary), transparent 76%);
+  --wabee-selection-text: var(--text-strong);
+  position: relative;
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--wabee-purple), transparent 88%), transparent 24%),
+    radial-gradient(circle at top right, color-mix(in srgb, var(--wabee-yellow), transparent 84%), transparent 28%),
+    linear-gradient(180deg, var(--wabee-page-top) 0%, var(--wabee-page-bottom) 100%);
+  color: var(--wabee-charcoal);
+  font-family: 'Manrope', 'Segoe UI', sans-serif;
+}
+
+[data-wabee-theme-variant="dark"] .wabee-redesign {
+  --wabee-page-top: color-mix(in srgb, var(--bg-page), white 3%);
+  --wabee-page-bottom: color-mix(in srgb, var(--bg-page), black 8%);
+  --wabee-surface-glass: color-mix(in srgb, var(--bg-card), transparent 12%);
+  --wabee-surface-solid: color-mix(in srgb, var(--bg-card), black 6%);
+  --wabee-shadow: color-mix(in srgb, black, transparent 78%);
+  --wabee-selection-text: var(--text-inverse);
+}
+
+.wabee-redesign h1,
+.wabee-redesign h2,
+.wabee-redesign h3,
+.wabee-redesign .wabee-brand__text {
+  font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+}
+
+.wabee-redesign__bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(30deg, color-mix(in srgb, var(--wabee-orange), transparent 94.5%) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb, var(--wabee-orange), transparent 94.5%) 87.5%, color-mix(in srgb, var(--wabee-orange), transparent 94.5%)),
+    linear-gradient(150deg, color-mix(in srgb, var(--wabee-orange), transparent 94.5%) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb, var(--wabee-orange), transparent 94.5%) 87.5%, color-mix(in srgb, var(--wabee-orange), transparent 94.5%)),
+    linear-gradient(90deg, color-mix(in srgb, var(--wabee-yellow), transparent 95.5%) 2%, transparent 2.5%, transparent 97%, color-mix(in srgb, var(--wabee-yellow), transparent 95.5%) 97.5%, color-mix(in srgb, var(--wabee-yellow), transparent 95.5%));
+  background-size: 68px 118px;
+  background-position: 0 0, 0 0, 34px 59px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.85), transparent 92%);
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.wabee-shell {
+  width: min(1200px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.wabee-nav-outer {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 14px 0 8px;
+  transition: background 280ms ease, box-shadow 280ms ease, padding 200ms ease;
+}
+
+.wabee-nav-outer--scrolled {
+  background: color-mix(in srgb, var(--wabee-surface-solid), transparent 12%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--wabee-charcoal), transparent 94%), 0 4px 24px color-mix(in srgb, var(--wabee-shadow), transparent 15%);
+  padding: 6px 0;
+}
+
+.wabee-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 22px;
+  border: 1px solid color-mix(in srgb, var(--wabee-surface-solid), transparent 45%);
+  border-radius: 24px;
+  background: var(--wabee-surface-glass);
+  box-shadow: 0 20px 60px color-mix(in srgb, var(--wabee-shadow), transparent 8%);
+  backdrop-filter: blur(18px);
+}
+
+.wabee-brand,
+.wabee-nav__links,
+.wabee-nav__actions,
+.wabee-hero__actions,
+.wabee-hero__checks li,
+.wabee-showcase__topbar,
+.wabee-mini-brand,
+.wabee-panel__header,
+.wabee-preview-section,
+.wabee-cta,
+.wabee-cta__actions {
+  display: flex;
+  align-items: center;
+}
+
+.wabee-brand {
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.wabee-brand__mark,
+.wabee-mini-brand__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-primary-foreground);
+  background: linear-gradient(135deg, var(--wabee-yellow), var(--wabee-orange));
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--wabee-orange), transparent 72%);
+}
+
+.wabee-brand__mark {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  font-size: 1.45rem;
+  font-weight: 800;
+}
+
+.wabee-brand__text {
+  font-size: 1.6rem;
+  letter-spacing: -0.06em;
+  font-weight: 700;
+}
+
+.wabee-nav__links,
+.wabee-nav__actions {
+  gap: 22px;
+}
+
+.wabee-nav__links a,
+.wabee-link-button {
+  color: var(--wabee-copy);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.wabee-nav__hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  border: 1.5px solid color-mix(in srgb, var(--wabee-charcoal), transparent 88%);
+  background: color-mix(in srgb, var(--wabee-surface-solid), transparent 24%);
+  color: var(--wabee-charcoal);
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.wabee-nav__hamburger:hover {
+  background: color-mix(in srgb, var(--wabee-surface-solid), transparent 8%);
+}
+
+.wabee-primary-button,
+.wabee-secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 22px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 700;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.wabee-primary-button {
+  background: linear-gradient(135deg, var(--wabee-orange), var(--wabee-yellow));
+  color: var(--brand-primary-foreground);
+  box-shadow: 0 20px 40px color-mix(in srgb, var(--wabee-orange), transparent 76%);
+}
+
+.wabee-secondary-button {
+  color: var(--wabee-charcoal);
+  background: color-mix(in srgb, var(--wabee-surface-solid), transparent 22%);
+  border: 1px solid color-mix(in srgb, var(--wabee-charcoal), transparent 88%);
+}
+
+.wabee-primary-button:hover,
+.wabee-secondary-button:hover {
+  transform: translateY(-1px);
+}
+
+.wabee-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+  gap: 48px;
+  align-items: center;
+  padding: 62px 0 42px;
+}
+
+.wabee-kicker,
+.wabee-section-heading span,
+.wabee-preview-copy span,
+.wabee-system-card__copy span,
+.wabee-cta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  padding: 9px 14px;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--wabee-surface-solid), transparent 36%);
+  border: 1px solid color-mix(in srgb, var(--wabee-charcoal), transparent 92%);
+}
+
+.wabee-hero h1 {
+  margin: 22px 0 18px;
+  font-size: clamp(3.1rem, 7vw, 5.5rem);
+  line-height: 0.94;
+  letter-spacing: -0.08em;
+}
+
+.wabee-hero h1 span {
+  display: block;
+  margin-top: 10px;
+  color: var(--wabee-orange);
+}
+
+.wabee-hero p,
+.wabee-preview-copy p,
+.wabee-system-card__copy p {
+  margin: 0;
+  font-size: 1.08rem;
+  line-height: 1.8;
+  color: var(--wabee-copy);
+}
+
+.wabee-hero__actions {
+  gap: 14px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+
+.wabee-hero__checks {
+  list-style: none;
+  padding: 0;
+  margin: 28px 0 0;
+  display: grid;
+  gap: 12px;
+}
+
+.wabee-hero__checks li {
+  gap: 10px;
+  color: rgba(26, 26, 26, 0.78);
+  font-weight: 600;
+}
+
+.wabee-showcase,
+.wabee-glass-card,
+.wabee-module-card,
+.wabee-preview-card,
+.wabee-system-card,
+.wabee-flow article,
+.wabee-cta {
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 24px 80px rgba(26, 26, 26, 0.1);
+  backdrop-filter: blur(18px);
+}
+
+.wabee-showcase {
+  border-radius: 34px;
+  overflow: hidden;
+}
+
+.wabee-showcase__topbar {
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--wabee-stroke);
+}
+
+.wabee-showcase__dots {
+  display: flex;
+  gap: 8px;
+}
+
+.wabee-showcase__dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(26, 26, 26, 0.18);
+}
+
+.wabee-showcase__tag,
+.wabee-chip {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.wabee-showcase__tag {
+  color: var(--wabee-purple);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--chart-4), transparent 88%),
+    color-mix(in srgb, var(--brand-primary), transparent 88%)
+  );
+  border: 1px solid color-mix(in srgb, var(--chart-4), transparent 88%);
+}
+
+.wabee-chip {
+  color: #fff;
+  background: linear-gradient(135deg, #1f1f1f, #474747);
+}
+
+.wabee-showcase__body {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+}
+
+.wabee-showcase__sidebar {
+  padding: 22px 18px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--bg-page), black 6%),
+    color-mix(in srgb, var(--bg-surface), black 2%)
+  );
+  color: color-mix(in srgb, var(--bg-page), white 92%);
+}
+
+.wabee-mini-brand {
+  gap: 12px;
+  margin-bottom: 26px;
+}
+
+.wabee-mini-brand__icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  font-weight: 800;
+}
+
+.wabee-mini-brand strong,
+.wabee-mini-brand span {
+  display: block;
+}
+
+.wabee-mini-brand span:last-child {
+  margin-top: 2px;
+  color: rgba(248, 246, 239, 0.65);
+  font-size: 0.82rem;
+}
+
+.wabee-sidebar-group {
+  display: grid;
+  gap: 8px;
+}
+
+.wabee-sidebar-group button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: rgba(248, 246, 239, 0.76);
+  font: inherit;
+  text-align: left;
+}
+
+.wabee-sidebar-group button.is-active {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--chart-5), transparent 76%),
+    color-mix(in srgb, var(--brand-primary), transparent 80%)
+  );
+  color: color-mix(in srgb, var(--bg-page), white 96%);
+}
+
+.wabee-sidebar-card {
+  margin-top: 22px;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.wabee-sidebar-card span,
+.wabee-sidebar-card small,
+.wabee-panel__header span,
+.wabee-metrics article span,
+.wabee-preview-card span,
+.wabee-token small {
+  display: block;
+}
+
+.wabee-sidebar-card span,
+.wabee-panel__header span,
+.wabee-preview-card span,
+.wabee-metrics article span {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.wabee-sidebar-card strong {
+  display: block;
+  margin: 8px 0 6px;
+}
+
+.wabee-sidebar-card small {
+  color: rgba(248, 246, 239, 0.65);
+  line-height: 1.5;
+}
+
+.wabee-showcase__workspace {
+  padding: 24px;
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--brand-primary), transparent 82%), transparent 24%),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--bg-card), white 22%),
+      color-mix(in srgb, var(--bg-card), transparent 18%)
+    );
+}
+
+.wabee-showcase__headline,
+.wabee-panel__header {
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.wabee-showcase__headline p {
+  margin: 0 0 6px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(26, 26, 26, 0.55);
+}
+
+.wabee-showcase__headline h2 {
+  margin: 0;
+  font-size: clamp(1.8rem, 2.8vw, 2.8rem);
+  line-height: 1;
+  letter-spacing: -0.06em;
+}
+
+.wabee-showcase__headline a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--wabee-charcoal);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.wabee-metrics,
+.wabee-panels,
+.wabee-pillars,
+.wabee-modules,
+.wabee-flow,
+.wabee-token-grid {
+  display: grid;
+}
+
+.wabee-metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 22px 0;
+}
+
+.wabee-metrics article,
+.wabee-panel,
+.wabee-preview-card {
+  border-radius: 24px;
+  border: 1px solid rgba(26, 26, 26, 0.08);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.wabee-metrics article {
+  padding: 18px;
+}
+
+.wabee-metrics article strong {
+  display: block;
+  margin: 8px 0 4px;
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: -0.08em;
+}
+
+.wabee-metrics article small {
+  color: rgba(26, 26, 26, 0.56);
+}
+
+.wabee-panels {
+  grid-template-columns: 1.35fr 0.85fr;
+  gap: 16px;
+}
+
+.wabee-panel {
+  padding: 18px;
+}
+
+.wabee-panel__header h3,
+.wabee-glass-card h3,
+.wabee-module-card h3,
+.wabee-preview-card h3,
+.wabee-flow article p,
+.wabee-token strong {
+  margin: 6px 0 0;
+}
+
+.wabee-panel__header h3,
+.wabee-glass-card h3,
+.wabee-module-card h3,
+.wabee-preview-card h3 {
+  font-size: 1.28rem;
+  letter-spacing: -0.05em;
+}
+
+.wabee-chat {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.wabee-bubble {
+  max-width: 82%;
+  padding: 14px 16px;
+  border-radius: 18px;
+  line-height: 1.65;
+  font-weight: 600;
+}
+
+.wabee-bubble--client {
+  background: color-mix(in srgb, var(--bg-card), white 12%);
+  border-top-left-radius: 8px;
+}
+
+.wabee-bubble--agent {
+  justify-self: end;
+  color: #fff;
+  background: linear-gradient(135deg, var(--wabee-orange), color-mix(in srgb, var(--brand-primary), white 16%));
+  border-top-right-radius: 8px;
+}
+
+.wabee-alert-list {
+  list-style: none;
+  padding: 0;
+  margin: 18px 0 0;
+  display: grid;
+  gap: 12px;
+}
+
+.wabee-alert-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 14px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--bg-card), white 20%);
+  font-weight: 600;
+}
+
+.wabee-grid-section,
+.wabee-modules-section,
+.wabee-preview-section,
+.wabee-system-section,
+.wabee-flow-section {
+  padding: 50px 0;
+}
+
+.wabee-section-heading {
+  max-width: 720px;
+  margin-bottom: 28px;
+}
+
+.wabee-section-heading h2,
+.wabee-preview-copy h2,
+.wabee-system-card__copy h2,
+.wabee-cta h2 {
+  margin: 16px 0 0;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 1;
+  letter-spacing: -0.07em;
+}
+
+.wabee-pillars,
+.wabee-modules {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.wabee-modules {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.wabee-glass-card,
+.wabee-module-card {
+  padding: 24px;
+  border-radius: 28px;
+}
+
+.wabee-icon-badge,
+.wabee-module-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 16px;
+  margin-bottom: 18px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--wabee-charcoal), #444);
+}
+
+.wabee-glass-card p,
+.wabee-module-card p,
+.wabee-preview-card p,
+.wabee-flow article p {
+  color: var(--wabee-copy);
+  line-height: 1.75;
+}
+
+.wabee-preview-section {
+  gap: 22px;
+  justify-content: space-between;
+}
+
+.wabee-preview-copy {
+  max-width: 520px;
+}
+
+.wabee-preview-stack {
+  display: grid;
+  gap: 16px;
+  max-width: 520px;
+}
+
+.wabee-preview-card {
+  padding: 22px;
+}
+
+.wabee-system-card {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 26px;
+  padding: 28px;
+  border-radius: 34px;
+}
+
+.wabee-token-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.wabee-token {
+  padding: 16px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.64);
+  border: 1px solid rgba(26, 26, 26, 0.08);
+}
+
+.wabee-token span {
+  display: block;
+  width: 100%;
+  height: 72px;
+  border-radius: 18px;
+  margin-bottom: 14px;
+}
+
+.wabee-token strong {
+  font-size: 0.98rem;
+}
+
+.wabee-token small {
+  margin-top: 6px;
+  color: rgba(26, 26, 26, 0.58);
+}
+
+.wabee-flow {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.wabee-flow article {
+  padding: 22px;
+  border-radius: 26px;
+}
+
+.wabee-flow article span {
+  display: inline-flex;
+  margin-bottom: 18px;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.08em;
+  color: var(--wabee-orange);
+}
+
+.wabee-cta {
+  justify-content: space-between;
+  gap: 20px;
+  margin: 18px auto 60px;
+  padding: 30px;
+  border-radius: 34px;
+}
+
+.wabee-cta__actions {
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1100px) {
+  .wabee-hero,
+  .wabee-preview-section,
+  .wabee-system-card {
+    grid-template-columns: 1fr;
+  }
+
+  .wabee-pillars {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wabee-modules,
+  .wabee-flow,
+  .wabee-token-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wabee-panels {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .wabee-showcase__body,
+  .wabee-metrics {
+    display: block;
+  }
+
+  .wabee-nav {
+    flex-wrap: wrap;
+  }
+
+  .wabee-nav__links,
+  .wabee-nav__actions {
+    display: none;
+  }
+
+  .wabee-nav__hamburger {
+    display: flex;
+  }
+
+  .wabee-nav--open .wabee-nav__links {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    width: 100%;
+    padding: 8px 0 4px;
+    border-top: 1px solid rgba(26, 26, 26, 0.07);
+    margin-top: 10px;
+  }
+
+  .wabee-nav--open .wabee-nav__links a {
+    padding: 12px 4px;
+    width: 100%;
+    border-bottom: 1px solid rgba(26, 26, 26, 0.05);
+    font-size: 1rem;
+  }
+
+  .wabee-nav--open .wabee-nav__actions {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    gap: 12px;
+    padding: 12px 0 4px;
+  }
+
+  .wabee-nav--open .wabee-nav__actions a {
+    flex: 1;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .wabee-showcase__sidebar {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .wabee-metrics article + article {
+    margin-top: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .wabee-shell {
+    width: min(100% - 24px, 1200px);
+  }
+
+  .wabee-hero {
+    padding-top: 34px;
+  }
+
+  .wabee-pillars,
+  .wabee-modules,
+  .wabee-token-grid,
+  .wabee-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .wabee-nav,
+  .wabee-showcase__workspace,
+  .wabee-glass-card,
+  .wabee-module-card,
+  .wabee-preview-card,
+  .wabee-system-card,
+  .wabee-cta {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .wabee-cta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .wabee-cta__actions {
+    width: 100%;
+  }
+
+  .wabee-hero__actions {
+    flex-direction: column;
+  }
+
+  .wabee-hero__actions a {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.wabee-showcase__body {
+  display: block;
+  position: relative;
+}
+
+.wabee-grid-section,
+.wabee-modules-section {
+  position: relative;
+}
+
+.wabee-landing-mockup {
+  margin: 20px;
+  padding: 22px 22px 18px;
+  border-radius: 34px;
+  border: 1px solid rgba(255, 199, 0, 0.18);
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 140, 0, 0.18), transparent 30%),
+    radial-gradient(circle at 88% 82%, rgba(149, 36, 227, 0.16), transparent 30%),
+    linear-gradient(180deg, rgba(39, 34, 24, 0.98), rgba(29, 26, 20, 0.97));
+  box-shadow: 0 26px 60px rgba(26, 26, 26, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  animation: wabeeFloatPanel 8s ease-in-out infinite;
+}
+
+.wabee-landing-mockup__header,
+.wabee-landing-mockup__footer,
+.wabee-landing-thread,
+.wabee-landing-thread__meta,
+.wabee-landing-mockup__status,
+.wabee-landing-mockup__filters {
+  display: flex;
+  align-items: center;
+}
+
+.wabee-landing-mockup__header,
+.wabee-landing-mockup__footer {
+  justify-content: space-between;
+}
+
+.wabee-landing-mockup__header {
+  margin-bottom: 18px;
+}
+
+.wabee-landing-mockup__header > span {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.wabee-landing-mockup__filters {
+  gap: 8px;
+}
+
+.wabee-landing-mockup__filters span {
+  padding: 7px 12px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba(244, 244, 220, 0.56);
+  background: rgba(255, 215, 0, 0.1);
+}
+
+.wabee-landing-mockup__filters span.is-active {
+  color: #1a1a1a;
+  background: var(--wabee-yellow);
+}
+
+.wabee-landing-thread {
+  gap: 14px;
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 240, 200, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.015));
+  transition: transform 220ms ease, background 220ms ease, border-color 220ms ease;
+}
+
+.wabee-landing-thread + .wabee-landing-thread {
+  margin-top: 12px;
+}
+
+.wabee-landing-thread:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 199, 0, 0.28);
+}
+
+.wabee-landing-thread--highlight,
+.wabee-landing-thread--soft {
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.13), rgba(255, 140, 0, 0.08));
+}
+
+.wabee-landing-thread--soft {
+  background: linear-gradient(90deg, rgba(255, 140, 0, 0.1), rgba(149, 36, 227, 0.12));
+}
+
+.wabee-landing-thread__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, rgba(26, 26, 12, 0.95), rgba(44, 34, 10, 0.95));
+  color: var(--wabee-yellow);
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.wabee-landing-thread__copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.wabee-landing-thread__copy strong,
+.wabee-landing-thread__copy small {
+  display: block;
+}
+
+.wabee-landing-thread__copy strong {
+  color: #fff;
+  font-size: 0.98rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.wabee-landing-thread__copy small {
+  margin-top: 2px;
+  color: rgba(244, 244, 220, 0.42);
+  font-size: 0.84rem;
+  font-style: italic;
+}
+
+.wabee-landing-thread__meta {
+  gap: 10px;
+  align-self: flex-start;
+}
+
+.wabee-landing-thread__badge,
+.wabee-landing-thread__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.wabee-landing-thread__badge {
+  padding: 4px 8px;
+  border-radius: 9px;
+  color: rgba(255, 215, 0, 0.9);
+  background: rgba(26, 26, 26, 0.48);
+}
+
+.wabee-landing-thread__badge--ia {
+  color: var(--wabee-yellow);
+}
+
+.wabee-landing-thread__badge--pending {
+  color: #ff7a67;
+  background: rgba(255, 122, 103, 0.14);
+}
+
+.wabee-landing-thread__count {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  color: #1a1a1a;
+  background: var(--wabee-yellow);
+}
+
+.wabee-landing-mockup__footer {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 240, 200, 0.12);
+}
+
+.wabee-landing-mockup__status {
+  gap: 8px;
+}
+
+.wabee-landing-mockup__status small {
+  color: rgba(255, 255, 255, 0.34);
+  font-size: 0.82rem;
+}
+
+.wabee-landing-mockup__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #21c16b;
+}
+
+.wabee-landing-mockup__footer strong {
+  color: var(--wabee-yellow);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.wabee-hero__microstats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.wabee-hero__microstat {
+  padding: 16px 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(26, 26, 26, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.75)),
+    linear-gradient(135deg, rgba(149, 36, 227, 0.08), rgba(255, 140, 0, 0.08));
+  box-shadow: 0 18px 40px rgba(26, 26, 26, 0.08);
+  animation: wabeeFadeLift 640ms ease both;
+}
+
+.wabee-hero__microstat:nth-child(2) {
+  animation-delay: 90ms;
+}
+
+.wabee-hero__microstat:nth-child(3) {
+  animation-delay: 180ms;
+}
+
+.wabee-hero__microstat strong,
+.wabee-hero__microstat span {
+  display: block;
+}
+
+.wabee-hero__microstat strong {
+  color: #1a1a1a;
+  font-size: 0.96rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.wabee-hero__microstat span {
+  margin-top: 6px;
+  color: rgba(26, 26, 26, 0.62);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.wabee-showcase-pulse {
+  position: absolute;
+  z-index: -1;
+  border-radius: 999px;
+  filter: blur(10px);
+  opacity: 0.72;
+  animation: wabeePulseGlow 5.5s ease-in-out infinite;
+}
+
+.wabee-showcase-pulse--amber {
+  top: 14%;
+  right: 8%;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(255, 140, 0, 0.38) 0%, rgba(255, 215, 0, 0) 72%);
+}
+
+.wabee-showcase-pulse--violet {
+  bottom: 8%;
+  left: 4%;
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle, rgba(149, 36, 227, 0.22) 0%, rgba(149, 36, 227, 0) 72%);
+  animation-delay: 1.6s;
+}
+
+.wabee-bee {
+  position: absolute;
+  z-index: 1;
+  width: 56px;
+  height: 42px;
+  pointer-events: none;
+  animation: wabeeBeeFloat 8s ease-in-out infinite;
+}
+
+.wabee-bee--one {
+  top: 124px;
+  right: 17%;
+}
+
+.wabee-bee--two {
+  top: 52%;
+  left: 6%;
+  transform: scale(0.84);
+  animation-delay: 1.8s;
+}
+
+.wabee-bee--three {
+  top: 27%;
+  left: 58%;
+  transform: scale(0.72);
+  animation-delay: 0.9s;
+}
+
+.wabee-bee--four {
+  top: 76%;
+  right: 8%;
+  transform: scale(0.9);
+  animation-delay: 2.6s;
+}
+
+.wabee-bee--five {
+  top: -10px;
+  right: 28px;
+  transform: scale(0.74);
+  animation-delay: 1.3s;
+}
+
+.wabee-bee--six {
+  top: 12px;
+  left: 16px;
+  transform: scale(0.8);
+  animation-delay: 2.1s;
+}
+
+.wabee-bee__body {
+  position: absolute;
+  left: 16px;
+  top: 14px;
+  width: 26px;
+  height: 16px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg,
+      #1a1a1a 0 24%,
+      #ffd700 24% 42%,
+      #1a1a1a 42% 58%,
+      #ff8c00 58% 76%,
+      #1a1a1a 76% 100%);
+  box-shadow: 0 10px 20px rgba(26, 26, 26, 0.14);
+}
+
+.wabee-bee__body::before {
+  content: '';
+  position: absolute;
+  right: -5px;
+  top: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #1a1a1a;
+}
+
+.wabee-bee__wing {
+  position: absolute;
+  top: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px 999px 999px 2px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(149, 36, 227, 0.16);
+  transform-origin: bottom center;
+  animation: wabeeWingBeat 220ms ease-in-out infinite alternate;
+  backdrop-filter: blur(4px);
+}
+
+.wabee-bee__wing--left {
+  left: 12px;
+  transform: rotate(-18deg);
+}
+
+.wabee-bee__wing--right {
+  left: 26px;
+  transform: scaleX(-1) rotate(-18deg);
+  animation-delay: 90ms;
+}
+
+@keyframes wabeeFadeLift {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wabeeFloatPanel {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes wabeePulseGlow {
+  0%,
+  100% {
+    transform: scale(0.92);
+    opacity: 0.42;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.82;
+  }
+}
+
+@keyframes wabeeBeeFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-4deg);
+  }
+  25% {
+    transform: translate3d(14px, -10px, 0) rotate(4deg);
+  }
+  50% {
+    transform: translate3d(4px, 8px, 0) rotate(-2deg);
+  }
+  75% {
+    transform: translate3d(-12px, -6px, 0) rotate(3deg);
+  }
+}
+
+@keyframes wabeeWingBeat {
+  from {
+    transform: rotate(-28deg) scale(0.96);
+  }
+  to {
+    transform: rotate(-8deg) scale(1.03);
+  }
+}
+
+@media (max-width: 860px) {
+  .wabee-landing-mockup__header,
+  .wabee-landing-mockup__footer {
+    gap: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .wabee-hero__microstats {
+    grid-template-columns: 1fr;
+  }
+
+  .wabee-bee {
+    display: none;
+  }
+}
+
+.wabee-auth {
+  --wabee-orange: var(--chart-5);
+  --wabee-yellow: var(--brand-primary);
+  --wabee-charcoal: var(--text-strong);
+  --wabee-cream: color-mix(in srgb, var(--bg-card), white 22%);
+  --wabee-purple: var(--chart-4);
+  --wabee-sand: color-mix(in srgb, var(--bg-page), white 10%);
+  --wabee-auth-bg-top: color-mix(in srgb, var(--bg-page), white 6%);
+  --wabee-auth-bg-bottom: color-mix(in srgb, var(--bg-page), var(--bg-surface) 28%);
+  --wabee-auth-panel: color-mix(in srgb, var(--bg-card), transparent 20%);
+  --wabee-auth-panel-strong: color-mix(in srgb, var(--bg-card), white 8%);
+  --wabee-auth-border: color-mix(in srgb, var(--text-strong), transparent 92%);
+  --wabee-auth-copy: var(--text-body);
+  --wabee-auth-copy-soft: color-mix(in srgb, var(--text-body), transparent 16%);
+  --wabee-auth-copy-faint: color-mix(in srgb, var(--text-body), transparent 34%);
+  --wabee-auth-input-bg: color-mix(in srgb, var(--bg-card), white 12%);
+  --wabee-auth-input-placeholder: color-mix(in srgb, var(--text-body), transparent 42%);
+  --wabee-auth-shadow: color-mix(in srgb, var(--text-strong), transparent 94%);
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 12% 16%, color-mix(in srgb, var(--wabee-purple), transparent 88%), transparent 28%),
+    radial-gradient(circle at 90% 12%, color-mix(in srgb, var(--wabee-yellow), transparent 84%), transparent 28%),
+    linear-gradient(180deg, var(--wabee-auth-bg-top) 0%, var(--wabee-auth-bg-bottom) 100%);
+  color: var(--wabee-charcoal);
+}
+
+[data-wabee-theme-variant="dark"] .wabee-auth {
+  --wabee-auth-bg-top: color-mix(in srgb, var(--bg-page), white 3%);
+  --wabee-auth-bg-bottom: color-mix(in srgb, var(--bg-page), black 8%);
+  --wabee-auth-panel: color-mix(in srgb, var(--bg-card), transparent 10%);
+  --wabee-auth-panel-strong: color-mix(in srgb, var(--bg-card), black 4%);
+  --wabee-auth-input-bg: color-mix(in srgb, var(--bg-input), white 4%);
+  --wabee-auth-shadow: color-mix(in srgb, black, transparent 78%);
+}
+
+.wabee-auth__shell {
+  position: relative;
+  z-index: 2;
+  width: min(100% - 32px, 1240px);
+  min-height: 100vh;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(420px, 0.95fr);
+  gap: 44px;
+  align-items: start;
+  padding: 42px 0;
+}
+
+.wabee-auth__panel {
+  position: relative;
+}
+
+.wabee-auth__panel--info {
+  padding: 46px 0 28px 8px;
+  animation: wabeeFadeLift 700ms ease both;
+}
+
+.wabee-auth__brand {
+  margin-bottom: 28px;
+}
+
+.wabee-auth__title {
+  max-width: 620px;
+  margin: 18px 0 18px;
+  font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+  font-size: clamp(3rem, 6vw, 5.7rem);
+  line-height: 0.94;
+  letter-spacing: -0.06em;
+  font-weight: 700;
+  color: var(--wabee-charcoal);
+}
+
+.wabee-auth__title span {
+  display: block;
+  margin-top: 10px;
+  color: var(--wabee-orange);
+}
+
+.wabee-auth__copy {
+  max-width: 560px;
+  color: var(--wabee-auth-copy);
+  font-size: 1.12rem;
+  line-height: 1.9;
+}
+
+.wabee-auth__panel--form {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 108px;
+}
+
+.wabee-auth-card {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  padding: 36px 34px 30px;
+  border-radius: 34px;
+  border: 1px solid var(--wabee-auth-border);
+  background: var(--wabee-auth-panel);
+  box-shadow: 0 28px 80px color-mix(in srgb, var(--wabee-auth-shadow), transparent 10%);
+  backdrop-filter: blur(16px);
+  overflow: hidden;
+  animation: wabeeFadeLift 760ms ease both;
+}
+
+.wabee-auth-card__glow {
+  position: absolute;
+  z-index: -1;
+  border-radius: 999px;
+  filter: blur(18px);
+  opacity: 0.7;
+}
+
+.wabee-auth-card__glow--orange {
+  top: -28px;
+  right: -8px;
+  width: 170px;
+  height: 170px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--chart-5), transparent 78%), transparent 72%);
+}
+
+.wabee-auth-card__glow--purple {
+  bottom: -24px;
+  left: -16px;
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--chart-4), transparent 86%), transparent 72%);
+}
+
+.wabee-auth-card__header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.wabee-auth-card__header h2 {
+  font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+  color: var(--wabee-charcoal);
+  letter-spacing: -0.04em;
+}
+
+.wabee-auth-card__header p {
+  margin-top: 10px;
+  color: var(--wabee-auth-copy-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.wabee-auth-card__icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  color: var(--brand-primary-foreground);
+  background: linear-gradient(135deg, var(--wabee-yellow), var(--wabee-orange));
+  box-shadow: 0 16px 30px color-mix(in srgb, var(--wabee-orange), transparent 80%);
+}
+
+.wabee-auth-message {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid transparent;
+}
+
+.wabee-auth-message p {
+  color: inherit !important;
+  font-weight: 700;
+}
+
+.wabee-auth-message--error {
+  color: #a63a2d;
+  background: rgba(219, 94, 86, 0.12);
+  border-color: rgba(219, 94, 86, 0.28);
+}
+
+.wabee-auth-message--success {
+  color: #1f7f4d;
+  background: rgba(35, 178, 109, 0.12);
+  border-color: rgba(35, 178, 109, 0.26);
+}
+
+.wabee-auth-label {
+  display: inline-block;
+  margin-left: 4px;
+  color: var(--wabee-auth-copy-soft);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.wabee-auth-input,
+.wabee-auth-code-input {
+  width: 100%;
+  border: 1px solid var(--wabee-auth-border);
+  border-radius: 20px;
+  background: var(--wabee-auth-input-bg);
+  color: var(--wabee-charcoal);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white, transparent 50%);
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.wabee-auth-input {
+  padding: 15px 16px 15px 46px;
+}
+
+.wabee-auth-code-input {
+  padding: 18px 20px;
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: 0.5em;
+}
+
+.wabee-auth-input::placeholder,
+.wabee-auth-code-input::placeholder {
+  color: var(--wabee-auth-input-placeholder);
+}
+
+.wabee-auth-input:focus,
+.wabee-auth-code-input:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--brand-primary), transparent 54%);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--brand-primary), transparent 88%);
+  transform: translateY(-1px);
+}
+
+.wabee-auth-field__icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--wabee-auth-copy-faint);
+}
+
+.wabee-auth-submit {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 20px;
+  border-radius: 20px;
+  color: var(--brand-primary-foreground);
+  background: linear-gradient(135deg, var(--wabee-yellow), var(--wabee-orange));
+  box-shadow: 0 18px 36px color-mix(in srgb, var(--wabee-orange), transparent 80%);
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+
+.wabee-auth-submit:hover {
+  filter: brightness(1.03);
+  transform: translateY(-1px);
+  box-shadow: 0 22px 40px color-mix(in srgb, var(--wabee-orange), transparent 76%);
+}
+
+.wabee-auth-submit:disabled {
+  opacity: 0.6;
+  transform: none;
+}
+
+.wabee-auth-helper-link {
+  color: var(--wabee-auth-copy-soft);
+  transition: color 180ms ease;
+}
+
+.wabee-auth-helper-link:hover {
+  color: var(--wabee-orange);
+}
+
+.wabee-auth-footer {
+  margin-top: 26px;
+  text-align: center;
+  color: var(--wabee-auth-copy-soft);
+}
+
+.wabee-auth-register-link {
+  margin-left: 8px;
+  color: var(--wabee-orange);
+  font-weight: 700;
+  transition: color 180ms ease;
+}
+
+.wabee-auth-register-link:hover {
+  color: var(--wabee-purple);
+}
+
+.wabee-auth-qr {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+  padding: 18px;
+  border-radius: 22px;
+  background: var(--wabee-auth-panel-strong);
+  border: 1px solid var(--wabee-auth-border);
+}
+
+.wabee-auth-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding-top: 4px;
+  color: var(--wabee-auth-copy-soft);
+}
+
+.wabee-auth-checkbox {
+  margin-top: 2px;
+  accent-color: var(--wabee-orange);
+}
+
+.wabee-auth-inline-link {
+  margin: 0 4px;
+  color: var(--wabee-orange);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.wabee-auth-inline-link:hover {
+  color: var(--wabee-purple);
+}
+
+.wabee-legal {
+  --wabee-orange: var(--chart-5);
+  --wabee-yellow: var(--brand-primary);
+  --wabee-charcoal: var(--text-strong);
+  --wabee-cream: color-mix(in srgb, var(--bg-card), white 22%);
+  --wabee-purple: var(--chart-4);
+  --wabee-legal-bg-top: color-mix(in srgb, var(--bg-page), white 6%);
+  --wabee-legal-bg-bottom: color-mix(in srgb, var(--bg-page), var(--bg-surface) 28%);
+  --wabee-legal-panel: color-mix(in srgb, var(--bg-card), transparent 20%);
+  --wabee-legal-panel-strong: color-mix(in srgb, var(--bg-card), white 8%);
+  --wabee-legal-border: color-mix(in srgb, var(--text-strong), transparent 92%);
+  --wabee-legal-copy: var(--text-body);
+  --wabee-legal-copy-soft: color-mix(in srgb, var(--text-body), transparent 18%);
+  --wabee-selection-bg: color-mix(in srgb, var(--brand-primary), transparent 76%);
+  --wabee-selection-text: var(--text-strong);
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 8% 10%, color-mix(in srgb, var(--wabee-purple), transparent 90%), transparent 24%),
+    radial-gradient(circle at 92% 10%, color-mix(in srgb, var(--wabee-yellow), transparent 84%), transparent 26%),
+    linear-gradient(180deg, var(--wabee-legal-bg-top) 0%, var(--wabee-legal-bg-bottom) 100%);
+  color: var(--wabee-charcoal);
+}
+
+[data-wabee-theme-variant="dark"] .wabee-legal {
+  --wabee-legal-bg-top: color-mix(in srgb, var(--bg-page), white 3%);
+  --wabee-legal-bg-bottom: color-mix(in srgb, var(--bg-page), black 8%);
+  --wabee-legal-panel: color-mix(in srgb, var(--bg-card), transparent 12%);
+  --wabee-legal-panel-strong: color-mix(in srgb, var(--bg-card), black 4%);
+  --wabee-selection-text: var(--text-inverse);
+}
+
+.wabee-legal__nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(18px);
+  background: color-mix(in srgb, var(--wabee-legal-panel-strong), transparent 18%);
+  border-bottom: 1px solid var(--wabee-legal-border);
+}
+
+.wabee-legal__nav-shell {
+  width: min(100% - 32px, 1240px);
+  height: 84px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wabee-legal__eyebrow {
+  color: var(--wabee-legal-copy-soft);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.wabee-legal__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--wabee-legal-copy-soft);
+  transition: color 180ms ease;
+}
+
+.wabee-legal__back:hover {
+  color: var(--wabee-orange);
+}
+
+.wabee-legal__main {
+  position: relative;
+  z-index: 2;
+  padding: 48px 0 72px;
+}
+
+.wabee-legal__shell {
+  width: min(100% - 32px, 1040px);
+  margin: 0 auto;
+}
+
+.wabee-legal__header {
+  margin-bottom: 32px;
+}
+
+.wabee-legal__title {
+  margin: 18px 0 14px;
+  font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+  color: var(--wabee-charcoal);
+  letter-spacing: -0.05em;
+}
+
+.wabee-legal__meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 26px;
+}
+
+.wabee-legal__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 999px;
+  color: var(--brand-primary-foreground);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--wabee-yellow), transparent 82%), color-mix(in srgb, var(--wabee-orange), transparent 82%));
+  border: 1px solid color-mix(in srgb, var(--wabee-orange), transparent 82%);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.wabee-legal__summary {
+  padding: 24px 26px;
+  border-radius: 28px;
+  border: 1px solid var(--wabee-legal-border);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--wabee-legal-panel-strong), transparent 12%), color-mix(in srgb, var(--wabee-legal-panel), transparent 24%)),
+    linear-gradient(135deg, color-mix(in srgb, var(--wabee-orange), transparent 95%), color-mix(in srgb, var(--wabee-purple), transparent 95%));
+  box-shadow: 0 20px 48px color-mix(in srgb, var(--text-strong), transparent 94%);
+}
+
+.wabee-legal__summary p {
+  color: var(--wabee-legal-copy);
+  line-height: 1.8;
+}
+
+.wabee-legal__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.wabee-legal__tab {
+  display: inline-flex;
+  align-items: center;
+  padding: 11px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--wabee-legal-border);
+  background: color-mix(in srgb, var(--wabee-legal-panel), transparent 18%);
+  color: var(--wabee-legal-copy-soft);
+  transition: border-color 180ms ease, color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+.wabee-legal__tab:hover {
+  color: var(--wabee-orange);
+  border-color: color-mix(in srgb, var(--wabee-orange), transparent 82%);
+  transform: translateY(-1px);
+}
+
+.wabee-legal__tab.is-active {
+  color: var(--wabee-charcoal);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--wabee-yellow), transparent 80%), color-mix(in srgb, var(--wabee-orange), transparent 86%));
+  border-color: color-mix(in srgb, var(--wabee-orange), transparent 80%);
+}
+
+.wabee-legal__content {
+  padding: 34px 32px;
+  border-radius: 34px;
+  border: 1px solid var(--wabee-legal-border);
+  background: var(--wabee-legal-panel);
+  box-shadow: 0 24px 70px color-mix(in srgb, var(--text-strong), transparent 94%);
+  backdrop-filter: blur(10px);
+}
+
+.wabee-legal__content h2 {
+  font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+  color: var(--wabee-charcoal);
+  letter-spacing: -0.03em;
+}
+
+.wabee-legal__content p,
+.wabee-legal__content li {
+  color: var(--wabee-legal-copy);
+  line-height: 1.95;
+}
+
+.wabee-legal__content strong {
+  color: var(--wabee-charcoal);
+}
+
+.wabee-legal__content ul {
+  padding-left: 1.4rem;
+}
+
+.wabee-legal__content li::marker {
+  color: var(--wabee-orange);
+}
+
+.wabee-legal__content .bg-\[var\(--bg-card\)\] {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--wabee-legal-panel-strong), transparent 8%), color-mix(in srgb, var(--wabee-legal-panel), transparent 18%)) !important;
+  border-color: var(--wabee-legal-border) !important;
+  box-shadow: 0 16px 32px color-mix(in srgb, var(--text-strong), transparent 95%);
+}
+
+.wabee-legal__content .bg-\[var\(--brand-primary\)\]\/5,
+.wabee-legal__content .bg-\[var\(--state-warning\)\]\/10 {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--brand-primary), transparent 88%),
+    color-mix(in srgb, var(--chart-5), transparent 92%)
+  ) !important;
+  border-color: color-mix(in srgb, var(--chart-5), transparent 84%) !important;
+}
+
+.wabee-legal__content .ui-input,
+.wabee-legal__content .ui-textarea {
+  background: color-mix(in srgb, var(--bg-card), white 10%) !important;
+  border: 1px solid var(--wabee-legal-border) !important;
+  color: var(--wabee-charcoal) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.56);
+}
+
+.wabee-legal__content .ui-input::placeholder,
+.wabee-legal__content .ui-textarea::placeholder {
+  color: color-mix(in srgb, var(--text-strong), transparent 62%) !important;
+}
+
+.wabee-legal__content .ui-input:focus,
+.wabee-legal__content .ui-textarea:focus {
+  border-color: color-mix(in srgb, var(--chart-5), transparent 56%) !important;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand-primary), transparent 88%) !important;
+}
+
+.wabee-legal__content .ui-label {
+  color: var(--wabee-legal-copy-soft) !important;
+}
+
+.wabee-legal__footer {
+  margin-top: 38px;
+  padding: 28px 24px 8px;
+  border-top: 1px solid var(--wabee-legal-border);
+  text-align: center;
+  color: var(--wabee-legal-copy-soft);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--wabee-legal-panel-strong), transparent 64%), rgba(255, 255, 255, 0));
+  border-radius: 0 0 24px 24px;
+}
+
+.wabee-legal__footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 14px;
+}
+
+.wabee-legal__footer-links a {
+  color: var(--wabee-legal-copy-soft);
+  transition: color 180ms ease;
+}
+
+.wabee-legal__footer-links a:hover {
+  color: var(--wabee-orange);
+}
+
+@media (max-width: 640px) {
+  .wabee-legal__nav-shell,
+  .wabee-legal__shell {
+    width: min(100% - 20px, 1240px);
+  }
+
+  .wabee-legal__title {
+    line-height: 0.98;
+  }
+
+  .wabee-legal__content {
+    padding: 24px 18px;
+    border-radius: 26px;
+  }
+
+  .wabee-legal__tabs {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 980px) {
+  .wabee-auth__shell {
+    grid-template-columns: 1fr;
+    gap: 22px;
+    padding: 28px 0 34px;
+  }
+
+  .wabee-auth__panel--info {
+    padding: 0;
+  }
+
+  .wabee-auth__panel--form {
+    justify-content: stretch;
+    padding-top: 0;
+  }
+
+  .wabee-auth-card {
+    max-width: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .wabee-auth__shell {
+    width: min(100% - 20px, 1240px);
+  }
+
+  .wabee-auth__title {
+    font-size: clamp(2.6rem, 15vw, 4rem);
+  }
+
+  .wabee-auth-card {
+    padding: 28px 20px 24px;
+    border-radius: 28px;
+  }
+}
+
+@media (max-width: 560px) {
+  .wabee-auth__panel--info {
+    display: none;
+  }
+
+  .wabee-auth__shell {
+    min-height: 100svh;
+    padding: 20px 0 32px;
+    align-content: center;
+  }
+}
+
+.wabee-admin {
+  --wabee-admin-purple: var(--chart-4);
+  --wabee-admin-gold: var(--brand-primary);
+  --wabee-admin-panel: color-mix(in srgb, var(--bg-card), transparent 20%);
+  --wabee-admin-panel-soft: color-mix(in srgb, var(--bg-card), transparent 28%);
+  --wabee-admin-panel-strong: color-mix(in srgb, var(--bg-card), white 8%);
+  --wabee-admin-grid: color-mix(in srgb, var(--brand-primary), transparent 95%);
+  --wabee-admin-grid-alt: color-mix(in srgb, var(--chart-5), transparent 95%);
+  --wabee-admin-shadow: color-mix(in srgb, var(--text-strong), transparent 94%);
+  --wabee-admin-surface-top: color-mix(in srgb, var(--bg-page), white 4%);
+  --wabee-admin-surface-bottom: color-mix(in srgb, var(--bg-page), var(--bg-surface) 24%);
+  position: relative;
+  font-size: 14px;
+  background:
+    radial-gradient(circle at 12% 10%, color-mix(in srgb, var(--wabee-admin-purple), transparent 88%), transparent 28%),
+    radial-gradient(circle at 86% 8%, color-mix(in srgb, var(--wabee-admin-gold), transparent 84%), transparent 24%),
+    linear-gradient(180deg, var(--wabee-admin-surface-top), var(--wabee-admin-surface-bottom)),
+    var(--bg-page);
+}
+
+[data-wabee-theme-variant="dark"] .wabee-admin {
+  --wabee-admin-panel: color-mix(in srgb, var(--bg-card), transparent 6%);
+  --wabee-admin-panel-soft: color-mix(in srgb, var(--bg-card), transparent 16%);
+  --wabee-admin-panel-strong: color-mix(in srgb, var(--bg-card), black 6%);
+  --wabee-admin-grid: color-mix(in srgb, var(--brand-primary), transparent 96%);
+  --wabee-admin-grid-alt: color-mix(in srgb, var(--wabee-admin-gold), transparent 95%);
+  --wabee-admin-shadow: color-mix(in srgb, black, transparent 82%);
+  --wabee-admin-surface-top: color-mix(in srgb, var(--bg-card), white 2%);
+  --wabee-admin-surface-bottom: color-mix(in srgb, var(--bg-page), black 4%);
+}
+
+.wabee-admin::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.34;
+  background-image:
+    linear-gradient(90deg, var(--wabee-admin-grid) 1px, transparent 1px),
+    linear-gradient(30deg, var(--wabee-admin-grid-alt) 24%, transparent 24%, transparent 74%, var(--wabee-admin-grid-alt) 74%, var(--wabee-admin-grid-alt) 76%, transparent 76%),
+    linear-gradient(150deg, color-mix(in srgb, var(--wabee-admin-purple), transparent 96%) 24%, transparent 24%, transparent 74%, color-mix(in srgb, var(--wabee-admin-purple), transparent 96%) 74%, color-mix(in srgb, var(--wabee-admin-purple), transparent 96%) 76%, transparent 76%);
+  background-size: 44px 100%, 76px 44px, 76px 44px;
+  background-position: center center;
+}
+
+.wabee-admin > * {
+  position: relative;
+  z-index: 1;
+}
+
+.wabee-admin__sidebar {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--wabee-admin-panel-strong), transparent 8%), color-mix(in srgb, var(--wabee-admin-panel), transparent 18%)),
+    linear-gradient(180deg, color-mix(in srgb, var(--brand-primary), transparent 96%), color-mix(in srgb, var(--wabee-admin-purple), transparent 96%));
+  border-right: 1px solid var(--border-default);
+  box-shadow: 20px 0 48px color-mix(in srgb, var(--wabee-admin-shadow), transparent 6%);
+  backdrop-filter: blur(12px);
+}
+
+.wabee-admin .sidebar-item {
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 18px;
+  color: var(--text-muted);
+}
+
+.wabee-admin .sidebar-item:hover {
+  background: color-mix(in srgb, var(--wabee-admin-panel-strong), transparent 12%);
+  color: var(--brand-primary);
+  transform: translateX(2px);
+}
+
+.wabee-admin .sidebar-item-active {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--wabee-admin-gold), transparent 82%), color-mix(in srgb, var(--brand-primary), transparent 86%));
+  border: 1px solid color-mix(in srgb, var(--brand-primary), transparent 84%);
+  color: var(--brand-primary-foreground);
+  box-shadow: 0 14px 30px color-mix(in srgb, var(--brand-primary), transparent 92%);
+}
+
+.wabee-admin .sidebar-item svg {
+  color: var(--text-muted);
+}
+
+.wabee-admin .sidebar-item:hover svg {
+  color: var(--brand-primary);
+}
+
+.wabee-admin .sidebar-item-active svg,
+.wabee-admin .sidebar-item-active span {
+  color: var(--brand-primary-foreground) !important;
+}
+
+.wabee-admin__topbar {
+  background: color-mix(in srgb, var(--wabee-admin-panel-soft), transparent 10%);
+  border-bottom: 1px solid color-mix(in srgb, var(--border-default), transparent 15%);
+  backdrop-filter: blur(14px);
+}
+
+.wabee-admin input,
+.wabee-admin textarea,
+.wabee-admin select {
+  font-size: 15px;
+  color: var(--text-strong) !important;
+}
+
+.wabee-admin input::placeholder,
+.wabee-admin textarea::placeholder,
+.wabee-admin select::placeholder {
+  color: color-mix(in srgb, var(--text-strong), transparent 54%) !important;
+}
+
+.wabee-admin [class*="tx-pageSubtitle"],
+.wabee-admin [class*="tx-sectionSubtitle"],
+.wabee-admin [class*="tx-helperText"],
+.wabee-admin [class*="tx-labelText"] {
+  color: color-mix(in srgb, var(--text-strong), transparent 28%) !important;
+}
+
+.wabee-admin .text-zinc-300,
+.wabee-admin .text-zinc-400,
+.wabee-admin .text-zinc-500 {
+  color: color-mix(in srgb, var(--text-strong), transparent 34%) !important;
+}
+
+.wabee-admin .text-white\/70,
+.wabee-admin .hover\:text-white:hover {
+  color: color-mix(in srgb, var(--text-strong), transparent 32%) !important;
+}
+
+.wabee-admin-page__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 999px;
+  margin-bottom: 18px;
+  background: color-mix(in srgb, var(--wabee-admin-panel-strong), transparent 18%);
+  border: 1px solid var(--border-default);
+  color: color-mix(in srgb, var(--text-strong), transparent 46%);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.wabee-admin-page__title {
+  color: var(--text-strong);
+  letter-spacing: -0.05em;
+}
+
+.wabee-admin-stat {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--wabee-admin-panel-strong), transparent 4%), color-mix(in srgb, var(--wabee-admin-panel), transparent 14%)),
+    linear-gradient(135deg, color-mix(in srgb, var(--brand-primary), transparent 96%), color-mix(in srgb, var(--wabee-admin-purple), transparent 97%));
+  box-shadow: 0 24px 60px color-mix(in srgb, var(--wabee-admin-shadow), transparent 10%);
+}
+
+.wabee-admin-stat__icon {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.wabee-admin-stat .tx-badgeText,
+.wabee-admin-stat [class*="tx-kpiLabel"] {
+  color: color-mix(in srgb, var(--text-strong), transparent 46%) !important;
+}
+
+.wabee-admin-stat [class*="tx-kpiValue"] {
+  color: var(--text-strong) !important;
+}
+
+.wabee-admin-toolbar input,
+.wabee-admin-toolbar select,
+.wabee-admin-toolbar button {
+  min-height: 56px;
+  border-radius: 20px;
+}
+
+.wabee-admin-toolbar input,
+.wabee-admin-toolbar select {
+  background: color-mix(in srgb, var(--bg-input), white 8%);
+  color: var(--text-strong);
+  border-color: color-mix(in srgb, var(--border-default), transparent 18%);
+}
+
+.wabee-admin-toolbar input::placeholder {
+  color: color-mix(in srgb, var(--text-strong), transparent 58%);
+}
+
+.wabee-admin-toolbar select option {
+  color: var(--text-strong);
+  background: var(--bg-card);
+}
+
+.wabee-admin-toolbar button {
+  background: color-mix(in srgb, var(--wabee-admin-panel-strong), transparent 24%);
+  color: var(--text-strong);
+  border-color: color-mix(in srgb, var(--border-default), transparent 18%);
+}
+
+.wabee-admin-toolbar button:hover {
+  background: color-mix(in srgb, var(--brand-primary), transparent 90%);
+  border-color: color-mix(in srgb, var(--brand-primary), transparent 80%);
+}
+
+.wabee-admin .cursor-not-allowed {
+  opacity: 0.72 !important;
+}
+
+.wabee-admin-table {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--wabee-admin-panel-strong), transparent 8%), color-mix(in srgb, var(--wabee-admin-panel), transparent 16%));
+  box-shadow: 0 30px 80px color-mix(in srgb, var(--wabee-admin-shadow), transparent 8%);
+}
+
+.wabee-admin-table thead tr {
+  background: color-mix(in srgb, var(--brand-primary), transparent 92%);
+}
+
+.wabee-admin-table tbody tr:hover {
+  background: color-mix(in srgb, var(--brand-primary), transparent 96%);
+}
+
+.wabee-admin-table thead th {
+  color: color-mix(in srgb, var(--text-strong), transparent 44%) !important;
+}
+
+.wabee-admin-table tbody td,
+.wabee-admin-table tbody p,
+.wabee-admin-table tbody span {
+  color: inherit;
+}
+
+.wabee-admin-table .text-\[var\(--text-muted\)\]\/20 {
+  color: color-mix(in srgb, var(--text-strong), transparent 72%) !important;
+}
+
+.wabee-admin-table [class*="tx-emptyStateTitle"] {
+  color: var(--text-strong) !important;
+}
+
+.wabee-admin-table [class*="tx-emptyStateBody"],
+.wabee-admin-table [class*="tx-helperText"] {
+  color: color-mix(in srgb, var(--text-strong), transparent 32%) !important;
+}
+
+@media (max-width: 980px) {
+  .wabee-admin__sidebar {
+    width: 100%;
+  }
+}

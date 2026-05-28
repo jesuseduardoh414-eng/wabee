@@ -1,0 +1,280 @@
+{
+  "name": "wabee_customer_purchase_flow",
+  "version": "1.0.0",
+  "generatedAt": "2026-05-26",
+  "description": "Flujo ideal de un cliente desde que entra al sitio oficial de Wabee hasta que cierra ventas desde WhatsApp.",
+  "actors": [
+    {
+      "role": "visitor",
+      "label": "Visitante",
+      "description": "Persona que entra al sitio oficial y evalua Wabee."
+    },
+    {
+      "role": "customer_admin",
+      "label": "Admin del cliente",
+      "description": "Responsable de configurar la organizacion, el equipo y la operacion."
+    },
+    {
+      "role": "supervisor",
+      "label": "Supervisor",
+      "description": "Coordina la operacion y supervisa conversaciones."
+    },
+    {
+      "role": "agent",
+      "label": "Agente",
+      "description": "Atiende conversaciones y da seguimiento a prospectos."
+    },
+    {
+      "role": "ai",
+      "label": "IA",
+      "description": "Asiste en respuestas, clasificacion, automatizacion y handoff."
+    }
+  ],
+  "stages": [
+    {
+      "id": "discover",
+      "order": 1,
+      "title": "Descubre Wabee",
+      "goal": "Entender que hace el producto y por que le conviene al cliente.",
+      "entryPoint": "Sitio oficial",
+      "screens": [
+        "landing",
+        "pricing",
+        "modules",
+        "how-it-works"
+      ],
+      "actions": [
+        "Leer propuesta de valor",
+        "Comparar planes",
+        "Evaluar beneficios comerciales",
+        "Hacer clic en crear cuenta o probar"
+      ],
+      "output": "Interes en registrarse o solicitar prueba."
+    },
+    {
+      "id": "register",
+      "order": 2,
+      "title": "Se registra",
+      "goal": "Crear la cuenta inicial y la organizacion del cliente.",
+      "entryPoint": "Register",
+      "screens": [
+        "register",
+        "login"
+      ],
+      "actions": [
+        "Crear cuenta",
+        "Registrar nombre de empresa",
+        "Entrar por primera vez al sistema"
+      ],
+      "output": "Tenant creado con usuario Admin inicial."
+    },
+    {
+      "id": "activate_plan",
+      "order": 3,
+      "title": "Activa plan",
+      "goal": "Asignar un plan comercial o trial para habilitar modulos y limites.",
+      "entryPoint": "Plan y facturacion",
+      "screens": [
+        "settings_plan",
+        "billing_summary",
+        "checkout"
+      ],
+      "actions": [
+        "Seleccionar plan",
+        "Confirmar periodo mensual o anual",
+        "Completar activacion o trial"
+      ],
+      "output": "Plan activo con modulos y limites definidos."
+    },
+    {
+      "id": "organization_setup",
+      "order": 4,
+      "title": "Configura la organizacion",
+      "goal": "Preparar la base operativa antes de vender.",
+      "entryPoint": "Dashboard",
+      "screens": [
+        "settings_organization",
+        "team",
+        "profile"
+      ],
+      "actions": [
+        "Revisar datos de la empresa",
+        "Invitar supervisores y agentes",
+        "Definir estructura interna de trabajo"
+      ],
+      "output": "Organizacion lista para operar con roles basicos."
+    },
+    {
+      "id": "connect_whatsapp",
+      "order": 5,
+      "title": "Conecta WhatsApp",
+      "goal": "Habilitar el canal principal de ventas y atencion.",
+      "entryPoint": "Canales HC",
+      "screens": [
+        "channels",
+        "channel_setup"
+      ],
+      "actions": [
+        "Vincular cuenta o numero de WhatsApp Business",
+        "Validar estado del canal",
+        "Definir canal principal"
+      ],
+      "output": "Canal de WhatsApp listo para recibir y enviar mensajes."
+    },
+    {
+      "id": "prepare_commercial_data",
+      "order": 6,
+      "title": "Prepara la base comercial",
+      "goal": "Organizar los datos con los que el equipo va a vender.",
+      "entryPoint": "Contactos",
+      "screens": [
+        "contacts",
+        "groups",
+        "segments",
+        "templates_hub"
+      ],
+      "actions": [
+        "Importar o crear contactos",
+        "Crear grupos",
+        "Crear segmentos",
+        "Preparar plantillas y mensajes base"
+      ],
+      "output": "Base comercial segmentada y lista para operar."
+    },
+    {
+      "id": "configure_ai",
+      "order": 7,
+      "title": "Configura IA y herramientas",
+      "goal": "Aumentar velocidad y calidad de respuesta.",
+      "entryPoint": "Perfiles IA",
+      "screens": [
+        "ai_profiles",
+        "ai_integrations",
+        "web_widgets"
+      ],
+      "actions": [
+        "Crear perfil IA",
+        "Definir tono y comportamiento",
+        "Conectar herramientas o integraciones",
+        "Configurar widgets o automatizaciones si aplica"
+      ],
+      "output": "IA y automatizaciones listas para asistir al equipo."
+    },
+    {
+      "id": "receive_leads",
+      "order": 8,
+      "title": "Empieza a recibir conversaciones",
+      "goal": "Centralizar los leads entrantes dentro del inbox.",
+      "entryPoint": "Inbox",
+      "screens": [
+        "inbox",
+        "dashboard_home"
+      ],
+      "actions": [
+        "Recibir mensajes entrantes desde WhatsApp",
+        "Asignar conversaciones",
+        "Identificar contactos y prioridad"
+      ],
+      "output": "Leads visibles y gestionables en el inbox."
+    },
+    {
+      "id": "operate_sales",
+      "order": 9,
+      "title": "Opera la venta",
+      "goal": "Responder, calificar y avanzar conversaciones comerciales.",
+      "entryPoint": "Inbox",
+      "screens": [
+        "inbox",
+        "contact_detail",
+        "team"
+      ],
+      "actions": [
+        "Responder prospectos",
+        "Resolver dudas",
+        "Calificar oportunidad",
+        "Reasignar o escalar cuando sea necesario",
+        "Hacer seguimiento comercial"
+      ],
+      "output": "Conversaciones avanzadas hacia cierre."
+    },
+    {
+      "id": "run_campaigns",
+      "order": 10,
+      "title": "Ejecuta campañas",
+      "goal": "Generar demanda o reactivar conversaciones.",
+      "entryPoint": "Campaigns",
+      "screens": [
+        "campaigns",
+        "campaign_analytics"
+      ],
+      "actions": [
+        "Crear campaña",
+        "Elegir segmento objetivo",
+        "Enviar mensajes salientes",
+        "Medir entregas, lecturas y respuestas"
+      ],
+      "output": "Nuevas oportunidades y conversaciones reactivadas."
+    },
+    {
+      "id": "close_sales",
+      "order": 11,
+      "title": "Cierra ventas desde WhatsApp",
+      "goal": "Convertir conversaciones en ventas concretadas.",
+      "entryPoint": "Inbox y contacto",
+      "screens": [
+        "inbox",
+        "contact_detail",
+        "dashboard_home"
+      ],
+      "actions": [
+        "Confirmar interes del prospecto",
+        "Vencer objeciones",
+        "Compartir oferta o propuesta",
+        "Agendar o concretar pago",
+        "Cerrar la venta y registrar seguimiento"
+      ],
+      "output": "Venta cerrada desde el flujo comercial de WhatsApp."
+    },
+    {
+      "id": "measure_optimize",
+      "order": 12,
+      "title": "Mide y optimiza",
+      "goal": "Mejorar conversion, tiempos y productividad.",
+      "entryPoint": "Dashboard y auditoria",
+      "screens": [
+        "dashboard_home",
+        "audit",
+        "campaign_analytics",
+        "settings_plan"
+      ],
+      "actions": [
+        "Revisar desempeno del equipo",
+        "Evaluar tiempos de respuesta",
+        "Medir resultados de campañas",
+        "Optimizar uso de IA y estructura comercial"
+      ],
+      "output": "Operacion comercial mas eficiente y escalable."
+    }
+  ],
+  "successCriteria": [
+    "El cliente logra registrarse sin friccion",
+    "El plan correcto queda activo",
+    "El canal de WhatsApp queda conectado",
+    "El inbox recibe conversaciones reales",
+    "El equipo puede responder y reasignar",
+    "El cliente puede lanzar campañas",
+    "El cliente puede cerrar ventas desde WhatsApp",
+    "El cliente puede medir resultados y mejorar"
+  ],
+  "minimumSystemRequirements": {
+    "account": true,
+    "organization": true,
+    "activePlan": true,
+    "team": true,
+    "whatsappChannel": true,
+    "contacts": true,
+    "inbox": true,
+    "campaigns": true,
+    "analytics": true
+  }
+}

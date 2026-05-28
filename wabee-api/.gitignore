@@ -1,0 +1,91 @@
+# =========================
+# NODE
+# =========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# BUILD / DIST
+# =========================
+dist/
+build/
+.tmp/
+.cache/
+
+# =========================
+# ENV
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# LOGS
+# =========================
+logs/
+*.log
+
+# =========================
+# OS FILES
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# IDE / EDITOR
+# =========================
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# =========================
+# PRISMA
+# =========================
+# Prisma local engines (no subir)
+node_modules/.prisma/
+
+# Prisma generated clients (si usas custom output)
+src/modules/core/generated/client/
+
+# =========================
+# PRISMA CORE (IMPORTANTE)
+# =========================
+# NO ignorar el schema
+# SOLO ignorar lo generado
+
+prisma-core/generated/
+prisma-core/.cache/
+prisma-core/node_modules/
+
+# =========================
+# TESTING
+# =========================
+coverage/
+.nyc_output/
+
+# =========================
+# TEMP / SCRATCH
+# =========================
+scratch/
+*.tmp
+*.temp
+
+# =========================
+# DOCKER
+# =========================
+docker-compose.override.yml
+
+# =========================
+# MISC
+# =========================
+*.zip
+*.tar
+*.gz

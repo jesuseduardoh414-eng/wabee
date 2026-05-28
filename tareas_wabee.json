@@ -1,0 +1,242 @@
+[
+  {
+    "numeroActividad": 1,
+    "titulo": "Fix: DTO incorrecto en inviteMember + eliminar parches en cascada",
+    "descripcion": "core.organization.inviteMember.execute recibe { email, role: slug } pero InviteMemberDto (strict) exige { email, roleId: UUID, organizationId: UUID }. Corregir resolviendo el roleId por slug ANTES de llamar al use case via CoreInternalService, pasar organizationId correctamente, y eliminar los dos parches manuales (update de invitation.roleId y update de organizationMember.roleId en acceptInvitation) que existen por este root cause.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-05-19",
+    "venceEn": "2026-05-20",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 2,
+    "titulo": "Fix: Verificar Result<Organization> en completeOnboarding antes de acceder a .value",
+    "descripcion": "core.organization.create.execute retorna Result<Organization> = { success, value } | { success: false, error }. El codigo hace (orgResult as any).value || orgResult sin verificar success, lo que causa que org.id sea undefined si el slug ya existe o falla la creacion. Agregar: if (!orgResult.success) throw new Error(orgResult.error) antes de extraer .value.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-05-19",
+    "venceEn": "2026-05-19",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 3,
+    "titulo": "Fix: catch silencioso en completeOnboarding oculta fallos de onboarding",
+    "descripcion": "El bloque catch de completeOnboarding solo hace console.error y retorna undefined. Si la organizacion no se crea, el usuario recibe respuesta exitosa (onboarding: undefined) pero queda sin organizacion. Relanzar el error o retornar { success: false, error } para que auth.routes pueda responder con status 500.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-05-19",
+    "venceEn": "2026-05-19",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 4,
+    "titulo": "Fix: Pasar solo { email, password } como LoginDto en core.auth.login.execute",
+    "descripcion": "core.auth.login.execute(params, params.ip, params.userAgent) pasa el objeto completo params = { email, password, ip, userAgent } como primer argumento. LoginDtoSchema es $strict y solo acepta { email, password }. Cambiar a execute({ email: params.email, password: params.password }, params.ip, params.userAgent) para evitar posible fallo de validacion Zod en futuras versiones del paquete.",
+    "estado": "PENDIENTE",
+    "prioridad": "MEDIA",
+    "fechaInicio": "2026-05-20",
+    "venceEn": "2026-05-20",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 5,
+    "titulo": "Fix: Agregar productSlug en core.auth.register dentro del flujo de aceptacion de invitacion",
+    "descripcion": "En acceptInvitation, cuando se crea un usuario nuevo, core.auth.register.execute no recibe productSlug: 'wabee', a diferencia del registro normal. Esto puede impedir el seed de roles asociados al producto. Agregar productSlug: 'wabee' para mantener consistencia con el flujo de registro estandar.",
+    "estado": "PENDIENTE",
+    "prioridad": "BAJA",
+    "fechaInicio": "2026-05-20",
+    "venceEn": "2026-05-20",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 6,
+    "titulo": "Fix: Usar core.notifications.send() en lugar del servicio interno en data-deletion.service",
+    "descripcion": "data-deletion.service.ts llama a (core as any).notifications.notificationService.send() accediendo a la propiedad interna del paquete via as any. La API publica expuesta por AuthFactory es core.notifications.send(). Reemplazar por la llamada publica para evitar ruptura si el paquete cambia su estructura interna.",
+    "estado": "PENDIENTE",
+    "prioridad": "BAJA",
+    "fechaInicio": "2026-05-21",
+    "venceEn": "2026-05-21",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 7,
+    "titulo": "Fix: Bug en filtro de segmentos — tagsAny vacío filtraba todos los contactos",
+    "descripcion": "El segmento 'Leads VIP' mostraba 0 registros aunque Juan Prueba tenia lifecycleStatus: LEAD. Root cause: tagsAny: [] (array vacio) es truthy en JS y [].some() siempre retorna false, eliminando todos los contactos. Fix en contacts.service.ts: agregar condicion tagsAny.length > 0 antes de evaluar el filtro. Archivo: wabee-api/src/modules/wabee/contacts/contacts.service.ts",
+    "estado": "COMPLETADO",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-05-27",
+    "venceEn": "2026-05-27",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 8,
+    "titulo": "Fix: Templates META SYNC retornaba HTTP 403 por requireModule('campaigns') en ruta de plantillas",
+    "descripcion": "La ruta de templates de WhatsApp tenia requireModule('campaigns') como guardia, lo que bloqueaba el acceso cuando campaigns estaba deshabilitado en el plan. Las plantillas deben funcionar independientemente de campaigns. Fix: eliminar requireModule('campaigns') de la ruta en whatsapp.routes.ts y eliminar la dependencia campaigns->templatesHub en modules.guard.ts.",
+    "estado": "COMPLETADO",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-05-27",
+    "venceEn": "2026-05-27",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 9,
+    "titulo": "Fix: Templates META SYNC retornaba HTTP 400 en canales sin OAuth session",
+    "descripcion": "El servicio de importacion de plantillas lanzaba error 400 'Canal sin credenciales' cuando el canal fue conectado manualmente (sin OAuth). Fix en whatsapp.templates.service.ts: agregar fallback al token del .env (WHATSAPP_ACCESS_TOKEN) cuando el canal es el canal de prueba y no tiene oauthSession.",
+    "estado": "COMPLETADO",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-05-27",
+    "venceEn": "2026-05-27",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 10,
+    "titulo": "Fix: Modulo Campaigns bloqueado por plan_snapshot con modules.campaigns = false",
+    "descripcion": "El modulo de Campaigns retornaba HTTP 403 porque el campo plan_snapshot en core.subscriptions no tenia modules.campaigns = true. Root cause: el paquete @r4d-26/core solo lee planSnapshot (columna legacy), no modulesSnapshot ni snapshotJson. Fix: actualizar plan_snapshot JSON directamente en DB via script SQL para incluir todos los modulos habilitados. Tambien se requiere hard refresh (Ctrl+Shift+R) en el navegador para limpiar cache de React Query.",
+    "estado": "COMPLETADO",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-05-27",
+    "venceEn": "2026-05-27",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 11,
+    "titulo": "Fix: Web Widget mostraba ERROR CRITICO por race condition de HTTP 409",
+    "descripcion": "La pagina WebWidgetBuilderPage mostraba 'No se pudo cargar o crear el widget' porque findUnique() retornaba null y createWidget() lanzaba 409 (widget ya existe en DB por intento previo). Fix en WebWidgetBuilderPage.tsx: manejar el 409 de createWidget() haciendo retry de findUnique() para obtener el widget existente en lugar de propagar el error.",
+    "estado": "COMPLETADO",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-05-28",
+    "venceEn": "2026-05-28",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 12,
+    "titulo": "QA: Prueba completa de todos los modulos de Wabee",
+    "descripcion": "Recorrido funcional de todos los modulos habilitados en el plan: Dashboard, Inbox, Contactos, Segmentos, Grupos, Mis Plantillas (Meta Sync), Campañas (envio real), Perfiles IA, Team, Web Widgets (embed en sitio externo), Auditoria. Resultado: todos los modulos funcionan correctamente. Pendiente: aprobar 8 plantillas Meta enviadas a revision (~24h).",
+    "estado": "COMPLETADO",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-05-27",
+    "venceEn": "2026-05-28",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 13,
+    "titulo": "Crear y configurar propia API Key de Google Gemini (reemplazar key del desarrollador anterior)",
+    "descripcion": "La key GEMINI_API_KEY actual pertenece al desarrollador anterior y puede ser revocada en cualquier momento, dejando toda la IA sin funcionar. Pasos: crear cuenta Google de la empresa, ir a aistudio.google.com, generar nueva API key en proyecto propio, reemplazar en .env y en produccion (Render env vars). Plan gratuito es suficiente para empezar.",
+    "estado": "COMPLETADO",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-05-28",
+    "venceEn": "2026-05-29",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 14,
+    "titulo": "Conectar perfil IA 'ASISTENTE VENTAS' al Web Widget",
+    "descripcion": "El Web Widget responde con mensaje de fallback generico ('Gracias por tu mensaje. Un agente te atendara pronto.') porque no tiene un perfil IA asignado. Pasos: ir a Web Widgets > pestaña Entrenamiento IA > seleccionar 'ASISTENTE VENTAS' > guardar. Una vez conectado, la IA respondera automaticamente a visitantes del widget.",
+    "estado": "COMPLETADO",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-05-28",
+    "venceEn": "2026-05-29",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 15,
+    "titulo": "Entrenar IA con documentos de PUCSA Maquinaria",
+    "descripcion": "Subir documentos de conocimiento al perfil IA 'ASISTENTE VENTAS' para que responda con informacion especifica de PUCSA. Ir a Perfiles IA > ASISTENTE VENTAS > Base de Conocimiento > subir archivos. Formatos soportados: PDF (catalogos, manuales, fichas tecnicas), Excel/CSV (lista de productos, precios). La IA aprendera el contenido y lo usara en sus respuestas.",
+    "estado": "COMPLETADO",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-05-28",
+    "venceEn": "2026-05-30",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 16,
+    "titulo": "Sincronizar plantillas Meta una vez aprobadas (~24h)",
+    "descripcion": "Se enviaron 8 plantillas de WhatsApp a Meta para aprobacion el 2026-05-27. Una vez aprobadas (aprox 24-48h), ir a Canales > WhatsApp > Plantillas > META SYNC para importarlas al sistema y usarlas en campañas y respuestas automaticas.",
+    "estado": "PENDIENTE",
+    "prioridad": "MEDIA",
+    "fechaInicio": "2026-05-28",
+    "venceEn": "2026-05-30",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 17,
+    "titulo": "Deploy de Wabee API a produccion (Render)",
+    "descripcion": "Publicar el backend en Render para obtener URL publica. Pasos: crear cuenta en render.com, crear Web Service apuntando al repo, configurar variables de entorno de produccion (DATABASE_URL, JWT_SECRET, CORS_ALLOWED_ORIGINS, APP_BASE_URL, STRIPE_SECRET_KEY live, GEMINI_API_KEY propia, META_REDIRECT_URI produccion). El servidor ya soporta RENDER_EXTERNAL_HOSTNAME automaticamente.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-05-29",
+    "venceEn": "2026-06-05",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 18,
+    "titulo": "Deploy de Wabee Web (frontend) a produccion",
+    "descripcion": "Publicar el frontend en Vercel, Netlify o Render Static. Configurar variable VITE_API_URL apuntando a la URL del backend en produccion. Configurar dominio personalizado si aplica.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-05-29",
+    "venceEn": "2026-06-05",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 19,
+    "titulo": "Configurar webhook de Meta con URL de produccion",
+    "descripcion": "Una vez desplegado en Render, actualizar en Meta Developers Console: Webhook URL = https://[render-url]/webhooks/meta/whatsapp, Verify Token = WHATSAPP_VERIFY_TOKEN del .env. Tambien actualizar META_REDIRECT_URI en .env de produccion. Sin esto, WhatsApp no puede enviar mensajes entrantes al sistema.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-05",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 20,
+    "titulo": "Migrar almacenamiento de archivos de disco local a Supabase Storage",
+    "descripcion": "Los snapshots de campañas (public/storage/campaigns/) y los uploads de branding (public/uploads/branding/) se guardan en disco local. En Render el filesystem es efimero y se borra en cada deploy. Migrar a Supabase Storage o S3 para persistencia real en produccion.",
+    "estado": "COMPLETADO",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-05-29",
+    "venceEn": "2026-06-05",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 21,
+    "titulo": "Configurar Redis para produccion (rate limiting y colas)",
+    "descripcion": "Actualmente REDIS_ENABLED=false (deshabilitado en dev). En produccion se requiere Redis para rate limiting, circuit breakers y manejo de colas. Opcion recomendada: Upstash Redis (plan gratuito disponible). Agregar REDIS_URL en variables de entorno de Render.",
+    "estado": "PENDIENTE",
+    "prioridad": "MEDIA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-10",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 22,
+    "titulo": "Cambiar Stripe a modo live para produccion",
+    "descripcion": "Actualmente se usa STRIPE_SECRET_KEY=sk_test_... (modo prueba). Para produccion: obtener la key live (sk_live_...) desde el dashboard de Stripe, actualizar en variables de entorno de Render, y configurar el STRIPE_WEBHOOK_SECRET real desde Stripe Dashboard > Webhooks > Signing secret.",
+    "estado": "PENDIENTE",
+    "prioridad": "MEDIA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-10",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 23,
+    "titulo": "Crear tenant y configurar PUCSA Maquinaria en Wabee",
+    "descripcion": "Crear la organizacion de PUCSA Maquinaria en el sistema Wabee como tenant independiente. Configurar: nombre de empresa, branding (logo, colores corporativos PUCSA), numero de WhatsApp Business real con WABA aprobado por Meta, dominio en whitelist del Web Widget.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-05",
+    "venceEn": "2026-06-15",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 24,
+    "titulo": "Implementar integraciones CRM (HubSpot / Salesforce) — Fase futura",
+    "descripcion": "La infraestructura de integraciones ya existe (modulo Integraciones y Herramientas con almacen de credenciales encriptadas y sistema de AI Tools). Para conectar HubSpot o Salesforce se necesita: (1) crear credenciales en Integraciones, (2) desarrollar AI Tools personalizadas (buscar_contacto, crear_lead, actualizar_oportunidad), (3) asignar tools al perfil IA. Este desarrollo debe planificarse cuando PUCSA adopte un CRM.",
+    "estado": "PENDIENTE",
+    "prioridad": "BAJA",
+    "fechaInicio": "2026-07-01",
+    "venceEn": "2026-08-01",
+    "asignadoEmail": ""
+  }
+]

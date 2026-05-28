@@ -1,0 +1,1406 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["partialIndexes"]
+  binaryTargets   = ["native"]
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["wabee"]
+}
+
+model UserProfile {
+  id        String   @id @default(cuid())
+  tenantId  String
+  name      String?
+  createdAt DateTime @default(now())
+
+  @@schema("wabee")
+}
+
+model AuthChallenge {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  type       String    @default("LOGIN_2FA")
+  status     String    @default("PENDING")
+  metadata   Json?     @default("{}")
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  expiresAt  DateTime  @map("expires_at") @db.Timestamptz(6)
+  consumedAt DateTime? @map("consumed_at") @db.Timestamptz(6)
+
+  @@index([userId])
+  @@map("auth_challenges")
+  @@schema("wabee")
+}
+
+model MetaOauthSession {
+  id                    String            @id @default(uuid()) @db.Uuid
+  tenantId              String            @map("organization_id") @db.Uuid
+  provider              String            @default("META")
+  accessTokenCiphertext String            @map("access_token_ciphertext")
+  accessTokenIv         String            @map("access_token_iv")
+  accessTokenTag        String            @map("access_token_tag")
+  tokenExpiresAt        DateTime?         @map("token_expires_at") @db.Timestamptz(6)
+  scopes                String[]          @default([])
+  createdAt             DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+  whatsappChannels      WhatsappChannel[]
+
+  @@index([tenantId])
+  @@map("meta_oauth_sessions")
+  @@schema("wabee")
+}
+
+model WhatsappChannel {
+  id                      String                  @id @default(uuid()) @db.Uuid
+  tenantId                String                  @map("organization_id") @db.Uuid
+  name                    String
+  purpose                 String                  @default("GENERAL")
+  status                  String                  @default("CONNECTED")
+  wabaId                  String                  @map("waba_id")
+  phoneNumberId           String                  @map("phone_number_id")
+  metaAppId               String?                 @map("meta_app_id")
+  displayPhone            String?                 @map("display_phone")
+  verifiedName            String?                 @map("verified_name")
+  webhookStatus           String                  @default("PENDING") @map("webhook_status")
+  healthStatus            String                  @default("UNKNOWN") @map("health_status")
+  healthFailureCount      Int                     @default(0) @map("health_failure_count")
+  lastHealthyAt           DateTime?               @map("last_healthy_at") @db.Timestamptz(6)
+  lastHealthCheckAt       DateTime?               @map("last_health_check_at") @db.Timestamptz(6)
+  lastErrorCode           String?                 @map("last_error_code")
+  lastErrorMessage        String?                 @map("last_error_message")
+  lastErrorAt             DateTime?               @map("last_error_at") @db.Timestamptz(6)
+  oauthSessionId          String?                 @map("oauth_session_id") @db.Uuid
+  createdAt               DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt               DateTime                @updatedAt @map("updated_at") @db.Timestamptz(6)
+  archivedAt              DateTime?               @map("archived_at") @db.Timestamptz(6)
+  aiEnabled               Boolean                 @default(false) @map("ai_enabled")
+  defaultAiProfileId      String?                 @map("default_ai_profile_id") @db.Uuid
+  humanHandoffEnabled     Boolean                 @default(true) @map("human_handoff_enabled")
+  humanHandoffRole        HumanHandoffRole?       @map("human_handoff_role")
+  /// Metadata informativa (no routing autoritativo). No usar como FK.
+  humanTeamRef            String?                 @map("human_team_ref") @db.VarChar(120)
+  fallbackMessage         String?                 @map("fallback_message")
+  aiMode                  ChannelAiMode           @default(disabled) @map("ai_mode")
+  whatsappAgentBinding    WhatsappAgentBinding?
+  whatsappCampaigns       WhatsappCampaign[]
+  defaultAiProfile        AiProfile?              @relation("ChannelDefaultAiProfile", fields: [defaultAiProfileId], references: [id])
+  oauthSession            MetaOauthSession?       @relation(fields: [oauthSessionId], references: [id])
+  whatsappMessageStatuses WhatsappMessageStatus[]
+  whatsappMessages        WhatsappMessage[]
+  whatsappTemplates       WhatsappTemplate[]
+  whatsappThreads         WhatsappThread[]
+
+  @@unique([tenantId, phoneNumberId])
+  @@index([tenantId])
+  @@index([tenantId, aiEnabled])
+  @@map("whatsapp_channels")
+  @@schema("wabee")
+}
+
+model WhatsappMessage {
+  id               String                    @id @default(uuid()) @db.Uuid
+  tenantId         String                    @map("organization_id") @db.Uuid
+  channelId        String                    @map("channel_id") @db.Uuid
+  direction        String
+  threadId         String?                   @map("thread_id") @db.Uuid
+  waMessageId      String?                   @map("wa_message_id")
+  fromPhone        String                    @map("from_phone")
+  toPhone          String                    @map("to_phone")
+  remotePhone      String                    @map("remote_phone")
+  type             String
+  textBody         String?                   @map("text_body")
+  timestamp        DateTime                  @db.Timestamptz(6)
+  status           String                    @default("RECEIVED")
+  deliveryStatus   String?                   @map("delivery_status")
+  errorCode        String?                   @map("error_code")
+  errorMessage     String?                   @map("error_message")
+  deliveredAt      DateTime?                 @map("delivered_at") @db.Timestamptz(6)
+  readAt           DateTime?                 @map("read_at") @db.Timestamptz(6)
+  rawPayload       Json?                     @map("raw_payload")
+  createdAt        DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)
+  metadata         Json?
+  source           String?
+  externalRef      String?                   @map("external_ref")
+  senderType       MessageSenderType?        @map("sender_type")
+  senderUserId     String?                   @map("sender_user_id") @db.Uuid
+  aiProfileId      String?                   @map("ai_profile_id") @db.Uuid
+  generatedBy      MessageGeneratedBy?       @map("generated_by")
+  campaignMessages WhatsappCampaignMessage[]
+  aiProfile        AiProfile?                @relation("MessageAiProfile", fields: [aiProfileId], references: [id])
+  channel          WhatsappChannel           @relation(fields: [channelId], references: [id])
+  thread           WhatsappThread?           @relation(fields: [threadId], references: [id])
+
+  @@unique([tenantId, externalRef], map: "uq_whatsapp_messages_org_external_ref", where: raw("(external_ref IS NOT NULL)"))
+  @@index([tenantId])
+  @@index([channelId])
+  @@index([threadId])
+  @@index([tenantId, channelId])
+  @@index([remotePhone])
+  @@index([timestamp])
+  @@index([tenantId, externalRef], map: "idx_whatsapp_messages_tenant_external_ref")
+  @@index([threadId, senderType, direction])
+  @@index([tenantId, waMessageId], map: "idx_whatsapp_messages_org_wa_message_id", where: raw("(wa_message_id IS NOT NULL)"))
+  @@map("whatsapp_messages")
+  @@schema("wabee")
+}
+
+model WhatsappThread {
+  id                   String               @id @default(uuid()) @db.Uuid
+  tenantId             String               @map("organization_id") @db.Uuid
+  channelId            String               @map("channel_id") @db.Uuid
+  contactPhone         String               @map("contact_phone")
+  contactName          String?              @map("contact_name")
+  lastMessageAt        DateTime             @default(now()) @map("last_message_at") @db.Timestamptz(6)
+  lastMessagePreview   String?              @map("last_message_preview")
+  unreadCount          Int                  @default(0) @map("unread_count")
+  status               String               @default("OPEN")
+  metadata             Json?
+  createdAt            DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
+  contactId            String?              @map("contact_id") @db.Uuid
+  assignedUserId       String?              @map("assigned_user_id") @db.Uuid
+  contextState         Json?                @map("context_state")
+  currentFlowVersionId String?              @map("current_flow_version_id")
+  source               String?
+  /// NULL intencionalmente: ThreadStateOrchestrator.openThread() asigna el valor correcto.
+  handlingMode         ThreadHandlingMode?  @map("handling_mode")
+  assignedAiProfileId  String?              @map("assigned_ai_profile_id") @db.Uuid
+  aiPaused             Boolean              @default(false) @map("ai_paused")
+  aiPausedAt           DateTime?            @map("ai_paused_at") @db.Timestamptz(6)
+  aiPausedByUserId     String?              @map("ai_paused_by_user_id") @db.Uuid
+  takeoverReason       String?              @map("takeover_reason") @db.VarChar(120)
+  humanTakeoverAt      DateTime?            @map("human_takeover_at") @db.Timestamptz(6)
+  humanTakeoverBy      String?              @map("human_takeover_by") @db.Uuid
+  lastResponderType    MessageSenderType?   @map("last_responder_type")
+  notes                ThreadNote[]
+  messages             WhatsappMessage[]
+  whatsappNotes        WhatsappThreadNote[]
+  assignedAiProfile    AiProfile?           @relation("ThreadAssignedAiProfile", fields: [assignedAiProfileId], references: [id])
+  channel              WhatsappChannel      @relation(fields: [channelId], references: [id])
+  contact              Contact?             @relation(fields: [contactId], references: [id])
+
+  @@unique([tenantId, channelId, contactPhone])
+  @@index([tenantId])
+  @@index([tenantId, contactId])
+  @@index([channelId])
+  @@index([lastMessageAt])
+  @@index([tenantId, handlingMode])
+  @@index([tenantId, aiPaused])
+  @@map("whatsapp_threads")
+  @@schema("wabee")
+}
+
+model WhatsappThreadNote {
+  id          String         @id @default(uuid()) @db.Uuid
+  tenantId    String         @db.Uuid
+  threadId    String         @db.Uuid
+  body        String
+  isPinned    Boolean        @default(false)
+  createdById String?        @db.Uuid
+  createdAt   DateTime       @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime       @updatedAt @db.Timestamptz(6)
+  thread      WhatsappThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, threadId, createdAt])
+  @@index([tenantId, threadId, isPinned])
+  @@map("whatsapp_thread_notes")
+  @@schema("wabee")
+}
+
+model Contact {
+  id                String                    @id @default(uuid()) @db.Uuid
+  tenantId          String                    @map("organization_id") @db.Uuid
+  phone             String
+  name              String?
+  email             String?
+  lastInteractionAt DateTime?                 @map("last_interaction_at") @db.Timestamptz(6)
+  status            ContactStatus             @default(ACTIVE)
+  lifecycleStatus   ContactLifecycleStatus    @default(NEW) @map("lifecycle_status")
+  externalCrmId     String?                   @map("external_crm_id")
+  sourceSystem      String?                   @map("source_system")
+  createdAt         DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime                  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tags              Json                      @default("[]")
+  contactGroups     ContactGroup[]
+  lifecycleEvents   ContactLifecycleEvent[]
+  campaignMessages  WhatsappCampaignMessage[]
+  whatsappThreads   WhatsappThread[]
+
+  @@unique([tenantId, phone])
+  @@index([tenantId, phone])
+  @@index([tenantId, lifecycleStatus])
+  @@index([tenantId, status])
+  @@map("contacts")
+  @@schema("wabee")
+}
+
+model Group {
+  id            String         @id @default(uuid()) @db.Uuid
+  tenantId      String         @map("organization_id") @db.Uuid
+  name          String
+  description   String?
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  contactGroups ContactGroup[]
+
+  @@unique([tenantId, name])
+  @@index([tenantId, name])
+  @@map("groups")
+  @@schema("wabee")
+}
+
+model ContactGroup {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("organization_id") @db.Uuid
+  contactId String   @map("contact_id") @db.Uuid
+  groupId   String   @map("group_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  contact   Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, contactId, groupId])
+  @@index([tenantId, groupId])
+  @@index([tenantId, contactId])
+  @@map("contact_groups")
+  @@schema("wabee")
+}
+
+model SavedSegment {
+  id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @map("organization_id") @db.Uuid
+  name        String
+  description String?
+  filter      Json
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
+  @@map("saved_segments")
+  @@schema("wabee")
+}
+
+model ContactLifecycleEvent {
+  id          String                 @id @default(uuid()) @db.Uuid
+  tenantId    String                 @map("organization_id") @db.Uuid
+  contactId   String                 @map("contact_id") @db.Uuid
+  fromStatus  ContactLifecycleStatus @map("from_status")
+  toStatus    ContactLifecycleStatus @map("to_status")
+  actorUserId String?                @map("actor_user_id") @db.Uuid
+  source      String
+  createdAt   DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  contact     Contact                @relation(fields: [contactId], references: [id])
+
+  @@index([tenantId, contactId])
+  @@index([tenantId, createdAt])
+  @@map("contact_lifecycle_events")
+  @@schema("wabee")
+}
+
+model WhatsappMessageStatus {
+  id         String          @id @default(uuid()) @db.Uuid
+  tenantId   String          @map("organization_id") @db.Uuid
+  messageId  String          @map("message_id") @db.Uuid
+  channelId  String          @map("channel_id") @db.Uuid
+  status     String
+  timestamp  DateTime        @db.Timestamptz(6)
+  rawPayload Json?           @map("raw_payload")
+  createdAt  DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  channel    WhatsappChannel @relation(fields: [channelId], references: [id])
+
+  @@index([tenantId])
+  @@index([messageId])
+  @@index([timestamp])
+  @@map("whatsapp_message_statuses")
+  @@schema("wabee")
+}
+
+model ThreadNote {
+  id           String         @id @default(uuid()) @db.Uuid
+  tenantId     String         @map("organization_id") @db.Uuid
+  threadId     String         @map("thread_id") @db.Uuid
+  authorUserId String?        @map("author_user_id") @db.Uuid
+  body         String
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  thread       WhatsappThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, threadId])
+  @@map("thread_notes")
+  @@schema("wabee")
+}
+
+model WhatsappTemplate {
+  id                String             @id @default(uuid()) @db.Uuid
+  tenantId          String             @map("organization_id") @db.Uuid
+  channelId         String             @map("channel_id") @db.Uuid
+  name              String
+  language          String
+  category          String
+  status            String
+  components        Json
+  metaTemplateId    String?            @map("meta_template_id")
+  createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+  whatsappCampaigns WhatsappCampaign[]
+  channel           WhatsappChannel    @relation(fields: [channelId], references: [id])
+
+  @@unique([tenantId, channelId, name, language])
+  @@index([tenantId])
+  @@index([channelId])
+  @@index([tenantId, channelId])
+  @@map("whatsapp_templates")
+  @@schema("wabee")
+}
+
+model WebWidget {
+  id             String      @id @default(uuid()) @db.Uuid
+  tenantId       String      @map("organization_id") @db.Uuid
+  title          String
+  subtitle       String?
+  welcomeMessage String?     @map("welcome_message")
+  domainAllowed  String[]    @default([]) @map("domain_allowed")
+  aiEnabled      Boolean     @default(false) @map("ai_enabled")
+  createdAt      DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+  features       Json?
+  theme          Json?
+  content        Json?
+  ai             Json?
+  threads        WebThread[]
+
+  @@index([tenantId])
+  @@map("web_widgets")
+  @@schema("wabee")
+}
+
+model WebThread {
+  id               String          @id @default(uuid()) @db.Uuid
+  tenantId         String          @map("organization_id") @db.Uuid
+  widgetId         String          @map("widget_id") @db.Uuid
+  visitorId        String          @map("visitor_id")
+  sessionId        String?         @map("session_id")
+  status           WebThreadStatus @default(OPEN)
+  contextState     Json?           @map("context_state")
+  aiPaused         Boolean         @default(false) @map("ai_paused")
+  aiPausedAt       DateTime?       @map("ai_paused_at") @db.Timestamptz(6)
+  aiPausedByUserId String?         @map("ai_paused_by_user_id") @db.Uuid
+  lastMessageAt    DateTime?       @map("last_message_at") @db.Timestamptz(6)
+  createdAt        DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+  messages         WebMessage[]
+  widget           WebWidget       @relation(fields: [widgetId], references: [id])
+
+  @@index([tenantId])
+  @@index([widgetId])
+  @@index([tenantId, widgetId, visitorId])
+  @@index([tenantId, widgetId, visitorId, status])
+  @@map("web_threads")
+  @@schema("wabee")
+}
+
+model WebMessage {
+  id        String              @id @default(uuid()) @db.Uuid
+  tenantId  String              @map("organization_id") @db.Uuid
+  threadId  String              @map("thread_id") @db.Uuid
+  direction String
+  actorType WebMessageActorType @map("actor_type")
+  text      String
+  createdAt DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  thread    WebThread           @relation(fields: [threadId], references: [id])
+
+  @@index([tenantId, threadId])
+  @@map("web_messages")
+  @@schema("wabee")
+}
+
+model AiProfile {
+  id                    String                 @id @default(uuid()) @db.Uuid
+  tenantId              String                 @map("organization_id") @db.Uuid
+  name                  String
+  tone                  String?
+  tones                 String[]               @default([])
+  systemPrompt          String                 @map("system_prompt")
+  agentName             String?                @map("agent_name")
+  roleTitle             String?                @map("role_title")
+  personalityNotes      String?                @map("personality_notes")
+  examples              Json?
+  greetingStyle         GreetingStyle          @default(WARM) @map("greeting_style")
+  fallbackMessage       String?                @map("fallback_message")
+  fallbackMode          FallbackMode           @default(CUSTOM) @map("fallback_mode")
+  fallbackCustomMessage String?                @map("fallback_custom_message")
+  maxTokens             Int                    @default(512) @map("max_tokens")
+  confidenceThreshold   Float                  @default(0.6) @map("confidence_threshold")
+  channelType           AiChannelType          @default(WIDGET) @map("channel_type")
+  kbEnabled             Boolean                @default(true) @map("kb_enabled")
+  /// Nivel de agresividad del agente ante KB insuficiente: conservative | balanced | aggressive
+  /// conservative = handoff rápido (1 reintento KB)
+  /// balanced     = reinterpretación + pregunta aclaratoria (default WABEE)
+  /// aggressive   = máxima interpretación, 2 reintentos KB + pregunta aclaratoria
+  handoffAggressiveness String                 @default("balanced") @map("handoff_aggressiveness") @db.VarChar(20)
+  createdAt             DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
+  aiProfileTools        AiProfileTool[]
+  kbFiles               KbFile[]
+  whatsappAgentBindings WhatsappAgentBinding[]
+  channelsAsDefault     WhatsappChannel[]      @relation("ChannelDefaultAiProfile")
+  messagesGenerated     WhatsappMessage[]      @relation("MessageAiProfile")
+  threadsAssigned       WhatsappThread[]       @relation("ThreadAssignedAiProfile")
+
+  @@index([tenantId])
+  @@map("ai_profiles")
+  @@schema("wabee")
+}
+
+model KbFile {
+  id          String     @id @default(uuid()) @db.Uuid
+  tenantId    String     @map("organization_id") @db.Uuid
+  profileId   String?    @map("profile_id") @db.Uuid
+  filename    String
+  mimeType    String     @map("mime_type")
+  size        Int
+  storagePath String     @map("storage_path")
+  status      String     @default("PROCESSING")
+  error       String?
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+  chunks      KbChunk[]
+  profile     AiProfile? @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([tenantId, profileId])
+  @@map("kb_files")
+  @@schema("wabee")
+}
+
+model KbChunk {
+  id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @map("organization_id") @db.Uuid
+  fileId      String   @map("file_id") @db.Uuid
+  profileId   String?  @map("profile_id") @db.Uuid
+  idx         Int      @default(0)
+  section     String?  @db.VarChar(120)
+  content     String
+  contentNorm String   @default("") @map("content_norm")
+  charStart   Int?     @map("char_start")
+  charEnd     Int?     @map("char_end")
+  embedding   Json?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  file        KbFile   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([fileId])
+  @@index([tenantId, profileId])
+  @@index([tenantId, profileId, fileId])
+  @@index([tenantId, profileId, idx])
+  @@map("kb_chunks")
+  @@schema("wabee")
+}
+
+model AiAuditLog {
+  id              String   @id @default(uuid()) @db.Uuid
+  tenantId        String   @map("organization_id") @db.Uuid
+  channel         String
+  widgetId        String?  @map("widget_id") @db.Uuid
+  threadId        String?  @map("thread_id") @db.Uuid
+  effectivePrompt String   @map("effective_prompt")
+  provider        String   @default("OLLAMA")
+  model           String
+  responseText    String?  @map("response_text")
+  confidenceScore Float?   @map("confidence_score")
+  action          String
+  errorMessage    String?  @map("error_message")
+  kbFileIds       Json?    @map("kb_file_ids")
+  kbChunkIds      Json?    @map("kb_chunk_ids")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([tenantId])
+  @@index([widgetId])
+  @@index([threadId])
+  @@index([createdAt])
+  @@map("ai_audit_logs")
+  @@schema("wabee")
+}
+
+model WhatsappCampaign {
+  id                   String                    @id @default(uuid()) @db.Uuid
+  tenantId             String                    @map("organization_id") @db.Uuid
+  channelId            String                    @map("channel_id") @db.Uuid
+  templateId           String?                   @map("template_id") @db.Uuid
+  name                 String
+  status               WhatsappCampaignStatus    @default(DRAFT)
+  audienceType         String                    @map("audience_type")
+  audienceFilter       Json?                     @map("audience_filter")
+  audienceSnapshotPath String?                   @map("audience_snapshot_path")
+  audienceSnapshotHash String?                   @map("audience_snapshot_hash")
+  scheduledAt          DateTime?                 @map("scheduled_at") @db.Timestamptz(6)
+  startedAt            DateTime?                 @map("started_at") @db.Timestamptz(6)
+  completedAt          DateTime?                 @map("completed_at") @db.Timestamptz(6)
+  estimatedRecipients  Int                       @default(0) @map("estimated_recipients")
+  pauseReason          String?                   @map("pause_reason")
+  templateInputMapping Json?                     @map("template_input_mapping")
+  sentCount            Int                       @default(0) @map("sent_count")
+  deliveredCount       Int                       @default(0) @map("delivered_count")
+  readCount            Int                       @default(0) @map("read_count")
+  failedCount          Int                       @default(0) @map("failed_count")
+  createdAt            DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime                  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  messages             WhatsappCampaignMessage[]
+  channel              WhatsappChannel           @relation(fields: [channelId], references: [id])
+  template             WhatsappTemplate?         @relation(fields: [templateId], references: [id])
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
+  @@index([status])
+  @@map("whatsapp_campaigns")
+  @@schema("wabee")
+}
+
+model WhatsappCampaignMessage {
+  id            String                        @id @default(uuid()) @db.Uuid
+  tenantId      String                        @map("organization_id") @db.Uuid
+  campaignId    String                        @map("campaign_id") @db.Uuid
+  contactId     String                        @map("contact_id") @db.Uuid
+  messageId     String?                       @map("message_id") @db.Uuid
+  waMessageId   String?                       @map("wa_message_id")
+  status        WhatsappCampaignMessageStatus @default(PENDING)
+  variant       String?
+  attempts      Int                           @default(0)
+  nextAttemptAt DateTime?                     @map("next_attempt_at") @db.Timestamptz(6)
+  errorCode     String?                       @map("error_code")
+  errorPayload  Json?                         @map("error_payload")
+  createdAt     DateTime                      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime                      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  campaign      WhatsappCampaign              @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  contact       Contact                       @relation(fields: [contactId], references: [id])
+  message       WhatsappMessage?              @relation(fields: [messageId], references: [id])
+
+  @@unique([tenantId, campaignId, contactId])
+  @@index([tenantId, campaignId])
+  @@index([waMessageId])
+  @@index([status])
+  @@map("whatsapp_campaign_messages")
+  @@schema("wabee")
+}
+
+model AnalyticsEvent {
+  id                String             @id @default(uuid()) @db.Uuid
+  tenantId          String             @map("organization_id") @db.Uuid
+  occurredAt        DateTime           @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  eventType         AnalyticsEventType @map("event_type")
+  channel           String             @default("all")
+  threadId          String?            @map("thread_id") @db.Uuid
+  conversationId    String?            @map("conversation_id") @db.Uuid
+  contactId         String?            @map("contact_id") @db.Uuid
+  campaignId        String?            @map("campaign_id") @db.Uuid
+  campaignMessageId String?            @map("campaign_message_id") @db.Uuid
+  variant           String?
+  actorType         AnalyticsActorType @default(SYSTEM) @map("actor_type")
+  actorUserId       String?            @map("actor_user_id") @db.Uuid
+  meta              Json?              @default("{}")
+
+  @@index([tenantId, occurredAt])
+  @@index([tenantId, eventType, occurredAt])
+  @@index([tenantId, threadId])
+  @@index([tenantId, occurredAt], map: "idx_analytics_events_tenant_ts")
+  @@index([tenantId, threadId], map: "idx_analytics_events_thread")
+  @@index([tenantId, eventType, occurredAt], map: "idx_analytics_events_type_ts")
+  @@map("analytics_events")
+  @@schema("wabee")
+}
+
+model AnalyticsDailyRollup {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("organization_id") @db.Uuid
+  date      DateTime @db.Date
+  channel   String
+  metrics   Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([tenantId, date, channel])
+  @@index([tenantId, date])
+  @@index([tenantId, date], map: "idx_analytics_rollup_date")
+  @@map("analytics_daily_rollups")
+  @@schema("wabee")
+}
+
+model AnalyticsAggregationCursor {
+  tenantId         String   @id @map("organization_id") @db.Uuid
+  lastAggregatedAt DateTime @default(dbgenerated("'1970-01-01 00:00:00+00'::timestamp with time zone")) @map("last_aggregated_at") @db.Timestamptz(6)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("analytics_aggregation_cursors")
+  @@schema("wabee")
+}
+
+model AnalyticsCrmEvent {
+  id         String   @id @default(uuid()) @db.Uuid
+  tenantId   String   @map("organization_id") @db.Uuid
+  occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  type       String
+  provider   String
+  externalId String?  @map("external_id")
+  threadId   String?  @map("thread_id") @db.Uuid
+  contactId  String?  @map("contact_id") @db.Uuid
+  value      Float?
+  currency   String?  @default("USD")
+  meta       Json?    @default("{}")
+
+  @@index([tenantId, occurredAt])
+  @@index([tenantId, occurredAt], map: "idx_analytics_crm_ts")
+  @@map("analytics_crm_events")
+  @@schema("wabee")
+}
+
+model WhatsappAgentBinding {
+  id                 String          @id @default(uuid()) @db.Uuid
+  tenantId           String          @map("organization_id") @db.Uuid
+  channelId          String          @unique @map("channel_id") @db.Uuid
+  profileId          String          @map("profile_id") @db.Uuid
+  isActive           Boolean         @default(true) @map("is_active")
+  handoffToHumanKeys String[]        @default(["asesor", "humano", "agente", "ayuda"]) @map("handoff_to_human_keys")
+  channel            WhatsappChannel @relation(fields: [channelId], references: [id])
+  profile            AiProfile       @relation(fields: [profileId], references: [id])
+
+  @@unique([tenantId, channelId])
+  @@index([tenantId])
+  @@index([profileId])
+  @@map("whatsapp_agent_bindings")
+  @@schema("wabee")
+}
+
+model AiService {
+  id             String               @id @default(uuid()) @db.Uuid
+  tenantId       String               @map("organization_id") @db.Uuid
+  name           String
+  slug           String
+  description    String
+  category       String?
+  type           ServiceType          @default(TRANSACTIONAL)
+  isActive       Boolean              @default(true) @map("is_active")
+  intentHints    Json                 @default("[]") @map("intent_hints")
+  behaviorConfig Json                 @default("{}") @map("behavior_config")
+  createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
+  knowledge      AiServiceKnowledge[]
+  slots          AiServiceSlot[]
+  tools          AiServiceTool[]
+
+  @@unique([tenantId, slug])
+  @@unique([tenantId, name])
+  @@index([tenantId])
+  @@map("ai_services")
+  @@schema("wabee")
+}
+
+model AiServiceSlot {
+  id               String          @id @default(uuid()) @db.Uuid
+  serviceId        String          @map("service_id") @db.Uuid
+  key              String
+  label            String
+  description      String?
+  type             ServiceSlotType @default(TEXT)
+  required         Boolean         @default(true)
+  sensitive        Boolean         @default(false)
+  orderIndex       Int             @default(0) @map("order_index")
+  validationConfig Json?           @map("validation_config")
+  promptHint       String          @map("prompt_hint")
+  isCore           Boolean         @default(false) @map("is_core")
+  service          AiService       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([serviceId, key])
+  @@index([serviceId])
+  @@map("ai_service_slots")
+  @@schema("wabee")
+}
+
+model AiServiceTool {
+  id            String                   @id @default(uuid()) @db.Uuid
+  serviceId     String                   @map("service_id") @db.Uuid
+  toolId        String                   @map("tool_id") @db.Uuid
+  purpose       String?
+  executionMode ServiceToolExecutionMode @default(AUTO) @map("execution_mode")
+  actionType    ServiceToolActionType    @default(READ) @map("action_type")
+  isActive      Boolean                  @default(true) @map("is_active")
+  service       AiService                @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  tool          AiTool                   @relation(fields: [toolId], references: [id], onDelete: Cascade)
+
+  @@unique([serviceId, toolId])
+  @@index([serviceId])
+  @@map("ai_service_tools")
+  @@schema("wabee")
+}
+
+model AiServiceKnowledge {
+  id           String    @id @default(uuid()) @db.Uuid
+  serviceId    String    @map("service_id") @db.Uuid
+  collectionId String    @map("collection_id")
+  isActive     Boolean   @default(true) @map("is_active")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  service      AiService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([serviceId, collectionId])
+  @@index([serviceId])
+  @@map("ai_service_knowledge")
+  @@schema("wabee")
+}
+
+model IntegrationCredential {
+  id              String       @id @default(uuid()) @db.Uuid
+  tenantId        String       @map("organization_id") @db.Uuid
+  name            String
+  authType        ToolAuthType @default(NONE) @map("auth_type")
+  encryptedConfig Json
+  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  tools           AiTool[]
+
+  @@unique([tenantId, name])
+  @@map("integration_credentials")
+  @@schema("wabee")
+}
+
+model AiTool {
+  id                  String                 @id @default(uuid()) @db.Uuid
+  tenantId            String                 @map("organization_id") @db.Uuid
+  credentialId        String?                @map("credential_id") @db.Uuid
+  name                String
+  displayName         String                 @map("display_name")
+  description         String
+  category            String?
+  capability          ToolCapability         @default(general_api_fetch)
+  customCapability    String?                @map("custom_capability")
+  semanticDescription String?                @map("semantic_description")
+  outputSchema        Json?                  @map("output_schema")
+  confirmationPolicy  ToolConfirmationPolicy @default(AUTO) @map("confirmation_policy")
+  safetyFlags         Json                   @default("{}") @map("safety_flags")
+  exampleUtterances   Json?                  @map("example_utterances")
+  method              HttpMethod             @default(POST)
+  endpointUrl         String                 @map("endpoint_url")
+  parametersSchema    Json                   @map("parameters_schema")
+  responseMapping     Json?                  @map("response_mapping")
+  triggerHints        Json?                  @map("trigger_hints")
+  timeoutMs           Int                    @default(5000) @map("timeout_ms")
+  retries             Int                    @default(0)
+  requireApproval     Boolean                @default(false) @map("require_approval")
+  isActive            Boolean                @default(true) @map("is_active")
+  createdAt           DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  profiles            AiProfileTool[]
+  serviceTools        AiServiceTool[]
+  executions          AiToolExecution[]
+  credential          IntegrationCredential? @relation(fields: [credentialId], references: [id])
+
+  @@unique([tenantId, name])
+  @@map("ai_tools")
+  @@schema("wabee")
+}
+
+model AiProfileTool {
+  id        String    @id @default(uuid()) @db.Uuid
+  tenantId  String    @map("organization_id") @db.Uuid
+  profileId String    @map("profile_id") @db.Uuid
+  toolId    String    @map("tool_id") @db.Uuid
+  isActive  Boolean   @default(true) @map("is_active")
+  addedAt   DateTime  @default(now()) @map("added_at") @db.Timestamptz(6)
+  profile   AiProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  tool      AiTool    @relation(fields: [toolId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, toolId])
+  @@index([tenantId])
+  @@map("ai_profile_tools")
+  @@schema("wabee")
+}
+
+model AiToolExecution {
+  id              String              @id @default(uuid()) @db.Uuid
+  tenantId        String              @map("organization_id") @db.Uuid
+  toolId          String              @map("tool_id") @db.Uuid
+  threadId        String?             @map("thread_id") @db.Uuid
+  status          ToolExecutionStatus
+  requestPayload  Json?               @map("request_payload")
+  responsePayload Json?               @map("response_payload")
+  errorMessage    String?             @map("error_message")
+  durationMs      Int?                @map("duration_ms")
+  executedAt      DateTime            @default(now()) @map("executed_at") @db.Timestamptz(6)
+  tool            AiTool              @relation(fields: [toolId], references: [id])
+
+  @@index([tenantId, threadId])
+  @@map("ai_tool_executions")
+  @@schema("wabee")
+}
+
+model ConversationState {
+  id                String               @id @default(uuid()) @db.Uuid
+  tenantId          String               @map("organization_id") @db.Uuid
+  threadId          String               @unique @map("thread_id") @db.Uuid
+  mode              ConversationMode     @default(AI_MANAGED)
+  handoffReason     String?              @map("handoff_reason")
+  handoffAt         DateTime?            @map("handoff_at") @db.Timestamptz(6)
+  activeFormIntent  String?              @map("active_form_intent")
+  collectedData     Json?                @map("collected_data")
+  formStatus        FormStatus?          @map("form_status")
+  contextMemory     Json?                @map("context_memory")
+  activeServiceId   String?              @map("active_service_id") @db.Uuid
+  serviceIntentType AiServiceIntentType? @map("service_intent_type")
+  nextSuggestedSlot String?              @map("next_suggested_slot")
+  customerMemory    Json?                @map("customer_memory")
+  lastUpdatedAt     DateTime             @default(now()) @updatedAt @map("last_updated_at") @db.Timestamptz(6)
+
+  @@index([tenantId, threadId])
+  @@map("conversation_states")
+  @@schema("wabee")
+}
+
+/// Registro de eventos de atención operativa en el Inbox.
+/// Complementa AuditTrail (eventos técnicos) con trazabilidad de agentes.
+model InboxAuditLog {
+  id                 String               @id @default(uuid()) @db.Uuid
+  tenantId           String               @map("tenant_id") @db.Uuid
+  threadId           String               @map("thread_id") @db.Uuid
+  channelId          String?              @map("channel_id") @db.Uuid
+  contactId          String?              @map("contact_id") @db.Uuid
+  actorType          InboxAuditActorType  @map("actor_type")
+  actorUserId        String?              @map("actor_user_id") @db.Uuid
+  actorRole          InboxAuditActorRole? @map("actor_role")
+  actorDisplayName   String?              @map("actor_display_name")
+  contactDisplayName String?              @map("contact_display_name")
+  channelName        String?              @map("channel_name")
+  eventType          InboxAuditEventType  @map("event_type")
+  messageId          String?              @map("message_id") @db.Uuid
+  description        String?
+  metadata           Json?
+  occurredAt         DateTime             @default(now()) @map("occurred_at") @db.Timestamptz(6)
+
+  @@index([tenantId, actorUserId])
+  @@index([tenantId, threadId])
+  @@index([tenantId, occurredAt])
+  @@map("inbox_audit_log")
+  @@schema("wabee")
+}
+
+model ImpersonationSession {
+  id           String    @id @default(uuid()) @db.Uuid
+  tenantId     String    @map("organization_id") @db.Uuid
+  adminUserId  String    @map("admin_user_id") @db.Uuid
+  targetUserId String    @map("target_user_id") @db.Uuid
+  reason       String?
+  startedAt    DateTime  @default(now()) @map("started_at") @db.Timestamptz(6)
+  endedAt      DateTime? @map("ended_at") @db.Timestamptz(6)
+  endedBy      String?   @map("ended_by") @db.Uuid
+  isActive     Boolean   @default(true) @map("is_active")
+  metadata     Json?     @default("{}")
+
+  @@index([isActive], map: "idx_impersonation_sessions_active")
+  @@index([tenantId, adminUserId], map: "idx_impersonation_sessions_tenant_admin")
+  @@map("impersonation_sessions")
+  @@schema("wabee")
+}
+
+model WebhookEvent {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  provider  String
+  eventId   String   @map("event_id")
+  eventType String   @map("event_type")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([provider, eventId])
+  @@index([tenantId, provider])
+  @@map("webhook_events")
+  @@schema("wabee")
+}
+
+model dashboard_view_configs {
+  id                 String   @id @db.Uuid
+  tenant_id          String   @db.Uuid
+  role               String?
+  page_key           String
+  layout_config      Json     @default("{}")
+  widget_config      Json     @default("{}")
+  filters_config     Json     @default("{}")
+  is_default         Boolean  @default(false)
+  created_by_user_id String?  @db.Uuid
+  updated_at         DateTime @db.Timestamptz(6)
+
+  @@unique([tenant_id, page_key, role])
+  @@index([tenant_id, page_key])
+  @@schema("wabee")
+}
+
+model global_audit_events {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at         DateTime @default(now()) @db.Timestamptz(6)
+  tenant_id          String?  @db.Uuid
+  affected_tenant_id String?  @db.Uuid
+  actor_type         String
+  actor_user_id      String?  @db.Uuid
+  actor_email        String?
+  actor_role         String?
+  event_type         String
+  category           String
+  severity           String
+  outcome            String
+  target_type        String?
+  target_id          String?
+  target_label       String?
+  ip_address         String?
+  user_agent         String?
+  request_id         String?
+  correlation_id     String?
+  message            String
+  old_values         Json?
+  new_values         Json?
+  metadata           Json?
+  is_sensitive       Boolean  @default(false)
+  is_impersonation   Boolean  @default(false)
+
+  @@index([affected_tenant_id, created_at], map: "idx_global_audit_events_affected_tenant_created")
+  @@index([created_at(sort: Desc)], map: "idx_global_audit_events_created_at")
+  @@index([event_type, created_at], map: "idx_global_audit_events_event_type_created")
+  @@index([severity, created_at], map: "idx_global_audit_events_severity_created")
+  @@index([tenant_id, created_at], map: "idx_global_audit_events_tenant_created")
+  @@schema("wabee")
+}
+
+model ui_theme_assets {
+  id          String      @id @db.Uuid
+  tenant_id   String      @db.Uuid
+  theme_id    String      @db.Uuid
+  asset_type  UiAssetType
+  label       String?
+  storage_key String
+  public_url  String
+  mime_type   String
+  width       Int?
+  height      Int?
+  size_bytes  Int?
+  meta        Json?       @default("{}")
+  created_at  DateTime    @default(now()) @db.Timestamptz(6)
+  ui_themes   ui_themes   @relation(fields: [theme_id], references: [id], onDelete: Cascade)
+
+  @@unique([theme_id, asset_type])
+  @@index([tenant_id, theme_id])
+  @@schema("wabee")
+}
+
+model ui_theme_assignments {
+  id          String                 @id @db.Uuid
+  tenant_id   String                 @db.Uuid
+  theme_id    String                 @db.Uuid
+  target_type UiAssignmentTargetType
+  target_key  String?
+  priority    Int                    @default(0)
+  is_enabled  Boolean                @default(true)
+  created_at  DateTime               @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime               @db.Timestamptz(6)
+  ui_themes   ui_themes              @relation(fields: [theme_id], references: [id], onDelete: Cascade)
+
+  @@unique([tenant_id, target_type, target_key])
+  @@index([tenant_id, is_enabled])
+  @@index([tenant_id, target_type])
+  @@schema("wabee")
+}
+
+model ui_theme_versions {
+  id                 String    @id @db.Uuid
+  theme_id           String    @db.Uuid
+  version_number     Int
+  snapshot           Json
+  change_summary     String?
+  created_by_user_id String?   @db.Uuid
+  created_at         DateTime  @default(now()) @db.Timestamptz(6)
+  ui_themes          ui_themes @relation(fields: [theme_id], references: [id], onDelete: Cascade)
+
+  @@unique([theme_id, version_number])
+  @@index([theme_id])
+  @@schema("wabee")
+}
+
+model ui_themes {
+  id                   String                 @id @db.Uuid
+  tenant_id            String                 @db.Uuid
+  name                 String
+  description          String?
+  scope                String                 @default("tenant")
+  status               UiThemeStatus          @default(DRAFT)
+  is_active            Boolean                @default(false)
+  tokens               Json                   @default("{}")
+  presets              Json                   @default("{}")
+  created_by_user_id   String?                @db.Uuid
+  created_at           DateTime               @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime               @db.Timestamptz(6)
+  ui_theme_assets      ui_theme_assets[]
+  ui_theme_assignments ui_theme_assignments[]
+  ui_theme_versions    ui_theme_versions[]
+  ui_user_preferences  ui_user_preferences[]
+
+  @@unique([tenant_id, name])
+  @@index([tenant_id, is_active])
+  @@index([tenant_id, status])
+  @@schema("wabee")
+}
+
+model ui_user_preferences {
+  id                String     @id @db.Uuid
+  tenant_id         String     @db.Uuid
+  user_id           String     @db.Uuid
+  theme_id          String?    @db.Uuid
+  density           String     @default("comfortable")
+  sidebar_collapsed Boolean    @default(false)
+  dashboard_layout  Json?
+  created_at        DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime   @db.Timestamptz(6)
+  ui_themes         ui_themes? @relation(fields: [theme_id], references: [id])
+
+  @@unique([tenant_id, user_id])
+  @@index([tenant_id, user_id])
+  @@schema("wabee")
+}
+
+enum ContactStatus {
+  ACTIVE
+  BLOCKED
+
+  @@schema("wabee")
+}
+
+enum ContactLifecycleStatus {
+  NEW
+  LEAD
+  ACTIVE
+  CUSTOMER
+  INACTIVE
+  BLOCKED
+  ARCHIVED
+
+  @@schema("wabee")
+}
+
+enum WebThreadStatus {
+  OPEN
+  PENDING
+  CLOSED
+
+  @@schema("wabee")
+}
+
+enum WebMessageActorType {
+  USER
+  SYSTEM
+  ASSISTANT
+
+  @@schema("wabee")
+}
+
+enum FallbackMode {
+  PRESET_A
+  PRESET_B
+  PRESET_C
+  CUSTOM
+
+  @@schema("wabee")
+}
+
+enum GreetingStyle {
+  SHORT
+  MEDIUM
+  WARM
+
+  @@schema("wabee")
+}
+
+enum WhatsappCampaignStatus {
+  DRAFT
+  SCHEDULED
+  IN_PROGRESS
+  PAUSED
+  COMPLETED
+  CANCELED
+  FAILED
+
+  @@schema("wabee")
+}
+
+enum WhatsappCampaignMessageStatus {
+  PENDING
+  SENT
+  DELIVERED
+  READ
+  FAILED
+  CANCELED
+
+  @@schema("wabee")
+}
+
+enum AnalyticsEventType {
+  THREAD_CREATED
+  THREAD_STATUS_CHANGED
+  THREAD_REOPENED
+  MESSAGE_INBOUND_USER
+  MESSAGE_OUTBOUND_HUMAN
+  MESSAGE_OUTBOUND_AI
+  MESSAGE_OUTBOUND_FLOW
+  AI_GATING_BLOCKED
+  AI_FALLBACK_TO_HUMAN
+  HUMAN_TAKEOVER
+  THREAD_ASSIGNED_TO_HUMAN
+  THREAD_UNASSIGNED
+  CAMPAIGN_MESSAGE_SENT
+  CAMPAIGN_MESSAGE_DELIVERED
+  CAMPAIGN_MESSAGE_READ
+  CAMPAIGN_MESSAGE_FAILED
+  CRM_EVENT
+
+  @@schema("wabee")
+}
+
+enum AnalyticsActorType {
+  HUMAN
+  AI
+  FLOW
+  SYSTEM
+
+  @@schema("wabee")
+}
+
+enum AiChannelType {
+  WIDGET
+  WHATSAPP
+
+  @@schema("wabee")
+}
+
+enum ChannelAiMode {
+  autonomous
+  copilot_only
+  disabled
+
+  @@schema("wabee")
+}
+
+enum ThreadHandlingMode {
+  ai
+  human_queue
+  human
+  copilot
+  paused
+
+  @@schema("wabee")
+}
+
+enum MessageSenderType {
+  contact
+  ai
+  human
+  system
+
+  @@schema("wabee")
+}
+
+enum MessageGeneratedBy {
+  ai
+  user
+  workflow
+  template
+  system
+
+  @@schema("wabee")
+}
+
+enum HumanHandoffRole {
+  any_agent
+  senior_agent
+  supervisor
+  admin
+
+  @@schema("wabee")
+}
+
+enum ServiceSlotType {
+  TEXT
+  NUMBER
+  DATE
+  BOOLEAN
+  SELECT
+  PHONE
+  EMAIL
+
+  @@schema("wabee")
+}
+
+enum ServiceToolExecutionMode {
+  AUTO
+  MANUAL
+  HYBRID
+
+  @@schema("wabee")
+}
+
+enum ServiceToolActionType {
+  READ
+  CREATE
+  UPDATE
+  DELETE
+
+  @@schema("wabee")
+}
+
+enum AiServiceIntentType {
+  INFO
+  INTEREST
+  TRANSACTION
+
+  @@schema("wabee")
+}
+
+enum ServiceType {
+  INFORMATIONAL
+  TRANSACTIONAL
+  HYBRID
+
+  @@schema("wabee")
+}
+
+enum ToolAuthType {
+  NONE
+  BEARER_TOKEN
+  API_KEY_HEADER
+  BASIC_AUTH
+
+  @@schema("wabee")
+}
+
+enum ToolCapability {
+  product_search
+  service_search
+  appointment_lookup
+  appointment_create
+  quote_request
+  order_status
+  inventory_check
+  faq_lookup
+  customer_lookup
+  lead_create
+  reservation_check
+  reservation_create
+  payment_link_create
+  shipment_quote
+  shipment_tracking
+  general_api_fetch
+  CUSTOM
+
+  @@schema("wabee")
+}
+
+enum ToolConfirmationPolicy {
+  AUTO
+  HYBRID
+  MANUAL
+
+  @@schema("wabee")
+}
+
+enum HttpMethod {
+  GET
+  POST
+  PUT
+  DELETE
+  PATCH
+
+  @@schema("wabee")
+}
+
+enum ToolExecutionStatus {
+  PENDING
+  SUCCESS
+  ERROR
+  REJECTED
+
+  @@schema("wabee")
+}
+
+enum FormStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  FAILED
+
+  @@schema("wabee")
+}
+
+enum ConversationMode {
+  AI_MANAGED
+  HUMAN_HANDOFF
+  DISABLED
+  FORM_FILLING
+  AWAITING_TOOL_CONFIRMATION
+
+  @@schema("wabee")
+}
+
+enum InboxAuditActorType {
+  human
+  ai
+  system
+
+  @@schema("wabee")
+}
+
+enum InboxAuditActorRole {
+  agent
+  supervisor
+  admin
+  bot
+  system
+
+  @@schema("wabee")
+}
+
+enum InboxAuditEventType {
+  THREAD_TAKEN
+  HUMAN_TAKEOVER
+  HUMAN_MESSAGE_SENT
+  THREAD_ASSIGNED
+  THREAD_REASSIGNED
+  THREAD_UNASSIGNED
+  THREAD_CLOSED
+  THREAD_REOPENED
+  INTERNAL_NOTE_ADDED
+  AI_HANDOFF_TO_HUMAN
+  AI_MESSAGE_SENT
+  THREAD_RESOLVED
+  TEMPLATE_SENT
+
+  @@schema("wabee")
+}
+
+enum UiAssetType {
+  LOGO
+  LOGO_SMALL
+  FAVICON
+  DASHBOARD_BG
+  AUTH_IMAGE
+  HERO_IMAGE
+  EMPTY_STATE
+  OVERLAY
+
+  @@schema("wabee")
+}
+
+enum UiAssignmentTargetType {
+  GLOBAL
+  MODULE
+  PAGE
+  ROLE
+  SUPER_ADMIN
+
+  @@schema("wabee")
+}
+
+enum UiThemeStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+
+  @@schema("wabee")
+}

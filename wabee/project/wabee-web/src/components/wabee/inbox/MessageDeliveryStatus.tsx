@@ -40,33 +40,48 @@ export function MessageDeliveryStatus({
     // FAILED
     if (deliveryStatus === 'FAILED') {
         return (
-            <AlertCircle className={cls} style={{ width: px, height: px, color: '#f87171' }} />
+            <AlertCircle
+                className={cls}
+                style={{ width: px, height: px, color: '#f87171' /* red-400 */ }}
+            />
         );
     }
 
     // READ — doble check amarillo tema WABEE
     if (deliveryStatus === 'READ') {
         return (
-            <CheckCheck className={cls} style={{ width: px, height: px, color: 'var(--brand-primary)' }} />
+            <CheckCheck
+                className={cls}
+                style={{ width: px, height: px, color: '#ead018' }}
+            />
         );
     }
 
     // DELIVERED — doble check gris
     if (deliveryStatus === 'DELIVERED') {
         return (
-            <CheckCheck className={cls} style={{ width: px, height: px, color: 'rgba(26,26,26,0.42)' }} />
+            <CheckCheck
+                className={cls}
+                style={{ width: px, height: px, color: '#9ca3af' /* gray-400 */ }}
+            />
         );
     }
 
     // SENT — una palomita gris
     if (deliveryStatus === 'SENT') {
         return (
-            <Check className={cls} style={{ width: px, height: px, color: 'rgba(26,26,26,0.42)' }} />
+            <Check
+                className={cls}
+                style={{ width: px, height: px, color: '#9ca3af' }}
+            />
         );
     }
 
     // PENDING (o null / undefined) — reloj gris sutil
     return (
-        <Clock className={cls} style={{ width: px, height: px, color: 'rgba(26,26,26,0.34)' }} />
+        <Clock
+            className={cls}
+            style={{ width: px, height: px, color: '#6b7280' /* gray-500 */ }}
+        />
     );
 }

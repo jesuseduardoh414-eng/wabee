@@ -386,15 +386,15 @@ export default function InboxPage() {
 
     return (
         <div
-            className={`flex bg-[linear-gradient(180deg,#fbfbf4_0%,#f7f6ef_100%)] text-[var(--text-strong)] overflow-hidden font-sans selection:bg-[var(--brand-primary)]/20 ${
+            className={`flex bg-[linear-gradient(180deg,#fbfaf6_0%,#f4efe4_100%)] text-[var(--text-strong)] overflow-hidden font-sans selection:bg-[var(--brand-primary)]/20 ${
                 isFullScreen
                     ? 'h-screen w-screen border-none rounded-none'
-                    : 'h-[calc(100vh-72px)] rounded-[28px] border border-[rgba(26,26,26,0.08)] shadow-[0_18px_46px_rgba(26,26,26,0.1)]'
+                    : 'h-[calc(100vh-72px)] rounded-[28px] border border-[rgba(197,176,136,0.28)] shadow-[0_18px_46px_rgba(122,102,62,0.14)]'
             }`}
         >
-            <aside className="w-[60px] bg-[#f7f7ec] backdrop-blur-xl flex flex-col items-center py-4 gap-3 border-r border-[rgba(26,26,26,0.08)] shrink-0 z-20">
-                <div className="w-10 h-10 rounded-2xl bg-[var(--brand-primary)] flex items-center justify-center shadow-[0_10px_22px_rgba(149,36,227,0.16)]">
-                    <MessageSquare className="w-5 h-5 text-white" />
+            <aside className="w-[68px] bg-[rgba(255,251,243,0.88)] backdrop-blur-xl flex flex-col items-center py-4 gap-3 border-r border-[rgba(197,176,136,0.22)] shrink-0 z-20">
+                <div className="w-10 h-10 rounded-2xl bg-[linear-gradient(135deg,#f9e6a5_0%,#efc96d_100%)] flex items-center justify-center shadow-[0_10px_22px_rgba(210,173,92,0.22)]">
+                    <MessageSquare className="w-5 h-5 text-[#6f5310]" />
                 </div>
 
                 <div className="flex-1 w-full flex flex-col items-center gap-3 overflow-y-auto no-scrollbar px-2">
@@ -404,20 +404,20 @@ export default function InboxPage() {
                             onClick={() => handleChannelSelect(channel.id)}
                             className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all relative group flex-shrink-0 border ${
                                 selectedChannelId === channel.id
-                                    ? 'bg-white ring-1 ring-[rgba(149,36,227,0.14)] border-[rgba(149,36,227,0.14)] shadow-[0_6px_18px_rgba(149,36,227,0.08)]'
-                                    : 'bg-transparent hover:bg-[rgba(26,26,26,0.04)] border-transparent'
+                                    ? 'bg-[rgba(255,245,214,0.96)] ring-1 ring-[rgba(226,181,78,0.5)] border-[rgba(226,181,78,0.45)] shadow-[0_0_0_4px_rgba(245,214,132,0.18)]'
+                                    : 'bg-[rgba(255,255,255,0.9)] hover:bg-[rgba(255,247,228,0.92)] border-[rgba(197,176,136,0.22)]'
                             }`}
                             title={channel.name || channel.displayPhone}
                         >
                             <span
                                 className={`text-[11px] font-black transition-colors ${
-                                    selectedChannelId === channel.id ? 'text-[var(--brand-primary)]' : 'text-[rgba(26,26,26,0.46)]'
+                                    selectedChannelId === channel.id ? 'text-[var(--brand-primary)]' : 'text-[var(--text-muted)]'
                                 }`}
                             >
                                 {(channel.name?.[0] || 'C').toUpperCase()}
                             </span>
                             <div
-                                className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 border-2 border-[#f7f7ec] rounded-full ${
+                                className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 border-2 border-[color:color-mix(in_srgb,var(--bg-card),black_8%)] rounded-full ${
                                     channel.status === 'CONNECTED' ? 'bg-green-500' : 'bg-red-500'
                                 }`}
                             />
@@ -426,8 +426,8 @@ export default function InboxPage() {
                 </div>
             </aside>
 
-            <aside className="w-[344px] bg-white border-r border-[rgba(26,26,26,0.08)] flex flex-col shrink-0 relative z-10">
-                <div className="px-5 pt-5 pb-4 border-b border-[rgba(26,26,26,0.08)] shrink-0 bg-white">
+            <aside className="w-[360px] bg-[rgba(255,252,246,0.94)] border-r border-[rgba(197,176,136,0.2)] flex flex-col shrink-0 relative z-10">
+                <div className="px-5 pt-5 pb-4 border-b border-[rgba(197,176,136,0.18)] shrink-0 bg-[rgba(255,250,242,0.96)]">
                     <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3 min-w-0">
                             {isFullScreen && (
@@ -438,7 +438,7 @@ export default function InboxPage() {
                                             return prev;
                                         });
                                     }}
-                                    className="p-2 hover:bg-[rgba(149,36,227,0.04)] rounded-xl transition-colors text-[var(--brand-primary)]"
+                                    className="p-2 hover:bg-[var(--bg-input)] rounded-xl transition-colors text-[var(--brand-primary)]"
                                     title="Volver a vista normal"
                                 >
                                     <ArrowLeft size={18} />
@@ -451,7 +451,7 @@ export default function InboxPage() {
                                 </p>
                             </div>
                         </div>
-                        <div className="px-3 py-1.5 rounded-full bg-[#fbfbf4] border border-[rgba(26,26,26,0.08)]">
+                        <div className="px-3 py-1.5 rounded-full bg-[rgba(255,255,255,0.84)] border border-[rgba(197,176,136,0.24)]">
                             <span className={`${T.helperText} ${S.meta} uppercase tracking-[0.22em]`}>
                                 {connectedChannels}/{channels.length} online
                             </span>
@@ -460,7 +460,7 @@ export default function InboxPage() {
                 </div>
 
                 <div className="px-5 py-4 shrink-0">
-                    <div className="bg-[#fbfbf4] border border-[rgba(26,26,26,0.08)] rounded-2xl flex items-center px-4 py-3 group focus-within:border-[rgba(149,36,227,0.22)] transition-all">
+                    <div className="bg-[rgba(255,255,255,0.88)] border border-[rgba(197,176,136,0.22)] rounded-2xl flex items-center px-4 py-3 group focus-within:border-[rgba(226,181,78,0.48)] transition-all shadow-[inset_0_1px_2px_rgba(255,255,255,0.6)]">
                         <svg
                             className="w-4 h-4 opacity-70 mr-3 group-focus-within:text-[var(--brand-primary)] transition-colors"
                             style={{ color: 'var(--tx-inputText-color)' }}
@@ -486,18 +486,18 @@ export default function InboxPage() {
                 </div>
 
                 <div className="px-5 pb-3 shrink-0">
-                    <div className="flex flex-wrap gap-2">
-                        <div className="rounded-full border border-[rgba(26,26,26,0.08)] bg-[#fbfbf4] px-3 py-2 inline-flex items-center gap-2">
+                    <div className="grid grid-cols-3 gap-2">
+                        <div className="rounded-2xl border border-[rgba(197,176,136,0.2)] bg-[rgba(255,255,255,0.9)] px-3 py-3">
                             <p className={`${T.helperText} ${S.meta}`}>Sin leer</p>
-                            <strong className={`${T.cardTitle} ${S.meta}`}>{unreadThreadsCount}</strong>
+                            <strong className={`${T.cardTitle} ${S.headingMd} mt-1 block`}>{unreadThreadsCount}</strong>
                         </div>
-                        <div className="rounded-full border border-[rgba(255,140,0,0.18)] bg-[rgba(255,140,0,0.08)] px-3 py-2 inline-flex items-center gap-2">
-                            <p className={`${T.helperText} ${S.meta} text-[#cc6e00]`}>Prioridad</p>
-                            <strong className={`${T.cardTitle} ${S.meta} text-[#cc6e00]`}>{priorityThreadsCount}</strong>
+                        <div className="rounded-2xl border border-[rgba(231,190,94,0.26)] bg-[rgba(255,245,220,0.88)] px-3 py-3">
+                            <p className={`${T.helperText} ${S.meta} text-[#a27719]`}>Prioridad</p>
+                            <strong className={`${T.cardTitle} ${S.headingMd} mt-1 block text-[#5e4514]`}>{priorityThreadsCount}</strong>
                         </div>
-                        <div className="rounded-full border border-[rgba(149,36,227,0.16)] bg-[rgba(149,36,227,0.06)] px-3 py-2 inline-flex items-center gap-2">
+                        <div className="rounded-2xl border border-[rgba(226,181,78,0.22)] bg-[rgba(255,249,234,0.9)] px-3 py-3">
                             <p className={`${T.helperText} ${S.meta} text-[var(--brand-primary)]`}>Para mi</p>
-                            <strong className={`${T.cardTitle} ${S.meta} text-[var(--brand-primary)]`}>{mineThreadsCount}</strong>
+                            <strong className={`${T.cardTitle} ${S.headingMd} mt-1 block text-[var(--brand-primary)]`}>{mineThreadsCount}</strong>
                         </div>
                     </div>
                 </div>
@@ -507,19 +507,19 @@ export default function InboxPage() {
                         <button
                             key={tab.id}
                             onClick={() => setFilter(tab.id as InboxFilter)}
-                            className={`${T.buttonPrimaryText} ${S.meta} px-3 py-2 rounded-full transition-all whitespace-nowrap border ${
+                            className={`${T.buttonPrimaryText} ${S.meta} px-3 py-2 rounded-2xl transition-all whitespace-nowrap border ${
                                 filter === tab.id
                                     ? tab.id === 'human_queue'
-                                        ? 'bg-[rgba(255,140,0,0.1)] border-[rgba(255,140,0,0.22)] text-[#cc6e00]'
-                                        : 'bg-[var(--brand-primary)] border-[var(--brand-primary)] text-white shadow-[0_8px_18px_rgba(149,36,227,0.14)]'
-                                    : 'bg-[#fbfbf4] border-[rgba(26,26,26,0.08)] hover:bg-[rgba(149,36,227,0.04)]'
+                                        ? 'bg-[rgba(255,235,232,0.96)] border-[rgba(231,101,84,0.34)] text-[#ba4437] shadow-[0_6px_14px_rgba(220,120,110,0.14)]'
+                                        : 'bg-[linear-gradient(135deg,#f3df9b_0%,#efcb74_100%)] border-[rgba(226,181,78,0.46)] text-[#6f5310] shadow-[0_8px_18px_rgba(214,177,88,0.2)]'
+                                    : 'bg-[rgba(255,255,255,0.88)] border-[rgba(197,176,136,0.2)] hover:bg-[rgba(255,248,234,0.96)]'
                             }`}
                             style={
                                 filter !== tab.id
                                     ? { color: 'var(--tx-buttonText-color)' }
                                     : tab.id === 'human_queue'
-                                        ? { color: '#cc6e00' }
-                                        : undefined
+                                        ? { color: '#ba4437' }
+                                        : { color: '#6f5310' }
                             }
                         >
                             {tab.label}
@@ -532,7 +532,7 @@ export default function InboxPage() {
                         <select
                             value={assigneeFilter}
                             onChange={(event) => setAssigneeFilter(event.target.value)}
-                            className={`${T.inputText} ${S.meta} w-full bg-[#fbfbf4] border rounded-2xl px-3 py-2 outline-none focus:border-[var(--brand-primary)]/50 transition-colors uppercase tracking-wide ${
+                            className={`${T.inputText} ${S.meta} w-full bg-[rgba(255,255,255,0.88)] border rounded-2xl px-3 py-2 outline-none focus:border-[var(--brand-primary)]/50 transition-colors uppercase tracking-wide ${
                                 assigneeFilter ? 'border-[var(--brand-primary)]/50 text-[var(--brand-primary)]' : 'border-[var(--border-default)]'
                             }`}
                             style={{ color: assigneeFilter ? 'var(--brand-primary)' : 'var(--tx-inputText-color)' }}
@@ -573,44 +573,43 @@ export default function InboxPage() {
                                 <div
                                     key={thread.id}
                                     onClick={() => handleThreadSelect(thread.id)}
-                                    className={`flex items-center gap-3 px-4 py-3.5 cursor-pointer rounded-[18px] transition-all mb-2 border group ${
+                                    className={`flex items-center gap-3 px-4 py-4 cursor-pointer rounded-[22px] transition-all mb-2 border group ${
                                         isSelected
-                                            ? 'bg-[rgba(149,36,227,0.055)] border-[rgba(149,36,227,0.12)] shadow-[inset_3px_0_0_0_rgba(149,36,227,0.95)]'
+                                            ? 'bg-[rgba(255,247,228,0.98)] border-[rgba(226,181,78,0.38)] shadow-[inset_4px_0_0_0_rgba(226,181,78,0.9),0_10px_24px_rgba(213,184,116,0.12)]'
                                             : hasUnread
-                                                ? 'bg-[rgba(26,26,26,0.02)] border-[rgba(26,26,26,0.06)] hover:bg-[rgba(149,36,227,0.04)]'
-                                                : 'border-transparent hover:bg-[rgba(26,26,26,0.03)] hover:border-[rgba(26,26,26,0.06)]'
+                                                ? 'bg-[rgba(255,251,241,0.96)] border-[rgba(226,181,78,0.16)] hover:bg-[rgba(255,247,233,0.98)]'
+                                                : 'border-transparent hover:bg-[rgba(255,255,255,0.84)] hover:border-[rgba(197,176,136,0.18)]'
                                     }`}
                                 >
-                                    <div className={`w-12 h-12 rounded-full flex-shrink-0 overflow-hidden relative border ${
-                                        isSelected || hasUnread
-                                            ? 'bg-[rgba(149,36,227,0.09)] border-[rgba(149,36,227,0.12)] text-[var(--brand-primary)]'
-                                            : 'bg-[#fbfbf4] border-[rgba(26,26,26,0.08)] text-[rgba(26,26,26,0.68)]'
-                                    }`}>
-                                        <div className="absolute inset-0 flex items-center justify-center text-[13px] font-black">
+                                    <div className="w-14 h-14 rounded-full bg-[linear-gradient(135deg,#f7dfa5_0%,#ebb960_100%)] flex-shrink-0 overflow-hidden relative shadow-[0_10px_20px_rgba(216,181,96,0.24)]">
+                                        <div className="absolute inset-0 flex items-center justify-center text-[13px] font-black text-[#6f5310]">
                                             {getThreadInitials(thread)}
                                         </div>
+                                        <div className="absolute inset-0 ring-1 ring-white/10 rounded-full" />
                                         {thread.assignedUserId ? (
                                             <div
-                                                className="absolute top-0 right-0 w-5 h-5 bg-white text-[var(--brand-primary)] text-[8px] font-black border-2 border-white rounded-full shadow-sm flex items-center justify-center"
+                                                className="absolute top-0 right-0 w-5 h-5 bg-[rgba(255,247,226,0.98)] text-[#8a6616] text-[8px] font-black border-2 border-[rgba(255,252,246,0.95)] rounded-full shadow-md flex items-center justify-center"
                                                 title="Asignado"
                                             >
                                                 {thread.assignedUserId === currentUser.id ? 'M' : 'A'}
                                             </div>
                                         ) : needsHuman ? (
                                             <div
-                                                className="absolute top-0 right-0 w-4 h-4 bg-[#ff8c00] border-2 border-white rounded-full shadow-sm animate-pulse"
+                                                className="absolute top-0 right-0 w-4 h-4 bg-red-500 border-2 border-[color:color-mix(in_srgb,var(--bg-page),black_4%)] rounded-full shadow-lg animate-pulse"
                                                 title="Requiere humano"
                                             />
                                         ) : null}
                                         {isAiThread && (
                                             <div
                                                 className={`absolute -bottom-0.5 -right-0.5 w-5 h-5 ${
-                                                    thread.aiPaused ? 'bg-[rgba(255,140,0,0.14)]' : 'bg-white'
-                                                } border-2 border-white rounded-full shadow-sm flex items-center justify-center`}
+                                                    thread.aiPaused ? 'bg-amber-500' : 'bg-[var(--bg-page)]'
+                                                } border-2 ${
+                                                    thread.aiPaused ? 'border-amber-500' : 'border-[var(--bg-page)]'
+                                                } rounded-full shadow-lg flex items-center justify-center`}
                                             >
                                                 <Bot
                                                     className={`w-2.5 h-2.5 ${
-                                                        thread.aiPaused ? 'text-[#cc6e00]' : 'text-[var(--brand-primary)]'
+                                                        thread.aiPaused ? 'text-[#221300]' : 'text-[var(--brand-primary)]'
                                                     }`}
                                                 />
                                             </div>
@@ -636,17 +635,17 @@ export default function InboxPage() {
                                                 </h3>
                                                 <div className="mt-1 flex items-center gap-2 flex-wrap">
                                                     {needsHuman && (
-                                                        <span className="inline-flex items-center rounded-full bg-[rgba(255,140,0,0.1)] px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.18em] text-[#cc6e00]">
-                                                            Prioridad
+                                                        <span className="inline-flex items-center rounded-full bg-red-500/12 px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.2em] text-red-400">
+                                                            Humano
                                                         </span>
                                                     )}
                                                     {isAiThread && !needsHuman && (
-                                                        <span className="inline-flex items-center rounded-full bg-[rgba(149,36,227,0.08)] px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.18em] text-[var(--brand-primary)]">
+                                                        <span className="inline-flex items-center rounded-full bg-[var(--brand-primary)]/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.2em] text-[var(--brand-primary)]">
                                                             IA
                                                         </span>
                                                     )}
                                                     {thread.assignedUserId === currentUser.id && (
-                                                        <span className="inline-flex items-center rounded-full bg-[rgba(149,36,227,0.08)] px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.18em] text-[var(--brand-primary)]">
+                                                        <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.2em] text-emerald-400">
                                                             Mio
                                                         </span>
                                                     )}
@@ -660,11 +659,11 @@ export default function InboxPage() {
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center gap-3">
-                                            <p className={`${T.helperText} ${S.meta} truncate flex-1 pr-2 ${hasUnread ? 'text-[var(--text-strong)] font-medium' : 'italic text-[rgba(26,26,26,0.52)]'}`}>
+                                            <p className={`${T.helperText} ${S.meta} truncate flex-1 pr-2 ${hasUnread ? 'text-[var(--text-strong)]' : 'italic'}`}>
                                                 {thread.lastMessagePreview || ''}
                                             </p>
                                             {hasUnread && (
-                                                <span className="bg-[var(--brand-primary)] text-white text-[10px] font-black rounded-full h-5 min-w-[20px] px-1.5 flex items-center justify-center shadow-[0_6px_12px_rgba(149,36,227,0.16)]">
+                                                <span className="bg-[linear-gradient(135deg,#f3df9b_0%,#efcb74_100%)] text-[#6f5310] text-[10px] font-black rounded-full h-6 min-w-[24px] px-2 flex items-center justify-center shadow-[0_6px_14px_rgba(214,177,88,0.18)]">
                                                     {thread.unreadCount}
                                                 </span>
                                             )}
@@ -684,16 +683,16 @@ export default function InboxPage() {
                 </div>
             </aside>
 
-            <main className="flex-1 bg-[linear-gradient(180deg,#fbfbf4_0%,#f7f6ef_100%)] relative flex flex-col h-full z-0 transition-shadow">
+            <main className="flex-1 bg-[linear-gradient(180deg,#fffdf8_0%,#f8f4ea_100%)] relative flex flex-col h-full z-0 transition-shadow">
                 {activeThread ? (
                     <div className="h-full flex flex-col">
-                        <div className="min-h-[64px] bg-[rgba(255,255,255,0.94)] backdrop-blur-xl px-5 border-b border-[rgba(26,26,26,0.08)] flex flex-wrap items-center justify-between gap-3 z-10 shrink-0">
+                        <div className="min-h-[60px] bg-[rgba(255,251,244,0.94)] backdrop-blur-xl px-5 border-b border-[rgba(197,176,136,0.18)] flex flex-wrap items-center justify-between gap-3 z-10 shrink-0">
                             <div className="flex items-center gap-3 flex-wrap">
                                 {activeThread.assignedUserId ? (
                                     <div className="flex items-center gap-2 flex-wrap">
-                                        <div className="flex items-center gap-1.5 bg-[rgba(149,36,227,0.08)] px-3 py-2 rounded-full border border-[rgba(149,36,227,0.16)]">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-[var(--brand-primary)] animate-pulse" />
-                                            <span className={`${T.badgeText} ${S.meta} text-[var(--brand-primary)]`}>
+                                        <div className="flex items-center gap-1.5 bg-[var(--brand-primary)]/10 px-3 py-2 rounded-full border border-[var(--brand-primary)]/20 shadow-sm shadow-[var(--brand-primary)]/5">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-[var(--ty-accent)] animate-pulse" />
+                                            <span className={`${T.badgeText} ${S.meta} text-[var(--ty-accent)]`}>
                                                 {activeThread.assignedUserId === currentUser.id ? 'ASIGNADO A MI' : 'ASIGNADO'}
                                             </span>
                                         </div>
@@ -701,7 +700,7 @@ export default function InboxPage() {
                                             ['SUPERVISOR', 'ADMIN'].includes(currentUser.role)) && (
                                             <button
                                                 onClick={handleUnassign}
-                                                className={`${T.buttonText} ${S.meta} text-[#ff8c00] hover:text-[#e07c00] rounded-full border border-[rgba(255,140,0,0.2)] px-3 py-2 bg-[rgba(255,140,0,0.06)]`}
+                                                className={`${T.buttonText} ${S.meta} text-red-500 hover:text-red-400 rounded-full border border-red-500/20 px-3 py-2`}
                                             >
                                                 Liberar
                                             </button>
@@ -712,7 +711,7 @@ export default function InboxPage() {
                                                     if (event.target.value) handleAssignThread(event.target.value);
                                                     event.target.value = '';
                                                 }}
-                                                className="bg-[#fbfbf4] border border-[rgba(26,26,26,0.08)] text-[var(--text-strong)] text-[10px] rounded-full px-3 flex-1 py-2 uppercase tracking-tighter"
+                                                className="bg-[var(--bg-input)] border border-[var(--border-default)] text-[var(--text-strong)] text-[10px] rounded-full px-3 flex-1 py-2 uppercase tracking-tighter"
                                                 defaultValue=""
                                             >
                                                 <option value="" disabled>
@@ -730,7 +729,7 @@ export default function InboxPage() {
                                     <div className="flex gap-2 flex-wrap">
                                         <button
                                             onClick={handleTakeThread}
-                                            className={`${T.buttonPrimaryText} ${S.meta} bg-[var(--brand-primary)] hover:brightness-110 px-4 py-2 rounded-full transition-all active:scale-95 shadow-lg shadow-[rgba(149,36,227,0.18)]`}
+                                            className={`${T.buttonPrimaryText} ${S.meta} bg-[var(--brand-primary)] hover:brightness-110 px-4 py-2 rounded-full transition-all active:scale-95 shadow-lg shadow-[var(--brand-primary)]/20`}
                                             title="Tomar la atención como agente resolutor"
                                         >
                                             Tomar chat
@@ -741,7 +740,7 @@ export default function InboxPage() {
                                                     if (event.target.value) handleAssignThread(event.target.value);
                                                     event.target.value = '';
                                                 }}
-                                                className="bg-[#fbfbf4] border border-[rgba(26,26,26,0.08)] text-[var(--text-muted)] text-[10px] rounded-full px-3 py-2 uppercase tracking-tighter w-32"
+                                                className="bg-[var(--bg-input)] border border-[var(--border-default)] text-[var(--text-muted)] text-[10px] rounded-full px-3 py-2 uppercase tracking-tighter w-32"
                                                 defaultValue=""
                                             >
                                                 <option value="" disabled>
@@ -757,13 +756,13 @@ export default function InboxPage() {
                                     </div>
                                 )}
 
-                                <div className="w-px h-6 bg-[rgba(26,26,26,0.08)] mx-1" />
+                                <div className="w-px h-6 bg-[var(--border-default)] mx-1" />
 
                                 <ThreadHandlingModeBadge mode={activeThread.handlingMode as any} aiPaused={activeThread.aiPaused} />
                             </div>
 
                             <div className="flex items-center gap-2">
-                                <div className="hidden md:flex items-center gap-2 rounded-full bg-[#fbfbf4] border border-[rgba(26,26,26,0.08)] px-3 py-2">
+                                <div className="hidden md:flex items-center gap-2 rounded-full bg-[rgba(255,255,255,0.86)] border border-[rgba(197,176,136,0.2)] px-3 py-2">
                                     <Inbox className="w-4 h-4 text-[var(--brand-primary)]" />
                                     <span className={`${T.helperText} ${S.meta}`}>Estado: {activeThread.status}</span>
                                 </div>
@@ -771,8 +770,8 @@ export default function InboxPage() {
                         </div>
 
                         {activeThread.aiPaused && (
-                            <div className="bg-[rgba(255,140,0,0.08)] border-b border-[rgba(255,140,0,0.16)] px-6 py-4 flex items-center justify-between shrink-0">
-                                <div className="flex items-center gap-2 text-[#cc6e00]">
+                            <div className="bg-[rgba(255,243,215,0.86)] border-b border-[rgba(231,190,94,0.2)] px-6 py-4 flex items-center justify-between shrink-0">
+                                <div className="flex items-center gap-2 text-amber-500">
                                     <svg className="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path
                                             strokeLinecap="round"
@@ -787,7 +786,7 @@ export default function InboxPage() {
                                 </div>
                                 <button
                                     onClick={handleResumeAi}
-                                    className={`${T.buttonText} ${S.meta} text-white bg-[#ff8c00] hover:brightness-110 px-4 py-2 rounded-full transition-all active:scale-95`}
+                                    className={`${T.buttonText} ${S.meta} text-[#121208] bg-amber-500 hover:brightness-110 px-4 py-2 rounded-full transition-all active:scale-95`}
                                     title="Permitir que la IA vuelva a responder solo en esta conversación"
                                 >
                                     Reanudar IA
@@ -812,12 +811,12 @@ export default function InboxPage() {
                         </div>
                     </div>
                 ) : (
-                    <div className="h-full w-full bg-[linear-gradient(180deg,#fbfbf4_0%,#f7f6ef_100%)] flex flex-col items-center justify-center text-center px-8 relative overflow-hidden">
+                    <div className="h-full w-full bg-[var(--bg-page)] flex flex-col items-center justify-center text-center px-8 relative overflow-hidden">
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] bg-[var(--brand-primary)]/5 rounded-full blur-[90px] pointer-events-none" />
 
                         <div className="mb-6 relative">
-                            <div className="w-20 h-20 rounded-[28px] bg-[rgba(149,36,227,0.08)] border border-[rgba(149,36,227,0.12)] flex items-center justify-center shadow-[0_14px_32px_rgba(149,36,227,0.1)]">
-                                <MessageSquare className="w-10 h-10 text-[var(--brand-primary)]" />
+                            <div className="w-20 h-20 rounded-[28px] bg-[linear-gradient(135deg,#f7dfa5_0%,#ebb960_100%)] flex items-center justify-center shadow-[0_14px_32px_rgba(216,181,96,0.22)]">
+                                <MessageSquare className="w-10 h-10 text-[#6f5310]" />
                             </div>
                         </div>
                         <h1 className={`${T.emptyStateTitle} ${S.displayLg} mb-2 tracking-tight`}>
@@ -826,7 +825,7 @@ export default function InboxPage() {
                         <p className={`${T.emptyStateBody} ${S.body} mb-6 max-w-sm mx-auto`}>
                             Selecciona una conversación para entrar al flujo real de atención, seguimiento y colaboración.
                         </p>
-                        <div className="rounded-full border border-[rgba(26,26,26,0.08)] bg-white px-4 py-2">
+                        <div className="rounded-full border border-[var(--border-default)] bg-[var(--bg-input)] px-4 py-2">
                             <span className={`${T.helperText} ${S.meta}`}>
                                 Empieza por la bandeja de prioridad o por tus conversaciones asignadas.
                             </span>

@@ -10,7 +10,7 @@ export function renderWhatsAppMarkdown(text: string) {
     return parts.map((part, index) => {
         if (part.startsWith('```') && part.endsWith('```')) {
             return (
-                <code key={index} className="px-1.5 py-0.5 mx-0.5 bg-black/20 rounded font-mono text-[13px]">
+                <code key={index} className="mx-0.5 rounded bg-black/20 px-1.5 py-0.5 font-mono text-[13px]">
                     {part.slice(3, -3)}
                 </code>
             );
@@ -72,17 +72,34 @@ export function WhatsAppMessageBubble({ message, onMediaLoad }: WhatsAppMessageB
     const isOutbound = message.direction === 'OUTBOUND';
     const isCampaign = message.metadata?.source === 'campaign';
     const templatePreview = message.metadata?.templatePreview;
+    const isSystemTransfer =
+        message.senderType === 'system' &&
+        typeof (templatePreview?.bodyText || message.text) === 'string' &&
+        (templatePreview?.bodyText || message.text).trim().length > 0;
+
+    if (isSystemTransfer) {
+        return (
+            <div className="my-4 flex w-full justify-center">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(255,140,0,0.2)] bg-[rgba(255,140,0,0.06)] px-4 py-1.5 text-[12.5px] font-semibold text-[var(--brand-primary)]">
+                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                    {templatePreview?.bodyText || message.text}
+                </span>
+            </div>
+        );
+    }
 
     const bubbleClass = isOutbound
-        ? 'bg-[rgba(149,36,227,0.07)] border-[rgba(149,36,227,0.16)] text-[#241434] rounded-[24px] rounded-br-[10px] shadow-[0_8px_22px_rgba(149,36,227,0.08)]'
-        : 'bg-white border-[rgba(26,26,26,0.08)] text-[var(--text-strong)] rounded-[24px] rounded-bl-[10px] shadow-[0_8px_18px_rgba(26,26,26,0.06)]';
+        ? 'bg-[rgba(255,140,0,0.055)] border-[rgba(255,140,0,0.14)] text-[#1A1A1A] rounded-[14px] rounded-br-[6px] shadow-[0_1px_2px_rgba(26,26,26,0.04)]'
+        : 'bg-white border-[rgba(26,26,26,0.08)] text-[#1A1A1A] rounded-[14px] rounded-bl-[6px] shadow-[0_1px_2px_rgba(26,26,26,0.04)]';
 
     return (
-        <div className={`flex w-full mb-4 ${isOutbound ? 'justify-end' : 'justify-start'}`}>
-            <div className={`relative flex flex-col max-w-[86%] md:max-w-[68%] lg:max-w-[56%] min-w-[180px] border ${bubbleClass}`}>
+        <div className={`flex w-full mb-2.5 ${isOutbound ? 'justify-end' : 'justify-start'}`}>
+            <div className={`relative flex flex-col max-w-[min(620px,74%)] min-w-[96px] border ${bubbleClass}`}>
                 {isCampaign && (
                     <div className="flex items-center gap-1 mx-3 mt-3 mb-0">
-                        <span className="text-[10px] font-black bg-[rgba(255,140,0,0.12)] text-[#b45e00] px-2.5 py-1 rounded-full uppercase tracking-[0.16em]">
+                        <span className="text-[9.5px] font-bold uppercase tracking-[0.14em] bg-[rgba(255,140,0,0.1)] text-[var(--brand-primary)] border border-[rgba(255,140,0,0.18)] px-2 py-0.5 rounded-[6px]">
                             Promo: {message.metadata?.campaignName || 'Meta'}
                         </span>
                     </div>
@@ -90,66 +107,44 @@ export function WhatsAppMessageBubble({ message, onMediaLoad }: WhatsAppMessageB
 
                 {isOutbound && message.senderType === 'ai' && (
                     <div className="flex items-center gap-1 mx-3 mt-3 mb-0">
-                        <span className="flex items-center gap-1 text-[10px] font-black bg-[rgba(255,215,0,0.16)] text-[#5e4710] border border-[rgba(255,215,0,0.28)] px-2.5 py-1 rounded-full uppercase tracking-[0.16em]">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        <span className="inline-flex items-center gap-1 text-[9.5px] font-bold uppercase tracking-[0.14em] bg-[rgba(255,215,0,0.18)] border border-[rgba(26,26,26,0.08)] text-[rgba(26,26,26,0.6)] px-2 py-0.5 rounded-[6px]">
+                            <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
-                            Inteligencia artificial
+                            Asistente IA
                         </span>
                     </div>
                 )}
 
-                {isOutbound && message.senderType === 'system' && (
-                    <div className="flex items-center gap-1 mx-3 mt-3 mb-0">
-                        <span className="text-[10px] font-black bg-[rgba(26,26,26,0.06)] text-current border border-[rgba(26,26,26,0.08)] px-2.5 py-1 rounded-full uppercase tracking-[0.16em]">
-                            Sistema
-                        </span>
-                    </div>
-                )}
-
-                <div className="px-4 pt-3 pb-9 relative flex flex-col">
+                <div className="px-3 pt-2.5 pb-7 relative flex flex-col">
                     {templatePreview?.headerMedia && (
                         <HeaderMediaRenderer headerMedia={templatePreview.headerMedia} onMediaLoad={onMediaLoad} />
                     )}
 
                     {templatePreview?.headerText && (
-                        <h4 className={`${T.cardTitle} mb-1 ${isOutbound ? 'text-[#241434]' : ''}`}>
-                            {templatePreview.headerText}
-                        </h4>
+                        <h4 className={`${T.cardTitle} mb-1`}>{templatePreview.headerText}</h4>
                     )}
 
-                    <div
-                        className={`${T.messageText} ${S.body} whitespace-pre-wrap leading-7 ${
-                            isOutbound ? 'text-[#241434]' : 'text-[var(--text-strong)]'
-                        }`}
-                    >
+                    <div className={`${T.messageText} ${S.body} whitespace-pre-wrap text-[15px] leading-[1.55] text-[#1A1A1A]`}>
                         {renderWhatsAppMarkdown(templatePreview?.bodyText || message.text)}
                     </div>
 
                     {templatePreview?.footerText && (
-                        <div
-                            className={`${T.helperText} mt-2 mb-1 leading-tight ${
-                                isOutbound ? 'text-[rgba(36,20,52,0.58)]' : ''
-                            }`}
-                        >
+                        <div className={`${T.helperText} mt-2 text-[rgba(26,26,26,0.5)]`}>
                             {templatePreview.footerText}
                         </div>
                     )}
 
-                    <div className="absolute bottom-2 right-3 flex items-center justify-end gap-1 select-none pointer-events-none">
-                        <span
-                            className={`${T.helperText} ${S.ui} ${
-                                isOutbound ? 'text-[rgba(36,20,52,0.52)]' : ''
-                            }`}
-                        >
+                    <div className="absolute bottom-1.5 right-3 flex items-center justify-end gap-1 select-none pointer-events-none">
+                        <span className="text-[10.5px] text-[rgba(26,26,26,0.4)]" style={{ fontFamily: 'ui-monospace,monospace' }}>
                             {formatTime(message.timestamp || message.createdAt)}
                         </span>
-                        <MessageDeliveryStatus deliveryStatus={message.deliveryStatus} direction={message.direction} size={14} />
+                        <MessageDeliveryStatus deliveryStatus={message.deliveryStatus} direction={message.direction} size={13} />
                     </div>
                 </div>
 
                 {templatePreview?.buttons && templatePreview.buttons.length > 0 && (
-                    <div className="flex flex-col border-t border-[rgba(26,26,26,0.08)] divide-y divide-[rgba(26,26,26,0.08)]">
+                    <div className="flex flex-col border-t border-[rgba(26,26,26,0.08)] divide-y divide-[rgba(26,26,26,0.06)]">
                         {templatePreview.buttons.map((btn: any, idx: number) => {
                             if (btn.type === 'URL') {
                                 return (
@@ -158,38 +153,27 @@ export function WhatsAppMessageBubble({ message, onMediaLoad }: WhatsAppMessageB
                                         href={btn.url}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className={`${T.buttonPrimaryText} ${S.body} w-full text-center py-3 hover:bg-[rgba(149,36,227,0.05)] flex items-center justify-center gap-2 group transition-colors`}
-                                        style={{ color: isOutbound ? '#6b1fb1' : 'var(--brand-primary)' }}
+                                        className="w-full text-center py-2.5 hover:bg-[rgba(26,26,26,0.04)] flex items-center justify-center gap-2 transition-colors text-[13px] font-medium text-[var(--brand-primary)]"
                                     >
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                        </svg>
                                         {btn.text}
                                     </a>
                                 );
                             }
-
                             if (btn.type === 'PHONE') {
                                 return (
                                     <a
                                         key={idx}
                                         href={`tel:${btn.phone}`}
-                                        className={`${T.buttonPrimaryText} ${S.body} w-full text-center py-3 hover:bg-[rgba(149,36,227,0.05)] flex items-center justify-center gap-2 group transition-colors`}
-                                        style={{ color: isOutbound ? '#6b1fb1' : 'var(--brand-primary)' }}
+                                        className="w-full text-center py-2.5 hover:bg-[rgba(26,26,26,0.04)] flex items-center justify-center gap-2 transition-colors text-[13px] font-medium text-[var(--brand-primary)]"
                                     >
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                        </svg>
                                         {btn.text}
                                     </a>
                                 );
                             }
-
                             return (
                                 <button
                                     key={idx}
-                                    className={`${T.buttonPrimaryText} ${S.body} w-full text-center py-3 hover:bg-[rgba(149,36,227,0.05)] transition-colors`}
-                                    style={{ color: isOutbound ? '#6b1fb1' : 'var(--tx-buttonText-color)' }}
+                                    className="w-full text-center py-2.5 hover:bg-[rgba(26,26,26,0.04)] transition-colors text-[13px] font-medium text-[rgba(26,26,26,0.65)]"
                                 >
                                     {btn.text}
                                 </button>
@@ -232,21 +216,15 @@ function HeaderMediaRenderer({
 
     if (headerMedia.kind === 'IMAGE') {
         return (
-            <div className="mb-3 -mx-2 -mt-1 rounded-[22px] overflow-hidden cursor-pointer">
-                <img
-                    src={imgUrl}
-                    alt="Header media"
-                    className="w-full max-h-[300px] object-cover"
-                    onError={refreshUrl}
-                    onLoad={onMediaLoad}
-                />
+            <div className="-mx-1.5 -mt-1 mb-2.5 rounded-[10px] overflow-hidden">
+                <img src={imgUrl} alt="Header media" className="w-full max-h-[300px] object-cover" onError={refreshUrl} onLoad={onMediaLoad} />
             </div>
         );
     }
 
     if (headerMedia.kind === 'VIDEO') {
         return (
-            <div className="mb-3 -mx-2 -mt-1 rounded-[22px] overflow-hidden bg-black">
+            <div className="-mx-1.5 -mt-1 mb-2.5 rounded-[10px] overflow-hidden bg-black">
                 <video src={imgUrl} controls className="w-full max-h-[300px]" onError={refreshUrl} onLoadedData={onMediaLoad} />
             </div>
         );
@@ -258,14 +236,14 @@ function HeaderMediaRenderer({
                 href={imgUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-3 mb-2 p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl outline-none transition-all"
+                className="flex items-center gap-3 mb-2 p-3 bg-[rgba(26,26,26,0.04)] hover:bg-[rgba(26,26,26,0.07)] border border-[rgba(26,26,26,0.08)] rounded-[10px] outline-none transition-all"
             >
-                <svg className="w-8 h-8 opacity-60 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-7 h-7 opacity-50 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
                 <div className="flex flex-col overflow-hidden">
-                    <span className="text-[14px] font-semibold truncate leading-tight">Documento adjunto</span>
-                    <span className="text-[12px] opacity-50 truncate">PDF / Documento</span>
+                    <span className="text-[13px] font-semibold truncate leading-tight">Documento adjunto</span>
+                    <span className="text-[12px] opacity-45 truncate">PDF / Documento</span>
                 </div>
             </a>
         );

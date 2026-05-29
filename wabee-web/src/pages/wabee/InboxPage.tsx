@@ -6,6 +6,7 @@ import {
     Bot,
     MessageSquare,
     Inbox,
+    Plus,
 } from 'lucide-react';
 import {
     getThreadMessages,
@@ -362,460 +363,355 @@ export default function InboxPage() {
         if (date.toDateString() === now.toDateString()) {
             return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
-
-        if (date.toDateString() === yesterday.toDateString()) {
-            return 'Ayer';
-        }
-
+        if (date.toDateString() === yesterday.toDateString()) return 'Ayer';
         return date.toLocaleDateString([], { day: '2-digit', month: '2-digit' });
     };
 
     const getThreadInitials = (thread: Thread) => {
         const label = thread.contactName || thread.remotePhone || 'WB';
         const parts = label.trim().split(/\s+/).filter(Boolean);
-        if (parts.length >= 2) {
-            return `${parts[0][0] ?? ''}${parts[1][0] ?? ''}`.toUpperCase();
-        }
+        if (parts.length >= 2) return `${parts[0][0] ?? ''}${parts[1][0] ?? ''}`.toUpperCase();
         return label.slice(0, 2).toUpperCase();
     };
 
-    const connectedChannels = channels.filter((channel) => channel.status === 'CONNECTED').length;
-    const unreadThreadsCount = threads.filter((thread) => thread.unreadCount > 0).length;
-    const priorityThreadsCount = threads.filter((thread) => thread.handlingMode === 'human_queue').length;
-    const mineThreadsCount = threads.filter((thread) => thread.assignedUserId === currentUser.id).length;
-    const activeAssignmentBadge = activeThread?.assignedUserId
-        ? activeThread.assignedUserId === currentUser.id
-            ? 'Asignado a mi'
-            : 'Asignado'
-        : null;
-    const activeAssignmentControl =
-        activeThread && ['SUPERVISOR', 'ADMIN'].includes(currentUser.role) && assignees.length > 0 ? (
-            <select
-                onChange={(event) => {
-                    if (event.target.value) handleAssignThread(event.target.value);
-                    event.target.value = '';
-                }}
-                className="rounded-full border border-[rgba(26,26,26,0.08)] bg-[#fbfbf4] px-3 py-2 text-[10px] uppercase tracking-[0.14em] text-[rgba(26,26,26,0.6)]"
-                defaultValue=""
-            >
-                <option value="" disabled>
-                    {activeThread.assignedUserId ? 'Reasignar...' : 'Asignar a...'}
-                </option>
-                {assignees.map((assignee) => (
-                    <option key={assignee.id} value={assignee.id}>
-                        {assignee.name || assignee.email}
-                    </option>
-                ))}
-            </select>
-        ) : null;
+    const getFilterCount = (tabId: InboxFilter) => {
+        if (tabId === 'all') return threads.filter((t) => t.status !== 'CLOSED').length;
+        if (tabId === 'ai') return threads.filter((t) => t.handlingMode === 'ai' || t.handlingMode === 'copilot').length;
+        if (tabId === 'human_queue') return threads.filter((t) => t.handlingMode === 'human_queue').length;
+        if (tabId === 'mine') return threads.filter((t) => t.assignedUserId === currentUser.id).length;
+        if (tabId === 'taken') return threads.filter((t) => !!t.assignedUserId || t.handlingMode === 'human').length;
+        if (tabId === 'unassigned') return threads.filter((t) => !t.assignedUserId && t.status !== 'CLOSED').length;
+        if (tabId === 'closed') return threads.filter((t) => t.status === 'CLOSED').length;
+        return 0;
+    };
+
+    const connectedChannels = channels.filter((c) => c.status === 'CONNECTED').length;
+    const unreadThreadsCount = threads.filter((t) => t.unreadCount > 0).length;
 
     return (
         <div
-            className={`flex bg-[linear-gradient(180deg,#fbfbf4_0%,#f7f6ef_100%)] text-[var(--text-strong)] overflow-hidden font-sans selection:bg-[var(--brand-primary)]/20 ${
+            className={`flex bg-[#FBFBF4] text-[var(--text-strong)] overflow-hidden font-sans ${
                 isFullScreen
                     ? 'h-screen w-screen border-none rounded-none'
                     : 'h-[calc(100vh-72px)] rounded-[28px] border border-[rgba(26,26,26,0.08)] shadow-[0_18px_46px_rgba(26,26,26,0.1)]'
             }`}
         >
-            <aside className="w-[60px] bg-[#f7f7ec] backdrop-blur-xl flex flex-col items-center py-4 gap-3 border-r border-[rgba(26,26,26,0.08)] shrink-0 z-20">
-                <div className="w-10 h-10 rounded-2xl bg-[var(--brand-primary)] flex items-center justify-center shadow-[0_10px_22px_rgba(149,36,227,0.16)]">
-                    <MessageSquare className="w-5 h-5 text-white" />
+            {/* Channel rail */}
+            <aside className="w-[60px] bg-[#F7F7EC] flex flex-col items-center py-3 gap-3 border-r border-[rgba(26,26,26,0.08)] shrink-0 z-20">
+                <div className="w-[38px] h-[38px] rounded-[10px] bg-[var(--brand-primary)] flex items-center justify-center shadow-[0_4px_12px_rgba(255,140,0,0.24)]">
+                    <span className="text-[17px] font-bold text-white">W</span>
                 </div>
+                <div className="w-6 h-px bg-[rgba(26,26,26,0.08)]" />
 
-                <div className="flex-1 w-full flex flex-col items-center gap-3 overflow-y-auto no-scrollbar px-2">
+                <div className="flex-1 w-full flex flex-col items-center gap-2 overflow-y-auto no-scrollbar px-2">
                     {channels.map((channel) => (
                         <button
                             key={channel.id}
                             onClick={() => handleChannelSelect(channel.id)}
-                            className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all relative group flex-shrink-0 border ${
+                            className={`w-10 h-10 rounded-[10px] flex items-center justify-center transition-all relative flex-shrink-0 border text-[13px] font-bold ${
                                 selectedChannelId === channel.id
-                                    ? 'bg-white ring-1 ring-[rgba(149,36,227,0.14)] border-[rgba(149,36,227,0.14)] shadow-[0_6px_18px_rgba(149,36,227,0.08)]'
-                                    : 'bg-transparent hover:bg-[rgba(26,26,26,0.04)] border-transparent'
+                                    ? 'bg-white border-[rgba(255,140,0,0.18)] text-[var(--brand-primary)] shadow-[0_1px_4px_rgba(26,26,26,0.06)]'
+                                    : 'bg-transparent border-transparent text-[rgba(26,26,26,0.4)] hover:bg-[rgba(26,26,26,0.04)]'
                             }`}
                             title={channel.name || channel.displayPhone}
                         >
-                            <span
-                                className={`text-[11px] font-black transition-colors ${
-                                    selectedChannelId === channel.id ? 'text-[var(--brand-primary)]' : 'text-[rgba(26,26,26,0.46)]'
-                                }`}
-                            >
-                                {(channel.name?.[0] || 'C').toUpperCase()}
-                            </span>
-                            <div
-                                className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 border-2 border-[#f7f7ec] rounded-full ${
-                                    channel.status === 'CONNECTED' ? 'bg-green-500' : 'bg-red-500'
-                                }`}
-                            />
+                            {(channel.name?.[0] || 'C').toUpperCase()}
+                            <span className={`absolute bottom-[3px] right-[3px] w-[7px] h-[7px] rounded-full border-[1.5px] ${
+                                selectedChannelId === channel.id ? 'border-white' : 'border-[#F7F7EC]'
+                            } ${channel.status === 'CONNECTED' ? 'bg-green-500' : 'bg-[rgba(26,26,26,0.22)]'}`} />
                         </button>
                     ))}
                 </div>
             </aside>
 
+            {/* Thread list sidebar */}
             <aside className="w-[344px] bg-white border-r border-[rgba(26,26,26,0.08)] flex flex-col shrink-0 relative z-10">
-                <div className="px-5 pt-5 pb-4 border-b border-[rgba(26,26,26,0.08)] shrink-0 bg-white">
-                    <div className="flex items-center justify-between gap-3">
+                {/* Header */}
+                <div className="px-4 pt-4 pb-3 border-b border-[rgba(26,26,26,0.08)] shrink-0">
+                    <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-3 min-w-0">
                             {isFullScreen && (
                                 <button
-                                    onClick={() => {
-                                        setSearchParams((prev) => {
-                                            prev.set('view', 'standard');
-                                            return prev;
-                                        });
-                                    }}
-                                    className="p-2 hover:bg-[rgba(149,36,227,0.04)] rounded-xl transition-colors text-[var(--brand-primary)]"
-                                    title="Volver a vista normal"
+                                    onClick={() => setSearchParams((prev) => { prev.set('view', 'standard'); return prev; })}
+                                    className="p-1.5 hover:bg-[rgba(26,26,26,0.05)] rounded-lg transition-colors text-[var(--brand-primary)]"
                                 >
-                                    <ArrowLeft size={18} />
+                                    <ArrowLeft size={16} />
                                 </button>
                             )}
-                            <div className="min-w-0">
+                            <div>
                                 <h1 className={`${T.pageTitle} ${S.headingLg} tracking-tight`}>Mensajes</h1>
-                                <p className={`${T.helperText} ${S.meta} mt-1`}>
-                                    {filteredThreads.length} conversaciones visibles
+                                <p className={`${T.helperText} ${S.meta} mt-0.5 text-[rgba(26,26,26,0.5)]`}>
+                                    {filteredThreads.length} conversaciones · {unreadThreadsCount} sin leer
                                 </p>
                             </div>
                         </div>
-                        <div className="px-3 py-1.5 rounded-full bg-[#fbfbf4] border border-[rgba(26,26,26,0.08)]">
-                            <span className={`${T.helperText} ${S.meta} uppercase tracking-[0.22em]`}>
-                                {connectedChannels}/{channels.length} online
+                        <div className="flex items-center gap-2">
+                            <span className={`${T.helperText} ${S.meta} text-[rgba(26,26,26,0.4)]`}>
+                                {connectedChannels}/{channels.length}
                             </span>
+                            <button className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center border border-[rgba(26,26,26,0.12)] text-[rgba(26,26,26,0.5)] hover:bg-[rgba(26,26,26,0.04)] transition-colors">
+                                <Plus size={16} />
+                            </button>
                         </div>
                     </div>
-                </div>
 
-                <div className="px-5 py-4 shrink-0">
-                    <div className="bg-[#fbfbf4] border border-[rgba(26,26,26,0.08)] rounded-2xl flex items-center px-4 py-3 group focus-within:border-[rgba(149,36,227,0.22)] transition-all">
-                        <svg
-                            className="w-4 h-4 opacity-70 mr-3 group-focus-within:text-[var(--brand-primary)] transition-colors"
-                            style={{ color: 'var(--tx-inputText-color)' }}
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2.5}
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                            />
+                    {/* Search */}
+                    <div className="mt-3 flex items-center gap-2 px-3 h-[38px] bg-[#FBFBF4] border border-[rgba(26,26,26,0.1)] rounded-[10px] focus-within:border-[var(--brand-primary)] transition-colors">
+                        <svg className="w-4 h-4 text-[rgba(26,26,26,0.35)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                         <input
                             type="text"
-                            placeholder="Buscar conversaciones..."
-                            className={`${T.inputText} ${S.body} bg-transparent border-none w-full focus:ring-0 placeholder:text-current`}
+                            placeholder="Buscar conversaciones…"
+                            className={`${T.inputText} ${S.body} bg-transparent border-none w-full focus:ring-0 text-[var(--text-strong)]`}
                             value={searchQuery}
-                            onChange={(event) => setSearchQuery(event.target.value)}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
                 </div>
 
-                <div className="px-5 pb-3 shrink-0">
-                    <div className="flex flex-wrap gap-2">
-                        <div className="rounded-full border border-[rgba(26,26,26,0.08)] bg-[#fbfbf4] px-3 py-2 inline-flex items-center gap-2">
-                            <p className={`${T.helperText} ${S.meta}`}>Sin leer</p>
-                            <strong className={`${T.cardTitle} ${S.meta}`}>{unreadThreadsCount}</strong>
-                        </div>
-                        <div className="rounded-full border border-[rgba(255,140,0,0.18)] bg-[rgba(255,140,0,0.08)] px-3 py-2 inline-flex items-center gap-2">
-                            <p className={`${T.helperText} ${S.meta} text-[#cc6e00]`}>Prioridad</p>
-                            <strong className={`${T.cardTitle} ${S.meta} text-[#cc6e00]`}>{priorityThreadsCount}</strong>
-                        </div>
-                        <div className="rounded-full border border-[rgba(149,36,227,0.16)] bg-[rgba(149,36,227,0.06)] px-3 py-2 inline-flex items-center gap-2">
-                            <p className={`${T.helperText} ${S.meta} text-[var(--brand-primary)]`}>Para mi</p>
-                            <strong className={`${T.cardTitle} ${S.meta} text-[var(--brand-primary)]`}>{mineThreadsCount}</strong>
-                        </div>
-                    </div>
+                {/* Filter chips — horizontal scrollable */}
+                <div className="flex gap-1.5 px-4 py-3 overflow-x-auto no-scrollbar border-b border-[rgba(26,26,26,0.08)] shrink-0">
+                    {FILTER_TABS.filter((tab) => !tab.roles || tab.roles.includes(currentUser.role)).map((tab) => {
+                        const count = getFilterCount(tab.id);
+                        const isActive = filter === tab.id;
+                        return (
+                            <button
+                                key={tab.id}
+                                onClick={() => setFilter(tab.id as InboxFilter)}
+                                className={`flex-shrink-0 h-[30px] px-[11px] rounded-full flex items-center gap-1.5 text-[12.5px] font-semibold transition-all whitespace-nowrap border ${
+                                    isActive
+                                        ? 'bg-[var(--brand-primary)] text-white border-[var(--brand-primary)]'
+                                        : 'bg-[#FBFBF4] text-[rgba(26,26,26,0.65)] border-[rgba(26,26,26,0.1)] hover:bg-[rgba(26,26,26,0.04)]'
+                                }`}
+                            >
+                                {tab.label}
+                                {count > 0 && (
+                                    <span className={`text-[11px] font-bold px-[5px] min-w-[16px] h-4 rounded-full flex items-center justify-center ${
+                                        isActive ? 'bg-white/20 text-white' : 'bg-[rgba(26,26,26,0.06)] text-[rgba(26,26,26,0.5)]'
+                                    }`}>
+                                        {count}
+                                    </span>
+                                )}
+                            </button>
+                        );
+                    })}
                 </div>
 
-                <div className="px-5 py-1 flex flex-wrap gap-2 shrink-0 mb-2">
-                    {FILTER_TABS.filter((tab) => !tab.roles || tab.roles.includes(currentUser.role)).map((tab) => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setFilter(tab.id as InboxFilter)}
-                            className={`${T.buttonPrimaryText} ${S.meta} px-3 py-2 rounded-full transition-all whitespace-nowrap border ${
-                                filter === tab.id
-                                    ? tab.id === 'human_queue'
-                                        ? 'bg-[rgba(255,140,0,0.1)] border-[rgba(255,140,0,0.22)] text-[#cc6e00]'
-                                        : 'bg-[var(--brand-primary)] border-[var(--brand-primary)] text-white shadow-[0_8px_18px_rgba(149,36,227,0.14)]'
-                                    : 'bg-[#fbfbf4] border-[rgba(26,26,26,0.08)] hover:bg-[rgba(149,36,227,0.04)]'
-                            }`}
-                            style={
-                                filter !== tab.id
-                                    ? { color: 'var(--tx-buttonText-color)' }
-                                    : tab.id === 'human_queue'
-                                        ? { color: '#cc6e00' }
-                                        : undefined
-                            }
-                        >
-                            {tab.label}
-                        </button>
-                    ))}
-                </div>
-
+                {/* Assignee filter (admin/supervisor) */}
                 {['ADMIN', 'SUPERVISOR'].includes(currentUser.role) && assignees.length > 0 && (
-                    <div className="px-5 pb-3 shrink-0">
+                    <div className="px-4 py-2 shrink-0 border-b border-[rgba(26,26,26,0.08)]">
                         <select
                             value={assigneeFilter}
-                            onChange={(event) => setAssigneeFilter(event.target.value)}
-                            className={`${T.inputText} ${S.meta} w-full bg-[#fbfbf4] border rounded-2xl px-3 py-2 outline-none focus:border-[var(--brand-primary)]/50 transition-colors uppercase tracking-wide ${
-                                assigneeFilter ? 'border-[var(--brand-primary)]/50 text-[var(--brand-primary)]' : 'border-[var(--border-default)]'
-                            }`}
-                            style={{ color: assigneeFilter ? 'var(--brand-primary)' : 'var(--tx-inputText-color)' }}
+                            onChange={(e) => setAssigneeFilter(e.target.value)}
+                            className={`${T.inputText} ${S.meta} w-full bg-[#FBFBF4] border border-[rgba(26,26,26,0.1)] rounded-[8px] px-3 py-2 outline-none focus:border-[var(--brand-primary)] transition-colors text-[rgba(26,26,26,0.6)]`}
                         >
                             <option value="">Todos los agentes</option>
-                            {assignees.map((assignee) => (
-                                <option key={assignee.id} value={assignee.id}>
-                                    {assignee.name}
-                                </option>
+                            {assignees.map((a) => (
+                                <option key={a.id} value={a.id}>{a.name}</option>
                             ))}
                         </select>
                     </div>
                 )}
 
-                <div className="flex-1 overflow-y-auto custom-scrollbar px-3 pb-4">
+                {/* Thread list */}
+                <div className="flex-1 overflow-y-auto custom-scrollbar py-2 px-2">
                     {loadingThreads && threads.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20 gap-4">
-                            <div className="animate-spin rounded-full h-8 w-8 border-2 border-t-[var(--brand-primary)] border-transparent" />
-                            <span className={`${T.helperText} ${S.meta} uppercase`}>Escaneando hilos...</span>
+                        <div className="flex flex-col items-center justify-center py-20 gap-3">
+                            <div className="animate-spin rounded-full h-7 w-7 border-2 border-t-[var(--brand-primary)] border-transparent" />
+                            <span className={`${T.helperText} ${S.meta} text-[rgba(26,26,26,0.4)] uppercase tracking-wider`}>Cargando…</span>
                         </div>
                     ) : filteredThreads.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20 text-center px-10">
-                            <div className="w-16 h-16 rounded-full bg-[var(--bg-input)] flex items-center justify-center mb-4 border border-[var(--border-default)]">
-                                <Inbox className="w-8 h-8 opacity-50" style={{ color: 'var(--tx-emptyStateTitle-color)' }} />
-                            </div>
-                            <span className={`${T.emptyStateTitle} ${S.body} italic`}>
-                                No hay hilos {filter === 'all' ? '' : filter === 'mine' ? 'asignados a ti' : 'para este filtro'}
+                        <div className="flex flex-col items-center justify-center py-16 text-center px-8">
+                            <Inbox className="w-7 h-7 mb-3 text-[rgba(26,26,26,0.22)]" />
+                            <span className={`${T.helperText} ${S.meta} text-[rgba(26,26,26,0.4)]`}>
+                                No hay conversaciones{filter !== 'all' ? ' en este filtro' : ''}.
                             </span>
                         </div>
                     ) : (
-                        filteredThreads.map((thread) => {
-                            const isSelected = selectedThreadId === thread.id;
-                            const hasUnread = thread.unreadCount > 0;
-                            const isAiThread = thread.handlingMode === 'ai' || thread.handlingMode === 'copilot';
-                            const needsHuman = thread.handlingMode === 'human_queue';
+                        <div className="flex flex-col gap-0.5">
+                            {filteredThreads.map((thread) => {
+                                const isSelected = selectedThreadId === thread.id;
+                                const hasUnread = thread.unreadCount > 0;
+                                const isAiThread = thread.handlingMode === 'ai' || thread.handlingMode === 'copilot';
+                                const needsHuman = thread.handlingMode === 'human_queue';
 
-                            return (
-                                <div
-                                    key={thread.id}
-                                    onClick={() => handleThreadSelect(thread.id)}
-                                    className={`flex items-center gap-3 px-4 py-3.5 cursor-pointer rounded-[18px] transition-all mb-2 border group ${
-                                        isSelected
-                                            ? 'bg-[rgba(149,36,227,0.055)] border-[rgba(149,36,227,0.12)] shadow-[inset_3px_0_0_0_rgba(149,36,227,0.95)]'
-                                            : hasUnread
-                                                ? 'bg-[rgba(26,26,26,0.02)] border-[rgba(26,26,26,0.06)] hover:bg-[rgba(149,36,227,0.04)]'
-                                                : 'border-transparent hover:bg-[rgba(26,26,26,0.03)] hover:border-[rgba(26,26,26,0.06)]'
-                                    }`}
-                                >
-                                    <div className={`w-12 h-12 rounded-full flex-shrink-0 overflow-hidden relative border ${
-                                        isSelected || hasUnread
-                                            ? 'bg-[rgba(149,36,227,0.09)] border-[rgba(149,36,227,0.12)] text-[var(--brand-primary)]'
-                                            : 'bg-[#fbfbf4] border-[rgba(26,26,26,0.08)] text-[rgba(26,26,26,0.68)]'
-                                    }`}>
-                                        <div className="absolute inset-0 flex items-center justify-center text-[13px] font-black">
-                                            {getThreadInitials(thread)}
-                                        </div>
-                                        {thread.assignedUserId ? (
-                                            <div
-                                                className="absolute top-0 right-0 w-5 h-5 bg-white text-[var(--brand-primary)] text-[8px] font-black border-2 border-white rounded-full shadow-sm flex items-center justify-center"
-                                                title="Asignado"
-                                            >
-                                                {thread.assignedUserId === currentUser.id ? 'M' : 'A'}
+                                return (
+                                    <button
+                                        key={thread.id}
+                                        onClick={() => handleThreadSelect(thread.id)}
+                                        className={`w-full text-left flex items-start gap-3 px-3 py-3 rounded-[10px] transition-all relative ${
+                                            isSelected
+                                                ? 'bg-[rgba(255,140,0,0.06)]'
+                                                : 'hover:bg-[rgba(26,26,26,0.03)]'
+                                        }`}
+                                        style={isSelected ? { boxShadow: 'inset 3px 0 0 0 var(--brand-primary)' } : {}}
+                                    >
+                                        {/* Avatar */}
+                                        <div className="relative flex-shrink-0">
+                                            <div className={`w-11 h-11 rounded-full flex items-center justify-center text-[13px] font-bold border relative ${
+                                                isSelected || hasUnread
+                                                    ? 'bg-[rgba(255,140,0,0.1)] border-[rgba(255,140,0,0.18)] text-[var(--brand-primary)]'
+                                                    : 'bg-[rgba(26,26,26,0.05)] border-[rgba(26,26,26,0.08)] text-[rgba(26,26,26,0.6)]'
+                                            }`}>
+                                                {getThreadInitials(thread)}
                                             </div>
-                                        ) : needsHuman ? (
-                                            <div
-                                                className="absolute top-0 right-0 w-4 h-4 bg-[#ff8c00] border-2 border-white rounded-full shadow-sm animate-pulse"
-                                                title="Requiere humano"
-                                            />
-                                        ) : null}
-                                        {isAiThread && (
-                                            <div
-                                                className={`absolute -bottom-0.5 -right-0.5 w-5 h-5 ${
-                                                    thread.aiPaused ? 'bg-[rgba(255,140,0,0.14)]' : 'bg-white'
-                                                } border-2 border-white rounded-full shadow-sm flex items-center justify-center`}
-                                            >
-                                                <Bot
-                                                    className={`w-2.5 h-2.5 ${
-                                                        thread.aiPaused ? 'text-[#cc6e00]' : 'text-[var(--brand-primary)]'
-                                                    }`}
-                                                />
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="flex-1 min-w-0 flex flex-col justify-center">
-                                        <div className="flex justify-between items-start gap-3 mb-1">
-                                            <div className="min-w-0">
-                                                <h3
-                                                    className={`${T.cardTitle} ${S.body} truncate pr-1 transition-colors ${
-                                                        hasUnread && !isSelected ? 'font-bold' : ''
-                                                    }`}
-                                                    style={
-                                                        isSelected
-                                                            ? { color: 'var(--brand-primary)' }
-                                                            : hasUnread
-                                                                ? { color: 'var(--text-strong)' }
-                                                                : undefined
-                                                    }
-                                                >
-                                                    {thread.contactName || thread.remotePhone}
-                                                </h3>
-                                                <div className="mt-1 flex items-center gap-2 flex-wrap">
-                                                    {needsHuman && (
-                                                        <span className="inline-flex items-center rounded-full bg-[rgba(255,140,0,0.1)] px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.18em] text-[#cc6e00]">
-                                                            Prioridad
-                                                        </span>
-                                                    )}
-                                                    {isAiThread && !needsHuman && (
-                                                        <span className="inline-flex items-center rounded-full bg-[rgba(149,36,227,0.08)] px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.18em] text-[var(--brand-primary)]">
-                                                            IA
-                                                        </span>
-                                                    )}
-                                                    {thread.assignedUserId === currentUser.id && (
-                                                        <span className="inline-flex items-center rounded-full bg-[rgba(149,36,227,0.08)] px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.18em] text-[var(--brand-primary)]">
-                                                            Mio
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                            <span
-                                                className={`${T.helperText} ${S.meta} ${hasUnread ? 'font-black' : ''} shrink-0`}
-                                                style={hasUnread ? { color: 'var(--brand-primary)' } : undefined}
-                                            >
-                                                {formatThreadTime(thread.lastMessageAt)}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between items-center gap-3">
-                                            <p className={`${T.helperText} ${S.meta} truncate flex-1 pr-2 ${hasUnread ? 'text-[var(--text-strong)] font-medium' : 'italic text-[rgba(26,26,26,0.52)]'}`}>
-                                                {thread.lastMessagePreview || ''}
-                                            </p>
-                                            {hasUnread && (
-                                                <span className="bg-[var(--brand-primary)] text-white text-[10px] font-black rounded-full h-5 min-w-[20px] px-1.5 flex items-center justify-center shadow-[0_6px_12px_rgba(149,36,227,0.16)]">
-                                                    {thread.unreadCount}
+                                            {/* Mode dot */}
+                                            {needsHuman && (
+                                                <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-white border-2 border-white flex items-center justify-center">
+                                                    <span className="w-2 h-2 rounded-full bg-[var(--brand-primary)] animate-pulse" />
                                                 </span>
                                             )}
+                                            {isAiThread && !needsHuman && (
+                                                <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-white border-[1.5px] border-white flex items-center justify-center">
+                                                    <Bot className={`w-2.5 h-2.5 ${thread.aiPaused ? 'text-amber-500' : 'text-[rgba(26,26,26,0.4)]'}`} />
+                                                </span>
+                                            )}
+                                            {thread.assignedUserId && !needsHuman && !isAiThread && (
+                                                <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white" title="Asignado" />
+                                            )}
                                         </div>
-                                        {thread.contactName && (
-                                            <div className="mt-1 flex items-center gap-2">
-                                                <span className={`${T.helperText} ${S.meta} opacity-60`}>
-                                                    {thread.remotePhone}
+
+                                        {/* Content */}
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex justify-between items-baseline gap-2">
+                                                <span
+                                                    className={`${T.cardTitle} ${S.body} truncate transition-colors ${hasUnread ? 'font-bold' : ''}`}
+                                                    style={isSelected ? { color: 'var(--brand-primary)' } : {}}
+                                                >
+                                                    {thread.contactName || thread.remotePhone}
+                                                </span>
+                                                <span
+                                                    className={`${T.helperText} flex-shrink-0 text-[10.5px] font-medium ${hasUnread ? 'font-bold' : ''}`}
+                                                    style={{ color: hasUnread ? 'var(--brand-primary)' : 'rgba(26,26,26,0.4)', fontFamily: 'ui-monospace, monospace' }}
+                                                >
+                                                    {formatThreadTime(thread.lastMessageAt)}
                                                 </span>
                                             </div>
-                                        )}
-                                    </div>
-                                </div>
-                            );
-                        })
+                                            <div className="flex justify-between items-center gap-2 mt-0.5">
+                                                <p className={`${T.helperText} ${S.meta} truncate flex-1 ${hasUnread ? 'text-[rgba(26,26,26,0.7)] font-medium' : 'text-[rgba(26,26,26,0.45)]'}`}>
+                                                    {thread.lastMessagePreview || ''}
+                                                </p>
+                                                {hasUnread && (
+                                                    <span className="flex-shrink-0 min-w-[18px] h-[18px] px-[5px] rounded-full bg-[var(--brand-primary)] text-white text-[11px] font-bold flex items-center justify-center">
+                                                        {thread.unreadCount}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-1.5 mt-1.5 flex-wrap overflow-hidden">
+                                                {needsHuman && (
+                                                    <span className="inline-flex items-center rounded-full bg-[rgba(255,140,0,0.1)] border border-[rgba(255,140,0,0.22)] px-[7px] py-[2px] text-[9.5px] font-bold uppercase tracking-[0.04em] text-[var(--brand-primary)] whitespace-nowrap">
+                                                        En cola
+                                                    </span>
+                                                )}
+                                                {isAiThread && !needsHuman && (
+                                                    <span className="inline-flex items-center gap-[3px] rounded-full bg-[rgba(255,215,0,0.18)] border border-[rgba(26,26,26,0.08)] px-[7px] py-[2px] text-[9.5px] font-bold uppercase tracking-[0.04em] text-[rgba(26,26,26,0.55)] whitespace-nowrap">
+                                                        IA
+                                                    </span>
+                                                )}
+                                                {thread.handlingMode === 'human' && (
+                                                    <span className="inline-flex items-center rounded-full bg-[rgba(255,140,0,0.08)] border border-[rgba(255,140,0,0.18)] px-[7px] py-[2px] text-[9.5px] font-bold uppercase tracking-[0.04em] text-[var(--brand-primary)] whitespace-nowrap">
+                                                        Humano
+                                                    </span>
+                                                )}
+                                                {thread.assignedUserId === currentUser.id && (
+                                                    <span className="inline-flex items-center rounded-full bg-[rgba(255,140,0,0.06)] border border-[rgba(255,140,0,0.14)] px-[7px] py-[2px] text-[9.5px] font-bold uppercase tracking-[0.04em] text-[var(--brand-primary)] whitespace-nowrap">
+                                                        Mío
+                                                    </span>
+                                                )}
+                                                {thread.status === 'CLOSED' && (
+                                                    <span className="inline-flex items-center rounded-full bg-[rgba(26,26,26,0.04)] border border-[rgba(26,26,26,0.08)] px-[7px] py-[2px] text-[9.5px] font-bold uppercase tracking-[0.04em] text-[rgba(26,26,26,0.4)] whitespace-nowrap">
+                                                        Cerrado
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
                     )}
                 </div>
             </aside>
 
-            <main className="flex-1 bg-[linear-gradient(180deg,#fbfbf4_0%,#f7f6ef_100%)] relative flex flex-col h-full z-0 transition-shadow">
+            {/* Main chat area */}
+            <main className="flex-1 bg-[#FBFBF4] relative flex flex-col h-full z-0">
                 {activeThread ? (
                     <div className="h-full flex flex-col">
-                        {false && (
-                            <div className="min-h-[64px] bg-[rgba(255,255,255,0.94)] backdrop-blur-xl px-5 border-b border-[rgba(26,26,26,0.08)] flex flex-wrap items-center justify-between gap-3 z-10 shrink-0">
-                                <div className="flex items-center gap-3 flex-wrap">
-                                {activeThread!.assignedUserId ? (
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                        <div className="flex items-center gap-1.5 bg-[rgba(149,36,227,0.08)] px-3 py-2 rounded-full border border-[rgba(149,36,227,0.16)]">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-[var(--brand-primary)] animate-pulse" />
-                                            <span className={`${T.badgeText} ${S.meta} text-[var(--brand-primary)]`}>
-                                                {activeThread!.assignedUserId === currentUser.id ? 'ASIGNADO A MI' : 'ASIGNADO'}
-                                            </span>
-                                        </div>
-                                        {(activeThread!.assignedUserId === currentUser.id ||
-                                            ['SUPERVISOR', 'ADMIN'].includes(currentUser.role)) && (
+                        {/* Action bar */}
+                        <div className="h-[52px] bg-white px-4 border-b border-[rgba(26,26,26,0.08)] flex items-center justify-between gap-3 z-10 shrink-0">
+                            <div className="flex items-center gap-2">
+                                {activeThread.assignedUserId ? (
+                                    <div className="flex items-center gap-2">
+                                        <span className="inline-flex items-center gap-1.5 px-[10px] h-[34px] rounded-[8px] text-[12.5px] font-semibold border border-[rgba(255,140,0,0.2)] bg-[rgba(255,140,0,0.06)] text-[var(--brand-primary)]">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand-primary)]" />
+                                            {activeThread.assignedUserId === currentUser.id ? 'Asignado a mí' : 'Asignado'}
+                                        </span>
+                                        {(activeThread.assignedUserId === currentUser.id || ['SUPERVISOR', 'ADMIN'].includes(currentUser.role)) && (
                                             <button
                                                 onClick={handleUnassign}
-                                                className={`${T.buttonText} ${S.meta} text-[#ff8c00] hover:text-[#e07c00] rounded-full border border-[rgba(255,140,0,0.2)] px-3 py-2 bg-[rgba(255,140,0,0.06)]`}
+                                                className="px-3 h-[34px] rounded-[8px] border border-[rgba(255,140,0,0.22)] text-[var(--brand-primary)] bg-white text-[12.5px] font-semibold hover:bg-[rgba(255,140,0,0.04)] transition-colors"
                                             >
                                                 Liberar
                                             </button>
                                         )}
                                         {['SUPERVISOR', 'ADMIN'].includes(currentUser.role) && assignees.length > 0 && (
                                             <select
-                                                onChange={(event) => {
-                                                    if (event.target.value) handleAssignThread(event.target.value);
-                                                    event.target.value = '';
-                                                }}
-                                                className="bg-[#fbfbf4] border border-[rgba(26,26,26,0.08)] text-[var(--text-strong)] text-[10px] rounded-full px-3 flex-1 py-2 uppercase tracking-tighter"
+                                                onChange={(e) => { if (e.target.value) handleAssignThread(e.target.value); e.target.value = ''; }}
+                                                className="h-[34px] rounded-[8px] border border-[rgba(26,26,26,0.12)] bg-white px-3 text-[12px] text-[rgba(26,26,26,0.55)]"
                                                 defaultValue=""
                                             >
-                                                <option value="" disabled>
-                                                    Reasignar...
-                                                </option>
-                                                {assignees.map((assignee) => (
-                                                    <option key={assignee.id} value={assignee.id}>
-                                                        {assignee.name || assignee.email}
-                                                    </option>
-                                                ))}
+                                                <option value="" disabled>Reasignar…</option>
+                                                {assignees.map((a) => <option key={a.id} value={a.id}>{a.name || a.email}</option>)}
                                             </select>
                                         )}
                                     </div>
                                 ) : (
-                                    <div className="flex gap-2 flex-wrap">
+                                    <div className="flex gap-2">
                                         <button
                                             onClick={handleTakeThread}
-                                            className={`${T.buttonPrimaryText} ${S.meta} bg-[var(--brand-primary)] hover:brightness-110 px-4 py-2 rounded-full transition-all active:scale-95 shadow-lg shadow-[rgba(149,36,227,0.18)]`}
-                                            title="Tomar la atención como agente resolutor"
+                                            className="px-3 h-[34px] rounded-[8px] bg-[var(--brand-primary)] text-white text-[12.5px] font-semibold hover:brightness-105 transition-all active:scale-95 shadow-[0_2px_8px_rgba(255,140,0,0.22)]"
                                         >
                                             Tomar chat
                                         </button>
                                         {['SUPERVISOR', 'ADMIN'].includes(currentUser.role) && assignees.length > 0 && (
                                             <select
-                                                onChange={(event) => {
-                                                    if (event.target.value) handleAssignThread(event.target.value);
-                                                    event.target.value = '';
-                                                }}
-                                                className="bg-[#fbfbf4] border border-[rgba(26,26,26,0.08)] text-[var(--text-muted)] text-[10px] rounded-full px-3 py-2 uppercase tracking-tighter w-32"
+                                                onChange={(e) => { if (e.target.value) handleAssignThread(e.target.value); e.target.value = ''; }}
+                                                className="h-[34px] rounded-[8px] border border-[rgba(26,26,26,0.12)] bg-white px-3 text-[12px] text-[rgba(26,26,26,0.45)]"
                                                 defaultValue=""
                                             >
-                                                <option value="" disabled>
-                                                    Asignar a...
-                                                </option>
-                                                {assignees.map((assignee) => (
-                                                    <option key={assignee.id} value={assignee.id}>
-                                                        {assignee.name || assignee.email}
-                                                    </option>
-                                                ))}
+                                                <option value="" disabled>Asignar a…</option>
+                                                {assignees.map((a) => <option key={a.id} value={a.id}>{a.name || a.email}</option>)}
                                             </select>
                                         )}
                                     </div>
                                 )}
 
-                                <div className="w-px h-6 bg-[rgba(26,26,26,0.08)] mx-1" />
-
-                                <ThreadHandlingModeBadge mode={activeThread!.handlingMode as any} aiPaused={activeThread!.aiPaused} />
+                                <div className="w-px h-5 bg-[rgba(26,26,26,0.1)] mx-0.5" />
+                                <ThreadHandlingModeBadge mode={activeThread.handlingMode as any} aiPaused={activeThread.aiPaused} />
                             </div>
 
                             <div className="flex items-center gap-2">
-                                <div className="hidden md:flex items-center gap-2 rounded-full bg-[#fbfbf4] border border-[rgba(26,26,26,0.08)] px-3 py-2">
-                                    <Inbox className="w-4 h-4 text-[var(--brand-primary)]" />
-                                    <span className={`${T.helperText} ${S.meta}`}>Estado: {activeThread!.status}</span>
-                                </div>
-                                </div>
+                                <span className={`${T.helperText} ${S.meta} text-[rgba(26,26,26,0.4)] hidden md:block`}>
+                                    Estado: {activeThread.status}
+                                </span>
                             </div>
-                        )}
+                        </div>
 
+                        {/* AI paused banner */}
                         {activeThread.aiPaused && (
-                            <div className="bg-[rgba(255,140,0,0.08)] border-b border-[rgba(255,140,0,0.16)] px-6 py-4 flex items-center justify-between shrink-0">
-                                <div className="flex items-center gap-2 text-[#cc6e00]">
-                                    <svg className="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                                        />
+                            <div className="bg-[rgba(255,140,0,0.08)] border-b border-[rgba(255,140,0,0.18)] px-5 py-3 flex items-center justify-between shrink-0">
+                                <div className="flex items-center gap-2 text-[var(--brand-primary)]">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                     </svg>
-                                    <span className="text-[11px] font-black uppercase tracking-widest">
-                                        IA pausada para este chat - atención humana activa
+                                    <span className="text-[12px] font-semibold text-[rgba(26,26,26,0.7)]">
+                                        IA en pausa — atención humana activa en esta conversación.
                                     </span>
                                 </div>
                                 <button
                                     onClick={handleResumeAi}
-                                    className={`${T.buttonText} ${S.meta} text-white bg-[#ff8c00] hover:brightness-110 px-4 py-2 rounded-full transition-all active:scale-95`}
-                                    title="Permitir que la IA vuelva a responder solo en esta conversación"
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] bg-white border border-[rgba(255,140,0,0.22)] text-[var(--brand-primary)] text-[12px] font-semibold hover:bg-[rgba(255,140,0,0.04)] transition-colors"
                                 >
                                     Reanudar IA
                                 </button>
@@ -826,6 +722,7 @@ export default function InboxPage() {
                             <ChatPanel
                                 messages={messages}
                                 contactName={activeThread.contactName || activeThread.remotePhone || 'Usuario'}
+                                contactPhone={activeThread.remotePhone}
                                 onSendMessage={handleSendMessage}
                                 threadId={activeThread.id}
                                 isNotesOpen={isNotesOpen}
@@ -835,191 +732,123 @@ export default function InboxPage() {
                                     ['SUPERVISOR', 'ADMIN'].includes(currentUser.role)
                                 }
                                 onOpenContact={activeThread.contactId ? () => setContactDetailId(activeThread.contactId!) : undefined}
-                                threadStatus={activeThread!.status}
-                                handlingMode={activeThread!.handlingMode as any}
-                                aiPaused={activeThread!.aiPaused}
-                                assignmentBadge={activeAssignmentBadge}
-                                assignmentControl={activeAssignmentControl}
-                                onTakeThread={!activeThread.assignedUserId ? handleTakeThread : undefined}
-                                onUnassignThread={
-                                    activeThread!.assignedUserId &&
-                                    (activeThread!.assignedUserId === currentUser.id ||
-                                        ['SUPERVISOR', 'ADMIN'].includes(currentUser.role))
-                                        ? handleUnassign
-                                        : undefined
-                                }
+                                threadStatus={activeThread.status}
+                                handlingMode={activeThread.handlingMode as any}
+                                aiPaused={activeThread.aiPaused}
                             />
                         </div>
                     </div>
                 ) : (
-                    <div className="h-full w-full bg-[linear-gradient(180deg,#fbfbf4_0%,#f7f6ef_100%)] flex flex-col items-center justify-center text-center px-8 relative overflow-hidden">
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] bg-[var(--brand-primary)]/5 rounded-full blur-[90px] pointer-events-none" />
-
-                        <div className="mb-6 relative">
-                            <div className="w-20 h-20 rounded-[28px] bg-[rgba(149,36,227,0.08)] border border-[rgba(149,36,227,0.12)] flex items-center justify-center shadow-[0_14px_32px_rgba(149,36,227,0.1)]">
-                                <MessageSquare className="w-10 h-10 text-[var(--brand-primary)]" />
+                    <div className="h-full w-full flex flex-col items-center justify-center text-center px-8">
+                        <div className="mb-5">
+                            <div className="w-[72px] h-[72px] rounded-[14px] bg-white border border-[rgba(26,26,26,0.08)] flex items-center justify-center text-[var(--brand-primary)] shadow-[0_4px_12px_rgba(26,26,26,0.06)] mx-auto">
+                                <MessageSquare className="w-8 h-8" />
                             </div>
                         </div>
-                        <h1 className={`${T.emptyStateTitle} ${S.displayLg} mb-2 tracking-tight`}>
-                            Wabee <span className="text-[var(--brand-primary)]">Inbox</span>
-                        </h1>
-                        <p className={`${T.emptyStateBody} ${S.body} mb-6 max-w-sm mx-auto`}>
-                            Selecciona una conversación para entrar al flujo real de atención, seguimiento y colaboración.
+                        <h2 className={`${T.emptyStateTitle} ${S.displayLg} mb-2`}>Selecciona una conversación</h2>
+                        <p className={`${T.emptyStateBody} ${S.body} max-w-xs mx-auto text-[rgba(26,26,26,0.5)]`}>
+                            Empieza por la bandeja de prioridad o por tus conversaciones asignadas para atender y dar seguimiento.
                         </p>
-                        <div className="rounded-full border border-[rgba(26,26,26,0.08)] bg-white px-4 py-2">
-                            <span className={`${T.helperText} ${S.meta}`}>
-                                Empieza por la bandeja de prioridad o por tus conversaciones asignadas.
-                            </span>
-                        </div>
                     </div>
                 )}
 
                 {isNotesOpen && (
                     <div
-                        className="absolute inset-0 z-20 bg-black/20 backdrop-blur-[1px] transition-opacity"
+                        className="absolute inset-0 z-20 bg-[rgba(26,26,26,0.16)] backdrop-blur-[1px]"
                         onClick={() => setIsNotesOpen(false)}
                     />
                 )}
             </main>
 
+            {/* Notes sidebar */}
             <aside
                 ref={notesSidebarRef}
-                className={`fixed right-0 top-0 h-full w-[340px] bg-[var(--bg-surface)] border-l border-[var(--border-default)] shadow-2xl z-30 transition-transform duration-500 ease-in-out transform flex flex-col ${
+                className={`fixed right-0 top-0 h-full w-[320px] bg-white border-l border-[rgba(26,26,26,0.08)] shadow-[0_0_32px_rgba(26,26,26,0.12)] z-30 transition-transform duration-300 ease-in-out flex flex-col ${
                     isNotesOpen ? 'translate-x-0' : 'translate-x-full'
                 }`}
             >
-                <div className="h-11 px-5 flex items-center justify-between border-b border-[var(--border-default)] shrink-0 bg-[var(--bg-surface)]/80 backdrop-blur-xl">
-                    <h2 className={`${T.sectionTitle} ${S.headingMd} italic uppercase tracking-widest`}>Internal Notes</h2>
+                <div className="h-[64px] px-4 flex items-center justify-between border-b border-[rgba(26,26,26,0.08)] shrink-0">
+                    <span className="inline-flex items-center gap-2 text-[rgba(26,26,26,0.55)] text-[11px] font-bold uppercase tracking-[0.12em]">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Notas internas
+                    </span>
                     <button
                         onClick={() => setIsNotesOpen(false)}
-                        className="p-1 transition-colors hover:scale-110"
-                        style={{ color: 'var(--tx-sectionTitle-color)' }}
+                        className="w-8 h-8 rounded-[8px] flex items-center justify-center text-[rgba(26,26,26,0.4)] hover:bg-[rgba(26,26,26,0.05)] transition-colors"
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
 
-                <div className="flex flex-col flex-1 overflow-hidden">
-                    <div className="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar">
-                        {notes.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-20 text-center opacity-40 grayscale">
-                                <svg className="w-12 h-12 mb-4" style={{ color: 'var(--tx-emptyStateTitle-color)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={1}
-                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                    />
-                                </svg>
-                                <p className={`${T.emptyStateTitle} text-xs uppercase tracking-widest`}>Sin notas internas</p>
-                            </div>
-                        ) : (
-                            notes.map((note) => {
-                                const isAiSuggestion = note.body.startsWith('[AI_SUGGESTION]');
-                                const displayBody = isAiSuggestion ? note.body.replace('[AI_SUGGESTION]', '').trim() : note.body;
-
-                                return (
-                                    <div
-                                        key={note.id}
-                                        className={`${
-                                            isAiSuggestion ? 'bg-purple-900/10 border-purple-500/30' : 'bg-[var(--bg-card)] border-[var(--border-default)]'
-                                        } p-4 rounded-2xl border shadow-lg relative group overflow-hidden`}
-                                    >
-                                        <div
-                                            className={`absolute top-0 left-0 w-1 h-full ${
-                                                note.isPinned ? 'bg-[var(--brand-primary)]' : isAiSuggestion ? 'bg-purple-500' : 'bg-[var(--border-default)]'
-                                            }`}
-                                        />
-                                        <div className="flex justify-between items-start mb-2 px-1">
-                                            <div className="flex items-center gap-2">
-                                                {isAiSuggestion ? (
-                                                    <div className="w-5 h-5 rounded bg-purple-500/20 text-purple-400 flex items-center justify-center text-[9px] font-black uppercase tracking-tighter">
-                                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                                        </svg>
-                                                    </div>
-                                                ) : (
-                                                    <div className="w-5 h-5 rounded bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] flex items-center justify-center text-[9px] font-black uppercase tracking-tighter">
-                                                        {(note.authorName || 'US').substring(0, 2).toUpperCase()}
-                                                    </div>
-                                                )}
-                                                <span className={`${T.cardTitle} ${S.meta}`}>
-                                                    {isAiSuggestion ? 'Copiloto IA' : note.authorName || (note.createdById === currentUser.id ? 'Tu' : 'Sistema')}
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <span className={`${T.helperText} ${S.meta} font-mono`}>
-                                                    {new Date(note.createdAt).toLocaleDateString()}
-                                                </span>
-                                                <button
-                                                    onClick={() => handlePinNote(note.id, note.isPinned)}
-                                                    className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-[var(--bg-input)]"
-                                                    title={note.isPinned ? 'Desfijar' : 'Fijar arriba'}
-                                                >
-                                                    <svg
-                                                        className={`w-3.5 h-3.5 ${
-                                                            note.isPinned ? 'text-[var(--brand-primary)] fill-[var(--brand-primary)]' : 'text-[var(--text-muted)]'
-                                                        }`}
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        viewBox="0 0 24 24"
-                                                    >
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                                                    </svg>
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDeleteNote(note.id)}
-                                                    className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/10 text-red-500"
-                                                    title="Eliminar"
-                                                >
-                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth={2}
-                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                        />
-                                                    </svg>
-                                                </button>
-                                            </div>
+                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-3">
+                    {notes.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-full text-center text-[rgba(26,26,26,0.3)] gap-3">
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <p className="text-[13px]">Aún no hay notas internas.<br />Solo tu equipo puede verlas.</p>
+                        </div>
+                    ) : (
+                        notes.map((note) => {
+                            const isAiSuggestion = note.body.startsWith('[AI_SUGGESTION]');
+                            const displayBody = isAiSuggestion ? note.body.replace('[AI_SUGGESTION]', '').trim() : note.body;
+                            return (
+                                <div
+                                    key={note.id}
+                                    className={`p-3 rounded-[10px] border relative group ${
+                                        note.isPinned
+                                            ? 'bg-[rgba(255,215,0,0.1)] border-[rgba(26,26,26,0.08)]'
+                                            : 'bg-[#FBFBF4] border-[rgba(26,26,26,0.08)]'
+                                    }`}
+                                >
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-[12px] font-semibold text-[rgba(26,26,26,0.65)]">
+                                            {isAiSuggestion ? 'Copiloto IA' : note.authorName || (note.createdById === currentUser.id ? 'Tú' : 'Sistema')}
+                                        </span>
+                                        <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button onClick={() => handlePinNote(note.id, note.isPinned)} className="p-1 rounded hover:bg-[rgba(26,26,26,0.06)]">
+                                                <svg className={`w-3 h-3 ${note.isPinned ? 'text-[var(--brand-primary)]' : 'text-[rgba(26,26,26,0.35)]'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                                                </svg>
+                                            </button>
+                                            <button onClick={() => handleDeleteNote(note.id)} className="p-1 rounded hover:bg-red-500/10 text-red-500">
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
                                         </div>
-                                        <p className={`${T.messageText} ${S.body} pl-1 ${isAiSuggestion ? 'text-purple-200' : 'text-[var(--text-muted)] italic'} mb-2`}>
-                                            {displayBody}
-                                        </p>
-
-                                        {!isAiSuggestion && (
-                                            <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-[var(--border-default)] px-1">
-                                                <span className="text-[8px] font-black text-[var(--brand-primary)] uppercase tracking-widest bg-[var(--brand-primary)]/10 px-1.5 py-0.5 rounded">
-                                                    {note.authorRole || 'STAFF'}
-                                                </span>
-                                                <span className={`${T.helperText} text-[9px] font-bold`}>- Registrado por equipo</span>
-                                            </div>
-                                        )}
                                     </div>
-                                );
-                            })
-                        )}
-                    </div>
-
-                    <form onSubmit={handleAddNote} className="p-5 bg-[var(--bg-surface)] border-t border-[var(--border-default)] shrink-0">
-                        <textarea
-                            className={`${T.inputText} ${S.body} w-full bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl p-3 focus:ring-2 focus:ring-[var(--brand-primary)]/50 focus:border-[var(--brand-primary)] outline-none transition-all placeholder:text-[var(--text-muted)] resize-none font-medium custom-scrollbar`}
-                            placeholder="Escribe un comentario privado..."
-                            rows={3}
-                            value={newNote}
-                            onChange={(event) => setNewNote(event.target.value)}
-                        />
-                        <button
-                            type="submit"
-                            disabled={!newNote.trim()}
-                            className={`${T.buttonPrimaryText} ${S.body} mt-3 w-full bg-[var(--brand-primary)] py-3 rounded-xl uppercase tracking-[0.2em] hover:brightness-110 disabled:opacity-30 disabled:grayscale transition-all shadow-xl shadow-[var(--brand-primary)]/10 active:scale-95 flex items-center justify-center gap-2`}
-                        >
-                            Fijar nota
-                        </button>
-                    </form>
+                                    <p className="text-[13px] text-[rgba(26,26,26,0.72)] leading-relaxed">{displayBody}</p>
+                                    <span className="block mt-2 text-[10.5px] font-medium text-[rgba(26,26,26,0.35)]" style={{ fontFamily: 'ui-monospace,monospace' }}>
+                                        {new Date(note.createdAt).toLocaleDateString()}
+                                    </span>
+                                </div>
+                            );
+                        })
+                    )}
                 </div>
+
+                <form onSubmit={handleAddNote} className="p-4 border-t border-[rgba(26,26,26,0.08)] shrink-0">
+                    <textarea
+                        className="w-full bg-[#FBFBF4] border border-[rgba(26,26,26,0.1)] rounded-[10px] p-3 text-[13px] text-[var(--text-strong)] focus:ring-2 focus:ring-[var(--brand-primary)]/20 focus:border-[var(--brand-primary)] outline-none transition-all placeholder:text-[rgba(26,26,26,0.35)] resize-none custom-scrollbar"
+                        placeholder="Escribe una nota privada…"
+                        rows={2}
+                        value={newNote}
+                        onChange={(e) => setNewNote(e.target.value)}
+                        style={{ maxHeight: 90 }}
+                    />
+                    <button
+                        type="submit"
+                        disabled={!newNote.trim()}
+                        className="mt-2 w-full h-[40px] rounded-[10px] bg-[var(--brand-primary)] text-white text-[13px] font-semibold hover:brightness-105 disabled:opacity-30 disabled:grayscale transition-all flex items-center justify-center gap-2"
+                    >
+                        Guardar nota
+                    </button>
+                </form>
             </aside>
 
             {contactDetailId && (

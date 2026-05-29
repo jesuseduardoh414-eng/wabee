@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Message, markThreadRead } from '@/api/wabee/inbox.api';
 import EmojiPicker, { Theme, EmojiClickData } from 'emoji-picker-react';
-import { Send, Smile, Paperclip, StickyNote, UserRound, Inbox, Hand, MoreHorizontal } from 'lucide-react';
+import { Send, Smile, Paperclip, StickyNote, UserRound, Hand, MoreHorizontal } from 'lucide-react';
 import { WhatsAppMessageBubble } from './inbox/WhatsAppMessageBubble';
 import { useStickyAutoScroll } from './inbox/useStickyAutoScroll';
 import { T, S } from '@/lib/text-tokens';
@@ -11,6 +11,7 @@ import ThreadHandlingModeBadge from './ThreadHandlingModeBadge';
 interface Props {
     messages: Message[];
     contactName: string;
+    contactPhone?: string;
     onSendMessage: (text: string) => Promise<void>;
     onBack?: () => void;
     threadId?: string;
@@ -27,9 +28,44 @@ interface Props {
     onUnassignThread?: () => void;
 }
 
+function getContactInitials(contactName: string) {
+    const parts = contactName.trim().split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+        return `${parts[0][0] ?? ''}${parts[1][0] ?? ''}`.toUpperCase();
+    }
+    return contactName.slice(0, 2).toUpperCase() || 'WB';
+}
+
+function formatPhone(phone?: string) {
+    if (!phone) return '';
+    const digits = phone.replace(/\D/g, '');
+    if (digits.length === 12 && digits.startsWith('52')) {
+        return `+${digits.slice(0, 2)} ${digits.slice(2, 4)} ${digits.slice(4, 8)} ${digits.slice(8)}`;
+    }
+    if (digits.length === 10) {
+        return `+52 ${digits.slice(0, 2)} ${digits.slice(2, 6)} ${digits.slice(6)}`;
+    }
+    return phone;
+}
+
+function formatDayLabel(timestamp?: string) {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) return '';
+
+    const now = new Date();
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+
+    if (date.toDateString() === now.toDateString()) return 'Hoy';
+    if (date.toDateString() === yesterday.toDateString()) return 'Ayer';
+    return date.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+}
+
 export default function ChatPanel({
     messages,
     contactName,
+    contactPhone,
     onSendMessage,
     onBack: _onBack,
     threadId,
@@ -40,11 +76,11 @@ export default function ChatPanel({
     threadStatus,
     handlingMode,
     aiPaused,
-    assignmentBadge,
     assignmentControl,
     onTakeThread,
     onUnassignThread,
 }: Props) {
+    void _onBack;
     const [inputText, setInputText] = useState('');
     const [sending, setSending] = useState(false);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -116,199 +152,205 @@ export default function ChatPanel({
         showToast('Adjuntar archivos estará disponible próximamente', 'info');
     };
 
+    const phoneLabel = formatPhone(contactPhone);
+    const initials = getContactInitials(contactName);
+
     return (
-        <div className="flex flex-col h-full bg-[linear-gradient(180deg,#fbfbf4_0%,#f7f6ef_100%)] relative overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(149,36,227,0.06)_0,transparent_36%),radial-gradient(circle_at_bottom_right,rgba(149,36,227,0.05)_0,transparent_34%)] pointer-events-none" />
-
-            <div className="min-h-[78px] bg-[rgba(255,255,255,0.94)] backdrop-blur-xl px-6 flex justify-between items-center border-b border-[rgba(26,26,26,0.08)] z-10 shrink-0 gap-4">
-                <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-12 h-12 rounded-full bg-[rgba(149,36,227,0.09)] border border-[rgba(149,36,227,0.14)] flex items-center justify-center overflow-hidden shadow-[0_8px_18px_rgba(149,36,227,0.08)]">
-                        <svg className="w-6 h-6 text-[var(--brand-primary)]" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                        </svg>
-                    </div>
-                    <div className="flex flex-col justify-center min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className={`${T.cardTitle} ${S.headingMd} leading-tight tracking-tight truncate max-w-[260px]`}>{contactName}</h3>
-                            <ThreadHandlingModeBadge mode={handlingMode ?? null} aiPaused={aiPaused} />
+        <div className="flex h-full flex-col overflow-hidden bg-[#f7f4eb]" data-thread-status={threadStatus ?? undefined}>
+            <div className="min-h-[80px] shrink-0 border-b border-[rgba(26,26,26,0.08)] bg-[rgba(255,255,255,0.78)] px-4 py-4 backdrop-blur-xl md:px-5">
+                <div className="flex items-start justify-between gap-4">
+                    <div className="flex min-w-0 items-start gap-4">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[rgba(255,140,0,0.2)] bg-[rgba(255,245,236,0.95)] text-[20px] font-semibold text-[#ff8c00]">
+                            {initials}
                         </div>
-                        <div className="flex items-center gap-1.5">
-                            <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.35)]" />
-                            <p className={`${T.helperText} ${S.meta}`}>En linea</p>
-                            {threadStatus && (
-                                <span className="ml-2 inline-flex items-center gap-1 rounded-full border border-[rgba(26,26,26,0.08)] bg-[#fbfbf4] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[rgba(26,26,26,0.6)]">
-                                    <Inbox className="h-3 w-3 text-[var(--brand-primary)]" />
-                                    {threadStatus}
+                        <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <h3 className="truncate text-[18px] font-bold leading-tight text-[#0f172a] md:text-[20px]">
+                                    {contactName}
+                                </h3>
+                                <ThreadHandlingModeBadge mode={handlingMode ?? null} aiPaused={aiPaused} />
+                            </div>
+                            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[14px] text-[rgba(15,23,42,0.62)]">
+                                {phoneLabel && <span>{phoneLabel}</span>}
+                                <span className="inline-flex items-center gap-1.5 text-[#1ea35b]">
+                                    <span className="h-2 w-2 rounded-full bg-[#1ea35b]" />
+                                    En línea
                                 </span>
-                            )}
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div className="flex items-center gap-2 text-[var(--text-muted)] flex-wrap justify-end" style={{ color: 'var(--tx-buttonText-color)' }}>
-                    {assignmentBadge && (
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(149,36,227,0.16)] bg-[rgba(149,36,227,0.08)] px-3 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-[var(--brand-primary)]">
-                            <span className="h-1.5 w-1.5 rounded-full bg-[var(--brand-primary)]" />
-                            {assignmentBadge}
-                        </span>
-                    )}
-                    {onUnassignThread && (
+                    <div className="flex flex-wrap items-center justify-end gap-3">
+                        {onTakeThread && !onUnassignThread && (
+                            <button
+                                onClick={onTakeThread}
+                                className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff8c00] px-5 text-[14px] font-bold text-white shadow-[0_10px_22px_rgba(255,140,0,0.2)] transition hover:brightness-105"
+                                title="Tomar chat"
+                            >
+                                <Hand className="h-4 w-4" />
+                                Tomar chat
+                            </button>
+                        )}
+                        {onUnassignThread && (
+                            <button
+                                onClick={onUnassignThread}
+                                className="inline-flex h-11 items-center rounded-xl border border-[rgba(255,140,0,0.22)] bg-white px-4 text-[14px] font-semibold text-[#ff8c00] transition hover:bg-[rgba(255,140,0,0.04)]"
+                                title="Liberar chat"
+                            >
+                                Liberar
+                            </button>
+                        )}
+                        {assignmentControl}
+                        {onOpenContact && (
+                            <button
+                                onClick={onOpenContact}
+                                className="inline-flex h-11 items-center gap-2 rounded-xl border border-[rgba(26,26,26,0.12)] bg-white px-5 text-[14px] font-semibold text-[#3b3b3b] transition hover:bg-[rgba(26,26,26,0.03)]"
+                                title="Ver ficha del contacto"
+                            >
+                                <UserRound className="h-4 w-4" />
+                                Contacto
+                            </button>
+                        )}
+                        {onToggleNotes && (
+                            <button
+                                onClick={onToggleNotes}
+                                className={`inline-flex h-11 items-center gap-2 rounded-xl border px-5 text-[14px] font-semibold transition ${
+                                    isNotesOpen
+                                        ? 'border-[rgba(255,140,0,0.22)] bg-[rgba(255,140,0,0.05)] text-[#ff8c00]'
+                                        : 'border-[rgba(26,26,26,0.12)] bg-white text-[#3b3b3b] hover:bg-[rgba(26,26,26,0.03)]'
+                                }`}
+                                title="Notas internas"
+                            >
+                                <StickyNote className="h-4 w-4" />
+                                Notas
+                            </button>
+                        )}
                         <button
-                            onClick={onUnassignThread}
-                            className="rounded-full border border-[rgba(255,140,0,0.2)] bg-[rgba(255,140,0,0.06)] px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-[#ff8c00] transition-all active:scale-95 hover:bg-[rgba(255,140,0,0.12)]"
-                            title="Liberar chat"
+                            type="button"
+                            className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-[rgba(26,26,26,0.45)] transition hover:bg-white"
+                            title="Más acciones"
                         >
-                            Liberar
+                            <MoreHorizontal className="h-5 w-5" />
                         </button>
-                    )}
-                    {onTakeThread && !onUnassignThread && (
-                        <button
-                            onClick={onTakeThread}
-                            className="inline-flex items-center gap-1.5 rounded-full bg-[#b86d06] px-4 py-2 text-[11px] font-black text-white shadow-[0_8px_18px_rgba(184,109,6,0.18)] transition-all active:scale-95 hover:brightness-105"
-                            title="Tomar chat"
-                        >
-                            <Hand className="h-4 w-4" />
-                            Tomar chat
-                        </button>
-                    )}
-                    {assignmentControl}
-                    {onOpenContact && (
-                        <button
-                            onClick={onOpenContact}
-                            title="Ver ficha del contacto"
-                            className="p-2.5 rounded-full border bg-white border-[rgba(26,26,26,0.08)] hover:border-[rgba(149,36,227,0.22)] hover:bg-[rgba(149,36,227,0.04)] transition-all active:scale-95 flex items-center gap-1.5 px-3.5"
-                            style={{ color: 'var(--tx-buttonText-color)' }}
-                        >
-                            <UserRound className="w-4 h-4" />
-                            <span className={`${S.meta} uppercase font-black tracking-widest hidden lg:inline`}>Contacto</span>
-                        </button>
-                    )}
-                    {onToggleNotes && (
-                        <button
-                            onClick={onToggleNotes}
-                            className={`p-2.5 rounded-full transition-all border active:scale-95 flex items-center gap-1.5 px-3.5 ${
-                                isNotesOpen
-                                    ? 'bg-[rgba(149,36,227,0.09)] text-[var(--brand-primary)] border-[rgba(149,36,227,0.2)] shadow-[0_8px_16px_rgba(149,36,227,0.08)]'
-                                    : 'bg-white text-[var(--brand-primary)] border-[rgba(26,26,26,0.08)] hover:bg-[rgba(149,36,227,0.04)]'
-                            }`}
-                            title="Notas internas"
-                        >
-                            <StickyNote className="w-4 h-4" />
-                            <span className={`${S.meta} uppercase font-black tracking-widest hidden lg:inline`}>Notas</span>
-                        </button>
-                    )}
-                    <button
-                        type="button"
-                        className="h-10 w-10 rounded-full border border-[rgba(26,26,26,0.08)] bg-white text-[rgba(26,26,26,0.55)] transition-all hover:bg-[rgba(149,36,227,0.04)]"
-                        title="Más acciones"
-                    >
-                        <MoreHorizontal className="mx-auto h-4 w-4" />
-                    </button>
+                    </div>
                 </div>
             </div>
 
             <div
                 ref={scrollContainerRef}
                 onScroll={handleScroll}
-                className="flex-1 overflow-y-auto px-6 py-6 space-y-2 z-10 custom-scrollbar relative"
+                className="relative flex-1 overflow-y-auto px-7 py-7 custom-scrollbar"
             >
-                <div className="absolute inset-0 opacity-[0.03] pointer-events-none select-none bg-wa-pattern bg-repeat" />
-
                 {messages.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full opacity-30 grayscale relative z-10">
-                        <div className="w-20 h-20 rounded-full border border-[rgba(26,26,26,0.12)] flex items-center justify-center mb-4 bg-white/70">
-                            <svg className="w-10 h-10" style={{ color: 'var(--tx-helperText-color)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                            </svg>
-                        </div>
-                        <span className={`${T.helperText} ${S.meta} uppercase`}>Inicio de la conversacion</span>
+                    <div className="flex h-full flex-col items-center justify-center text-center text-[rgba(26,26,26,0.4)]">
+                        <span className={`${T.helperText} ${S.meta} rounded-full border border-[rgba(26,26,26,0.08)] bg-white px-4 py-2 uppercase`}>
+                            Inicio de la conversación
+                        </span>
                     </div>
                 ) : (
-                    <div className="relative z-10 flex flex-col justify-end min-h-full">
-                        {messages.map((message) => (
-                            <WhatsAppMessageBubble
-                                key={message.id}
-                                message={message}
-                                onMediaLoad={() => {
-                                    if (isNearBottomRef.current) {
-                                        scrollToBottom('auto');
-                                    }
-                                }}
-                            />
-                        ))}
+                    <div className="relative z-10 flex min-h-full flex-col justify-end gap-1">
+                        {messages.map((message, index) => {
+                            const currentLabel = formatDayLabel(message.timestamp);
+                            const previousLabel =
+                                index > 0 ? formatDayLabel(messages[index - 1].timestamp) : null;
+                            const shouldShowLabel = index === 0 || currentLabel !== previousLabel;
+
+                            return (
+                                <div key={message.id}>
+                                    {shouldShowLabel && currentLabel && (
+                                        <div className="mb-5 mt-1 flex justify-center">
+                                            <span className="rounded-full border border-[rgba(26,26,26,0.08)] bg-white px-4 py-1.5 text-[13px] font-medium text-[rgba(15,23,42,0.6)] shadow-sm">
+                                                {currentLabel}
+                                            </span>
+                                        </div>
+                                    )}
+                                    <WhatsAppMessageBubble
+                                        message={message}
+                                        onMediaLoad={() => {
+                                            if (isNearBottomRef.current) {
+                                                scrollToBottom('auto');
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            );
+                        })}
                     </div>
                 )}
             </div>
 
-            <div className="bg-[rgba(255,255,255,0.94)] backdrop-blur-xl px-4 py-4 md:px-6 flex items-end gap-3 border-t border-[rgba(26,26,26,0.08)] z-20">
-                <div className="relative flex-shrink-0" ref={emojiPickerRef}>
-                    {showEmojiPicker && (
-                        <div className="absolute bottom-16 left-0 shadow-2xl rounded-2xl overflow-hidden animate-scale-in z-50">
-                            <EmojiPicker theme={Theme.DARK} onEmojiClick={handleEmojiClick} width={320} height={450} />
+            {canReply ? (
+                <div className="shrink-0 border-t border-[rgba(26,26,26,0.08)] bg-[rgba(255,255,255,0.78)] px-4 py-4 backdrop-blur-xl md:px-6">
+                    <div className="flex items-end gap-3">
+                        <div className="relative flex-shrink-0" ref={emojiPickerRef}>
+                            {showEmojiPicker && (
+                                <div className="absolute bottom-16 left-0 z-50 overflow-hidden rounded-2xl shadow-2xl">
+                                    <EmojiPicker theme={Theme.DARK} onEmojiClick={handleEmojiClick} width={320} height={450} />
+                                </div>
+                            )}
+                            <button
+                                type="button"
+                                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                                className={`flex h-12 w-12 items-center justify-center rounded-full border transition ${
+                                    showEmojiPicker
+                                        ? 'border-[rgba(255,140,0,0.18)] bg-[rgba(255,140,0,0.08)] text-[#ff8c00]'
+                                        : 'border-[rgba(26,26,26,0.08)] bg-white text-[rgba(26,26,26,0.56)] hover:border-[rgba(255,140,0,0.2)]'
+                                }`}
+                            >
+                                <Smile className="h-5 w-5" />
+                            </button>
                         </div>
-                    )}
-                    <button
-                        type="button"
-                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                        className={`p-3 rounded-full border transition-all active:scale-95 ${
-                            showEmojiPicker
-                                ? 'bg-[rgba(149,36,227,0.08)] border-[rgba(149,36,227,0.18)]'
-                                : 'bg-white border-[rgba(26,26,26,0.08)] hover:border-[rgba(149,36,227,0.2)]'
-                        }`}
-                        style={{ color: showEmojiPicker ? 'var(--brand-primary)' : 'var(--tx-buttonText-color)' }}
-                    >
-                        <Smile className="w-5 h-5" />
-                    </button>
-                </div>
 
-                <button
-                    type="button"
-                    onClick={handlePaperclipClick}
-                    title="Adjuntar archivo (próximamente)"
-                    className="flex-shrink-0 p-3 bg-white rounded-full border border-[rgba(26,26,26,0.08)] hover:bg-[rgba(149,36,227,0.04)] transition-all active:scale-95"
-                    style={{ color: 'var(--tx-buttonText-color)' }}
-                >
-                    <Paperclip className="w-5 h-5" />
-                </button>
+                        <button
+                            type="button"
+                            onClick={handlePaperclipClick}
+                            title="Adjuntar archivo (próximamente)"
+                            className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-[rgba(26,26,26,0.08)] bg-white text-[rgba(26,26,26,0.56)] transition hover:bg-[rgba(255,140,0,0.04)]"
+                        >
+                            <Paperclip className="h-5 w-5" />
+                        </button>
 
-                <form onSubmit={handleSubmit} className="flex-1 flex gap-3 items-end">
-                    <div className="flex-1 relative group">
-                        <textarea
-                            ref={textareaRef}
-                            rows={1}
-                            value={inputText}
-                            onChange={(event) => setInputText(event.target.value)}
-                            onKeyDown={handleKeyDown}
-                            placeholder={canReply ? 'Escribe un mensaje...' : 'Toma el chat para poder responder'}
-                            disabled={sending || !canReply}
-                            className={`${T.inputText} ${S.body} w-full px-5 py-4 bg-[rgba(251,251,244,0.95)] border border-[rgba(26,26,26,0.08)] rounded-[28px] focus:ring-2 focus:ring-[rgba(149,36,227,0.1)] focus:border-[rgba(149,36,227,0.22)] outline-none transition-all placeholder:text-[var(--text-muted)] resize-none overflow-y-auto custom-scrollbar leading-relaxed ${
-                                !canReply ? 'opacity-50 cursor-not-allowed' : ''
-                            }`}
-                            style={{ maxHeight: '120px' }}
-                        />
-                        {sending && (
-                            <div className="absolute right-4 top-4">
-                                <div className="animate-spin h-4 w-4 border-2 border-t-[var(--brand-primary)] border-transparent rounded-full" />
+                        <form onSubmit={handleSubmit} className="flex flex-1 items-end gap-3">
+                            <div className="relative flex-1">
+                                <textarea
+                                    ref={textareaRef}
+                                    rows={1}
+                                    value={inputText}
+                                    onChange={(event) => setInputText(event.target.value)}
+                                    onKeyDown={handleKeyDown}
+                                    placeholder="Escribe un mensaje..."
+                                    disabled={sending}
+                                    className={`${T.inputText} ${S.body} w-full resize-none overflow-y-auto rounded-[20px] border border-[rgba(26,26,26,0.08)] bg-[rgba(255,255,255,0.92)] px-5 py-4 leading-relaxed text-[#0f172a] outline-none transition placeholder:text-[rgba(15,23,42,0.45)] focus:border-[rgba(255,140,0,0.22)] focus:ring-2 focus:ring-[rgba(255,140,0,0.08)] custom-scrollbar`}
+                                    style={{ maxHeight: '120px' }}
+                                />
+                                {sending && (
+                                    <div className="absolute right-4 top-4">
+                                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-t-[#ff8c00] border-transparent" />
+                                    </div>
+                                )}
                             </div>
-                        )}
+                            <button
+                                type="submit"
+                                disabled={!inputText.trim() || sending}
+                                className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full transition ${
+                                    !inputText.trim() || sending
+                                        ? 'border border-[rgba(26,26,26,0.08)] bg-white text-[rgba(26,26,26,0.32)]'
+                                        : 'bg-[#ff8c00] text-white shadow-[0_10px_20px_rgba(255,140,0,0.18)] hover:brightness-105'
+                                }`}
+                            >
+                                <Send className="h-5 w-5" />
+                            </button>
+                        </form>
                     </div>
-                    <button
-                        type="submit"
-                        disabled={!inputText.trim() || sending || !canReply}
-                        className={`flex-shrink-0 p-4 rounded-full transition-all shadow-xl active:scale-95 flex items-center justify-center ${
-                            !inputText.trim() || sending || !canReply
-                                ? 'bg-white border border-[rgba(26,26,26,0.08)]'
-                                : 'bg-[var(--brand-primary)] shadow-[0_10px_20px_rgba(149,36,227,0.18)] hover:brightness-105'
-                        }`}
-                        style={{
-                            color: !inputText.trim() || sending || !canReply ? 'var(--tx-buttonText-color)' : '#ffffff',
-                            opacity: !inputText.trim() || sending || !canReply ? 0.3 : 1,
-                        }}
-                    >
-                        <Send className="w-5 h-5 sm:w-6 sm:h-6" />
-                    </button>
-                </form>
-            </div>
+                </div>
+            ) : (
+                <div className="shrink-0 border-t border-[rgba(26,26,26,0.08)] bg-[rgba(255,255,255,0.78)] px-6 py-5 backdrop-blur-xl">
+                    <div className="flex h-[56px] items-center justify-center rounded-[18px] border border-dashed border-[rgba(228,197,142,0.85)] bg-[rgba(255,255,255,0.62)] text-[14px] text-[rgba(15,23,42,0.55)]">
+                        <Hand className="mr-3 h-4 w-4 text-[rgba(15,23,42,0.4)]" />
+                        Toma el chat para poder responder
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

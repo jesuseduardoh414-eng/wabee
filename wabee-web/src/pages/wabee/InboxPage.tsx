@@ -386,15 +386,15 @@ export default function InboxPage() {
 
     return (
         <div
-            className={`flex bg-[var(--bg-page)] text-[var(--text-strong)] overflow-hidden font-sans selection:bg-[var(--brand-primary)]/30 ${
+            className={`flex bg-[linear-gradient(180deg,#fbfaf6_0%,#f4efe4_100%)] text-[var(--text-strong)] overflow-hidden font-sans selection:bg-[var(--brand-primary)]/20 ${
                 isFullScreen
                     ? 'h-screen w-screen border-none rounded-none'
-                    : 'h-[calc(100vh-72px)] rounded-[28px] border border-[var(--border-default)] shadow-[0_24px_80px_rgba(0,0,0,0.28)]'
+                    : 'h-[calc(100vh-72px)] rounded-[28px] border border-[rgba(197,176,136,0.28)] shadow-[0_18px_46px_rgba(122,102,62,0.14)]'
             }`}
         >
-            <aside className="w-[68px] bg-[color:color-mix(in_srgb,var(--bg-card),black_8%)] flex flex-col items-center py-4 gap-3 border-r border-[var(--border-default)] shrink-0 z-20 shadow-2xl">
-                <div className="w-10 h-10 rounded-2xl bg-[color:color-mix(in_srgb,var(--brand-primary),#0a0700_52%)] flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.45)]">
-                    <MessageSquare className="w-5 h-5 text-[#f0e0a8]" />
+            <aside className="w-[68px] bg-[rgba(255,251,243,0.88)] backdrop-blur-xl flex flex-col items-center py-4 gap-3 border-r border-[rgba(197,176,136,0.22)] shrink-0 z-20">
+                <div className="w-10 h-10 rounded-2xl bg-[linear-gradient(135deg,#f9e6a5_0%,#efc96d_100%)] flex items-center justify-center shadow-[0_10px_22px_rgba(210,173,92,0.22)]">
+                    <MessageSquare className="w-5 h-5 text-[#6f5310]" />
                 </div>
 
                 <div className="flex-1 w-full flex flex-col items-center gap-3 overflow-y-auto no-scrollbar px-2">
@@ -404,8 +404,8 @@ export default function InboxPage() {
                             onClick={() => handleChannelSelect(channel.id)}
                             className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all relative group flex-shrink-0 border ${
                                 selectedChannelId === channel.id
-                                    ? 'bg-[color:color-mix(in_srgb,var(--brand-primary),var(--bg-card)_82%)] ring-1 ring-[var(--brand-primary)] border-[var(--brand-primary)]/40 shadow-[0_0_0_4px_color-mix(in_srgb,var(--brand-primary),transparent_88%)]'
-                                    : 'bg-[var(--bg-page)] hover:bg-[var(--bg-input)] border-[var(--border-default)]'
+                                    ? 'bg-[rgba(255,245,214,0.96)] ring-1 ring-[rgba(226,181,78,0.5)] border-[rgba(226,181,78,0.45)] shadow-[0_0_0_4px_rgba(245,214,132,0.18)]'
+                                    : 'bg-[rgba(255,255,255,0.9)] hover:bg-[rgba(255,247,228,0.92)] border-[rgba(197,176,136,0.22)]'
                             }`}
                             title={channel.name || channel.displayPhone}
                         >
@@ -426,8 +426,8 @@ export default function InboxPage() {
                 </div>
             </aside>
 
-            <aside className="w-[360px] bg-[color:color-mix(in_srgb,var(--bg-page),black_4%)] border-r border-[var(--border-default)] flex flex-col shrink-0 relative z-10 shadow-xl">
-                <div className="px-5 pt-5 pb-4 border-b border-[var(--border-default)] shrink-0 bg-[color:color-mix(in_srgb,var(--bg-page),black_3%)]">
+            <aside className="w-[360px] bg-[rgba(255,252,246,0.94)] border-r border-[rgba(197,176,136,0.2)] flex flex-col shrink-0 relative z-10">
+                <div className="px-5 pt-5 pb-4 border-b border-[rgba(197,176,136,0.18)] shrink-0 bg-[rgba(255,250,242,0.96)]">
                     <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3 min-w-0">
                             {isFullScreen && (
@@ -451,7 +451,7 @@ export default function InboxPage() {
                                 </p>
                             </div>
                         </div>
-                        <div className="px-3 py-1.5 rounded-full bg-[var(--bg-input)] border border-[var(--border-default)]">
+                        <div className="px-3 py-1.5 rounded-full bg-[rgba(255,255,255,0.84)] border border-[rgba(197,176,136,0.24)]">
                             <span className={`${T.helperText} ${S.meta} uppercase tracking-[0.22em]`}>
                                 {connectedChannels}/{channels.length} online
                             </span>
@@ -460,7 +460,7 @@ export default function InboxPage() {
                 </div>
 
                 <div className="px-5 py-4 shrink-0">
-                    <div className="bg-[color:color-mix(in_srgb,var(--bg-input),black_10%)] border border-[var(--border-default)] rounded-2xl flex items-center px-4 py-3 group focus-within:border-[var(--brand-primary)]/45 transition-all shadow-inner">
+                    <div className="bg-[rgba(255,255,255,0.88)] border border-[rgba(197,176,136,0.22)] rounded-2xl flex items-center px-4 py-3 group focus-within:border-[rgba(226,181,78,0.48)] transition-all shadow-[inset_0_1px_2px_rgba(255,255,255,0.6)]">
                         <svg
                             className="w-4 h-4 opacity-70 mr-3 group-focus-within:text-[var(--brand-primary)] transition-colors"
                             style={{ color: 'var(--tx-inputText-color)' }}
@@ -487,15 +487,15 @@ export default function InboxPage() {
 
                 <div className="px-5 pb-3 shrink-0">
                     <div className="grid grid-cols-3 gap-2">
-                        <div className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-input)] px-3 py-3">
+                        <div className="rounded-2xl border border-[rgba(197,176,136,0.2)] bg-[rgba(255,255,255,0.9)] px-3 py-3">
                             <p className={`${T.helperText} ${S.meta}`}>Sin leer</p>
                             <strong className={`${T.cardTitle} ${S.headingMd} mt-1 block`}>{unreadThreadsCount}</strong>
                         </div>
-                        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-3 py-3">
-                            <p className={`${T.helperText} ${S.meta} text-amber-300`}>Prioridad</p>
-                            <strong className={`${T.cardTitle} ${S.headingMd} mt-1 block text-amber-200`}>{priorityThreadsCount}</strong>
+                        <div className="rounded-2xl border border-[rgba(231,190,94,0.26)] bg-[rgba(255,245,220,0.88)] px-3 py-3">
+                            <p className={`${T.helperText} ${S.meta} text-[#a27719]`}>Prioridad</p>
+                            <strong className={`${T.cardTitle} ${S.headingMd} mt-1 block text-[#5e4514]`}>{priorityThreadsCount}</strong>
                         </div>
-                        <div className="rounded-2xl border border-[var(--brand-primary)]/20 bg-[var(--brand-primary)]/10 px-3 py-3">
+                        <div className="rounded-2xl border border-[rgba(226,181,78,0.22)] bg-[rgba(255,249,234,0.9)] px-3 py-3">
                             <p className={`${T.helperText} ${S.meta} text-[var(--brand-primary)]`}>Para mi</p>
                             <strong className={`${T.cardTitle} ${S.headingMd} mt-1 block text-[var(--brand-primary)]`}>{mineThreadsCount}</strong>
                         </div>
@@ -510,16 +510,16 @@ export default function InboxPage() {
                             className={`${T.buttonPrimaryText} ${S.meta} px-3 py-2 rounded-2xl transition-all whitespace-nowrap border ${
                                 filter === tab.id
                                     ? tab.id === 'human_queue'
-                                        ? 'bg-red-500 border-red-500 shadow-lg shadow-red-500/20'
-                                        : 'bg-[color:color-mix(in_srgb,var(--brand-primary),#0a0700_55%)] border-[color:color-mix(in_srgb,var(--brand-primary),transparent_68%)] text-[#f0e0a8] shadow-[0_8px_20px_rgba(0,0,0,0.4)]'
-                                    : 'bg-[var(--bg-input)] border-[var(--border-default)] hover:opacity-80 hover:bg-[var(--bg-surface)]'
+                                        ? 'bg-[rgba(255,235,232,0.96)] border-[rgba(231,101,84,0.34)] text-[#ba4437] shadow-[0_6px_14px_rgba(220,120,110,0.14)]'
+                                        : 'bg-[linear-gradient(135deg,#f3df9b_0%,#efcb74_100%)] border-[rgba(226,181,78,0.46)] text-[#6f5310] shadow-[0_8px_18px_rgba(214,177,88,0.2)]'
+                                    : 'bg-[rgba(255,255,255,0.88)] border-[rgba(197,176,136,0.2)] hover:bg-[rgba(255,248,234,0.96)]'
                             }`}
                             style={
                                 filter !== tab.id
                                     ? { color: 'var(--tx-buttonText-color)' }
                                     : tab.id === 'human_queue'
-                                        ? { color: '#ffffff' }
-                                        : { color: '#f0e0a8' }
+                                        ? { color: '#ba4437' }
+                                        : { color: '#6f5310' }
                             }
                         >
                             {tab.label}
@@ -532,7 +532,7 @@ export default function InboxPage() {
                         <select
                             value={assigneeFilter}
                             onChange={(event) => setAssigneeFilter(event.target.value)}
-                            className={`${T.inputText} ${S.meta} w-full bg-[var(--bg-input)] border rounded-2xl px-3 py-2 outline-none focus:border-[var(--brand-primary)]/50 transition-colors uppercase tracking-wide ${
+                            className={`${T.inputText} ${S.meta} w-full bg-[rgba(255,255,255,0.88)] border rounded-2xl px-3 py-2 outline-none focus:border-[var(--brand-primary)]/50 transition-colors uppercase tracking-wide ${
                                 assigneeFilter ? 'border-[var(--brand-primary)]/50 text-[var(--brand-primary)]' : 'border-[var(--border-default)]'
                             }`}
                             style={{ color: assigneeFilter ? 'var(--brand-primary)' : 'var(--tx-inputText-color)' }}
@@ -575,20 +575,20 @@ export default function InboxPage() {
                                     onClick={() => handleThreadSelect(thread.id)}
                                     className={`flex items-center gap-3 px-4 py-4 cursor-pointer rounded-[22px] transition-all mb-2 border group ${
                                         isSelected
-                                            ? 'bg-[color:color-mix(in_srgb,var(--brand-primary),var(--bg-page)_84%)] border-[var(--brand-primary)]/45 shadow-[inset_4px_0_0_0_var(--brand-primary)]'
+                                            ? 'bg-[rgba(255,247,228,0.98)] border-[rgba(226,181,78,0.38)] shadow-[inset_4px_0_0_0_rgba(226,181,78,0.9),0_10px_24px_rgba(213,184,116,0.12)]'
                                             : hasUnread
-                                                ? 'bg-[color:color-mix(in_srgb,var(--brand-primary),var(--bg-page)_92%)] border-[var(--brand-primary)]/15 hover:bg-[color:color-mix(in_srgb,var(--brand-primary),var(--bg-page)_88%)]'
-                                                : 'border-transparent hover:bg-[var(--bg-input)] hover:border-[var(--border-default)]'
+                                                ? 'bg-[rgba(255,251,241,0.96)] border-[rgba(226,181,78,0.16)] hover:bg-[rgba(255,247,233,0.98)]'
+                                                : 'border-transparent hover:bg-[rgba(255,255,255,0.84)] hover:border-[rgba(197,176,136,0.18)]'
                                     }`}
                                 >
-                                    <div className="w-14 h-14 rounded-full bg-[linear-gradient(135deg,color-mix(in_srgb,var(--brand-primary),#0a0700_50%),color-mix(in_srgb,var(--brand-primary),#060400_62%))] flex-shrink-0 overflow-hidden relative shadow-[0_8px_18px_rgba(0,0,0,0.5)]">
-                                        <div className="absolute inset-0 flex items-center justify-center text-[13px] font-black text-[#f0e0a8]">
+                                    <div className="w-14 h-14 rounded-full bg-[linear-gradient(135deg,#f7dfa5_0%,#ebb960_100%)] flex-shrink-0 overflow-hidden relative shadow-[0_10px_20px_rgba(216,181,96,0.24)]">
+                                        <div className="absolute inset-0 flex items-center justify-center text-[13px] font-black text-[#6f5310]">
                                             {getThreadInitials(thread)}
                                         </div>
                                         <div className="absolute inset-0 ring-1 ring-white/10 rounded-full" />
                                         {thread.assignedUserId ? (
                                             <div
-                                                className="absolute top-0 right-0 w-5 h-5 bg-[color:color-mix(in_srgb,var(--brand-primary),#0a0700_42%)] text-[#f0e0a8] text-[8px] font-black border-2 border-[color:color-mix(in_srgb,var(--bg-page),black_4%)] rounded-full shadow-md flex items-center justify-center"
+                                                className="absolute top-0 right-0 w-5 h-5 bg-[rgba(255,247,226,0.98)] text-[#8a6616] text-[8px] font-black border-2 border-[rgba(255,252,246,0.95)] rounded-full shadow-md flex items-center justify-center"
                                                 title="Asignado"
                                             >
                                                 {thread.assignedUserId === currentUser.id ? 'M' : 'A'}
@@ -663,7 +663,7 @@ export default function InboxPage() {
                                                 {thread.lastMessagePreview || ''}
                                             </p>
                                             {hasUnread && (
-                                                <span className="bg-[color:color-mix(in_srgb,var(--brand-primary),#0a0700_42%)] text-[#f0e0a8] text-[10px] font-black rounded-full h-6 min-w-[24px] px-2 flex items-center justify-center shadow-[0_4px_10px_rgba(0,0,0,0.4)]">
+                                                <span className="bg-[linear-gradient(135deg,#f3df9b_0%,#efcb74_100%)] text-[#6f5310] text-[10px] font-black rounded-full h-6 min-w-[24px] px-2 flex items-center justify-center shadow-[0_6px_14px_rgba(214,177,88,0.18)]">
                                                     {thread.unreadCount}
                                                 </span>
                                             )}
@@ -683,10 +683,10 @@ export default function InboxPage() {
                 </div>
             </aside>
 
-            <main className="flex-1 bg-[var(--bg-page)] relative flex flex-col h-full z-0 transition-shadow">
+            <main className="flex-1 bg-[linear-gradient(180deg,#fffdf8_0%,#f8f4ea_100%)] relative flex flex-col h-full z-0 transition-shadow">
                 {activeThread ? (
                     <div className="h-full flex flex-col">
-                        <div className="min-h-[60px] bg-[color:color-mix(in_srgb,var(--bg-card),black_4%)] backdrop-blur-xl px-5 border-b border-[var(--border-default)] flex flex-wrap items-center justify-between gap-3 z-10 shrink-0">
+                        <div className="min-h-[60px] bg-[rgba(255,251,244,0.94)] backdrop-blur-xl px-5 border-b border-[rgba(197,176,136,0.18)] flex flex-wrap items-center justify-between gap-3 z-10 shrink-0">
                             <div className="flex items-center gap-3 flex-wrap">
                                 {activeThread.assignedUserId ? (
                                     <div className="flex items-center gap-2 flex-wrap">
@@ -762,7 +762,7 @@ export default function InboxPage() {
                             </div>
 
                             <div className="flex items-center gap-2">
-                                <div className="hidden md:flex items-center gap-2 rounded-full bg-[var(--bg-input)] border border-[var(--border-default)] px-3 py-2">
+                                <div className="hidden md:flex items-center gap-2 rounded-full bg-[rgba(255,255,255,0.86)] border border-[rgba(197,176,136,0.2)] px-3 py-2">
                                     <Inbox className="w-4 h-4 text-[var(--brand-primary)]" />
                                     <span className={`${T.helperText} ${S.meta}`}>Estado: {activeThread.status}</span>
                                 </div>
@@ -770,7 +770,7 @@ export default function InboxPage() {
                         </div>
 
                         {activeThread.aiPaused && (
-                            <div className="bg-amber-500/10 border-b border-amber-500/20 px-6 py-4 flex items-center justify-between shrink-0">
+                            <div className="bg-[rgba(255,243,215,0.86)] border-b border-[rgba(231,190,94,0.2)] px-6 py-4 flex items-center justify-between shrink-0">
                                 <div className="flex items-center gap-2 text-amber-500">
                                     <svg className="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path
@@ -815,8 +815,8 @@ export default function InboxPage() {
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] bg-[var(--brand-primary)]/5 rounded-full blur-[90px] pointer-events-none" />
 
                         <div className="mb-6 relative">
-                            <div className="w-20 h-20 rounded-[28px] bg-[linear-gradient(135deg,color-mix(in_srgb,var(--brand-primary),white_18%),color-mix(in_srgb,var(--brand-primary),#ff8a00_52%))] flex items-center justify-center shadow-[0_16px_40px_color-mix(in_srgb,var(--brand-primary),transparent_72%)]">
-                                <MessageSquare className="w-10 h-10 text-[var(--brand-primary-foreground)]" />
+                            <div className="w-20 h-20 rounded-[28px] bg-[linear-gradient(135deg,#f7dfa5_0%,#ebb960_100%)] flex items-center justify-center shadow-[0_14px_32px_rgba(216,181,96,0.22)]">
+                                <MessageSquare className="w-10 h-10 text-[#6f5310]" />
                             </div>
                         </div>
                         <h1 className={`${T.emptyStateTitle} ${S.displayLg} mb-2 tracking-tight`}>

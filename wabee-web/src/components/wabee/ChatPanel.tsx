@@ -102,13 +102,13 @@ export default function ChatPanel({
     };
 
     return (
-        <div className="flex flex-col h-full bg-[color:color-mix(in_srgb,var(--bg-page),black_4%)] relative overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,color-mix(in_srgb,var(--brand-primary),transparent_97%)_0,transparent_42%),radial-gradient(circle_at_bottom_right,color-mix(in_srgb,var(--brand-primary),transparent_97%)_0,transparent_40%)] pointer-events-none" />
+        <div className="flex flex-col h-full bg-[linear-gradient(180deg,#fffdf8_0%,#f8f4ea_100%)] relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(243,223,155,0.12)_0,transparent_36%),radial-gradient(circle_at_bottom_right,rgba(243,223,155,0.1)_0,transparent_34%)] pointer-events-none" />
 
-            <div className="min-h-[78px] bg-[color:color-mix(in_srgb,var(--bg-card),black_5%)]/95 backdrop-blur-xl px-6 flex justify-between items-center border-b border-[var(--border-default)] z-10 shrink-0">
+            <div className="min-h-[78px] bg-[rgba(255,251,244,0.94)] backdrop-blur-xl px-6 flex justify-between items-center border-b border-[rgba(197,176,136,0.18)] z-10 shrink-0">
                 <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-[linear-gradient(135deg,color-mix(in_srgb,var(--brand-primary),#0a0700_50%),color-mix(in_srgb,var(--brand-primary),#060400_62%))] flex items-center justify-center overflow-hidden shadow-[0_8px_20px_rgba(0,0,0,0.5)]">
-                        <svg className="w-6 h-6 text-[#f0e0a8]" fill="currentColor" viewBox="0 0 24 24">
+                    <div className="w-12 h-12 rounded-full bg-[linear-gradient(135deg,#f7dfa5_0%,#ebb960_100%)] flex items-center justify-center overflow-hidden shadow-[0_10px_20px_rgba(216,181,96,0.22)]">
+                        <svg className="w-6 h-6 text-[#6f5310]" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                         </svg>
                     </div>
@@ -126,7 +126,7 @@ export default function ChatPanel({
                         <button
                             onClick={onOpenContact}
                             title="Ver ficha del contacto"
-                            className="p-2.5 rounded-full border bg-[var(--bg-input)] border-[var(--border-default)] hover:border-[var(--brand-primary)]/50 hover:brightness-110 transition-all active:scale-95 flex items-center gap-1.5 px-3.5"
+                            className="p-2.5 rounded-full border bg-[rgba(255,255,255,0.88)] border-[rgba(197,176,136,0.22)] hover:border-[rgba(226,181,78,0.42)] hover:bg-[rgba(255,248,234,0.95)] transition-all active:scale-95 flex items-center gap-1.5 px-3.5"
                             style={{ color: 'var(--tx-buttonText-color)' }}
                         >
                             <UserRound className="w-4 h-4" />
@@ -138,8 +138,8 @@ export default function ChatPanel({
                             onClick={onToggleNotes}
                             className={`p-2.5 rounded-full transition-all border active:scale-95 flex items-center gap-1.5 px-3.5 ${
                                 isNotesOpen
-                                    ? 'bg-[color:color-mix(in_srgb,var(--brand-primary),#0a0700_55%)] text-[#f0e0a8] border-[color:color-mix(in_srgb,var(--brand-primary),transparent_65%)]'
-                                    : 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] border-[var(--brand-primary)]/20 hover:brightness-110'
+                                    ? 'bg-[linear-gradient(135deg,#f3df9b_0%,#efcb74_100%)] text-[#6f5310] border-[rgba(226,181,78,0.42)] shadow-[0_8px_16px_rgba(214,177,88,0.18)]'
+                                    : 'bg-[rgba(255,249,234,0.9)] text-[var(--brand-primary)] border-[rgba(226,181,78,0.18)] hover:bg-[rgba(255,244,217,0.95)]'
                             }`}
                             title="Notas internas"
                         >
@@ -183,7 +183,7 @@ export default function ChatPanel({
                 )}
             </div>
 
-            <div className="bg-[color:color-mix(in_srgb,var(--bg-card),black_4%)] backdrop-blur-xl px-4 py-4 md:px-6 flex items-end gap-3 border-t border-[var(--border-default)] z-20">
+            <div className="bg-[rgba(255,251,244,0.94)] backdrop-blur-xl px-4 py-4 md:px-6 flex items-end gap-3 border-t border-[rgba(197,176,136,0.18)] z-20">
                 <div className="relative flex-shrink-0" ref={emojiPickerRef}>
                     {showEmojiPicker && (
                         <div className="absolute bottom-16 left-0 shadow-2xl rounded-2xl overflow-hidden animate-scale-in z-50">
@@ -195,10 +195,10 @@ export default function ChatPanel({
                         onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                         className={`p-3 rounded-full border transition-all active:scale-95 ${
                             showEmojiPicker
-                                ? 'bg-[color:color-mix(in_srgb,var(--brand-primary),#0a0700_55%)] border-[color:color-mix(in_srgb,var(--brand-primary),transparent_65%)]'
-                                : 'bg-[var(--bg-input)] border-[var(--border-default)] hover:border-[var(--brand-primary)]/50'
+                                ? 'bg-[linear-gradient(135deg,#f3df9b_0%,#efcb74_100%)] border-[rgba(226,181,78,0.42)]'
+                                : 'bg-[rgba(255,255,255,0.88)] border-[rgba(197,176,136,0.22)] hover:border-[rgba(226,181,78,0.42)]'
                         }`}
-                        style={{ color: showEmojiPicker ? '#f0e0a8' : 'var(--tx-buttonText-color)' }}
+                        style={{ color: showEmojiPicker ? '#6f5310' : 'var(--tx-buttonText-color)' }}
                     >
                         <Smile className="w-5 h-5" />
                     </button>
@@ -208,7 +208,7 @@ export default function ChatPanel({
                     type="button"
                     onClick={handlePaperclipClick}
                     title="Adjuntar archivo (próximamente)"
-                    className="flex-shrink-0 p-3 bg-[var(--bg-input)] rounded-full border border-[var(--border-default)] hover:brightness-110 transition-all active:scale-95"
+                    className="flex-shrink-0 p-3 bg-[rgba(255,255,255,0.88)] rounded-full border border-[rgba(197,176,136,0.22)] hover:bg-[rgba(255,248,234,0.95)] transition-all active:scale-95"
                     style={{ color: 'var(--tx-buttonText-color)' }}
                 >
                     <Paperclip className="w-5 h-5" />
@@ -224,7 +224,7 @@ export default function ChatPanel({
                             onKeyDown={handleKeyDown}
                             placeholder={canReply ? 'Escribe un mensaje...' : 'Toma el chat para poder responder'}
                             disabled={sending || !canReply}
-                            className={`${T.inputText} ${S.body} w-full px-5 py-4 bg-[color:color-mix(in_srgb,var(--bg-input),black_6%)] border border-[var(--border-default)] rounded-[28px] focus:ring-2 focus:ring-[var(--brand-primary)]/30 focus:border-[var(--brand-primary)] outline-none transition-all placeholder:text-[var(--text-muted)] resize-none overflow-y-auto custom-scrollbar leading-relaxed ${
+                            className={`${T.inputText} ${S.body} w-full px-5 py-4 bg-[rgba(255,255,255,0.92)] border border-[rgba(197,176,136,0.22)] rounded-[28px] focus:ring-2 focus:ring-[rgba(226,181,78,0.18)] focus:border-[rgba(226,181,78,0.42)] outline-none transition-all placeholder:text-[var(--text-muted)] resize-none overflow-y-auto custom-scrollbar leading-relaxed ${
                                 !canReply ? 'opacity-50 cursor-not-allowed' : ''
                             }`}
                             style={{ maxHeight: '120px' }}
@@ -240,11 +240,11 @@ export default function ChatPanel({
                         disabled={!inputText.trim() || sending || !canReply}
                         className={`flex-shrink-0 p-4 rounded-full transition-all shadow-xl active:scale-95 flex items-center justify-center ${
                             !inputText.trim() || sending || !canReply
-                                ? 'bg-[var(--bg-input)] border border-[var(--border-default)]'
-                                : 'bg-[linear-gradient(135deg,color-mix(in_srgb,var(--brand-primary),#0a0700_52%),color-mix(in_srgb,var(--brand-primary),#060400_64%))] shadow-[0_10px_24px_rgba(0,0,0,0.5)] hover:brightness-110'
+                                ? 'bg-[rgba(255,255,255,0.88)] border border-[rgba(197,176,136,0.22)]'
+                                : 'bg-[linear-gradient(135deg,#f3df9b_0%,#efcb74_100%)] shadow-[0_10px_20px_rgba(214,177,88,0.2)] hover:brightness-105'
                         }`}
                         style={{
-                            color: !inputText.trim() || sending || !canReply ? 'var(--tx-buttonText-color)' : '#f0e0a8',
+                            color: !inputText.trim() || sending || !canReply ? 'var(--tx-buttonText-color)' : '#6f5310',
                             opacity: !inputText.trim() || sending || !canReply ? 0.3 : 1,
                         }}
                     >

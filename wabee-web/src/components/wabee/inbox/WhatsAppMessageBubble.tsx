@@ -74,8 +74,8 @@ export function WhatsAppMessageBubble({ message, onMediaLoad }: WhatsAppMessageB
     const templatePreview = message.metadata?.templatePreview;
 
     const bubbleClass = isOutbound
-        ? 'bg-[linear-gradient(135deg,color-mix(in_srgb,var(--brand-primary),#0a0700_58%),color-mix(in_srgb,var(--brand-primary),#060400_68%))] border-[color:color-mix(in_srgb,var(--brand-primary),transparent_72%)] text-[#f0e0a8] rounded-[28px] rounded-br-[10px] shadow-[0_12px_28px_rgba(0,0,0,0.45)]'
-        : 'bg-[color:color-mix(in_srgb,var(--bg-surface),white_2%)] border-[var(--border-default)] text-[var(--text-strong)] rounded-[28px] rounded-bl-[10px] shadow-[0_10px_24px_rgba(0,0,0,0.18)]';
+        ? 'bg-[linear-gradient(135deg,#f7e8be_0%,#f0d996_100%)] border-[rgba(226,181,78,0.26)] text-[#4e3e1c] rounded-[28px] rounded-br-[10px] shadow-[0_10px_22px_rgba(214,177,88,0.16)]'
+        : 'bg-[rgba(255,255,255,0.94)] border-[rgba(197,176,136,0.18)] text-[var(--text-strong)] rounded-[28px] rounded-bl-[10px] shadow-[0_8px_18px_rgba(122,102,62,0.08)]';
 
     return (
         <div className={`flex w-full mb-4 ${isOutbound ? 'justify-end' : 'justify-start'}`}>
@@ -113,14 +113,14 @@ export function WhatsAppMessageBubble({ message, onMediaLoad }: WhatsAppMessageB
                     )}
 
                     {templatePreview?.headerText && (
-                        <h4 className={`${T.cardTitle} mb-1 ${isOutbound ? 'text-[#f0e0a8]' : ''}`}>
+                        <h4 className={`${T.cardTitle} mb-1 ${isOutbound ? 'text-[#4e3e1c]' : ''}`}>
                             {templatePreview.headerText}
                         </h4>
                     )}
 
                     <div
                         className={`${T.messageText} ${S.body} whitespace-pre-wrap leading-7 ${
-                            isOutbound ? 'text-[#f0e0a8]' : 'text-[var(--text-strong)]'
+                            isOutbound ? 'text-[#4e3e1c]' : 'text-[var(--text-strong)]'
                         }`}
                     >
                         {renderWhatsAppMarkdown(templatePreview?.bodyText || message.text)}
@@ -129,7 +129,7 @@ export function WhatsAppMessageBubble({ message, onMediaLoad }: WhatsAppMessageB
                     {templatePreview?.footerText && (
                         <div
                             className={`${T.helperText} mt-2 mb-1 leading-tight ${
-                                isOutbound ? 'text-[rgba(240,224,168,0.6)]' : ''
+                                isOutbound ? 'text-[rgba(78,62,28,0.62)]' : ''
                             }`}
                         >
                             {templatePreview.footerText}
@@ -139,7 +139,7 @@ export function WhatsAppMessageBubble({ message, onMediaLoad }: WhatsAppMessageB
                     <div className="absolute bottom-2 right-3 flex items-center justify-end gap-1 select-none pointer-events-none">
                         <span
                             className={`${T.helperText} ${S.ui} ${
-                                isOutbound ? 'text-[rgba(240,224,168,0.55)]' : ''
+                                isOutbound ? 'text-[rgba(78,62,28,0.56)]' : ''
                             }`}
                         >
                             {formatTime(message.timestamp || message.createdAt)}
@@ -159,7 +159,7 @@ export function WhatsAppMessageBubble({ message, onMediaLoad }: WhatsAppMessageB
                                         target="_blank"
                                         rel="noreferrer"
                                         className={`${T.buttonPrimaryText} ${S.body} w-full text-center py-3 hover:bg-black/10 flex items-center justify-center gap-2 group transition-colors`}
-                                        style={{ color: isOutbound ? '#f0e0a8' : 'var(--brand-primary)' }}
+                                        style={{ color: isOutbound ? '#6f5310' : 'var(--brand-primary)' }}
                                     >
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -175,7 +175,7 @@ export function WhatsAppMessageBubble({ message, onMediaLoad }: WhatsAppMessageB
                                         key={idx}
                                         href={`tel:${btn.phone}`}
                                         className={`${T.buttonPrimaryText} ${S.body} w-full text-center py-3 hover:bg-black/10 flex items-center justify-center gap-2 group transition-colors`}
-                                        style={{ color: isOutbound ? '#f0e0a8' : 'var(--brand-primary)' }}
+                                        style={{ color: isOutbound ? '#6f5310' : 'var(--brand-primary)' }}
                                     >
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -189,7 +189,7 @@ export function WhatsAppMessageBubble({ message, onMediaLoad }: WhatsAppMessageB
                                 <button
                                     key={idx}
                                     className={`${T.buttonPrimaryText} ${S.body} w-full text-center py-3 hover:bg-black/10 transition-colors`}
-                                    style={{ color: isOutbound ? '#f0e0a8' : 'var(--tx-buttonText-color)' }}
+                                    style={{ color: isOutbound ? '#6f5310' : 'var(--tx-buttonText-color)' }}
                                 >
                                     {btn.text}
                                 </button>

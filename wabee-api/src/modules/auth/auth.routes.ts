@@ -157,7 +157,7 @@ router.post('/register', async (req, res) => {
                 const verificationLink = (linkData as any)?.properties?.action_link;
                 if (verificationLink) {
                     const userName = data.name || data.email.split('@')[0];
-                    await (core as any).notifications.notificationService.send({
+                    await core.notifications.send({
                         to: data.email,
                         channel: 'email',
                         templateName: 'VERIFY_EMAIL',
@@ -270,7 +270,7 @@ router.post('/recover', async (req, res) => {
             const profile = await CoreInternalService.getProfileByEmail(data.email);
             try {
                 const userName = profile?.name || data.email.split('@')[0];
-                await (core as any).notifications.notificationService.send({
+                await core.notifications.send({
                     to: data.email,
                     channel: 'email',
                     templateName: 'PASSWORD_RESET',

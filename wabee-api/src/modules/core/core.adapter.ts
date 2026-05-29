@@ -145,7 +145,7 @@ export const coreAdapter = {
                 if (!profile) throw new Error('Perfil no encontrado');
 
                 const onboardingData = (profile.preferences as any)?.onboarding;
-                if (!onboardingData) return;
+                if (!onboardingData) throw new Error('Datos de onboarding no encontrados en el perfil del usuario');
 
                 const { organizationName, organizationSlug } = onboardingData;
                 const baseSlugSource = organizationSlug || organizationName;
@@ -175,7 +175,10 @@ export const coreAdapter = {
                 }
 
                 if (!orgResult.success) {
-                    throw new Error(orgResult.error);
+                    const errMsg = typeof orgResult.error === 'string'
+                        ? orgResult.error
+                        : (orgResult.error as any)?.message || JSON.stringify(orgResult.error);
+                    throw new Error(errMsg || 'Error al crear la organización');
                 }
                 const org = orgResult.value;
 

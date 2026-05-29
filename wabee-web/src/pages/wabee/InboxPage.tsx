@@ -393,8 +393,8 @@ export default function InboxPage() {
             }`}
         >
             <aside className="w-[68px] bg-[color:color-mix(in_srgb,var(--bg-card),black_8%)] flex flex-col items-center py-4 gap-3 border-r border-[var(--border-default)] shrink-0 z-20 shadow-2xl">
-                <div className="w-10 h-10 rounded-2xl bg-[var(--brand-primary)] flex items-center justify-center shadow-[0_12px_32px_color-mix(in_srgb,var(--brand-primary),transparent_72%)]">
-                    <MessageSquare className="w-5 h-5 text-[var(--brand-primary-foreground)]" />
+                <div className="w-10 h-10 rounded-2xl bg-[color:color-mix(in_srgb,var(--brand-primary),#0a0700_52%)] flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.45)]">
+                    <MessageSquare className="w-5 h-5 text-[#f0e0a8]" />
                 </div>
 
                 <div className="flex-1 w-full flex flex-col items-center gap-3 overflow-y-auto no-scrollbar px-2">
@@ -511,10 +511,16 @@ export default function InboxPage() {
                                 filter === tab.id
                                     ? tab.id === 'human_queue'
                                         ? 'bg-red-500 border-red-500 shadow-lg shadow-red-500/20'
-                                        : 'bg-[var(--brand-primary)] border-[var(--brand-primary)] shadow-[0_10px_30px_color-mix(in_srgb,var(--brand-primary),transparent_78%)]'
+                                        : 'bg-[color:color-mix(in_srgb,var(--brand-primary),#0a0700_55%)] border-[color:color-mix(in_srgb,var(--brand-primary),transparent_68%)] text-[#f0e0a8] shadow-[0_8px_20px_rgba(0,0,0,0.4)]'
                                     : 'bg-[var(--bg-input)] border-[var(--border-default)] hover:opacity-80 hover:bg-[var(--bg-surface)]'
                             }`}
-                            style={filter !== tab.id ? { color: 'var(--tx-buttonText-color)' } : undefined}
+                            style={
+                                filter !== tab.id
+                                    ? { color: 'var(--tx-buttonText-color)' }
+                                    : tab.id === 'human_queue'
+                                        ? { color: '#ffffff' }
+                                        : { color: '#f0e0a8' }
+                            }
                         >
                             {tab.label}
                         </button>
@@ -575,14 +581,14 @@ export default function InboxPage() {
                                                 : 'border-transparent hover:bg-[var(--bg-input)] hover:border-[var(--border-default)]'
                                     }`}
                                 >
-                                    <div className="w-14 h-14 rounded-full bg-[linear-gradient(135deg,color-mix(in_srgb,var(--brand-primary),white_20%),color-mix(in_srgb,var(--brand-primary),#ff8a00_48%))] flex-shrink-0 overflow-hidden relative shadow-[0_10px_30px_color-mix(in_srgb,var(--brand-primary),transparent_75%)]">
-                                        <div className="absolute inset-0 flex items-center justify-center text-[13px] font-black text-[var(--brand-primary-foreground)]">
+                                    <div className="w-14 h-14 rounded-full bg-[linear-gradient(135deg,color-mix(in_srgb,var(--brand-primary),#0a0700_50%),color-mix(in_srgb,var(--brand-primary),#060400_62%))] flex-shrink-0 overflow-hidden relative shadow-[0_8px_18px_rgba(0,0,0,0.5)]">
+                                        <div className="absolute inset-0 flex items-center justify-center text-[13px] font-black text-[#f0e0a8]">
                                             {getThreadInitials(thread)}
                                         </div>
                                         <div className="absolute inset-0 ring-1 ring-white/10 rounded-full" />
                                         {thread.assignedUserId ? (
                                             <div
-                                                className="absolute top-0 right-0 w-5 h-5 bg-[var(--brand-primary)] text-[8px] font-black border-2 border-[color:color-mix(in_srgb,var(--bg-page),black_4%)] rounded-full shadow-lg flex items-center justify-center"
+                                                className="absolute top-0 right-0 w-5 h-5 bg-[color:color-mix(in_srgb,var(--brand-primary),#0a0700_42%)] text-[#f0e0a8] text-[8px] font-black border-2 border-[color:color-mix(in_srgb,var(--bg-page),black_4%)] rounded-full shadow-md flex items-center justify-center"
                                                 title="Asignado"
                                             >
                                                 {thread.assignedUserId === currentUser.id ? 'M' : 'A'}
@@ -657,16 +663,18 @@ export default function InboxPage() {
                                                 {thread.lastMessagePreview || ''}
                                             </p>
                                             {hasUnread && (
-                                                <span className="bg-[var(--brand-primary)] text-[var(--brand-primary-foreground)] text-[10px] font-black rounded-full h-6 min-w-[24px] px-2 flex items-center justify-center shadow-[0_10px_20px_color-mix(in_srgb,var(--brand-primary),transparent_75%)]">
+                                                <span className="bg-[color:color-mix(in_srgb,var(--brand-primary),#0a0700_42%)] text-[#f0e0a8] text-[10px] font-black rounded-full h-6 min-w-[24px] px-2 flex items-center justify-center shadow-[0_4px_10px_rgba(0,0,0,0.4)]">
                                                     {thread.unreadCount}
                                                 </span>
                                             )}
                                         </div>
-                                        <div className="mt-2 flex items-center gap-2">
-                                            <span className={`${T.helperText} ${S.meta} opacity-70`}>
-                                                {thread.remotePhone}
-                                            </span>
-                                        </div>
+                                        {thread.contactName && (
+                                            <div className="mt-1 flex items-center gap-2">
+                                                <span className={`${T.helperText} ${S.meta} opacity-60`}>
+                                                    {thread.remotePhone}
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             );

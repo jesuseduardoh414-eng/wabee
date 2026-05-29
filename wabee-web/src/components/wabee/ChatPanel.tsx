@@ -103,12 +103,12 @@ export default function ChatPanel({
 
     return (
         <div className="flex flex-col h-full bg-[color:color-mix(in_srgb,var(--bg-page),black_4%)] relative overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,color-mix(in_srgb,var(--brand-primary),transparent_90%)_0,transparent_42%),radial-gradient(circle_at_bottom_right,color-mix(in_srgb,var(--brand-primary),transparent_92%)_0,transparent_40%)] pointer-events-none" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,color-mix(in_srgb,var(--brand-primary),transparent_97%)_0,transparent_42%),radial-gradient(circle_at_bottom_right,color-mix(in_srgb,var(--brand-primary),transparent_97%)_0,transparent_40%)] pointer-events-none" />
 
             <div className="min-h-[78px] bg-[color:color-mix(in_srgb,var(--bg-card),black_5%)]/95 backdrop-blur-xl px-6 flex justify-between items-center border-b border-[var(--border-default)] z-10 shrink-0">
                 <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-[linear-gradient(135deg,color-mix(in_srgb,var(--brand-primary),white_18%),color-mix(in_srgb,var(--brand-primary),#ff8a00_52%))] flex items-center justify-center overflow-hidden shadow-[0_10px_30px_color-mix(in_srgb,var(--brand-primary),transparent_74%)]">
-                        <svg className="w-6 h-6 text-[var(--brand-primary-foreground)]" fill="currentColor" viewBox="0 0 24 24">
+                    <div className="w-12 h-12 rounded-full bg-[linear-gradient(135deg,color-mix(in_srgb,var(--brand-primary),#0a0700_50%),color-mix(in_srgb,var(--brand-primary),#060400_62%))] flex items-center justify-center overflow-hidden shadow-[0_8px_20px_rgba(0,0,0,0.5)]">
+                        <svg className="w-6 h-6 text-[#f0e0a8]" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                         </svg>
                     </div>
@@ -138,7 +138,7 @@ export default function ChatPanel({
                             onClick={onToggleNotes}
                             className={`p-2.5 rounded-full transition-all border active:scale-95 flex items-center gap-1.5 px-3.5 ${
                                 isNotesOpen
-                                    ? 'bg-[var(--brand-primary)] text-[var(--brand-primary-foreground)] border-[var(--brand-primary)]'
+                                    ? 'bg-[color:color-mix(in_srgb,var(--brand-primary),#0a0700_55%)] text-[#f0e0a8] border-[color:color-mix(in_srgb,var(--brand-primary),transparent_65%)]'
                                     : 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] border-[var(--brand-primary)]/20 hover:brightness-110'
                             }`}
                             title="Notas internas"
@@ -195,10 +195,10 @@ export default function ChatPanel({
                         onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                         className={`p-3 rounded-full border transition-all active:scale-95 ${
                             showEmojiPicker
-                                ? 'bg-[var(--brand-primary)] border-[var(--brand-primary)]'
+                                ? 'bg-[color:color-mix(in_srgb,var(--brand-primary),#0a0700_55%)] border-[color:color-mix(in_srgb,var(--brand-primary),transparent_65%)]'
                                 : 'bg-[var(--bg-input)] border-[var(--border-default)] hover:border-[var(--brand-primary)]/50'
                         }`}
-                        style={{ color: showEmojiPicker ? 'var(--brand-primary-foreground)' : 'var(--tx-buttonText-color)' }}
+                        style={{ color: showEmojiPicker ? '#f0e0a8' : 'var(--tx-buttonText-color)' }}
                     >
                         <Smile className="w-5 h-5" />
                     </button>
@@ -241,10 +241,10 @@ export default function ChatPanel({
                         className={`flex-shrink-0 p-4 rounded-full transition-all shadow-xl active:scale-95 flex items-center justify-center ${
                             !inputText.trim() || sending || !canReply
                                 ? 'bg-[var(--bg-input)] border border-[var(--border-default)]'
-                                : 'bg-[linear-gradient(135deg,color-mix(in_srgb,var(--brand-primary),white_16%),color-mix(in_srgb,var(--brand-primary),#ff8a00_40%))] shadow-[0_14px_28px_color-mix(in_srgb,var(--brand-primary),transparent_70%)] hover:brightness-110'
+                                : 'bg-[linear-gradient(135deg,color-mix(in_srgb,var(--brand-primary),#0a0700_52%),color-mix(in_srgb,var(--brand-primary),#060400_64%))] shadow-[0_10px_24px_rgba(0,0,0,0.5)] hover:brightness-110'
                         }`}
                         style={{
-                            color: !inputText.trim() || sending || !canReply ? 'var(--tx-buttonText-color)' : 'var(--brand-primary-foreground)',
+                            color: !inputText.trim() || sending || !canReply ? 'var(--tx-buttonText-color)' : '#f0e0a8',
                             opacity: !inputText.trim() || sending || !canReply ? 0.3 : 1,
                         }}
                     >

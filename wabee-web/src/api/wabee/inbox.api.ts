@@ -4,6 +4,7 @@ export interface Thread {
     id: string;
     remotePhone: string;
     contactName?: string | null;
+    contactId?: string | null;
     status: 'OPEN' | 'CLOSED' | 'SNOOZED';
     lastMessageAt: string;
     lastMessagePreview: string | null;
@@ -55,6 +56,7 @@ export async function getChannelThreads(channelId: string): Promise<Thread[]> {
         id: t.id,
         remotePhone: t.contactPhone,
         contactName: t.contactName,
+        contactId: t.contactId ?? null,
         status: t.status,
         lastMessageAt: t.lastMessageAt,
         lastMessagePreview: t.lastMessagePreview,
@@ -130,6 +132,7 @@ export async function getThreadById(threadId: string): Promise<Thread> {
         id: t.id,
         remotePhone: t.contactPhone,
         contactName: t.contactName,
+        contactId: t.contactId ?? null,
         status: t.status,
         lastMessageAt: t.lastMessageAt,
         lastMessagePreview: t.lastMessagePreview,

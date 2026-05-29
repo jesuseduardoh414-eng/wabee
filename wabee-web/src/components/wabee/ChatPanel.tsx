@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { Message, markThreadRead } from '@/api/wabee/inbox.api';
 import EmojiPicker, { Theme, EmojiClickData } from 'emoji-picker-react';
-import { Send, Smile, Paperclip, StickyNote, UserRound } from 'lucide-react';
+import { Send, Smile, Paperclip, StickyNote, UserRound, Inbox, Hand, MoreHorizontal } from 'lucide-react';
 import { WhatsAppMessageBubble } from './inbox/WhatsAppMessageBubble';
 import { useStickyAutoScroll } from './inbox/useStickyAutoScroll';
 import { T, S } from '@/lib/text-tokens';
 import { useToast } from '@/context/ToastContext';
+import ThreadHandlingModeBadge from './ThreadHandlingModeBadge';
 
 interface Props {
     messages: Message[];
@@ -17,6 +18,13 @@ interface Props {
     onToggleNotes?: () => void;
     canReply?: boolean;
     onOpenContact?: () => void;
+    threadStatus?: string;
+    handlingMode?: 'ai' | 'human_queue' | 'human' | 'copilot' | 'paused' | null;
+    aiPaused?: boolean;
+    assignmentBadge?: string | null;
+    assignmentControl?: React.ReactNode;
+    onTakeThread?: () => void;
+    onUnassignThread?: () => void;
 }
 
 export default function ChatPanel({
@@ -29,6 +37,13 @@ export default function ChatPanel({
     onToggleNotes,
     canReply = true,
     onOpenContact,
+    threadStatus,
+    handlingMode,
+    aiPaused,
+    assignmentBadge,
+    assignmentControl,
+    onTakeThread,
+    onUnassignThread,
 }: Props) {
     const [inputText, setInputText] = useState('');
     const [sending, setSending] = useState(false);
@@ -105,23 +120,58 @@ export default function ChatPanel({
         <div className="flex flex-col h-full bg-[linear-gradient(180deg,#fbfbf4_0%,#f7f6ef_100%)] relative overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(149,36,227,0.06)_0,transparent_36%),radial-gradient(circle_at_bottom_right,rgba(149,36,227,0.05)_0,transparent_34%)] pointer-events-none" />
 
-            <div className="min-h-[78px] bg-[rgba(255,255,255,0.94)] backdrop-blur-xl px-6 flex justify-between items-center border-b border-[rgba(26,26,26,0.08)] z-10 shrink-0">
-                <div className="flex items-center gap-3">
+            <div className="min-h-[78px] bg-[rgba(255,255,255,0.94)] backdrop-blur-xl px-6 flex justify-between items-center border-b border-[rgba(26,26,26,0.08)] z-10 shrink-0 gap-4">
+                <div className="flex items-center gap-3 min-w-0">
                     <div className="w-12 h-12 rounded-full bg-[rgba(149,36,227,0.09)] border border-[rgba(149,36,227,0.14)] flex items-center justify-center overflow-hidden shadow-[0_8px_18px_rgba(149,36,227,0.08)]">
                         <svg className="w-6 h-6 text-[var(--brand-primary)]" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                         </svg>
                     </div>
-                    <div className="flex flex-col justify-center">
-                        <h3 className={`${T.cardTitle} ${S.headingMd} leading-tight tracking-tight`}>{contactName}</h3>
+                    <div className="flex flex-col justify-center min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className={`${T.cardTitle} ${S.headingMd} leading-tight tracking-tight truncate max-w-[260px]`}>{contactName}</h3>
+                            <ThreadHandlingModeBadge mode={handlingMode ?? null} aiPaused={aiPaused} />
+                        </div>
                         <div className="flex items-center gap-1.5">
                             <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.35)]" />
                             <p className={`${T.helperText} ${S.meta}`}>En linea</p>
+                            {threadStatus && (
+                                <span className="ml-2 inline-flex items-center gap-1 rounded-full border border-[rgba(26,26,26,0.08)] bg-[#fbfbf4] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[rgba(26,26,26,0.6)]">
+                                    <Inbox className="h-3 w-3 text-[var(--brand-primary)]" />
+                                    {threadStatus}
+                                </span>
+                            )}
                         </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2 text-[var(--text-muted)]" style={{ color: 'var(--tx-buttonText-color)' }}>
+                <div className="flex items-center gap-2 text-[var(--text-muted)] flex-wrap justify-end" style={{ color: 'var(--tx-buttonText-color)' }}>
+                    {assignmentBadge && (
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(149,36,227,0.16)] bg-[rgba(149,36,227,0.08)] px-3 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-[var(--brand-primary)]">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[var(--brand-primary)]" />
+                            {assignmentBadge}
+                        </span>
+                    )}
+                    {onUnassignThread && (
+                        <button
+                            onClick={onUnassignThread}
+                            className="rounded-full border border-[rgba(255,140,0,0.2)] bg-[rgba(255,140,0,0.06)] px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-[#ff8c00] transition-all active:scale-95 hover:bg-[rgba(255,140,0,0.12)]"
+                            title="Liberar chat"
+                        >
+                            Liberar
+                        </button>
+                    )}
+                    {onTakeThread && !onUnassignThread && (
+                        <button
+                            onClick={onTakeThread}
+                            className="inline-flex items-center gap-1.5 rounded-full bg-[#b86d06] px-4 py-2 text-[11px] font-black text-white shadow-[0_8px_18px_rgba(184,109,6,0.18)] transition-all active:scale-95 hover:brightness-105"
+                            title="Tomar chat"
+                        >
+                            <Hand className="h-4 w-4" />
+                            Tomar chat
+                        </button>
+                    )}
+                    {assignmentControl}
                     {onOpenContact && (
                         <button
                             onClick={onOpenContact}
@@ -147,6 +197,13 @@ export default function ChatPanel({
                             <span className={`${S.meta} uppercase font-black tracking-widest hidden lg:inline`}>Notas</span>
                         </button>
                     )}
+                    <button
+                        type="button"
+                        className="h-10 w-10 rounded-full border border-[rgba(26,26,26,0.08)] bg-white text-[rgba(26,26,26,0.55)] transition-all hover:bg-[rgba(149,36,227,0.04)]"
+                        title="Más acciones"
+                    >
+                        <MoreHorizontal className="mx-auto h-4 w-4" />
+                    </button>
                 </div>
             </div>
 

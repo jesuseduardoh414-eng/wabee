@@ -383,6 +383,31 @@ export default function InboxPage() {
     const unreadThreadsCount = threads.filter((thread) => thread.unreadCount > 0).length;
     const priorityThreadsCount = threads.filter((thread) => thread.handlingMode === 'human_queue').length;
     const mineThreadsCount = threads.filter((thread) => thread.assignedUserId === currentUser.id).length;
+    const activeAssignmentBadge = activeThread?.assignedUserId
+        ? activeThread.assignedUserId === currentUser.id
+            ? 'Asignado a mi'
+            : 'Asignado'
+        : null;
+    const activeAssignmentControl =
+        activeThread && ['SUPERVISOR', 'ADMIN'].includes(currentUser.role) && assignees.length > 0 ? (
+            <select
+                onChange={(event) => {
+                    if (event.target.value) handleAssignThread(event.target.value);
+                    event.target.value = '';
+                }}
+                className="rounded-full border border-[rgba(26,26,26,0.08)] bg-[#fbfbf4] px-3 py-2 text-[10px] uppercase tracking-[0.14em] text-[rgba(26,26,26,0.6)]"
+                defaultValue=""
+            >
+                <option value="" disabled>
+                    {activeThread.assignedUserId ? 'Reasignar...' : 'Asignar a...'}
+                </option>
+                {assignees.map((assignee) => (
+                    <option key={assignee.id} value={assignee.id}>
+                        {assignee.name || assignee.email}
+                    </option>
+                ))}
+            </select>
+        ) : null;
 
     return (
         <div
@@ -687,17 +712,18 @@ export default function InboxPage() {
             <main className="flex-1 bg-[linear-gradient(180deg,#fbfbf4_0%,#f7f6ef_100%)] relative flex flex-col h-full z-0 transition-shadow">
                 {activeThread ? (
                     <div className="h-full flex flex-col">
-                        <div className="min-h-[64px] bg-[rgba(255,255,255,0.94)] backdrop-blur-xl px-5 border-b border-[rgba(26,26,26,0.08)] flex flex-wrap items-center justify-between gap-3 z-10 shrink-0">
-                            <div className="flex items-center gap-3 flex-wrap">
-                                {activeThread.assignedUserId ? (
+                        {false && (
+                            <div className="min-h-[64px] bg-[rgba(255,255,255,0.94)] backdrop-blur-xl px-5 border-b border-[rgba(26,26,26,0.08)] flex flex-wrap items-center justify-between gap-3 z-10 shrink-0">
+                                <div className="flex items-center gap-3 flex-wrap">
+                                {activeThread!.assignedUserId ? (
                                     <div className="flex items-center gap-2 flex-wrap">
                                         <div className="flex items-center gap-1.5 bg-[rgba(149,36,227,0.08)] px-3 py-2 rounded-full border border-[rgba(149,36,227,0.16)]">
                                             <div className="w-1.5 h-1.5 rounded-full bg-[var(--brand-primary)] animate-pulse" />
                                             <span className={`${T.badgeText} ${S.meta} text-[var(--brand-primary)]`}>
-                                                {activeThread.assignedUserId === currentUser.id ? 'ASIGNADO A MI' : 'ASIGNADO'}
+                                                {activeThread!.assignedUserId === currentUser.id ? 'ASIGNADO A MI' : 'ASIGNADO'}
                                             </span>
                                         </div>
-                                        {(activeThread.assignedUserId === currentUser.id ||
+                                        {(activeThread!.assignedUserId === currentUser.id ||
                                             ['SUPERVISOR', 'ADMIN'].includes(currentUser.role)) && (
                                             <button
                                                 onClick={handleUnassign}
@@ -759,16 +785,17 @@ export default function InboxPage() {
 
                                 <div className="w-px h-6 bg-[rgba(26,26,26,0.08)] mx-1" />
 
-                                <ThreadHandlingModeBadge mode={activeThread.handlingMode as any} aiPaused={activeThread.aiPaused} />
+                                <ThreadHandlingModeBadge mode={activeThread!.handlingMode as any} aiPaused={activeThread!.aiPaused} />
                             </div>
 
                             <div className="flex items-center gap-2">
                                 <div className="hidden md:flex items-center gap-2 rounded-full bg-[#fbfbf4] border border-[rgba(26,26,26,0.08)] px-3 py-2">
                                     <Inbox className="w-4 h-4 text-[var(--brand-primary)]" />
-                                    <span className={`${T.helperText} ${S.meta}`}>Estado: {activeThread.status}</span>
+                                    <span className={`${T.helperText} ${S.meta}`}>Estado: {activeThread!.status}</span>
+                                </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
 
                         {activeThread.aiPaused && (
                             <div className="bg-[rgba(255,140,0,0.08)] border-b border-[rgba(255,140,0,0.16)] px-6 py-4 flex items-center justify-between shrink-0">
@@ -808,6 +835,19 @@ export default function InboxPage() {
                                     ['SUPERVISOR', 'ADMIN'].includes(currentUser.role)
                                 }
                                 onOpenContact={activeThread.contactId ? () => setContactDetailId(activeThread.contactId!) : undefined}
+                                threadStatus={activeThread!.status}
+                                handlingMode={activeThread!.handlingMode as any}
+                                aiPaused={activeThread!.aiPaused}
+                                assignmentBadge={activeAssignmentBadge}
+                                assignmentControl={activeAssignmentControl}
+                                onTakeThread={!activeThread.assignedUserId ? handleTakeThread : undefined}
+                                onUnassignThread={
+                                    activeThread!.assignedUserId &&
+                                    (activeThread!.assignedUserId === currentUser.id ||
+                                        ['SUPERVISOR', 'ADMIN'].includes(currentUser.role))
+                                        ? handleUnassign
+                                        : undefined
+                                }
                             />
                         </div>
                     </div>

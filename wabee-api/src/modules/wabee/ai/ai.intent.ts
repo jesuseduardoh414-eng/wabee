@@ -1,4 +1,5 @@
 export type AiIntent =
+    | 'SPAM'                   // Cadenas, phishing, URLs spam, publicidad masiva no solicitada
     | 'SMALLTALK_GREETING'     // Hola, buenos días
     | 'SMALLTALK_THANKS'       // Gracias, muy amable
     | 'SMALLTALK_ACK'          // OK, enterado, vale
@@ -12,11 +13,63 @@ export type AiIntent =
     | 'LEAD_CREATION'          // Intención de compra/contratación
     | 'HUMAN_ESCALATION';      // Quiero hablar con alguien
 
+/** Categorías de routing del TRD para decisiones de orquestación y ahorro de tokens. */
+export type RoutingCategory = 'soporte' | 'ventas' | 'humano' | 'spam';
+
+/**
+ * Normaliza un AiIntent granular a las 4 categorías de routing del TRD (Sección 13).
+ * Usado por el orquestador para decidir si responde IA, escala a humano o descarta.
+ */
+export function mapIntentToRoutingCategory(intent: AiIntent): RoutingCategory {
+    switch (intent) {
+        case 'SPAM':
+            return 'spam';
+        case 'HUMAN_ESCALATION':
+            return 'humano';
+        case 'LEAD_CREATION':
+        case 'PRODUCT_SEARCH':
+            return 'ventas';
+        case 'COMPLAINT':
+        case 'BUSINESS_INFO_QUERY':
+        case 'OPERATIONAL_ACTION':
+        case 'GENERAL_QUESTION':
+        case 'IDENTITY_QUERY':
+        case 'SMALLTALK_GREETING':
+        case 'SMALLTALK_THANKS':
+        case 'SMALLTALK_ACK':
+        case 'CHATTER':
+        default:
+            return 'soporte';
+    }
+}
+
 /**
  * Detecta la intención de un mensaje de usuario con mayor precisión.
  */
 export function detectIntent(text: string): AiIntent {
     const lower = text.toLowerCase().trim();
+
+    // 0. SPAM — Prioridad absoluta, se descarta sin consumir tokens de IA
+    const spamKeywords = [
+        // Estafas / phishing
+        'ganaste', 'has ganado', 'fuiste seleccionado', 'fuiste elegido',
+        'reclama tu premio', 'reclama tu recompensa', 'premio gratis',
+        'dinero gratis', 'gana dinero fácil', 'trabaja desde casa y gana',
+        'inversión garantizada', 'bitcoin gratis', 'crypto gratis', 'duplica tu dinero',
+        // Cadenas / reenvíos masivos
+        'comparte este mensaje', 'reenvía a', 'reenvia a',
+        'manda a tus contactos', 'envía a todos tus',
+        // Publicidad spam genérica
+        'haz clic aquí', 'haz click aquí', 'descarga gratis aquí',
+    ];
+    // URLs acortadoras son señal inequívoca de spam en mensajes entrantes
+    const hasShortenerUrl = /bit\.ly|t\.co|tinyurl\.com|goo\.gl|shorturl\.at|ow\.ly|is\.gd/i.test(lower);
+    // Dos o más URLs en un solo mensaje también es señal de spam
+    const hasMultipleUrls = (lower.match(/https?:\/\//gi) ?? []).length >= 2;
+
+    if (hasShortenerUrl || hasMultipleUrls || spamKeywords.some(kw => lower.includes(kw))) {
+        return 'SPAM';
+    }
 
     // 1. Human Escalation (Prioridad Máxima)
     const escalationKeywords = [

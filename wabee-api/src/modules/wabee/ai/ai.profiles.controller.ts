@@ -399,4 +399,98 @@ export class AiProfilesController {
             res.status(error.status || 500).json({ error: error.message });
         }
     }
+
+    // ─── KB SOURCES (URL / web scraping) ────────────────────────────────────
+
+    static async getKbSources(req: Request, res: Response) {
+        try {
+            const tenantId = (req as any).tenantId;
+            const profileId = req.params.id as string;
+            const sources = await aiProfilesService.getKbSources(tenantId, profileId);
+            res.json(sources);
+        } catch (error: any) {
+            res.status(error.status || 500).json({ error: error.message });
+        }
+    }
+
+    static async createKbSource(req: Request, res: Response) {
+        try {
+            const tenantId = (req as any).tenantId;
+            const profileId = req.params.id as string;
+            const { name, url } = req.body;
+
+            if (!name || typeof name !== 'string' || !name.trim()) {
+                return res.status(400).json({ error: 'name is required' });
+            }
+            if (!url || typeof url !== 'string' || !/^https?:\/\/.+/.test(url)) {
+                return res.status(400).json({ error: 'url must be a valid HTTP/HTTPS URL' });
+            }
+
+            const source = await aiProfilesService.createKbSource({ tenantId, profileId, name: name.trim(), url });
+            res.status(201).json(source);
+        } catch (error: any) {
+            res.status(error.status || 500).json({ error: error.message });
+        }
+    }
+
+    static async deleteKbSource(req: Request, res: Response) {
+        try {
+            const tenantId = (req as any).tenantId;
+            const profileId = req.params.id as string;
+            const sourceId = req.params.sourceId as string;
+            const result = await aiProfilesService.deleteKbSource(tenantId, profileId, sourceId);
+            res.json(result);
+        } catch (error: any) {
+            res.status(error.status || 500).json({ error: error.message });
+        }
+    }
+
+    // ─── KB Sources — DATABASE ────────────────────────────────────────────────
+
+    static async testDbConnection(req: Request, res: Response) {
+        try {
+            const tenantId  = (req as any).tenantId;
+            const profileId = req.params.id;
+            const { config } = req.body;
+            if (!config) return res.status(400).json({ error: 'config is required' });
+            const tables = await aiProfilesService.testDbConnection({ tenantId, profileId, config });
+            res.json({ ok: true, tables });
+        } catch (e: any) { res.status(e.status || 500).json({ error: e.message }); }
+    }
+
+    static async createDbSource(req: Request, res: Response) {
+        try {
+            const tenantId  = (req as any).tenantId;
+            const profileId = req.params.id;
+            const { name, config, mappings } = req.body;
+            if (!name?.trim())  return res.status(400).json({ error: 'name is required' });
+            if (!config)        return res.status(400).json({ error: 'config is required' });
+            if (!Array.isArray(mappings) || mappings.length === 0) {
+                return res.status(400).json({ error: 'mappings must be a non-empty array' });
+            }
+            const source = await aiProfilesService.createDbSource({ tenantId, profileId, name: name.trim(), config, mappings });
+            res.status(201).json(source);
+        } catch (e: any) { res.status(e.status || 500).json({ error: e.message }); }
+    }
+
+    static async reindexDbSource(req: Request, res: Response) {
+        try {
+            const tenantId  = (req as any).tenantId;
+            const profileId = req.params.id;
+            const sourceId  = req.params.sourceId;
+            res.json(await aiProfilesService.reindexDbSource(tenantId, profileId, sourceId));
+        } catch (e: any) { res.status(e.status || 500).json({ error: e.message }); }
+    }
+
+    static async reindexKbSource(req: Request, res: Response) {
+        try {
+            const tenantId = (req as any).tenantId;
+            const profileId = req.params.id as string;
+            const sourceId = req.params.sourceId as string;
+            const result = await aiProfilesService.reindexKbSource(tenantId, profileId, sourceId);
+            res.json(result);
+        } catch (error: any) {
+            res.status(error.status || 500).json({ error: error.message });
+        }
+    }
 }

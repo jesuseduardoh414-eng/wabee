@@ -214,7 +214,7 @@ export function buildKbAwareSystemPrompt(params: {
         content: string;
         section?: string | null;
         score: number;
-        fileName: string;
+        sourceName: string;
     }>;
 }): string {
     const { basePrompt, chunks } = params;
@@ -240,7 +240,7 @@ export function buildKbAwareSystemPrompt(params: {
     // Build KB context block
     const chunkBlocks = chunks.map((c, i) => {
         let header = `[CHUNK ${i + 1}`;
-        if (c.fileName) header += ` file="${c.fileName}"`;
+        if (c.sourceName) header += ` source="${c.sourceName}"`;
         if (c.section) header += ` section="${c.section}"`;
         header += ` score=${c.score.toFixed(2)}]`;
         return `${header}\n${c.content}`;

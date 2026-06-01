@@ -1,0 +1,122 @@
+[
+  {
+    "numeroActividad": 1,
+    "titulo": "Preparar accesos y cuentas de publicacion de Metea",
+    "descripcion": "Verificar acceso a App Store Connect, Google Play Console, Firebase, cuentas de correo del proyecto y credenciales de recuperacion antes de iniciar la publicacion. Confirmar que el equipo responsable tenga permisos de admin o release manager.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-01",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 2,
+    "titulo": "Comprar eSIM para pruebas operativas de Metea",
+    "descripcion": "Comprar una eSIM funcional para el dispositivo de pruebas o de operacion del app, validar activacion de linea, datos moviles y recepcion de SMS o llamadas si el flujo de Metea depende de verificacion telefonica.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-01",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 3,
+    "titulo": "Validar login y flujos criticos con la eSIM activa",
+    "descripcion": "Probar registro, login, recuperacion de acceso, recepcion de codigos y cualquier flujo que use telefono, WhatsApp o datos moviles reales. Documentar cualquier bloqueo antes de subir la version final.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-01",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 4,
+    "titulo": "Revisar metadata de tiendas para Metea",
+    "descripcion": "Confirmar nombre del app, descripcion corta, descripcion larga, categoria, palabras clave, politicas de privacidad, URL de soporte y datos de contacto para que la publicacion no se retrase por informacion incompleta.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-01",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 5,
+    "titulo": "Actualizar capturas, icono y assets finales de Metea",
+    "descripcion": "Subir screenshots, icono, splash, banner promocional y cualquier asset requerido por App Store y Google Play. Verificar que correspondan a la version actual del producto y al idioma de lanzamiento.",
+    "estado": "PENDIENTE",
+    "prioridad": "MEDIA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-01",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 6,
+    "titulo": "Generar build release final de Metea",
+    "descripcion": "Compilar la version release final para Android y/o iOS, incrementar version y build number, verificar firma correcta, variables de entorno productivas y ausencia de configuraciones de debug antes de distribuir.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-01",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 7,
+    "titulo": "Ejecutar QA final previo a publicacion",
+    "descripcion": "Hacer smoke test del app en ambiente productivo o release candidate: onboarding, navegacion principal, notificaciones, pagos si aplica, formularios, enlaces legales y cierre de sesion. Registrar hallazgos criticos antes de publicar.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-01",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 8,
+    "titulo": "Subir build de Metea a Google Play Console",
+    "descripcion": "Cargar el AAB o APK firmado en Google Play Console, completar checklist de lanzamiento, revisar avisos de contenido, politicas y compatibilidad, y dejar la version lista para publicacion o rollout controlado.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-01",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 9,
+    "titulo": "Subir build de Metea a App Store Connect",
+    "descripcion": "Cargar la build iOS en App Store Connect, vincularla a la version correspondiente, completar cuestionarios requeridos de Apple y enviar a revision si el lanzamiento tambien contempla iPhone.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-01",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 10,
+    "titulo": "Configurar monitoreo post-lanzamiento de Metea",
+    "descripcion": "Confirmar que analytics, crash reporting, logs y alertas esten activos para la version publicada. Verificar paneles de Firebase, Sentry o herramientas equivalentes para detectar errores en las primeras horas.",
+    "estado": "PENDIENTE",
+    "prioridad": "MEDIA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-01",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 11,
+    "titulo": "Preparar mensaje de lanzamiento y links oficiales",
+    "descripcion": "Tener listo el texto de anuncio interno o comercial, enlaces de descarga, materiales de soporte y mensaje para clientes o equipo una vez que Metea quede publicado o aprobado en tiendas.",
+    "estado": "PENDIENTE",
+    "prioridad": "MEDIA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-02",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 12,
+    "titulo": "Dar seguimiento a aprobacion y corregir observaciones",
+    "descripcion": "Monitorear el estado de revision en Apple y Google, responder observaciones de cumplimiento o contenido si aparecen, y coordinar ajustes rapidos para evitar retrasos en la salida oficial de Metea.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-03",
+    "asignadoEmail": ""
+  }
+]

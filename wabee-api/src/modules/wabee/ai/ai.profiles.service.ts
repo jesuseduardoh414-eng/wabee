@@ -229,6 +229,146 @@ export class AiProfilesService {
         };
     }
 
+    // ─── KB SOURCES (URL / web scraping) ────────────────────────────────────
+
+    async getKbSources(tenantId: string, profileId: string) {
+        return await prisma.kbSource.findMany({
+            where: { tenantId, profileId },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    async createKbSource(params: { tenantId: string; profileId: string; name: string; url: string }) {
+        const { tenantId, profileId, name, url } = params;
+
+        await this.getProfileById(tenantId, profileId);
+
+        const source = await prisma.kbSource.create({
+            data: {
+                tenantId,
+                profileId,
+                name,
+                sourceType: 'URL',
+                status: 'PENDING',
+                config: { url },
+            },
+        });
+
+        // Index asynchronously so the API returns immediately
+        setImmediate(async () => {
+            try {
+                await kbService.indexSource({ tenantId, profileId, sourceId: source.id, url });
+            } catch (err: any) {
+                console.error(`[AiProfilesService] Background source indexing failed for ${source.id}:`, err.message);
+            }
+        });
+
+        return source;
+    }
+
+    async deleteKbSource(tenantId: string, profileId: string, sourceId: string) {
+        const source = await prisma.kbSource.findFirst({
+            where: { id: sourceId, tenantId, profileId },
+        });
+
+        if (!source) throw { status: 404, message: 'KB Source not found' };
+
+        await prisma.kbSource.delete({ where: { id: sourceId } });
+
+        return { message: 'Source deleted successfully' };
+    }
+
+    // ─── KB Sources — DATABASE ────────────────────────────────────────────────
+
+    async testDbConnection(params: { tenantId: string; profileId: string; config: any }) {
+        await this.getProfileById(params.tenantId, params.profileId);
+        return kbService.testDbSource(params.config);
+    }
+
+    async createDbSource(params: {
+        tenantId: string;
+        profileId: string;
+        name: string;
+        config: any;     // DbConnectionConfig
+        mappings: any[]; // ColumnMapping[]
+    }) {
+        const { tenantId, profileId, name, config, mappings } = params;
+        await this.getProfileById(tenantId, profileId);
+
+        const source = await prisma.kbSource.create({
+            data: {
+                tenantId,
+                profileId,
+                name,
+                sourceType: 'DATABASE',
+                status: 'PENDING',
+                config: { connection: config, mappings },
+            },
+        });
+
+        setImmediate(async () => {
+            try {
+                await kbService.indexDbSource({ tenantId, profileId, sourceId: source.id, config, mappings });
+            } catch (err: any) {
+                console.error(`[AiProfilesService] DB source indexing failed for ${source.id}:`, err.message);
+            }
+        });
+
+        return source;
+    }
+
+    async reindexDbSource(tenantId: string, profileId: string, sourceId: string) {
+        const source = await prisma.kbSource.findFirst({ where: { id: sourceId, tenantId, profileId } });
+        if (!source) throw { status: 404, message: 'KB Source not found' };
+
+        const cfg = source.config as any;
+        if (!cfg?.connection || !cfg?.mappings) {
+            throw { status: 400, message: 'Source has no DB configuration' };
+        }
+
+        await prisma.kbSource.update({ where: { id: sourceId }, data: { status: 'PENDING', error: null } });
+
+        setImmediate(async () => {
+            try {
+                await kbService.indexDbSource({
+                    tenantId, profileId, sourceId,
+                    config: cfg.connection,
+                    mappings: cfg.mappings,
+                });
+            } catch (err: any) {
+                console.error(`[AiProfilesService] DB source re-index failed ${sourceId}:`, err.message);
+            }
+        });
+
+        return { message: 'Reindexing started' };
+    }
+
+    async reindexKbSource(tenantId: string, profileId: string, sourceId: string) {
+        const source = await prisma.kbSource.findFirst({
+            where: { id: sourceId, tenantId, profileId },
+        });
+
+        if (!source) throw { status: 404, message: 'KB Source not found' };
+
+        const url = (source.config as any)?.url;
+        if (!url) throw { status: 400, message: 'Source has no URL configured' };
+
+        await prisma.kbSource.update({
+            where: { id: sourceId },
+            data: { status: 'PENDING', error: null },
+        });
+
+        setImmediate(async () => {
+            try {
+                await kbService.indexSource({ tenantId, profileId, sourceId, url });
+            } catch (err: any) {
+                console.error(`[AiProfilesService] Background source re-indexing failed for ${sourceId}:`, err.message);
+            }
+        });
+
+        return { message: 'Reindexing started' };
+    }
+
     /**
      * Pause AI for a specific thread
      */

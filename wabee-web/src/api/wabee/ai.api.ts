@@ -9,6 +9,18 @@ export interface KbFile {
     updatedAt: string;
 }
 
+export interface KbSource {
+    id: string;
+    name: string;
+    sourceType: 'URL' | 'DATABASE' | 'FILE' | 'INTEGRATION';
+    status: 'PENDING' | 'PROCESSING' | 'INDEXED' | 'ERROR';
+    config: { url?: string } | null;
+    error?: string | null;
+    vectorSyncAt?: string | null;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export interface WhatsAppTestResponse {
     sessionId: string;
     action: 'NO_AI' | 'HANDOFF' | 'REPLY' | 'SKIP' | 'ERROR';
@@ -244,6 +256,35 @@ export const aiApi = {
         const token = localStorage.getItem('wabee_token') || localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
         return `${baseUrl}/wabee/ai/ai-profiles/${profileId}/kb/files/${fileId}/view?tenantId=${tenantKey}&token=${token}`;
     },
+
+    // KB Sources — Database (read-only)
+    testDbConnection: (profileId: string, config: object) =>
+        apiClient<{ ok: boolean; tables: { schema: string; name: string; columns: { name: string; type: string }[] }[] }>(
+            `/ai/ai-profiles/${profileId}/kb/db/test`,
+            { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ config }) }
+        ),
+    createDbSource: (profileId: string, data: { name: string; config: object; mappings: object[] }) =>
+        apiClient<KbSource>(`/ai/ai-profiles/${profileId}/kb/db/sources`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        }),
+    reindexDbSource: (profileId: string, sourceId: string) =>
+        apiClient<void>(`/ai/ai-profiles/${profileId}/kb/db/sources/${sourceId}/reindex`, { method: 'POST' }),
+
+    // KB Sources (URL / web scraping)
+    getKbSources: (profileId: string) =>
+        apiClient<KbSource[]>(`/ai/ai-profiles/${profileId}/kb/sources`),
+    createKbSource: (profileId: string, data: { name: string; url: string }) =>
+        apiClient<KbSource>(`/ai/ai-profiles/${profileId}/kb/sources`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        }),
+    deleteKbSource: (profileId: string, sourceId: string) =>
+        apiClient<void>(`/ai/ai-profiles/${profileId}/kb/sources/${sourceId}`, { method: 'DELETE' }),
+    reindexKbSource: (profileId: string, sourceId: string) =>
+        apiClient<void>(`/ai/ai-profiles/${profileId}/kb/sources/${sourceId}/reindex`, { method: 'POST' }),
 
     // WhatsApp Agent Test (aislado del inbox real)
     whatsappTest: (profileId: string, message: string, sessionId?: string) =>

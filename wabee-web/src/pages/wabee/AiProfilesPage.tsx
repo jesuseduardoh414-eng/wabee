@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { aiApi, AiProfile, KbFile, ConsolidatedProfileTool } from '@/api/wabee/ai.api';
+import { aiApi, AiProfile, KbFile, KbSource, ConsolidatedProfileTool } from '@/api/wabee/ai.api';
 import { useToast } from '@/context/ToastContext';
 import { useDialog } from '@/context/DialogContext';
 import WhatsAppAgentTestModal from '@/components/wabee/WhatsAppAgentTestModal';
@@ -35,6 +35,18 @@ const AiProfilesPage: React.FC = () => {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [showCreate, setShowCreate] = useState(false);
     const [kbFiles, setKbFiles] = useState<KbFile[]>([]);
+    const [kbSources, setKbSources] = useState<KbSource[]>([]);
+    const [newSourceName, setNewSourceName] = useState('');
+    const [newSourceUrl, setNewSourceUrl] = useState('');
+    const [addingSource, setAddingSource] = useState(false);
+
+    // DB connector state
+    const [dbForm, setDbForm] = useState({ name: '', host: '', port: '5432', user: '', password: '', database: '', ssl: false });
+    const [dbTables, setDbTables] = useState<{ schema: string; name: string; columns: { name: string; type: string }[] }[]>([]);
+    const [dbMappings, setDbMappings] = useState<{ table: string; columns: string[] }[]>([]);
+    const [testingDb, setTestingDb] = useState(false);
+    const [addingDb, setAddingDb] = useState(false);
+    const [dbTested, setDbTested] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [testingProfile, setTestingProfile] = useState<AiProfile | null>(null);
     const [profileTools, setProfileTools] = useState<ConsolidatedProfileTool[]>([]);
@@ -66,6 +78,7 @@ const AiProfilesPage: React.FC = () => {
     useEffect(() => {
         if (editingId) {
             loadKbFiles(editingId);
+            loadKbSources(editingId);
             loadProfileTools(editingId);
         }
     }, [editingId]);
@@ -205,6 +218,105 @@ const AiProfilesPage: React.FC = () => {
         window.open(url, '_blank');
     };
 
+    const loadKbSources = async (profileId: string) => {
+        try {
+            const data = await aiApi.getKbSources(profileId);
+            setKbSources(data);
+        } catch (error: any) {
+            console.error('[AiProfiles] Error loading KB sources:', error);
+        }
+    };
+
+    const handleAddSource = async () => {
+        if (!editingId || !newSourceName.trim() || !newSourceUrl.trim()) return;
+        setAddingSource(true);
+        try {
+            await aiApi.createKbSource(editingId, { name: newSourceName.trim(), url: newSourceUrl.trim() });
+            setNewSourceName('');
+            setNewSourceUrl('');
+            await loadKbSources(editingId);
+            toastSuccess('Sitio web agregado. Indexando en segundo plano...');
+        } catch (error: any) {
+            toastError(error.message || 'Error al agregar el sitio web');
+        } finally {
+            setAddingSource(false);
+        }
+    };
+
+    const handleDeleteSource = async (sourceId: string) => {
+        if (!editingId) return;
+        const isConfirmed = await confirm({
+            title: 'Eliminar Sitio Web',
+            description: '¿Eliminar esta fuente de conocimiento? Se borrarán todos sus fragmentos indexados.',
+            isDestructive: true,
+            confirmText: 'Eliminar',
+        });
+        if (!isConfirmed) return;
+        try {
+            await aiApi.deleteKbSource(editingId, sourceId);
+            await loadKbSources(editingId);
+            toastSuccess('Fuente eliminada');
+        } catch (error: any) {
+            toastError(error.message || 'Error al eliminar');
+        }
+    };
+
+    const handleReindexSource = async (sourceId: string) => {
+        if (!editingId) return;
+        try {
+            await aiApi.reindexKbSource(editingId, sourceId);
+            await loadKbSources(editingId);
+            toastSuccess('Re-indexando...');
+        } catch (error: any) {
+            toastError(error.message || 'Error al re-indexar');
+        }
+    };
+
+    // ── DB connector handlers ────────────────────────────────────────────────
+    const handleTestDb = async () => {
+        if (!editingId) return;
+        setTestingDb(true);
+        setDbTested(false);
+        setDbTables([]);
+        setDbMappings([]);
+        try {
+            const config = { host: dbForm.host, port: parseInt(dbForm.port), user: dbForm.user, password: dbForm.password, database: dbForm.database, ssl: dbForm.ssl };
+            const { tables } = await aiApi.testDbConnection(editingId, config);
+            setDbTables(tables);
+            setDbTested(true);
+            toastSuccess(`Conexión exitosa — ${tables.length} tablas encontradas`);
+        } catch (error: any) {
+            toastError(error.message || 'No se pudo conectar a la base de datos');
+        } finally { setTestingDb(false); }
+    };
+
+    const toggleDbColumn = (table: string, column: string) => {
+        setDbMappings(prev => {
+            const existing = prev.find(m => m.table === table);
+            if (!existing) return [...prev, { table, columns: [column] }];
+            const cols = existing.columns.includes(column)
+                ? existing.columns.filter(c => c !== column)
+                : [...existing.columns, column];
+            if (cols.length === 0) return prev.filter(m => m.table !== table);
+            return prev.map(m => m.table === table ? { ...m, columns: cols } : m);
+        });
+    };
+
+    const handleAddDbSource = async () => {
+        if (!editingId || !dbForm.name.trim() || dbMappings.length === 0) return;
+        setAddingDb(true);
+        try {
+            const config = { host: dbForm.host, port: parseInt(dbForm.port), user: dbForm.user, password: dbForm.password, database: dbForm.database, ssl: dbForm.ssl };
+            await aiApi.createDbSource(editingId, { name: dbForm.name.trim(), config, mappings: dbMappings });
+            setDbForm({ name: '', host: '', port: '5432', user: '', password: '', database: '', ssl: false });
+            setDbTables([]); setDbMappings([]); setDbTested(false);
+            await loadKbSources(editingId);
+            toastSuccess('Base de datos agregada. Indexando en segundo plano...');
+        } catch (error: any) {
+            toastError(error.message || 'Error al agregar la base de datos');
+        } finally { setAddingDb(false); }
+    };
+
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
@@ -286,6 +398,9 @@ const AiProfilesPage: React.FC = () => {
             kbEnabled: true,
         });
         setKbFiles([]);
+        setKbSources([]);
+        setNewSourceName('');
+        setNewSourceUrl('');
     };
 
     const cancelEdit = () => {
@@ -537,6 +652,174 @@ const AiProfilesPage: React.FC = () => {
                                                 <span className={`${T.helperText} text-[9px]`}>{new Date(file.updatedAt).toLocaleDateString()}</span>
                                             </div>
                                             {file.error && <p className="mt-1 text-[8px] text-red-400 leading-tight italic line-clamp-2">{file.error}</p>}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* KB Sources — Web Scraping */}
+                            <div className="bg-[var(--bg-card)] p-6 rounded-2xl border border-[var(--border-default)] shadow-2xl">
+                                <div className="flex flex-col mb-4">
+                                    <h3 className={`${T.cardTitle} text-sm`}>Sitios Web</h3>
+                                    <p className={`${T.cardSubtitle} text-xs mt-1`}>Agrega URLs para que la IA aprenda de tu sitio web, FAQs o páginas de productos.</p>
+                                </div>
+
+                                {/* Add source form */}
+                                <div className="mb-4 p-3 bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl space-y-2">
+                                    <input
+                                        type="text"
+                                        placeholder="Nombre (ej: FAQs del sitio)"
+                                        value={newSourceName}
+                                        onChange={e => setNewSourceName(e.target.value)}
+                                        className={`w-full px-3 py-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`}
+                                    />
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="url"
+                                            placeholder="https://mi-sitio.com/preguntas-frecuentes"
+                                            value={newSourceUrl}
+                                            onChange={e => setNewSourceUrl(e.target.value)}
+                                            className={`flex-1 px-3 py-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`}
+                                        />
+                                        <button
+                                            onClick={handleAddSource}
+                                            disabled={addingSource || !newSourceName.trim() || !newSourceUrl.trim()}
+                                            className="px-3 py-2 rounded-lg bg-[var(--brand-primary)] text-white text-xs font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition shrink-0"
+                                        >
+                                            {addingSource ? '...' : 'Agregar'}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Sources list */}
+                                <div className="space-y-3">
+                                    {kbSources.length === 0 && (
+                                        <p className={`${T.emptyStateBody} text-center text-xs py-4`}>Sin sitios web indexados</p>
+                                    )}
+                                    {kbSources.map((source: KbSource) => (
+                                        <div key={source.id} className="p-3 bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl relative group transition-all hover:border-[var(--brand-primary)]/30">
+                                            <div className="flex justify-between items-start">
+                                                <div className="max-w-[80%]">
+                                                    <p className={`${T.tableCell} text-xs truncate`}>{source.name}</p>
+                                                    <p className={`${T.helperText} text-[10px] truncate`}>{source.config?.url}</p>
+                                                </div>
+                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">
+                                                    <button
+                                                        onClick={() => source.config?.url && window.open(source.config.url, '_blank')}
+                                                        className="p-1 hover:bg-[var(--brand-primary)]/20 rounded transition"
+                                                        title="Abrir URL"
+                                                    >
+                                                        <svg className="w-3.5 h-3.5 text-[var(--brand-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleReindexSource(source.id)}
+                                                        className="p-1 hover:bg-[var(--brand-primary)]/20 rounded transition"
+                                                        title="Re-indexar"
+                                                    >
+                                                        <svg className="w-3.5 h-3.5 text-[var(--brand-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteSource(source.id)}
+                                                        className="p-1 hover:bg-red-500/20 rounded transition"
+                                                        title="Eliminar"
+                                                    >
+                                                        <svg className="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div className="mt-2 flex items-center justify-between">
+                                                <span className={`${T.statusText} text-[9px] px-1.5 py-0.5 rounded ${
+                                                    source.status === 'INDEXED'    ? 'bg-[var(--brand-primary)]/20 text-[var(--brand-primary)]' :
+                                                    source.status === 'PROCESSING' ? 'bg-yellow-500/20 text-yellow-500' :
+                                                    source.status === 'PENDING'    ? 'bg-blue-500/20 text-blue-400' :
+                                                                                     'bg-red-500/20 text-red-500'
+                                                }`}>
+                                                    {source.status === 'PENDING' ? 'En cola' : source.status}
+                                                </span>
+                                                <span className={`${T.helperText} text-[9px]`}>
+                                                    {source.vectorSyncAt ? `Sync: ${new Date(source.vectorSyncAt).toLocaleDateString()}` : new Date(source.createdAt).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                            {source.error && <p className="mt-1 text-[8px] text-red-400 leading-tight italic line-clamp-2">{source.error}</p>}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* KB Sources — Database */}
+                            <div className="bg-[var(--bg-card)] p-6 rounded-2xl border border-[var(--border-default)] shadow-2xl">
+                                <div className="flex flex-col mb-4">
+                                    <h3 className={`${T.cardTitle} text-sm`}>Base de Datos (Read-Only)</h3>
+                                    <p className={`${T.cardSubtitle} text-xs mt-1`}>Conecta una BD externa para que la IA consulte datos en tiempo real (solo lectura).</p>
+                                </div>
+
+                                {/* Connection form */}
+                                <div className="p-3 bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl space-y-2 mb-4">
+                                    <input value={dbForm.name} onChange={e => setDbForm(f => ({...f, name: e.target.value}))} placeholder="Nombre de la fuente" className={`w-full px-3 py-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`} />
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <input value={dbForm.host} onChange={e => setDbForm(f => ({...f, host: e.target.value}))} placeholder="Host" className={`px-3 py-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`} />
+                                        <input value={dbForm.port} onChange={e => setDbForm(f => ({...f, port: e.target.value}))} placeholder="Puerto" className={`px-3 py-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`} />
+                                        <input value={dbForm.database} onChange={e => setDbForm(f => ({...f, database: e.target.value}))} placeholder="Base de datos" className={`px-3 py-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`} />
+                                        <input value={dbForm.user} onChange={e => setDbForm(f => ({...f, user: e.target.value}))} placeholder="Usuario" className={`px-3 py-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`} />
+                                    </div>
+                                    <input value={dbForm.password} onChange={e => setDbForm(f => ({...f, password: e.target.value}))} type="password" placeholder="Contraseña" className={`w-full px-3 py-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`} />
+                                    <div className="flex items-center gap-2">
+                                        <input type="checkbox" id="db-ssl" checked={dbForm.ssl} onChange={e => setDbForm(f => ({...f, ssl: e.target.checked}))} className="w-3 h-3" />
+                                        <label htmlFor="db-ssl" className={`${T.helperText} text-[10px]`}>Usar SSL</label>
+                                    </div>
+                                    <button onClick={handleTestDb} disabled={testingDb || !dbForm.host || !dbForm.database} className="w-full py-2 rounded-lg border border-[var(--brand-primary)] text-xs text-[var(--brand-primary)] font-bold uppercase tracking-widest disabled:opacity-40 hover:bg-[var(--brand-primary)]/10 transition">
+                                        {testingDb ? 'Probando...' : 'Probar conexión'}
+                                    </button>
+                                </div>
+
+                                {/* Column mapping */}
+                                {dbTested && dbTables.length > 0 && (
+                                    <div className="mb-4 space-y-3">
+                                        <p className={`${T.cardSubtitle} text-xs`}>Selecciona las columnas que la IA podrá leer:</p>
+                                        {dbTables.slice(0, 8).map(table => (
+                                            <div key={`${table.schema}.${table.name}`} className="p-2 bg-[var(--bg-input)] border border-[var(--border-default)] rounded-lg">
+                                                <p className={`${T.tableCell} text-[10px] mb-1 font-bold`}>{table.schema}.{table.name}</p>
+                                                <div className="flex flex-wrap gap-1">
+                                                    {table.columns.map(col => {
+                                                        const key = `${table.schema}.${table.name}`;
+                                                        const mapping = dbMappings.find(m => m.table === key);
+                                                        const selected = mapping?.columns.includes(col.name) ?? false;
+                                                        return (
+                                                            <button key={col.name} onClick={() => toggleDbColumn(key, col.name)}
+                                                                className={`px-1.5 py-0.5 rounded text-[9px] transition border ${selected ? 'bg-[var(--brand-primary)]/20 border-[var(--brand-primary)] text-[var(--brand-primary)]' : 'bg-[var(--bg-surface)] border-[var(--border-default)] text-[var(--tx-helperText-color,#999)] hover:border-[var(--brand-primary)]/40'}`}>
+                                                                {col.name}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        ))}
+                                        <button onClick={handleAddDbSource} disabled={addingDb || !dbForm.name.trim() || dbMappings.length === 0}
+                                            className="w-full py-2 rounded-xl bg-[var(--brand-primary)] text-white text-xs font-bold uppercase tracking-widest disabled:opacity-40 hover:opacity-90 transition">
+                                            {addingDb ? 'Indexando...' : `Indexar ${dbMappings.reduce((s, m) => s + m.columns.length, 0)} columnas`}
+                                        </button>
+                                    </div>
+                                )}
+
+                                {/* DB sources list (shared with URL sources via kbSources) */}
+                                <div className="space-y-2">
+                                    {kbSources.filter(s => s.sourceType === 'DATABASE').length === 0 && (
+                                        <p className={`${T.emptyStateBody} text-center text-xs py-2`}>Sin bases de datos indexadas</p>
+                                    )}
+                                    {kbSources.filter(s => s.sourceType === 'DATABASE').map(source => (
+                                        <div key={source.id} className="p-3 bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl flex items-center justify-between gap-2">
+                                            <div>
+                                                <p className={`${T.tableCell} text-xs`}>{source.name}</p>
+                                                <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold ${source.status === 'INDEXED' ? 'bg-[var(--brand-primary)]/20 text-[var(--brand-primary)]' : source.status === 'PROCESSING' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-red-500/20 text-red-400'}`}>{source.status}</span>
+                                            </div>
+                                            <div className="flex gap-1">
+                                                <button onClick={() => editingId && aiApi.reindexDbSource(editingId, source.id).then(() => loadKbSources(editingId!))} className="p-1 hover:bg-[var(--brand-primary)]/20 rounded transition" title="Re-indexar">
+                                                    <svg className="w-3.5 h-3.5 text-[var(--brand-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                                </button>
+                                                <button onClick={() => handleDeleteSource(source.id)} className="p-1 hover:bg-red-500/20 rounded transition" title="Eliminar">
+                                                    <svg className="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                </button>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>

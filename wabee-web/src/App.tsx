@@ -64,6 +64,9 @@ const CampaignAnalyticsPage = React.lazy(() => import('./pages/wabee/CampaignAna
 const NotificationsPage = React.lazy(() => import('./pages/wabee/NotificationsPage'));
 const AuditLogsPage = React.lazy(() => import('./pages/wabee/AuditLogsPage'));
 const AiIntegrationsPage = React.lazy(() => import('./pages/wabee/AiIntegrationsPage'));
+const AutomationsPage = React.lazy(() => import('./pages/wabee/AutomationsPage'));
+const CrmIntegrationsPage = React.lazy(() => import('./pages/wabee/CrmIntegrationsPage'));
+const AutomationBuilderPage = React.lazy(() => import('./pages/wabee/AutomationBuilderPage'));
 
 // Legal Pages
 const TermsPage = React.lazy(() => import('./pages/legal/TermsPage').then(m => ({ default: m.TermsPage })));
@@ -150,6 +153,9 @@ const App = () => {
                                             <Route path="widgets/builder/:id" element={<ModuleGuard moduleKey="webWidgets"><WebWidgetBuilderPage /></ModuleGuard>} />
                                             <Route path="widgets/builder/new" element={<ModuleGuard moduleKey="webWidgets"><WebWidgetBuilderPage /></ModuleGuard>} />
                                             <Route path="ai-integrations" element={<ModuleGuard moduleKey="integrationsTools"><AiIntegrationsPage /></ModuleGuard>} />
+                                            <Route path="automations" element={<AutomationsPage />} />
+                                            <Route path="automations/:id/builder" element={<AutomationBuilderPage />} />
+                                            <Route path="crm-integrations" element={<CrmIntegrationsPage />} />
                                         </Route>
 
                                         {/* Nuevas rutas de Configuración */}

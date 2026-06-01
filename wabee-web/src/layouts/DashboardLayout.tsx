@@ -30,7 +30,9 @@ import {
     ToggleRight,
     Blocks,
     Mail,
-    UserX
+    UserX,
+    Workflow,
+    Link2
 } from 'lucide-react';
 import { NotificationDropdown } from '../components/wabee/NotificationDropdown';
 import { SuperAdminImpersonationBanner } from '../components/SuperAdminImpersonationBanner';
@@ -124,7 +126,9 @@ export const DashboardLayout = () => {
         { icon: Layers, label: 'Grupos', path: '/dashboard/wabee/groups', roles: ['ADMIN', 'SUPER_ADMIN', 'SUPERVISOR'], module: 'groups' },
         { icon: Layout, label: 'Mis Plantillas', path: '/dashboard/wabee/templates-hub', roles: ['ADMIN', 'SUPER_ADMIN', 'SUPERVISOR'], module: 'templatesHub' },
         { icon: Bot, label: 'Perfiles IA', path: '/dashboard/wabee/ai-profiles', roles: ['ADMIN', 'SUPER_ADMIN'], module: 'aiProfiles' },
+        { icon: Workflow, label: 'Automatizaciones', path: '/dashboard/wabee/automations', roles: ['ADMIN', 'SUPER_ADMIN'], module: null },
         { icon: Code, label: 'Web Widgets', path: '/dashboard/wabee/widgets', roles: ['ADMIN', 'SUPER_ADMIN'], module: 'webWidgets' },
+        { icon: Link2, label: 'Integraciones CRM', path: '/dashboard/wabee/crm-integrations', roles: ['ADMIN', 'SUPER_ADMIN'], module: null },
         { icon: Building2, label: 'Integraciones y Herramientas', path: '/dashboard/wabee/ai-integrations', roles: ['ADMIN', 'SUPER_ADMIN'], module: 'integrationsTools' },
         { icon: Zap, label: 'Canales HC', path: '/dashboard/wabee/channels', roles: ['ADMIN', 'SUPER_ADMIN'], module: 'channels' },
         { icon: Send, label: 'Campaigns', path: '/dashboard/wabee/campaigns', roles: ['ADMIN', 'SUPER_ADMIN', 'SUPERVISOR'], module: 'campaigns' },

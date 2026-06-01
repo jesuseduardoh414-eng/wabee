@@ -6,6 +6,8 @@ import { normalizeExtractedText, makeContentNorm } from './kb/pdf.normalize';
 import { chunkTextSentenceAware } from './kb/chunker';
 import { parseCsvToText } from './parsers/csv.parse';
 import { parseExcelToText } from './parsers/excel.parse';
+import { scrapeUrl } from './kb/url.scraper';
+import { testConnection, listTables, scrapeDbColumns, DbConnectionConfig, ColumnMapping, DbTable } from './kb/db.connector';
 import * as path from 'path';
 
 /* ── Spanish Stopwords for keyword search ── */
@@ -33,8 +35,8 @@ export interface RetrievalResult {
     score: number;
     content: string;
     section?: string | null;
-    fileName: string;
-    fileId: string;
+    sourceName: string;
+    sourceRef: string;
 }
 
 export class KbService {
@@ -201,8 +203,161 @@ export class KbService {
     }
 
     /* ═══════════════════════════════════════════
+     *  URL SOURCE INDEXING
+     * ═══════════════════════════════════════════ */
+
+    /**
+     * Scrapes a URL and indexes its content into the knowledge base.
+     * Creates KbChunks linked to the KbSource (not to a KbFile).
+     */
+    async indexSource(params: {
+        tenantId: string;
+        profileId?: string;
+        sourceId: string;
+        url: string;
+    }) {
+        const { tenantId, profileId, sourceId, url } = params;
+        const t0 = Date.now();
+
+        try {
+            await prisma.kbSource.update({
+                where: { id: sourceId },
+                data: { status: 'PROCESSING' },
+            });
+
+            console.log(`[KbService] SOURCE_INDEX_START sourceId=${sourceId} url=${url}`);
+
+            const { text, title } = await scrapeUrl(url);
+            console.log(`[KbService] SCRAPED title="${title}" chars=${text.length}`);
+
+            const chunks = chunkTextSentenceAware(text, {
+                maxChars: 1200,
+                minChars: 300,
+                overlapSentences: 2,
+            });
+            console.log(`[KbService] CHUNKED count=${chunks.length}`);
+
+            if (chunks.length === 0) {
+                throw new Error('No chunks generated from scraped content');
+            }
+
+            await prisma.kbChunk.deleteMany({ where: { tenantId, sourceId } });
+
+            const chunkData = chunks.map(c => ({
+                tenantId,
+                sourceId,
+                profileId: profileId || null,
+                idx: c.idx,
+                section: c.section || title || null,
+                content: c.content,
+                contentNorm: c.contentNorm,
+                charStart: c.charStart ?? null,
+                charEnd: c.charEnd ?? null,
+            }));
+
+            await prisma.kbChunk.createMany({ data: chunkData as any });
+
+            await prisma.kbSource.update({
+                where: { id: sourceId },
+                data: { status: 'INDEXED', error: null, vectorSyncAt: new Date() },
+            });
+
+            console.log(`[KbService] SOURCE_INDEX_OK sourceId=${sourceId} chunks=${chunks.length} ms=${Date.now() - t0}`);
+
+        } catch (error: any) {
+            console.error(`[KbService] SOURCE_INDEX_ERR sourceId=${sourceId}: ${error.message}`);
+            await prisma.kbSource.update({
+                where: { id: sourceId },
+                data: { status: 'ERROR', error: error.message },
+            });
+        }
+    }
+
+    /* ═══════════════════════════════════════════
+     *  DATABASE SOURCE INDEXING
+     * ═══════════════════════════════════════════ */
+
+    /** Tests connectivity without indexing. Returns table list for column mapping UI. */
+    async testDbSource(config: DbConnectionConfig): Promise<DbTable[]> {
+        await testConnection(config);
+        return listTables(config);
+    }
+
+    /**
+     * Reads mapped columns from an external read-only DB and indexes them as KB chunks.
+     * config.config must contain: { connection: DbConnectionConfig, mappings: ColumnMapping[] }
+     */
+    async indexDbSource(params: {
+        tenantId: string;
+        profileId?: string;
+        sourceId: string;
+        config: DbConnectionConfig;
+        mappings: ColumnMapping[];
+    }) {
+        const { tenantId, profileId, sourceId, config, mappings } = params;
+        const t0 = Date.now();
+
+        try {
+            await prisma.kbSource.update({
+                where: { id: sourceId },
+                data: { status: 'PROCESSING' },
+            });
+
+            console.log(`[KbService] DB_INDEX_START sourceId=${sourceId} tables=${mappings.map(m => m.table).join(',')}`);
+
+            const { text, rowCount, tablesMapped } = await scrapeDbColumns(config, mappings);
+            console.log(`[KbService] DB_SCRAPED rows=${rowCount} chars=${text.length}`);
+
+            if (!text || text.trim().length < 10) {
+                throw new Error('No readable content returned from database columns');
+            }
+
+            const chunks = chunkTextSentenceAware(text, {
+                maxChars: 1200,
+                minChars: 200,
+                overlapSentences: 1,
+            });
+            console.log(`[KbService] CHUNKED count=${chunks.length}`);
+
+            await prisma.kbChunk.deleteMany({ where: { tenantId, sourceId } });
+
+            const chunkData = chunks.map(c => ({
+                tenantId,
+                sourceId,
+                profileId: profileId || null,
+                idx: c.idx,
+                section: tablesMapped[0] || null,
+                content: c.content,
+                contentNorm: c.contentNorm,
+                charStart: c.charStart ?? null,
+                charEnd: c.charEnd ?? null,
+            }));
+
+            await prisma.kbChunk.createMany({ data: chunkData as any });
+
+            await prisma.kbSource.update({
+                where: { id: sourceId },
+                data: {
+                    status: 'INDEXED',
+                    error: null,
+                    vectorSyncAt: new Date(),
+                    config: { ...(await prisma.kbSource.findUnique({ where: { id: sourceId }, select: { config: true } }))?.config as any, tablesMapped },
+                },
+            });
+
+            console.log(`[KbService] DB_INDEX_OK sourceId=${sourceId} chunks=${chunks.length} ms=${Date.now() - t0}`);
+
+        } catch (error: any) {
+            console.error(`[KbService] DB_INDEX_ERR sourceId=${sourceId}: ${error.message}`);
+            await prisma.kbSource.update({
+                where: { id: sourceId },
+                data: { status: 'ERROR', error: error.message },
+            });
+        }
+    }
+
+    /* ═══════════════════════════════════════════
      *  RETRIEVAL (Hybrid: Keyword + Embeddings)
-     *  — NO CHANGES — retrieveTopChunks untouched
      * ═══════════════════════════════════════════ */
 
     async retrieveTopChunks(params: {
@@ -218,7 +373,7 @@ export class KbService {
         console.log(`[KbService] RETRIEVE_START profile=${profileId || 'GLOBAL'} qlen=${query.length}`);
 
         try {
-            // Load chunks with minimal fields
+            // Load chunks — include both file and source relations (either can be null)
             const chunks = await withDbRetry(async () => {
                 return await prisma.kbChunk.findMany({
                     where: {
@@ -228,13 +383,13 @@ export class KbService {
                     select: {
                         id: true,
                         fileId: true,
+                        sourceId: true,
                         content: true,
                         contentNorm: true,
                         section: true,
                         embedding: true,
-                        file: {
-                            select: { filename: true, id: true },
-                        },
+                        file: { select: { filename: true, id: true } },
+                        source: { select: { name: true, id: true } },
                     },
                 });
             }, { label: 'KB_RETRIEVAL' });
@@ -251,7 +406,9 @@ export class KbService {
                 .filter(t => t.length > 2 && !STOPWORDS.has(t));
 
             let method = 'KEYWORD';
-            const scored: (RetrievalResult & { keywordScore: number })[] = chunks.map(chunk => {
+            const scored: (RetrievalResult & { keywordScore: number })[] = chunks
+                .filter(chunk => chunk.file || chunk.source) // skip orphaned chunks
+                .map(chunk => {
                 const cn = chunk.contentNorm || makeContentNorm(chunk.content);
                 let matchCount = 0;
 
@@ -276,19 +433,22 @@ export class KbService {
                 // Floor
                 if (matchCount > 0 && score < 0.1) score = 0.1;
 
+                const sourceName = chunk.file?.filename ?? chunk.source?.name ?? 'Unknown';
+                const sourceRef  = chunk.file?.id ?? chunk.source?.id ?? '';
+
                 return {
                     chunkId: chunk.id,
                     content: chunk.content,
                     section: chunk.section,
                     score,
                     keywordScore: score,
-                    fileName: chunk.file.filename,
-                    fileId: chunk.file.id,
+                    sourceName,
+                    sourceRef,
                 };
             });
 
             // Sort and take top K
-            const results = scored
+            const results: RetrievalResult[] = scored
                 .filter(c => c.score > 0)
                 .sort((a, b) => b.score - a.score)
                 .slice(0, k)

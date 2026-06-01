@@ -1,0 +1,122 @@
+[
+  {
+    "numeroActividad": 1,
+    "titulo": "Generar token de acceso temporal en Meta",
+    "descripcion": "Entrar a la app de Meta en WhatsApp > Configuracion basica > Paso 1 y generar el token de acceso temporal para poder hacer las primeras pruebas de envio y recepcion con la API de WhatsApp.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-01",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 2,
+    "titulo": "Guardar Phone Number ID y WhatsApp Business Account ID",
+    "descripcion": "Copiar y resguardar el Phone Number ID y el WhatsApp Business Account ID que muestra Meta en la configuracion del caso de uso, ya que se necesitan para integrar la API y configurar el backend.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-01",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 3,
+    "titulo": "Probar envio de mensaje con numero de prueba de Meta",
+    "descripcion": "Usar el numero de prueba y el token temporal para enviar un mensaje desde la API de WhatsApp al numero autorizado y validar que la app de Meta quedo funcionando correctamente en modo sandbox.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-01",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 4,
+    "titulo": "Comprar eSIM o numero real para salida a produccion",
+    "descripcion": "Conseguir una eSIM o numero telefonico real que no este vinculado a otra cuenta de WhatsApp Business API para usarlo como numero productivo dentro de Meta.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-01",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 5,
+    "titulo": "Dar de alta el numero real en Meta WhatsApp",
+    "descripcion": "Ir a Paso 2 de configuracion de produccion en Meta, registrar el numero real, completar la verificacion por SMS o llamada y dejarlo enlazado al WhatsApp Business Account correcto.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-01",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 6,
+    "titulo": "Configurar webhook de WhatsApp para recibir mensajes",
+    "descripcion": "Configurar en Meta la URL publica del webhook y el verify token de la aplicacion para que los eventos de mensajes entrantes, estados y cambios del numero lleguen correctamente al backend.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-01",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 7,
+    "titulo": "Suscribir eventos de mensajes en la app de Meta",
+    "descripcion": "Activar y revisar la suscripcion de campos webhooks necesarios, especialmente messages, message_status y otros eventos relevantes para asegurar la recepcion de mensajes y confirmaciones en el sistema.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-01",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 8,
+    "titulo": "Configurar token permanente para produccion",
+    "descripcion": "Generar o gestionar el token de acceso de larga duracion o la estrategia de credenciales productivas requerida por Meta para que la integracion no dependa del token temporal de pruebas.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-01",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 9,
+    "titulo": "Verificar negocio en Meta Business",
+    "descripcion": "Completar el Paso 3 de verificacion del negocio en Meta Business Manager para desbloquear limites mayores, funciones productivas y evitar restricciones al usar la API de WhatsApp en ambiente real.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-02",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 10,
+    "titulo": "Configurar plantillas de mensaje para WhatsApp",
+    "descripcion": "Crear o revisar templates de WhatsApp en Meta para mensajes iniciados por la empresa, enviarlos a aprobacion si hace falta y validar que el negocio tenga plantillas listas para uso productivo.",
+    "estado": "PENDIENTE",
+    "prioridad": "MEDIA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-02",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 11,
+    "titulo": "Hacer prueba end-to-end de recepcion de mensajes",
+    "descripcion": "Enviar un mensaje desde un telefono real al numero configurado en Meta y comprobar que el webhook lo recibe, el backend lo procesa y el CRM registra la conversacion correctamente.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-01",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 12,
+    "titulo": "Documentar credenciales y checklist operativo de WhatsApp API",
+    "descripcion": "Guardar en un lugar seguro el App ID, App Secret, token, Phone Number ID, WABA ID, verify token, URL del webhook y pasos operativos para que el equipo pueda dar soporte a la integracion de Meta.",
+    "estado": "PENDIENTE",
+    "prioridad": "MEDIA",
+    "fechaInicio": "2026-06-01",
+    "venceEn": "2026-06-02",
+    "asignadoEmail": ""
+  }
+]

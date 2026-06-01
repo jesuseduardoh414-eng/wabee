@@ -79,6 +79,17 @@ router.delete('/ai-profiles/:id/kb/files/:fileId', AiProfilesController.deleteKb
 router.get('/ai-profiles/:id/kb/files/:fileId/view', AiProfilesController.viewKbFile);
 router.post('/ai-profiles/:id/kb/files/:fileId/reindex', AiProfilesController.reindexKbFile);
 
+// Knowledge Base — URL Sources
+router.get('/ai-profiles/:id/kb/sources', AiProfilesController.getKbSources);
+router.post('/ai-profiles/:id/kb/sources', AiProfilesController.createKbSource);
+router.delete('/ai-profiles/:id/kb/sources/:sourceId', AiProfilesController.deleteKbSource);
+router.post('/ai-profiles/:id/kb/sources/:sourceId/reindex', AiProfilesController.reindexKbSource);
+
+// Knowledge Base — Database Sources
+router.post('/ai-profiles/:id/kb/db/test', AiProfilesController.testDbConnection);
+router.post('/ai-profiles/:id/kb/db/sources', AiProfilesController.createDbSource);
+router.post('/ai-profiles/:id/kb/db/sources/:sourceId/reindex', AiProfilesController.reindexDbSource);
+
 // Thread AI Controls
 router.post('/ai/webwidgets/:widgetId/threads/:threadId/pause', AiProfilesController.pauseThreadAI);
 router.post('/ai/webwidgets/:widgetId/threads/:threadId/resume', AiProfilesController.resumeThreadAI);

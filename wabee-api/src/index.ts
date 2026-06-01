@@ -30,6 +30,8 @@ import { publicRouter as wabeePublicWidgetRoutes, webWidgetAdminRouter as wabeeA
 import metaOauthRoutes from './modules/oauth/meta/meta.oauth.routes';
 import campaignsRoutes from './modules/wabee/campaigns/campaigns.routes';
 import analyticsRoutes from './modules/wabee/analytics/analytics.routes';
+import { automationsRouter } from './modules/wabee/automations/automations.routes';
+import { integrationsRouter } from './modules/wabee/integrations/integrations.routes';
 import { notificationsRoutes } from './modules/wabee/notifications/notifications.routes';
 import { auditRoutes } from './modules/wabee/audit/audit.routes';
 import realtimeRoutes from './modules/wabee/realtime/realtime.routes';
@@ -205,6 +207,8 @@ app.use('/v1/wabee/web-widgets', authMiddleware, webWidgetPreviewRouter);
 app.use('/v1/wabee/web-widgets', authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, wabeeAdminWidgetRoutes);
 app.use('/v1/wabee/campaigns', authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, campaignsRoutes);
 app.use('/v1/wabee/analytics', authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, analyticsRoutes);
+app.use('/v1/wabee/automations',   authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, automationsRouter);
+app.use('/v1/wabee/integrations', authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, integrationsRouter);
 app.use('/v1/wabee/notifications', authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, notificationsRoutes);
 app.use('/v1/wabee/audit', authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, auditRoutes);
 app.use('/v1/wabee/realtime', realtimeRoutes); // SSE: auth incluido en el router

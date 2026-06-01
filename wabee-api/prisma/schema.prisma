@@ -161,7 +161,8 @@ model WhatsappThread {
   contactId            String?              @map("contact_id") @db.Uuid
   assignedUserId       String?              @map("assigned_user_id") @db.Uuid
   contextState         Json?                @map("context_state")
-  currentFlowVersionId String?              @map("current_flow_version_id")
+  currentFlowVersionId String?              @map("current_flow_version_id") @db.Uuid
+  automationState      Json?                @map("automation_state")
   source               String?
   /// NULL intencionalmente: ThreadStateOrchestrator.openThread() asigna el valor correcto.
   handlingMode         ThreadHandlingMode?  @map("handling_mode")
@@ -176,9 +177,10 @@ model WhatsappThread {
   notes                ThreadNote[]
   messages             WhatsappMessage[]
   whatsappNotes        WhatsappThreadNote[]
-  assignedAiProfile    AiProfile?           @relation("ThreadAssignedAiProfile", fields: [assignedAiProfileId], references: [id])
-  channel              WhatsappChannel      @relation(fields: [channelId], references: [id])
-  contact              Contact?             @relation(fields: [contactId], references: [id])
+  assignedAiProfile    AiProfile?              @relation("ThreadAssignedAiProfile", fields: [assignedAiProfileId], references: [id])
+  channel              WhatsappChannel         @relation(fields: [channelId], references: [id])
+  contact              Contact?                @relation(fields: [contactId], references: [id])
+  currentFlowVersion   AutomationFlowVersion?  @relation(fields: [currentFlowVersionId], references: [id])
 
   @@unique([tenantId, channelId, contactPhone])
   @@index([tenantId])
@@ -442,6 +444,7 @@ model AiProfile {
   updatedAt             DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
   aiProfileTools        AiProfileTool[]
   kbFiles               KbFile[]
+  kbSources             KbSource[]
   whatsappAgentBindings WhatsappAgentBinding[]
   channelsAsDefault     WhatsappChannel[]      @relation("ChannelDefaultAiProfile")
   messagesGenerated     WhatsappMessage[]      @relation("MessageAiProfile")
@@ -474,26 +477,50 @@ model KbFile {
 }
 
 model KbChunk {
-  id          String   @id @default(uuid()) @db.Uuid
-  tenantId    String   @map("organization_id") @db.Uuid
-  fileId      String   @map("file_id") @db.Uuid
-  profileId   String?  @map("profile_id") @db.Uuid
-  idx         Int      @default(0)
-  section     String?  @db.VarChar(120)
+  id          String    @id @default(uuid()) @db.Uuid
+  tenantId    String    @map("organization_id") @db.Uuid
+  fileId      String?   @map("file_id") @db.Uuid
+  sourceId    String?   @map("source_id") @db.Uuid
+  profileId   String?   @map("profile_id") @db.Uuid
+  idx         Int       @default(0)
+  section     String?   @db.VarChar(120)
   content     String
-  contentNorm String   @default("") @map("content_norm")
-  charStart   Int?     @map("char_start")
-  charEnd     Int?     @map("char_end")
+  contentNorm String    @default("") @map("content_norm")
+  charStart   Int?      @map("char_start")
+  charEnd     Int?      @map("char_end")
   embedding   Json?
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  file        KbFile   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  file        KbFile?   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  source      KbSource? @relation(fields: [sourceId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
   @@index([fileId])
+  @@index([sourceId])
   @@index([tenantId, profileId])
   @@index([tenantId, profileId, fileId])
   @@index([tenantId, profileId, idx])
   @@map("kb_chunks")
+  @@schema("wabee")
+}
+
+model KbSource {
+  id           String          @id @default(uuid()) @db.Uuid
+  tenantId     String          @map("organization_id") @db.Uuid
+  profileId    String?         @map("profile_id") @db.Uuid
+  name         String
+  sourceType   KbSourceType    @map("source_type")
+  status       KbSourceStatus  @default(PENDING) @map("status")
+  config       Json?
+  error        String?
+  vectorSyncAt DateTime?       @map("vector_sync_at") @db.Timestamptz(6)
+  createdAt    DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+  chunks       KbChunk[]
+  profile      AiProfile?      @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([tenantId, profileId])
+  @@map("kb_sources")
   @@schema("wabee")
 }
 
@@ -848,6 +875,120 @@ model ConversationState {
 
   @@index([tenantId, threadId])
   @@map("conversation_states")
+  @@schema("wabee")
+}
+
+model AutomationFlow {
+  id          String               @id @default(uuid()) @db.Uuid
+  tenantId    String               @map("organization_id") @db.Uuid
+  name        String
+  description String?
+  trigger     AutomationTrigger
+  status      AutomationFlowStatus @default(DRAFT)
+  createdAt   DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
+  versions    AutomationFlowVersion[]
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@map("automation_flows")
+  @@schema("wabee")
+}
+
+model AutomationFlowVersion {
+  id          String         @id @default(uuid()) @db.Uuid
+  flowId      String         @map("flow_id") @db.Uuid
+  tenantId    String         @map("organization_id") @db.Uuid
+  version     Int            @default(1)
+  stepsJson   Json           @map("steps_json")
+  isActive    Boolean        @default(false) @map("is_active")
+  publishedAt DateTime?      @map("published_at") @db.Timestamptz(6)
+  createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  flow        AutomationFlow @relation(fields: [flowId], references: [id], onDelete: Cascade)
+  threads     WhatsappThread[]
+
+  @@unique([flowId, version])
+  @@index([tenantId])
+  @@index([flowId])
+  @@map("automation_flow_versions")
+  @@schema("wabee")
+}
+
+// ── CRM Integration Layer ─────────────────────────────────────────────────────
+
+model ExternalIntegration {
+  id        String              @id @default(uuid()) @db.Uuid
+  tenantId  String              @map("organization_id") @db.Uuid
+  provider  CrmProvider
+  name      String
+  status    CrmIntegrationStatus @default(DISCONNECTED)
+  createdAt DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
+  accounts  IntegrationAccount[]
+  fieldMappings FieldMapping[]
+  syncLogs  CrmSyncLog[]
+
+  @@unique([tenantId, provider])
+  @@index([tenantId])
+  @@map("external_integrations")
+  @@schema("wabee")
+}
+
+model IntegrationAccount {
+  id             String              @id @default(uuid()) @db.Uuid
+  integrationId  String              @map("integration_id") @db.Uuid
+  tenantId       String              @map("organization_id") @db.Uuid
+  accessToken    String              @map("access_token")
+  refreshToken   String?             @map("refresh_token")
+  tokenExpiresAt DateTime?           @map("token_expires_at") @db.Timestamptz(6)
+  scopes         String[]
+  meta           Json?
+  createdAt      DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
+  integration    ExternalIntegration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([integrationId])
+  @@map("integration_accounts")
+  @@schema("wabee")
+}
+
+model FieldMapping {
+  id            String              @id @default(uuid()) @db.Uuid
+  integrationId String              @map("integration_id") @db.Uuid
+  tenantId      String              @map("organization_id") @db.Uuid
+  entityType    String              @map("entity_type")
+  wabeeField    String              @map("wabee_field")
+  externalField String              @map("external_field")
+  direction     SyncDirection
+  createdAt     DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  integration   ExternalIntegration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+
+  @@unique([integrationId, entityType, wabeeField])
+  @@index([tenantId])
+  @@index([integrationId])
+  @@map("field_mappings")
+  @@schema("wabee")
+}
+
+model CrmSyncLog {
+  id            String              @id @default(uuid()) @db.Uuid
+  integrationId String              @map("integration_id") @db.Uuid
+  tenantId      String              @map("organization_id") @db.Uuid
+  entityType    String              @map("entity_type")
+  entityId      String?             @map("entity_id")
+  operation     String
+  direction     SyncDirection
+  status        CrmSyncStatus
+  errorMessage  String?             @map("error_message")
+  meta          Json?
+  createdAt     DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  integration   ExternalIntegration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([integrationId, createdAt])
+  @@index([tenantId, status])
+  @@map("crm_sync_logs")
   @@schema("wabee")
 }
 
@@ -1400,6 +1541,80 @@ enum UiAssignmentTargetType {
 enum UiThemeStatus {
   DRAFT
   ACTIVE
+  ARCHIVED
+
+  @@schema("wabee")
+}
+
+enum KbSourceType {
+  FILE
+  URL
+  DATABASE
+  INTEGRATION
+
+  @@schema("wabee")
+}
+
+enum KbSourceStatus {
+  PENDING
+  PROCESSING
+  INDEXED
+  ERROR
+
+  @@schema("wabee")
+}
+
+enum CrmProvider {
+  HUBSPOT
+  SALESFORCE
+  PIPEDRIVE
+  ZOHO
+  DYNAMICS365
+
+  @@schema("wabee")
+}
+
+enum CrmIntegrationStatus {
+  DISCONNECTED
+  CONNECTED
+  ERROR
+  EXPIRED
+
+  @@schema("wabee")
+}
+
+enum SyncDirection {
+  PUSH
+  PULL
+  BIDIRECTIONAL
+
+  @@schema("wabee")
+}
+
+enum CrmSyncStatus {
+  SUCCESS
+  FAILED
+  PENDING
+  SKIPPED
+
+  @@schema("wabee")
+}
+
+enum AutomationTrigger {
+  CONVERSATION_STARTED
+  KEYWORD_MATCH
+  CONTACT_CREATED
+  CONTACT_LIFECYCLE_CHANGED
+  CAMPAIGN_REPLY
+  INBOUND_MESSAGE
+
+  @@schema("wabee")
+}
+
+enum AutomationFlowStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
   ARCHIVED
 
   @@schema("wabee")

@@ -93,6 +93,9 @@ export const env = {
     SMTP_PASS: process.env.SMTP_PASS || '',
     SMTP_FROM: process.env.SMTP_FROM || '',
 
+    // ─── CRM AI Tools (internal key for crm-tools endpoints) ─────────────────────
+    CRM_TOOLS_INTERNAL_KEY: process.env.CRM_TOOLS_INTERNAL_KEY || '',
+
     // ─── HubSpot CRM ─────────────────────────────────────────────────────────────
     HUBSPOT_CLIENT_ID:     process.env.HUBSPOT_CLIENT_ID     || '',
     HUBSPOT_CLIENT_SECRET: process.env.HUBSPOT_CLIENT_SECRET || '',

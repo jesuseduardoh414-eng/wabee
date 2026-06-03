@@ -44,6 +44,7 @@ export default function CrmIntegrationsPage() {
     const [activeTab, setActiveTab]       = useState<'mappings' | 'logs'>('logs');
     const [tokenInput, setTokenInput]     = useState('');
     const [savingToken, setSavingToken]   = useState(false);
+    const [seedingTools, setSeedingTools] = useState(false);
 
     const { success: ok, error: err } = useToast();
     const { confirm } = useDialog();
@@ -95,6 +96,22 @@ export default function CrmIntegrationsPage() {
             await load();
             ok('Integración creada');
         } catch (e: any) { err(e.message); }
+    };
+
+    const seedAiTools = async () => {
+        setSeedingTools(true);
+        try {
+            const result = await integrationsApi.seedCrmAiTools();
+            if (result.creadas.length > 0) {
+                ok(`${result.creadas.length} AI Tools creadas: ${result.creadas.join(', ')}. Asígnalas a tu perfil de IA.`);
+            } else {
+                ok('Las AI Tools de CRM ya estaban creadas en tu biblioteca.');
+            }
+        } catch (e: any) {
+            err(e.message || 'Error al crear AI Tools');
+        } finally {
+            setSeedingTools(false);
+        }
     };
 
     const saveToken = async (integration: ExternalIntegration) => {
@@ -150,12 +167,24 @@ export default function CrmIntegrationsPage() {
                         <h1 className={`${T.pageTitle} text-2xl`}>Integraciones CRM</h1>
                         <p className={`${T.cardSubtitle} text-xs mt-1`}>Conecta WABEE con tu CRM para sincronizar contactos, leads y deals automáticamente.</p>
                     </div>
-                    <button
-                        onClick={() => setShowCreate(true)}
-                        className="px-4 py-2 rounded-xl bg-[var(--brand-primary)] text-white text-xs font-bold uppercase tracking-widest hover:opacity-90 transition"
-                    >
-                        + Conectar CRM
-                    </button>
+                    <div className="flex items-center gap-2">
+                        {integrations.some(i => i.status === 'CONNECTED') && (
+                            <button
+                                onClick={seedAiTools}
+                                disabled={seedingTools}
+                                title="Crea las 3 AI Tools de CRM en tu biblioteca para que la IA pueda buscar contactos y crear leads automáticamente"
+                                className="px-3 py-2 rounded-xl border border-[var(--border-default)] text-xs font-bold uppercase tracking-widest hover:bg-[var(--bg-card)] transition disabled:opacity-40"
+                            >
+                                {seedingTools ? 'Creando...' : '⚡ Activar AI Tools CRM'}
+                            </button>
+                        )}
+                        <button
+                            onClick={() => setShowCreate(true)}
+                            className="px-4 py-2 rounded-xl bg-[var(--brand-primary)] text-white text-xs font-bold uppercase tracking-widest hover:opacity-90 transition"
+                        >
+                            + Conectar CRM
+                        </button>
+                    </div>
                 </div>
             </div>
 

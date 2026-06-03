@@ -68,4 +68,10 @@ export const integrationsApi = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token }),
         }),
+
+    seedCrmAiTools: () =>
+        apiClient<{ ok: boolean; creadas: string[]; yaExistian: string[]; mensaje: string }>(
+            `${BASE}/seed-crm-ai-tools`,
+            { method: 'POST' }
+        ),
 };

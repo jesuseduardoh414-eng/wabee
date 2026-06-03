@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { integrationsService } from './integrations.service';
 import { CrmProvider } from '@prisma/client';
 import { encrypt } from '../channels/whatsapp/token.crypto';
+import { prisma } from '@/lib/prisma';
+import { env } from '@/config/env';
 
 const VALID_PROVIDERS = new Set<string>(Object.values(CrmProvider));
 
@@ -55,6 +57,131 @@ export class IntegrationsController {
             const result = await integrationsService.upsertFieldMappings(tenantId, req.params.id, mappings);
             res.json(result);
         } catch (e: any) { res.status(e.status || 500).json({ error: e.message }); }
+    }
+
+    static async seedCrmAiTools(req: Request, res: Response) {
+        try {
+            const tenantId  = (req as any).tenantId as string;
+            const base      = env.APP_BASE_URL;
+            const internalKey = env.CRM_TOOLS_INTERNAL_KEY;
+
+            if (!internalKey) {
+                return res.status(503).json({ error: 'CRM_TOOLS_INTERNAL_KEY no configurado en el servidor' });
+            }
+
+            // 1. Create or reuse IntegrationCredential for internal key
+            const credName = 'wabee-crm-tools-internal';
+            let credential = await prisma.integrationCredential.findFirst({
+                where: { tenantId, name: credName },
+            });
+            if (!credential) {
+                const encConfig = JSON.stringify(encrypt(internalKey));
+                credential = await prisma.integrationCredential.create({
+                    data: {
+                        tenantId,
+                        name:            credName,
+                        authType:        'BEARER_TOKEN',
+                        encryptedConfig: { token: encConfig },
+                    },
+                });
+            }
+
+            // 2. Upsert the 3 AI tools
+            const toolDefs = [
+                {
+                    name:            'buscar_contacto',
+                    displayName:     'Buscar Contacto en CRM',
+                    description:     'Busca un contacto por teléfono, nombre o email en Wabee y el CRM conectado.',
+                    capability:      'customer_lookup' as const,
+                    semanticDescription: 'Usa esta herramienta cuando el usuario o la IA necesiten encontrar información de un contacto existente: historial, estado de lead, email, etc.',
+                    endpointUrl:     `${base}/v1/wabee/crm-tools/${tenantId}/buscar-contacto`,
+                    parametersSchema: {
+                        type: 'object',
+                        properties: { query: { type: 'string', description: 'Teléfono, nombre o email del contacto' } },
+                        required: ['query'],
+                    },
+                    exampleUtterances: ['busca al contacto', 'quién es', 'información del cliente', 'tiene cuenta'],
+                },
+                {
+                    name:            'crear_lead',
+                    displayName:     'Crear Lead en CRM',
+                    description:     'Crea o actualiza un contacto como LEAD en Wabee y lo sincroniza automáticamente con el CRM.',
+                    capability:      'lead_create' as const,
+                    semanticDescription: 'Usa esta herramienta cuando el usuario muestre intención de compra o solicite información y deba registrarse como lead en el CRM.',
+                    endpointUrl:     `${base}/v1/wabee/crm-tools/${tenantId}/crear-lead`,
+                    parametersSchema: {
+                        type: 'object',
+                        properties: {
+                            telefono: { type: 'string', description: 'Número de teléfono del lead' },
+                            nombre:   { type: 'string', description: 'Nombre del lead (opcional)' },
+                            email:    { type: 'string', description: 'Email del lead (opcional)' },
+                        },
+                        required: ['telefono'],
+                    },
+                    exampleUtterances: ['registrar lead', 'crear contacto', 'agregar al CRM', 'guardar como prospecto'],
+                },
+                {
+                    name:            'actualizar_oportunidad',
+                    displayName:     'Actualizar Oportunidad en CRM',
+                    description:     'Crea o actualiza un deal/oportunidad en el CRM conectado (HubSpot, Salesforce, etc.).',
+                    capability:      'general_api_fetch' as const,
+                    semanticDescription: 'Usa esta herramienta para registrar una oportunidad de venta en el CRM: nombre del deal, etapa y monto estimado.',
+                    endpointUrl:     `${base}/v1/wabee/crm-tools/${tenantId}/actualizar-oportunidad`,
+                    parametersSchema: {
+                        type: 'object',
+                        properties: {
+                            nombre: { type: 'string', description: 'Nombre de la oportunidad' },
+                            etapa:  { type: 'string', description: 'Etapa del deal (ej: Prospecting, Negotiation)' },
+                            monto:  { type: 'number', description: 'Monto estimado en USD' },
+                            telefonoContacto: { type: 'string', description: 'Teléfono del contacto relacionado' },
+                        },
+                        required: ['nombre'],
+                    },
+                    exampleUtterances: ['crear oportunidad', 'registrar venta', 'actualizar deal', 'nueva cotización'],
+                },
+            ];
+
+            const created: string[] = [];
+            const existing: string[] = [];
+
+            for (const def of toolDefs) {
+                const current = await prisma.aiTool.findFirst({ where: { tenantId, name: def.name } });
+                if (current) { existing.push(def.name); continue; }
+
+                await prisma.aiTool.create({
+                    data: {
+                        tenantId,
+                        credentialId:      credential.id,
+                        name:              def.name,
+                        displayName:       def.displayName,
+                        description:       def.description,
+                        capability:        def.capability,
+                        semanticDescription: def.semanticDescription,
+                        method:            'POST',
+                        endpointUrl:       def.endpointUrl,
+                        parametersSchema:  def.parametersSchema,
+                        exampleUtterances: def.exampleUtterances,
+                        safetyFlags:       { canMutateData: true, requiresConfirmation: false, safeToAutoRun: true, idempotent: false, sensitiveOperation: false },
+                        confirmationPolicy: 'AUTO',
+                        isActive:          true,
+                        retries:           1,
+                        timeoutMs:         8000,
+                    },
+                });
+                created.push(def.name);
+            }
+
+            res.json({
+                ok:       true,
+                creadas:  created,
+                yaExistian: existing,
+                mensaje:  created.length > 0
+                    ? `${created.length} AI Tools CRM creadas. Ahora asígnalas a tu perfil de IA.`
+                    : 'Las AI Tools ya existían.',
+            });
+        } catch (e: any) {
+            res.status(e.status || 500).json({ error: e.message });
+        }
     }
 
     static async connectToken(req: Request, res: Response) {

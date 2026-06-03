@@ -31,6 +31,7 @@ import metaOauthRoutes from './modules/oauth/meta/meta.oauth.routes';
 import hubspotOauthRoutes from './modules/oauth/hubspot/hubspot.oauth.routes';
 import { handleHubSpotWebhook } from './modules/wabee/integrations/hubspot/hubspot.webhook.controller';
 import crmOauthRoutes from './modules/oauth/crm/crm.oauth.routes';
+import crmToolsRoutes from './modules/wabee/crm-tools/crm-tools.routes';
 import campaignsRoutes from './modules/wabee/campaigns/campaigns.routes';
 import analyticsRoutes from './modules/wabee/analytics/analytics.routes';
 import { automationsRouter } from './modules/wabee/automations/automations.routes';
@@ -185,6 +186,7 @@ app.use('/v1/core/media', mediaRoutes);
 app.use('/oauth', metaOauthRoutes);
 app.use('/oauth', hubspotOauthRoutes);
 app.use('/oauth/crm', crmOauthRoutes);
+app.use('/v1/wabee/crm-tools', crmToolsRoutes);
 
 // Public routes (Widget) - Movidas arriba del CORS estricto
 

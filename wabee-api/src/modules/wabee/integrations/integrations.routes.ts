@@ -11,6 +11,7 @@ router.get('/:id',                       adminOnly, IntegrationsController.get);
 router.delete('/:id',                    adminOnly, IntegrationsController.remove);
 router.put('/:id/field-mappings',        adminOnly, IntegrationsController.upsertMappings);
 router.post('/:id/connect-token',        adminOnly, IntegrationsController.connectToken);
+router.post('/seed-crm-ai-tools',        adminOnly, IntegrationsController.seedCrmAiTools);
 router.get('/:id/sync-logs',             adminOnly, IntegrationsController.getSyncLogs);
 
 export { router as integrationsRouter };

@@ -6,6 +6,41 @@ const HUBSPOT_TOKEN_URL = 'https://api.hubapi.com/oauth/v1/token';
 const API = 'https://api.hubapi.com';
 const SCOPES = 'crm.objects.contacts.read crm.objects.contacts.write crm.objects.deals.read crm.objects.deals.write';
 
+interface HubSpotTokenResponse {
+    access_token: string;
+    refresh_token?: string;
+    expires_in: number;
+    scope?: string;
+}
+
+interface HubSpotAccessTokenInfoResponse {
+    hub_id?: number | string;
+}
+
+interface HubSpotObjectListResponse<T> {
+    results?: T[];
+}
+
+interface HubSpotContactResponse {
+    id: string;
+    properties: {
+        firstname?: string;
+        lastname?: string;
+        email?: string;
+        phone?: string;
+        lifecyclestage?: string;
+    };
+}
+
+interface HubSpotDealResponse {
+    id: string;
+    properties: {
+        dealname?: string;
+        dealstage?: string;
+        amount?: string;
+    };
+}
+
 // Wabee lifecycle → HubSpot lifecyclestage
 const LIFECYCLE_TO_HS: Record<string, string> = {
     NEW:      'subscriber',
@@ -54,7 +89,7 @@ export class HubSpotProvider implements ICrmProvider {
             }),
         });
         if (!res.ok) throw new Error(`HubSpot token exchange failed: ${await res.text()}`);
-        const data = await res.json();
+        const data = await res.json() as HubSpotTokenResponse;
         return {
             accessToken:  data.access_token as string,
             refreshToken: data.refresh_token as string | undefined,
@@ -75,7 +110,7 @@ export class HubSpotProvider implements ICrmProvider {
             }),
         });
         if (!res.ok) throw new Error(`HubSpot token refresh failed: ${await res.text()}`);
-        const data = await res.json();
+        const data = await res.json() as HubSpotTokenResponse;
         return {
             accessToken: data.access_token as string,
             expiresAt:   new Date(Date.now() + (data.expires_in as number) * 1000),
@@ -86,7 +121,7 @@ export class HubSpotProvider implements ICrmProvider {
     async getPortalId(accessToken: string): Promise<string | null> {
         const res = await fetch(`${API}/oauth/v1/access-tokens/${accessToken}`);
         if (!res.ok) return null;
-        const data = await res.json();
+        const data = await res.json() as HubSpotAccessTokenInfoResponse;
         return data.hub_id ? String(data.hub_id) : null;
     }
 
@@ -129,7 +164,7 @@ export class HubSpotProvider implements ICrmProvider {
                 errorMessage: await res.text(),
             };
         }
-        const data = await res.json();
+        const data = await res.json() as { id: string };
         return { entityType: 'CONTACT', entityId: data.id, operation, direction: 'PUSH', status: 'SUCCESS' };
     }
 
@@ -147,13 +182,13 @@ export class HubSpotProvider implements ICrmProvider {
                 }),
             });
             if (!searchRes.ok) return [];
-            const data = await searchRes.json();
+            const data = await searchRes.json() as HubSpotObjectListResponse<HubSpotContactResponse>;
             return this._mapContacts(data.results ?? []);
         }
 
         const res = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
         if (!res.ok) return [];
-        const data = await res.json();
+        const data = await res.json() as HubSpotObjectListResponse<HubSpotContactResponse>;
         return this._mapContacts(data.results ?? []);
     }
 
@@ -188,7 +223,7 @@ export class HubSpotProvider implements ICrmProvider {
                 errorMessage: await res.text(),
             };
         }
-        const data = await res.json();
+        const data = await res.json() as { id: string };
         return { entityType: 'DEAL', entityId: data.id, operation, direction: 'PUSH', status: 'SUCCESS' };
     }
 
@@ -197,8 +232,8 @@ export class HubSpotProvider implements ICrmProvider {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
         if (!res.ok) return [];
-        const data = await res.json();
-        return (data.results ?? []).map((d: any) => ({
+        const data = await res.json() as HubSpotObjectListResponse<HubSpotDealResponse>;
+        return (data.results ?? []).map((d) => ({
             externalId: d.id as string,
             name:       (d.properties.dealname as string) ?? '',
             stage:      d.properties.dealstage as string | undefined,
@@ -217,18 +252,20 @@ export class HubSpotProvider implements ICrmProvider {
             }),
         });
         if (!res.ok) return null;
-        const data = await res.json();
+        const data = await res.json() as HubSpotObjectListResponse<{ id: string }>;
         return (data.results?.[0]?.id as string) ?? null;
     }
 
-    private _mapContacts(results: any[]): CrmContact[] {
+    private _mapContacts(results: HubSpotContactResponse[]): CrmContact[] {
         return results.map(c => ({
             externalId:     c.id as string,
             firstName:      c.properties.firstname as string | undefined,
             lastName:       c.properties.lastname  as string | undefined,
             email:          c.properties.email     as string | undefined,
             phone:          c.properties.phone     as string | undefined,
-            lifecycleStage: HS_TO_LIFECYCLE[c.properties.lifecyclestage] ?? 'NEW',
+            lifecycleStage: c.properties.lifecyclestage
+                ? (HS_TO_LIFECYCLE[c.properties.lifecyclestage] ?? 'NEW')
+                : 'NEW',
         }));
     }
 }

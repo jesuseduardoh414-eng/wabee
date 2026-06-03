@@ -93,6 +93,10 @@ export const env = {
     SMTP_PASS: process.env.SMTP_PASS || '',
     SMTP_FROM: process.env.SMTP_FROM || '',
 
+    // ─── HubSpot CRM ─────────────────────────────────────────────────────────────
+    HUBSPOT_CLIENT_ID:     process.env.HUBSPOT_CLIENT_ID     || '',
+    HUBSPOT_CLIENT_SECRET: process.env.HUBSPOT_CLIENT_SECRET || '',
+
     // ─── AI ──────────────────────────────────────────────────────────────────────
     GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
     GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-1.5-flash',

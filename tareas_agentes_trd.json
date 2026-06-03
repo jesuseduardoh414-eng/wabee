@@ -159,7 +159,7 @@ _ h
     "numeroActividad": 14,
     "titulo": "Feat: Conector HubSpot — OAuth + sync bidireccional de contactos y deals",
     "descripcion": "Primer conector CRM concreto sobre la Integration Layer (tarea 13). HubSpot es el más común entre PYMEs latinoamericanas. Implementar: (1) OAuth 2.0 flow — redirect a HubSpot, callback, guardar access_token + refresh_token encriptados en IntegrationAccount. (2) Sync contactos Wabee → HubSpot: cuando un contact pasa a LEAD o CUSTOMER, crear/actualizar en HubSpot. (3) Sync deals HubSpot → Wabee: webhooks de HubSpot notifican cambios de deal stage, actualizar AnalyticsCrmEvent. (4) Mapeo de campos configurables por el usuario (UI de field mapping). (5) Retry queue con Redis para fallos transitorios. (6) SyncLog por cada operación. Prerequisito: Integration Layer (tarea 13) y Redis configurado (tarea 21 de tareas_wabee.json).",
-    "estado": "PENDIENTE",
+    "estado": "COMPLETADO",
     "prioridad": "BAJA",
     "esfuerzoEstimado": "1-2 semanas",
     "categoria": "Agente 5 — Sincronización CRM",

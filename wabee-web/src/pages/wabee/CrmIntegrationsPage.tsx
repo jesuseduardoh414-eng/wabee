@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { integrationsApi, ExternalIntegration, CrmProvider, CrmSyncLog, FieldMapping } from '@/api/wabee/integrations.api';
 import { useToast } from '@/context/ToastContext';
 import { useDialog } from '@/context/DialogContext';
@@ -42,9 +42,30 @@ export default function CrmIntegrationsPage() {
     const [showCreate, setShowCreate]     = useState(false);
     const [form, setForm]                 = useState<{ provider: CrmProvider; name: string }>({ provider: 'HUBSPOT', name: '' });
     const [activeTab, setActiveTab]       = useState<'mappings' | 'logs'>('logs');
+    const [tokenInput, setTokenInput]     = useState('');
+    const [savingToken, setSavingToken]   = useState(false);
 
     const { success: ok, error: err } = useToast();
     const { confirm } = useDialog();
+    const oauthHandled = useRef(false);
+
+    // Handle OAuth redirect feedback (?oauth=ok&provider=hubspot)
+    useEffect(() => {
+        if (oauthHandled.current) return;
+        const params = new URLSearchParams(window.location.search);
+        const oauthResult = params.get('oauth');
+        const provider    = params.get('provider');
+        if (oauthResult) {
+            oauthHandled.current = true;
+            // Clean query params without reloading
+            window.history.replaceState({}, '', window.location.pathname);
+            if (oauthResult === 'ok') {
+                ok(`${provider ? PROVIDER_LABELS[provider.toUpperCase() as CrmProvider] ?? provider : 'CRM'} conectado correctamente`);
+            } else {
+                err('La autenticación OAuth falló. Intenta de nuevo.');
+            }
+        }
+    }, []);
 
     useEffect(() => { load(); }, []);
 
@@ -74,6 +95,30 @@ export default function CrmIntegrationsPage() {
             await load();
             ok('Integración creada');
         } catch (e: any) { err(e.message); }
+    };
+
+    const saveToken = async (integration: ExternalIntegration) => {
+        if (!tokenInput.trim()) return;
+        setSavingToken(true);
+        try {
+            await integrationsApi.connectToken(integration.id, tokenInput.trim());
+            setTokenInput('');
+            ok(`${PROVIDER_LABELS[integration.provider]} conectado correctamente`);
+            await loadDetail(integration.id);
+            await load();
+        } catch (e: any) {
+            err(e.message || 'Error al guardar el token');
+        } finally {
+            setSavingToken(false);
+        }
+    };
+
+    const startOAuth = (integration: ExternalIntegration) => {
+        const tenantId = localStorage.getItem('wabee_orgId') || '';
+        // OAuth routes live at the API root, not under /v1
+        const apiRoot = (import.meta.env.VITE_API_URL as string || 'http://localhost:4000/v1').replace(/\/v1\/?$/, '');
+        const url = `${apiRoot}/oauth/hubspot/start?integration_id=${integration.id}&tenant_id=${tenantId}`;
+        window.location.href = url;
     };
 
     const handleDelete = async (integration: ExternalIntegration) => {
@@ -174,12 +219,34 @@ export default function CrmIntegrationsPage() {
                             </button>
                         </div>
 
-                        {/* OAuth notice */}
-                        {selected.status === 'DISCONNECTED' && (
-                            <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
+                        {/* Token connect */}
+                        {(selected.status === 'DISCONNECTED' || selected.status === 'EXPIRED') && (
+                            <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl space-y-3">
                                 <p className={`${T.cardSubtitle} text-xs`}>
-                                    Esta integración aún no está autenticada. El flujo OAuth estará disponible cuando se implemente el conector de {PROVIDER_LABELS[selected.provider]}.
+                                    {selected.status === 'EXPIRED'
+                                        ? 'El token expiró. Ingresa un nuevo token de servicio para restablecer la conexión.'
+                                        : `Pega el token de servicio (pat-...) de tu cuenta ${PROVIDER_LABELS[selected.provider]}.`}
                                 </p>
+                                {selected.provider === 'HUBSPOT' ? (
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="password"
+                                            value={tokenInput}
+                                            onChange={e => setTokenInput(e.target.value)}
+                                            placeholder="pat-na1-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                            className={`flex-1 px-3 py-2 rounded-lg bg-[var(--bg-input)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`}
+                                        />
+                                        <button
+                                            onClick={() => saveToken(selected)}
+                                            disabled={!tokenInput.trim() || savingToken}
+                                            className="shrink-0 px-4 py-2 rounded-xl bg-orange-500 text-white text-xs font-bold uppercase tracking-widest disabled:opacity-40 hover:opacity-90 transition"
+                                        >
+                                            {savingToken ? 'Guardando...' : 'Conectar'}
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <p className={`${T.helperText} text-[10px]`}>Conector en desarrollo — próximamente.</p>
+                                )}
                             </div>
                         )}
 

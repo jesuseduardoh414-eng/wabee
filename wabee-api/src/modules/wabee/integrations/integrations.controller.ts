@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { integrationsService } from './integrations.service';
 import { CrmProvider } from '@prisma/client';
+import { encrypt } from '../channels/whatsapp/token.crypto';
 
 const VALID_PROVIDERS = new Set<string>(Object.values(CrmProvider));
 
@@ -53,6 +54,29 @@ export class IntegrationsController {
 
             const result = await integrationsService.upsertFieldMappings(tenantId, req.params.id, mappings);
             res.json(result);
+        } catch (e: any) { res.status(e.status || 500).json({ error: e.message }); }
+    }
+
+    static async connectToken(req: Request, res: Response) {
+        try {
+            const tenantId = (req as any).tenantId;
+            const { token } = req.body;
+
+            if (!token?.trim()) return res.status(400).json({ error: 'token is required' });
+
+            const integration = await integrationsService.getIntegration(tenantId, req.params.id);
+
+            const encryptedToken = JSON.stringify(encrypt(token.trim()));
+            await integrationsService.saveAccount({
+                integrationId: integration.id,
+                tenantId,
+                accessToken: encryptedToken,
+                scopes: ['crm.objects.contacts.read', 'crm.objects.contacts.write', 'crm.objects.deals.read', 'crm.objects.deals.write'],
+                meta: { authMethod: 'service_key' },
+            });
+            await integrationsService.markConnected(integration.id, 'CONNECTED');
+
+            res.json({ ok: true });
         } catch (e: any) { res.status(e.status || 500).json({ error: e.message }); }
     }
 

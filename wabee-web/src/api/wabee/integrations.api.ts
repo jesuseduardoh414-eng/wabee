@@ -60,4 +60,11 @@ export const integrationsApi = {
 
     getSyncLogs: (id: string, limit = 50) =>
         apiClient<CrmSyncLog[]>(`${BASE}/${id}/sync-logs?limit=${limit}`),
+
+    connectToken: (id: string, token: string) =>
+        apiClient<{ ok: boolean }>(`${BASE}/${id}/connect-token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token }),
+        }),
 };

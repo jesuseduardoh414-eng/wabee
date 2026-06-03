@@ -240,6 +240,15 @@ export class ContactsService {
             })
         ]);
 
+        // Trigger CRM sync (fire-and-forget, non-blocking)
+        if (toStatus === 'LEAD' || toStatus === 'CUSTOMER') {
+            import('../integrations/hubspot/hubspot.sync.service').then(({ hubSpotSyncService }) => {
+                hubSpotSyncService.onContactLifecycleChange(contact.id, tenantId, toStatus).catch(
+                    (e: Error) => console.error('[HubSpot] onContactLifecycleChange error:', e.message)
+                );
+            }).catch(() => {/* module not available */});
+        }
+
         return updatedContact;
     }
 

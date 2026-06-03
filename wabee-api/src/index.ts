@@ -28,6 +28,8 @@ import wabeeWhatsappOutboundRoutes from './modules/wabee/whatsapp/outbound/whats
 import wabeeAiRoutes from './modules/wabee/ai/ai.routes';
 import { publicRouter as wabeePublicWidgetRoutes, webWidgetAdminRouter as wabeeAdminWidgetRoutes, webWidgetPreviewRouter } from './modules/wabee/webwidget/webwidget.routes';
 import metaOauthRoutes from './modules/oauth/meta/meta.oauth.routes';
+import hubspotOauthRoutes from './modules/oauth/hubspot/hubspot.oauth.routes';
+import { handleHubSpotWebhook } from './modules/wabee/integrations/hubspot/hubspot.webhook.controller';
 import campaignsRoutes from './modules/wabee/campaigns/campaigns.routes';
 import analyticsRoutes from './modules/wabee/analytics/analytics.routes';
 import { automationsRouter } from './modules/wabee/automations/automations.routes';
@@ -100,6 +102,9 @@ const captureRawBody = (req: Request, res: Response, next: NextFunction) => {
         next();
     });
 };
+
+// ─── HubSpot Webhook (raw body para validar HMAC) ─────────────────────────────
+app.post('/webhooks/hubspot', captureRawBody, handleHubSpotWebhook);
 
 // ─── Ruta canónica del webhook de Meta (URL que debes pegar en Developer Console)
 // Usar: https://<RENDER_EXTERNAL_HOSTNAME>/webhooks/meta/whatsapp
@@ -177,6 +182,7 @@ app.use('/v1/orgs', (req: any, _res: any, next: any) => {
 import { mediaRoutes } from './modules/core/media/media.routes';
 app.use('/v1/core/media', mediaRoutes);
 app.use('/oauth', metaOauthRoutes);
+app.use('/oauth', hubspotOauthRoutes);
 
 // Public routes (Widget) - Movidas arriba del CORS estricto
 

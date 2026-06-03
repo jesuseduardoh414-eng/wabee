@@ -33,6 +33,7 @@ export interface CrmSyncLog {
     status: CrmSyncStatus;
     errorMessage: string | null;
     createdAt: string;
+    meta: Record<string, any> | null;
 }
 
 const BASE = '/integrations';

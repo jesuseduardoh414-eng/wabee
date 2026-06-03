@@ -271,18 +271,66 @@ export default function CrmIntegrationsPage() {
                         {activeTab === 'logs' && (
                             <div className="space-y-2">
                                 {logs.length === 0 && (
-                                    <p className={`${T.cardSubtitle} text-xs text-center py-6`}>Sin eventos de sincronización aún.</p>
-                                )}
-                                {logs.map(log => (
-                                    <div key={log.id} className="flex items-center gap-3 p-3 bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl text-xs">
-                                        <span className={`font-bold shrink-0 ${SYNC_STATUS_STYLE[log.status]}`}>{log.status}</span>
-                                        <span className={`${T.tableCell} shrink-0`}>{log.entityType}</span>
-                                        <span className={`${T.helperText} shrink-0`}>{log.operation}</span>
-                                        <span className={`${T.helperText} shrink-0`}>{log.direction}</span>
-                                        {log.errorMessage && <span className="text-red-400 truncate">{log.errorMessage}</span>}
-                                        <span className={`${T.helperText} ml-auto shrink-0`}>{new Date(log.createdAt).toLocaleString()}</span>
+                                    <div className="flex flex-col items-center justify-center py-12 gap-2">
+                                        <p className={`${T.cardSubtitle} text-sm`}>Sin eventos de sincronización aún.</p>
+                                        <p className={`${T.helperText} text-xs text-center max-w-xs`}>Los eventos aparecerán aquí cuando un contacto cambie a LEAD o CLIENTE.</p>
                                     </div>
-                                ))}
+                                )}
+                                {logs.map(log => {
+                                    const contactLabel = log.meta?.name || log.meta?.phone || log.entityId || '—';
+                                    const lifecycle    = log.meta?.lifecycleStage as string | undefined;
+                                    const isSuccess    = log.status === 'SUCCESS';
+                                    const isFailed     = log.status === 'FAILED';
+
+                                    return (
+                                        <div key={log.id} className={`p-4 rounded-xl border ${isFailed ? 'border-red-500/30 bg-red-500/5' : 'border-[var(--border-default)] bg-[var(--bg-card)]'}`}>
+                                            <div className="flex items-start justify-between gap-3">
+
+                                                {/* Left: status + entity info */}
+                                                <div className="flex items-center gap-3 min-w-0">
+                                                    {/* Status dot */}
+                                                    <span className={`shrink-0 w-2 h-2 rounded-full mt-0.5 ${isSuccess ? 'bg-[var(--brand-primary)]' : isFailed ? 'bg-red-500' : 'bg-yellow-400'}`} />
+
+                                                    <div className="min-w-0">
+                                                        {/* Contact identifier */}
+                                                        <p className={`${T.tableCell} text-xs font-semibold truncate`}>{contactLabel}</p>
+
+                                                        {/* Tags row */}
+                                                        <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                                                            <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wide ${SYNC_STATUS_STYLE[log.status]}`}>
+                                                                {log.status}
+                                                            </span>
+                                                            <span className={`text-[9px] px-1.5 py-0.5 rounded bg-[var(--bg-input)] ${T.helperText} uppercase`}>
+                                                                {log.entityType}
+                                                            </span>
+                                                            <span className={`text-[9px] px-1.5 py-0.5 rounded bg-[var(--bg-input)] ${T.helperText} uppercase`}>
+                                                                {log.operation}
+                                                            </span>
+                                                            <span className={`text-[9px] px-1.5 py-0.5 rounded bg-[var(--bg-input)] ${T.helperText}`}>
+                                                                {log.direction === 'PUSH' ? 'Wabee → HubSpot' : 'HubSpot → Wabee'}
+                                                            </span>
+                                                            {lifecycle && (
+                                                                <span className={`text-[9px] px-1.5 py-0.5 rounded bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] font-bold uppercase`}>
+                                                                    {lifecycle}
+                                                                </span>
+                                                            )}
+                                                        </div>
+
+                                                        {/* Error message */}
+                                                        {log.errorMessage && (
+                                                            <p className="text-red-400 text-[10px] mt-1 truncate">{log.errorMessage}</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* Right: timestamp */}
+                                                <span className={`${T.helperText} text-[10px] shrink-0 mt-0.5`}>
+                                                    {new Date(log.createdAt).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' })}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         )}
 

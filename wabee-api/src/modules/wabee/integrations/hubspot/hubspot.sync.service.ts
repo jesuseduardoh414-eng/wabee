@@ -91,7 +91,15 @@ class HubSpotSyncService {
             if (!token) throw new Error('Token no disponible');
 
             const result = await hubSpotProvider.pushContact(token, crmContact);
-            await integrationsService.writeSyncLog(integrationId, tenantId, result);
+            await integrationsService.writeSyncLog(integrationId, tenantId, {
+                ...result,
+                meta: {
+                    phone:          contact.phone,
+                    name:           contact.name ?? undefined,
+                    email:          contact.email ?? undefined,
+                    lifecycleStage: newLifecycle,
+                },
+            });
 
             // Persist HubSpot ID back to Wabee if newly created
             if (result.status === 'SUCCESS' && result.entityId && !contact.externalCrmId) {

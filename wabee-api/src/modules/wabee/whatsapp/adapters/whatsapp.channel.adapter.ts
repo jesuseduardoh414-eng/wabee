@@ -31,7 +31,7 @@ export class WhatsAppChannelAdapter {
         }
 
         // ─── 2. Leer canal y estado del thread para el gate centralizado ─────
-        const [channel, thread, convState] = await Promise.all([
+        let [channel, thread, convState] = await Promise.all([
             prisma.whatsappChannel.findFirst({
                 where: { id: channelId, tenantId },
                 select: { aiEnabled: true, aiMode: true, defaultAiProfileId: true },
@@ -51,14 +51,22 @@ export class WhatsAppChannelAdapter {
         // ─── 3. Inicializar thread si no tiene handling_mode aún ────────────
         if (!thread?.handlingMode) {
             await ThreadStateOrchestrator.openThread(threadId, tenantId, channelId);
-            // Releer tras inicialización
-            const freshThread = await prisma.whatsappThread.findFirst({
-                where: { id: threadId, tenantId },
-                select: { handlingMode: true, aiPaused: true },
-            });
-            if (freshThread) {
-                Object.assign(thread ?? {}, freshThread);
-            }
+            // Releer tras inicialización.
+            // Importante: el primer mensaje puede crear el thread con handlingMode null
+            // y conversationState aún no existir al momento del primer read. Si no
+            // refrescamos ambos valores aquí, el gate usa el convState viejo/undefined
+            // y bloquea IA con "conversation_disabled" aunque openThread ya haya dejado
+            // el hilo en AI_MANAGED.
+            [thread, convState] = await Promise.all([
+                prisma.whatsappThread.findFirst({
+                    where: { id: threadId, tenantId },
+                    select: { handlingMode: true, aiPaused: true, assignedAiProfileId: true },
+                }),
+                prisma.conversationState.findUnique({
+                    where: { threadId },
+                    select: { mode: true },
+                }),
+            ]);
         }
 
         // ─── 4. Gate centralizado — ¿Debe responder la IA? ──────────────────

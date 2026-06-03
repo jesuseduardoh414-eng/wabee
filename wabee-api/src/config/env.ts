@@ -97,6 +97,20 @@ export const env = {
     HUBSPOT_CLIENT_ID:     process.env.HUBSPOT_CLIENT_ID     || '',
     HUBSPOT_CLIENT_SECRET: process.env.HUBSPOT_CLIENT_SECRET || '',
 
+    // ─── Zoho CRM ────────────────────────────────────────────────────────────────
+    ZOHO_CLIENT_ID:     process.env.ZOHO_CLIENT_ID     || '',
+    ZOHO_CLIENT_SECRET: process.env.ZOHO_CLIENT_SECRET || '',
+
+    // ─── Salesforce CRM ──────────────────────────────────────────────────────────
+    SALESFORCE_CLIENT_ID:     process.env.SALESFORCE_CLIENT_ID     || '',
+    SALESFORCE_CLIENT_SECRET: process.env.SALESFORCE_CLIENT_SECRET || '',
+
+    // ─── Dynamics 365 ────────────────────────────────────────────────────────────
+    DYNAMICS365_CLIENT_ID:     process.env.DYNAMICS365_CLIENT_ID     || '',
+    DYNAMICS365_CLIENT_SECRET: process.env.DYNAMICS365_CLIENT_SECRET || '',
+    DYNAMICS365_TENANT_ID:     process.env.DYNAMICS365_TENANT_ID     || 'common',
+    DYNAMICS365_ORG_URL:       process.env.DYNAMICS365_ORG_URL       || '',
+
     // ─── AI ──────────────────────────────────────────────────────────────────────
     GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
     GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-1.5-flash',

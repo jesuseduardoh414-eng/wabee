@@ -5,6 +5,35 @@ const LOGIN_URL = 'https://login.salesforce.com';
 const SCOPES    = 'api refresh_token offline_access';
 const API_VER   = 'v59.0';
 
+interface SalesforceTokenResponse {
+    access_token: string;
+    refresh_token?: string;
+    instance_url?: string;
+}
+
+interface SalesforceIdResponse {
+    id?: string;
+}
+
+interface SalesforceQueryResponse<T> {
+    records?: T[];
+}
+
+interface SalesforceContactRecord {
+    Id: string;
+    FirstName?: string;
+    LastName?: string;
+    Email?: string;
+    Phone?: string;
+}
+
+interface SalesforceDealRecord {
+    Id: string;
+    Name?: string;
+    StageName?: string;
+    Amount?: number | string;
+}
+
 const LIFECYCLE_TO_SF: Record<string, string> = {
     NEW:      'Open - Not Contacted',
     LEAD:     'Working - Contacted',
@@ -40,7 +69,7 @@ export class SalesforceProvider implements ICrmProvider {
             }),
         });
         if (!res.ok) throw new Error(`Salesforce token exchange failed: ${await res.text()}`);
-        const data = await res.json();
+        const data = await res.json() as SalesforceTokenResponse;
         return {
             accessToken:  data.access_token  as string,
             refreshToken: data.refresh_token as string | undefined,
@@ -64,7 +93,7 @@ export class SalesforceProvider implements ICrmProvider {
             }),
         });
         if (!res.ok) throw new Error(`Salesforce token refresh failed: ${await res.text()}`);
-        const data = await res.json();
+        const data = await res.json() as SalesforceTokenResponse;
         return {
             accessToken: data.access_token as string,
             expiresAt:   new Date(Date.now() + 2 * 60 * 60 * 1000),
@@ -109,7 +138,7 @@ export class SalesforceProvider implements ICrmProvider {
         if (res.status === 204) return { entityType: 'CONTACT', entityId: existingId ?? undefined, operation, direction: 'PUSH', status: 'SUCCESS' };
         if (!res.ok) return { entityType: 'CONTACT', entityId: existingId ?? undefined, operation, direction: 'PUSH', status: 'FAILED', errorMessage: await res.text() };
 
-        const data = await res.json();
+        const data = await res.json() as SalesforceIdResponse;
         return { entityType: 'CONTACT', entityId: data.id ?? existingId ?? '', operation, direction: 'PUSH', status: 'SUCCESS' };
     }
 
@@ -120,8 +149,8 @@ export class SalesforceProvider implements ICrmProvider {
             headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) return [];
-        const data = await res.json();
-        return (data.records ?? []).map((c: any) => ({
+        const data = await res.json() as SalesforceQueryResponse<SalesforceContactRecord>;
+        return (data.records ?? []).map((c) => ({
             externalId: c.Id as string,
             firstName:  c.FirstName ?? undefined,
             lastName:   c.LastName  ?? undefined,
@@ -156,7 +185,7 @@ export class SalesforceProvider implements ICrmProvider {
 
         if (res.status === 204) return { entityType: 'DEAL', entityId: existingId ?? undefined, operation, direction: 'PUSH', status: 'SUCCESS' };
         if (!res.ok) return { entityType: 'DEAL', entityId: existingId ?? undefined, operation, direction: 'PUSH', status: 'FAILED', errorMessage: await res.text() };
-        const data = await res.json();
+        const data = await res.json() as SalesforceIdResponse;
         return { entityType: 'DEAL', entityId: data.id ?? '', operation, direction: 'PUSH', status: 'SUCCESS' };
     }
 
@@ -167,8 +196,8 @@ export class SalesforceProvider implements ICrmProvider {
             headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) return [];
-        const data = await res.json();
-        return (data.records ?? []).map((d: any) => ({
+        const data = await res.json() as SalesforceQueryResponse<SalesforceDealRecord>;
+        return (data.records ?? []).map((d) => ({
             externalId: d.Id     as string,
             name:       d.Name   ?? '',
             stage:      d.StageName ?? undefined,

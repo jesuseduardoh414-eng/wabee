@@ -10,6 +10,39 @@ const AUTHORITY    = (tenantId: string) => `https://login.microsoftonline.com/${
 const SCOPES       = (orgUrl: string)   => `${orgUrl}/.default offline_access`;
 const API_VER      = '9.2';
 
+interface DynamicsTokenResponse {
+    access_token: string;
+    refresh_token?: string;
+    expires_in: number;
+}
+
+interface DynamicsContactResponse {
+    contactid?: string;
+}
+
+interface DynamicsDealResponse {
+    opportunityid?: string;
+}
+
+interface DynamicsListResponse<T> {
+    value?: T[];
+}
+
+interface DynamicsContactRecord {
+    contactid: string;
+    firstname?: string;
+    lastname?: string;
+    emailaddress1?: string;
+    telephone1?: string;
+}
+
+interface DynamicsDealRecord {
+    opportunityid: string;
+    name?: string;
+    stepname?: string;
+    estimatedvalue?: number | string;
+}
+
 export class Dynamics365Provider implements ICrmProvider {
     readonly providerName = 'DYNAMICS365';
 
@@ -42,7 +75,7 @@ export class Dynamics365Provider implements ICrmProvider {
             }),
         });
         if (!res.ok) throw new Error(`Dynamics365 token exchange failed: ${await res.text()}`);
-        const data = await res.json();
+        const data = await res.json() as DynamicsTokenResponse;
         return {
             accessToken:  data.access_token  as string,
             refreshToken: data.refresh_token as string | undefined,
@@ -67,7 +100,7 @@ export class Dynamics365Provider implements ICrmProvider {
             }),
         });
         if (!res.ok) throw new Error(`Dynamics365 token refresh failed: ${await res.text()}`);
-        const data = await res.json();
+        const data = await res.json() as DynamicsTokenResponse;
         return {
             accessToken: data.access_token as string,
             expiresAt:   new Date(Date.now() + (data.expires_in as number) * 1000),
@@ -109,7 +142,7 @@ export class Dynamics365Provider implements ICrmProvider {
 
         if (res.status === 204) return { entityType: 'CONTACT', entityId: existingId ?? undefined, operation, direction: 'PUSH', status: 'SUCCESS' };
         if (!res.ok) return { entityType: 'CONTACT', entityId: existingId ?? undefined, operation, direction: 'PUSH', status: 'FAILED', errorMessage: await res.text() };
-        const data = await res.json();
+        const data = await res.json() as DynamicsContactResponse;
         return { entityType: 'CONTACT', entityId: data.contactid ?? '', operation, direction: 'PUSH', status: 'SUCCESS' };
     }
 
@@ -119,8 +152,8 @@ export class Dynamics365Provider implements ICrmProvider {
             headers: { Authorization: `Bearer ${token}`, 'OData-MaxVersion': '4.0', 'OData-Version': '4.0' },
         });
         if (!res.ok) return [];
-        const data = await res.json();
-        return (data.value ?? []).map((c: any) => ({
+        const data = await res.json() as DynamicsListResponse<DynamicsContactRecord>;
+        return (data.value ?? []).map((c) => ({
             externalId: c.contactid as string,
             firstName:  c.firstname        ?? undefined,
             lastName:   c.lastname         ?? undefined,
@@ -153,7 +186,7 @@ export class Dynamics365Provider implements ICrmProvider {
 
         if (res.status === 204) return { entityType: 'DEAL', entityId: existingId ?? undefined, operation, direction: 'PUSH', status: 'SUCCESS' };
         if (!res.ok) return { entityType: 'DEAL', entityId: existingId ?? undefined, operation, direction: 'PUSH', status: 'FAILED', errorMessage: await res.text() };
-        const data = await res.json();
+        const data = await res.json() as DynamicsDealResponse;
         return { entityType: 'DEAL', entityId: data.opportunityid ?? '', operation, direction: 'PUSH', status: 'SUCCESS' };
     }
 
@@ -163,8 +196,8 @@ export class Dynamics365Provider implements ICrmProvider {
             headers: { Authorization: `Bearer ${token}`, 'OData-MaxVersion': '4.0', 'OData-Version': '4.0' },
         });
         if (!res.ok) return [];
-        const data = await res.json();
-        return (data.value ?? []).map((d: any) => ({
+        const data = await res.json() as DynamicsListResponse<DynamicsDealRecord>;
+        return (data.value ?? []).map((d) => ({
             externalId: d.opportunityid as string,
             name:       d.name          ?? '',
             stage:      d.stepname      ?? undefined,

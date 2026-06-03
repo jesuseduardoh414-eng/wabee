@@ -6,6 +6,40 @@ const TOKEN_URL = 'https://accounts.zoho.com/oauth/v2/token';
 const API       = 'https://www.zohoapis.com/crm/v3';
 const SCOPES    = 'ZohoCRM.modules.contacts.ALL,ZohoCRM.modules.deals.ALL';
 
+interface ZohoTokenResponse {
+    access_token?: string;
+    refresh_token?: string;
+    expires_in?: number;
+    error?: string;
+}
+
+interface ZohoMutationResponse {
+    data?: Array<{
+        details?: {
+            id?: string;
+        };
+    }>;
+}
+
+interface ZohoContactRecord {
+    id: string;
+    First_Name?: string;
+    Last_Name?: string;
+    Email?: string;
+    Phone?: string;
+}
+
+interface ZohoDealRecord {
+    id: string;
+    Deal_Name?: string;
+    Stage?: string;
+    Amount?: number | string;
+}
+
+interface ZohoListResponse<T> {
+    data?: T[];
+}
+
 const LIFECYCLE_TO_ZOHO: Record<string, string> = {
     NEW:      'Cold Lead',
     LEAD:     'Warm Lead',
@@ -42,7 +76,7 @@ export class ZohoProvider implements ICrmProvider {
             }),
         });
         if (!res.ok) throw new Error(`Zoho token exchange failed: ${await res.text()}`);
-        const data = await res.json();
+        const data = await res.json() as ZohoTokenResponse;
         if (data.error) throw new Error(`Zoho token error: ${data.error}`);
         return {
             accessToken:  data.access_token  as string,
@@ -64,7 +98,7 @@ export class ZohoProvider implements ICrmProvider {
             }),
         });
         if (!res.ok) throw new Error(`Zoho token refresh failed: ${await res.text()}`);
-        const data = await res.json();
+        const data = await res.json() as ZohoTokenResponse;
         return {
             accessToken: data.access_token as string,
             expiresAt:   new Date(Date.now() + (data.expires_in as number) * 1000),
@@ -103,7 +137,7 @@ export class ZohoProvider implements ICrmProvider {
         if (!res.ok) {
             return { entityType: 'CONTACT', entityId: existingId ?? undefined, operation, direction: 'PUSH', status: 'FAILED', errorMessage: await res.text() };
         }
-        const data = await res.json();
+        const data = await res.json() as ZohoMutationResponse;
         const id   = data.data?.[0]?.details?.id ?? existingId ?? '';
         return { entityType: 'CONTACT', entityId: id, operation, direction: 'PUSH', status: 'SUCCESS' };
     }
@@ -113,8 +147,8 @@ export class ZohoProvider implements ICrmProvider {
             headers: { Authorization: `Zoho-oauthtoken ${accessToken}` },
         });
         if (!res.ok) return [];
-        const data = await res.json();
-        return (data.data ?? []).map((c: any) => ({
+        const data = await res.json() as ZohoListResponse<ZohoContactRecord>;
+        return (data.data ?? []).map((c) => ({
             externalId: c.id as string,
             firstName:  c.First_Name ?? undefined,
             lastName:   c.Last_Name  ?? undefined,
@@ -143,7 +177,7 @@ export class ZohoProvider implements ICrmProvider {
         if (!res.ok) {
             return { entityType: 'DEAL', entityId: existingId ?? undefined, operation, direction: 'PUSH', status: 'FAILED', errorMessage: await res.text() };
         }
-        const data = await res.json();
+        const data = await res.json() as ZohoMutationResponse;
         return { entityType: 'DEAL', entityId: data.data?.[0]?.details?.id ?? '', operation, direction: 'PUSH', status: 'SUCCESS' };
     }
 
@@ -152,8 +186,8 @@ export class ZohoProvider implements ICrmProvider {
             headers: { Authorization: `Zoho-oauthtoken ${accessToken}` },
         });
         if (!res.ok) return [];
-        const data = await res.json();
-        return (data.data ?? []).map((d: any) => ({
+        const data = await res.json() as ZohoListResponse<ZohoDealRecord>;
+        return (data.data ?? []).map((d) => ({
             externalId: d.id as string,
             name:       d.Deal_Name ?? '',
             stage:      d.Stage     ?? undefined,

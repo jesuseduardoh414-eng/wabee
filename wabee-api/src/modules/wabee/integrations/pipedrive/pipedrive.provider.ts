@@ -2,6 +2,39 @@ import { ICrmProvider, CrmContact, CrmDeal, SyncResult } from '../crm.provider.i
 
 const API = 'https://api.pipedrive.com/v1';
 
+interface PipedriveSearchResponse {
+    data?: {
+        items?: Array<{
+            item?: {
+                id?: number | string;
+            };
+        }>;
+    };
+}
+
+interface PipedrivePerson {
+    id: number | string;
+    first_name?: string;
+    last_name?: string;
+    email?: Array<{ value?: string }>;
+    phone?: Array<{ value?: string }>;
+}
+
+interface PipedriveDeal {
+    id: number | string;
+    title?: string;
+    stage_id?: number | string;
+    value?: number | string;
+}
+
+interface PipedriveSingleResponse<T> {
+    data?: T;
+}
+
+interface PipedriveListResponse<T> {
+    data?: T[];
+}
+
 // Pipedrive uses API key auth — no OAuth needed.
 // buildAuthUrl / exchangeCode / refreshAccessToken are no-ops.
 
@@ -12,11 +45,11 @@ export class PipedriveProvider implements ICrmProvider {
         throw new Error('Pipedrive uses API key auth, not OAuth');
     }
 
-    async exchangeCode(_code: string, _redirectUri: string) {
+    async exchangeCode(_code: string, _redirectUri: string): Promise<{ accessToken: string; refreshToken?: string; expiresAt?: Date; scopes: string[] }> {
         throw new Error('Pipedrive uses API key auth, not OAuth');
     }
 
-    async refreshAccessToken(_refreshToken: string) {
+    async refreshAccessToken(_refreshToken: string): Promise<{ accessToken: string; expiresAt?: Date }> {
         throw new Error('Pipedrive tokens do not expire');
     }
 
@@ -35,7 +68,7 @@ export class PipedriveProvider implements ICrmProvider {
         if (!existingId && contact.email) {
             const search = await fetch(this.url(`/persons/search`, apiToken) + `&term=${encodeURIComponent(contact.email)}&fields=email&limit=1`);
             if (search.ok) {
-                const data = await search.json();
+                const data = await search.json() as PipedriveSearchResponse;
                 existingId = data.data?.items?.[0]?.item?.id ? String(data.data.items[0].item.id) : null;
             }
         }
@@ -65,15 +98,15 @@ export class PipedriveProvider implements ICrmProvider {
         if (!res.ok) {
             return { entityType: 'CONTACT', entityId: existingId ?? undefined, operation, direction: 'PUSH', status: 'FAILED', errorMessage: await res.text() };
         }
-        const data = await res.json();
+        const data = await res.json() as PipedriveSingleResponse<{ id?: number | string }>;
         return { entityType: 'CONTACT', entityId: String(data.data?.id ?? ''), operation, direction: 'PUSH', status: 'SUCCESS' };
     }
 
     async pullContacts(apiToken: string, _since?: Date): Promise<CrmContact[]> {
         const res = await fetch(this.url('/persons', apiToken) + '&limit=100&sort=update_time+DESC');
         if (!res.ok) return [];
-        const data = await res.json();
-        return (data.data ?? []).map((p: any) => ({
+        const data = await res.json() as PipedriveListResponse<PipedrivePerson>;
+        return (data.data ?? []).map((p) => ({
             externalId: String(p.id),
             firstName:  p.first_name ?? undefined,
             lastName:   p.last_name  ?? undefined,
@@ -101,15 +134,15 @@ export class PipedriveProvider implements ICrmProvider {
         if (!res.ok) {
             return { entityType: 'DEAL', entityId: existingId ?? undefined, operation, direction: 'PUSH', status: 'FAILED', errorMessage: await res.text() };
         }
-        const data = await res.json();
+        const data = await res.json() as PipedriveSingleResponse<{ id?: number | string }>;
         return { entityType: 'DEAL', entityId: String(data.data?.id ?? ''), operation, direction: 'PUSH', status: 'SUCCESS' };
     }
 
     async pullDeals(apiToken: string, _since?: Date): Promise<CrmDeal[]> {
         const res = await fetch(this.url('/deals', apiToken) + '&limit=100&sort=update_time+DESC');
         if (!res.ok) return [];
-        const data = await res.json();
-        return (data.data ?? []).map((d: any) => ({
+        const data = await res.json() as PipedriveListResponse<PipedriveDeal>;
+        return (data.data ?? []).map((d) => ({
             externalId: String(d.id),
             name:       d.title ?? '',
             stage:      d.stage_id ? String(d.stage_id) : undefined,

@@ -19,6 +19,7 @@
     "@prisma/adapter-pg": "^7.4.1",
     "@prisma/client": "7.4.2",
     "@r4d-26/core": "5.18.0",
+    "@sentry/node": "^10.56.0",
     "@supabase/supabase-js": "^2.97.0",
     "axios": "^1.7.9",
     "cheerio": "^1.2.0",

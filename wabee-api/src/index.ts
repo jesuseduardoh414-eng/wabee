@@ -5,6 +5,10 @@ dotenv.config();
 import { applyRedisPatch } from './config/core/redis.patch';
 applyRedisPatch();
 
+// ── Sentry: inicializar lo antes posible (no-op si no hay SENTRY_DSN) ──
+import { initSentry, captureError } from './lib/sentry';
+initSentry();
+
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -61,9 +65,11 @@ const port = Number(process.env.PORT) || 4000;
 // Antes los crashes eran silenciosos; ahora quedan registrados con pino.
 process.on('unhandledRejection', (reason: any) => {
     logger.error({ err: { message: reason?.message, stack: reason?.stack } }, 'unhandledRejection');
+    captureError(reason, { source: 'unhandledRejection' });
 });
 process.on('uncaughtException', (err: Error) => {
     logger.error({ err: { message: err.message, stack: err.stack } }, 'uncaughtException');
+    captureError(err, { source: 'uncaughtException' });
 });
 
 // ─── Trust proxy (Render/Vercel) — necesario para que rate-limit lea la IP real ─
@@ -279,6 +285,8 @@ app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const status = err?.status || err?.statusCode || 500;
     const log = (req as any).log || logger;
     log.error({ err: { message: err?.message, stack: err?.stack }, status }, '[GlobalErrorHandler]');
+    // Reportar a Sentry solo errores de servidor (5xx), no errores de cliente (4xx)
+    if (status >= 500) captureError(err, { requestId: (req as any).id, url: req.url });
     res.status(status).json({ error: err?.message || 'Internal server error' });
 });
 

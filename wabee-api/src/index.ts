@@ -52,9 +52,19 @@ import { DEFAULT_EMAIL_GLOBAL, DEFAULT_EMAIL_TEMPLATES } from './modules/wabee/e
 import { env } from './config/env';
 import { DatabaseBootstrap } from './config/core/db.bootstrap';
 import { initStorage } from './lib/supabase-storage';
+import { logger, childLogger } from './lib/logger';
 
 const app = express();
 const port = Number(process.env.PORT) || 4000;
+
+// ─── Captura de errores no manejados a nivel de proceso ─────────────────────────
+// Antes los crashes eran silenciosos; ahora quedan registrados con pino.
+process.on('unhandledRejection', (reason: any) => {
+    logger.error({ err: { message: reason?.message, stack: reason?.stack } }, 'unhandledRejection');
+});
+process.on('uncaughtException', (err: Error) => {
+    logger.error({ err: { message: err.message, stack: err.stack } }, 'uncaughtException');
+});
 
 // ─── Trust proxy (Render/Vercel) — necesario para que rate-limit lea la IP real ─
 app.set('trust proxy', 1);
@@ -148,9 +158,23 @@ app.post('/v1/webhooks/whatsapp', captureRawBody, CampaignWebhook.handle.bind(Ca
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ limit: '5mb', extended: true }));
 
-// Global Request Logger for Debugging
-app.use((req, res, next) => {
-    console.log(`[HTTP] ${req.method} ${req.url}`);
+// ─── Request ID + structured request logging ───────────────────────────────────
+// Asigna un requestId a cada petición (correlación de logs) y registra método,
+// ruta, status y duración con pino. Reemplaza el console.log plano anterior.
+app.use((req: Request, res: Response, next: NextFunction) => {
+    const requestId = (req.headers['x-request-id'] as string) || crypto.randomUUID();
+    (req as any).id = requestId;
+    (req as any).log = childLogger(requestId);
+    res.setHeader('x-request-id', requestId);
+
+    const start = Date.now();
+    res.on('finish', () => {
+        const durationMs = Date.now() - start;
+        (req as any).log.info(
+            { method: req.method, url: req.url, status: res.statusCode, durationMs },
+            `${req.method} ${req.url} ${res.statusCode} ${durationMs}ms`
+        );
+    });
     next();
 });
 
@@ -251,9 +275,10 @@ app.use('/v1/wabee/realtime', realtimeRoutes); // SSE: auth incluido en el route
 
 // ─── Global Error Handler ──────────────────────────────────────────────────────
 // Captura errores de middlewares (multer, etc.) que llaman next(err)
-app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    console.error('[GlobalErrorHandler]', err?.message || err);
+app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const status = err?.status || err?.statusCode || 500;
+    const log = (req as any).log || logger;
+    log.error({ err: { message: err?.message, stack: err?.stack }, status }, '[GlobalErrorHandler]');
     res.status(status).json({ error: err?.message || 'Internal server error' });
 });
 

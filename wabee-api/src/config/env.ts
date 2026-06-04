@@ -14,6 +14,7 @@ export const env = {
     // ─── Runtime ────────────────────────────────────────────────────────────────
     NODE_ENV: process.env.NODE_ENV || 'development',
     PORT: process.env.PORT || '4000',
+    LOG_LEVEL: process.env.LOG_LEVEL || 'info',
 
     // ─── Public URL (used for logs + OAuth callbacks) ────────────────────────────
     // In Render, RENDER_EXTERNAL_HOSTNAME is injected automatically.

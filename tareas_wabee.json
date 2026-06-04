@@ -71,7 +71,7 @@
   },
   {
     "numeroActividad": 8,
-    "titulo": "Crear canal nuevo de WhatsApp en Wabee con datos reales",
+    "titulo": "Crea                                                                                                                                                       r canal nuevo de WhatsApp en Wabee con datos reales",
     "descripcion": "Crear un canal manual nuevo en Wabee con el WABA ID y Phone Number ID reales del numero productivo. Verificar salud del canal y confirmar que quede en estado CONNECTED sin errores de token o webhook.",
     "estado": "PENDIENTE",
     "prioridad": "ALTA",

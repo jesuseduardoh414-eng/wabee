@@ -55,10 +55,10 @@ export async function chatGemini(opts: {
 
     const { model, system, messages, tools, maxTokens, temperature, timeoutMs, responseMimeType, responseSchema } = opts;
 
-    // Auto-resolve model name based on discovery: gemini-1.5-flash -> gemini-flash-latest
+    // Auto-resolve legacy model names to the current fast model.
     let targetModel = model;
     if (model === 'gemini-1.5-flash' || model === 'gemini-1.5-flash-latest') {
-        targetModel = 'gemini-flash-latest';
+        targetModel = 'gemini-2.5-flash';
     }
 
     const modelPath = targetModel.startsWith('models/') ? targetModel : `models/${targetModel}`;

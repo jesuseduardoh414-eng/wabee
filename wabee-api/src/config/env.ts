@@ -116,7 +116,7 @@ export const env = {
 
     // ─── AI ──────────────────────────────────────────────────────────────────────
     GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
-    GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
+    GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
     ENABLE_AI_WIDGET: process.env.ENABLE_AI_WIDGET || '',
     AI_WIDGET_ALWAYS_RESPOND: process.env.AI_WIDGET_ALWAYS_RESPOND || '',
     KB_TOP_K: process.env.KB_TOP_K || '3',

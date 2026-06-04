@@ -418,9 +418,468 @@ const AiProfilesPage: React.FC = () => {
         }));
     };
 
+    const renderToolsSection = () => (
+        <div className="flex h-full min-h-0 flex-col rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] p-6 shadow-2xl">
+            <div className="flex flex-col mb-4">
+                <h3 className={`${T.cardTitle} text-sm`}>Herramientas del Asistente</h3>
+                <p className={`${T.cardSubtitle} text-xs mt-1`}>Activa las herramientas a las que este Agente tendrÃ¡ acceso.</p>
+            </div>
+            <div className="flex-1 space-y-4">
+                {loadingTools && <div className={`${T.helperText} py-10 text-center text-xs`}>Cargando herramientas...</div>}
+                {!loadingTools && profileTools.length === 0 && (
+                    <div className="py-6 text-center bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl flex flex-col items-center justify-center">
+                        <p className={`${T.emptyStateBody} text-xs mb-3`}>No hay herramientas configuradas en este tenant.</p>
+                        <a href="/wabee/ai-tools" className="text-xs text-[var(--brand-primary)] hover:underline">Ir a crear una Herramienta</a>
+                    </div>
+                )}
+                {profileTools.map(tool => (
+                    <div key={tool.id} className={`p-4 bg-[var(--bg-input)] border rounded-xl transition-all ${tool.isLinked ? 'border-[var(--brand-primary)]/50 shadow-sm' : 'border-[var(--border-default)]'}`}>
+                        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                            <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2">
+                                    <h4 className={`${T.menuText} min-w-0 text-sm`}>{tool.displayName}</h4>
+                                    <span className={`${T.helperText} max-w-full truncate text-[10px] lowercase px-1.5 py-0.5 bg-[var(--bg-card)] rounded border border-[var(--border-default)]`}>{tool.name}</span>
+                                </div>
+                                <p className={`${T.helperText} mt-1 text-[10px] leading-relaxed`}>{tool.description}</p>
+
+                                {!tool.globalIsActive && (
+                                    <div className="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-red-400 text-[10px]">
+                                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                        Herramienta Inactiva Globalmente (No serÃ¡ usada)
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex shrink-0 items-stretch gap-3 md:ml-4">
+                                {tool.isLinked ? (
+                                    <div className="flex w-full flex-col gap-2 md:items-end">
+                                        <div className="flex items-center justify-between gap-2 md:justify-end">
+                                            <span className={`${T.helperText} text-[10px]`}>Estado en este Perfil:</span>
+                                            <button
+                                                onClick={() => handleToggleProfileTool(tool.id, tool.profileIsActive)}
+                                                className={`w-9 h-5 rounded-full relative transition-colors duration-200 focus:outline-none ${tool.profileIsActive ? 'bg-[var(--brand-primary)]' : 'bg-[var(--bg-input)]'}`}
+                                            >
+                                                <div className={`absolute top-[2px] w-4 h-4 bg-white rounded-full transition-transform duration-200 ${tool.profileIsActive ? 'translate-x-[18px]' : 'translate-x-[2px]'}`} />
+                                            </button>
+                                        </div>
+                                        <button
+                                            onClick={() => handleUnlinkTool(tool.id)}
+                                            className={`${T.helperText} text-[10px] text-red-400 hover:text-red-300 transition-colors`}
+                                        >
+                                            Desvincular
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={() => handleLinkTool(tool.id)}
+                                        className={`${T.buttonText} w-full whitespace-nowrap px-3 py-2 bg-[var(--bg-input)] hover:bg-[var(--bg-card)] text-xs rounded-lg transition-colors border border-[var(--border-default)] hover:border-[var(--brand-primary)]/50 md:w-auto`}
+                                    >
+                                        + Vincular Tool
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {tool.isLinked && (
+                            <div className="mt-3 flex items-center justify-between border-t border-[var(--border-default)] pt-3">
+                                <div className="flex items-center gap-2">
+                                    <span className={`w-2 h-2 rounded-full ${tool.effectivelyActive ? 'bg-green-500 animate-pulse shadow-[0_0_5px_#22c55e]' : 'bg-red-500 shadow-[0_0_5px_#ef4444]'}`} />
+                                    <span className={`${T.statusText} text-[10px] ${tool.effectivelyActive ? 'text-green-500' : 'text-red-500'}`}>
+                                        {tool.effectivelyActive ? 'Lista para usarse por el LLM' : 'Inactiva P/ LLM'}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+
+    const renderProfileEditor = () => (
+        <div className="bg-[var(--bg-card)] p-6 rounded-2xl border border-[var(--border-default)] shadow-2xl">
+            <h2 className={`${T.sectionTitle} flex flex-col gap-4 text-xl lg:flex-row lg:items-center lg:justify-between`}>
+                <span>{editingId ? 'Editar Perfil' : 'Crear Perfil'}</span>
+                <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex bg-[var(--bg-input)] p-1 rounded-xl">
+                        <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, channelType: 'WIDGET' })}
+                            className={`px-3 py-1 rounded-lg text-xs font-bold transition ${formData.channelType === 'WIDGET' ? 'bg-[var(--brand-primary)] text-[var(--brand-primary-foreground)] shadow-lg' : 'text-[var(--text-muted)] hover:text-[var(--text-strong)]'}`}
+                        >
+                            Widget
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, channelType: 'WHATSAPP' })}
+                            className={`px-3 py-1 rounded-lg text-xs font-bold transition ${formData.channelType === 'WHATSAPP' ? 'bg-[var(--brand-primary)] text-[var(--brand-primary-foreground)] shadow-lg' : 'text-[var(--text-muted)] hover:text-[var(--text-strong)]'}`}
+                        >
+                            WhatsApp
+                        </button>
+                    </div>
+                    <button onClick={cancelEdit} className={`${T.helperText} hover:brightness-150 text-sm transition-colors`}>Cerrar</button>
+                </div>
+            </h2>
+            <form onSubmit={(e) => editingId ? (e.preventDefault(), handleUpdate(editingId)) : handleCreate(e)} className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="col-span-2">
+                        <label className={`${T.labelText} ${S.meta} block mb-1`}>Nombre del Perfil (Interno)</label>
+                        <input
+                            type="text" required
+                            className={`ui-input ${T.inputText} ${S.body}`}
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            placeholder="Ej: Ventas MÃ©xico"
+                        />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div className="col-span-1 min-w-0">
+                        <label className={`${T.labelText} ${S.meta} block mb-1`}>Nombre Agente (PÃºblico)</label>
+                        <input
+                            type="text"
+                            className={`ui-input ${T.inputText} ${S.body}`}
+                            value={formData.agentName || ''}
+                            onChange={(e) => setFormData({ ...formData, agentName: e.target.value })}
+                            placeholder="Ej: Ana, Soporte, Bot"
+                        />
+                    </div>
+                    <div className="col-span-1 min-w-0">
+                        <label className={`${T.labelText} ${S.meta} block mb-1`}>TÃ­tulo/Rol</label>
+                        <input
+                            type="text"
+                            className={`ui-input ${T.inputText} ${S.body}`}
+                            value={formData.roleTitle || ''}
+                            onChange={(e) => setFormData({ ...formData, roleTitle: e.target.value })}
+                            placeholder="Ej: Asistente Virtual"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <label className={`${T.labelText} ${S.meta} block mb-3`}>Tonos Conversacionales</label>
+                    <div className="flex flex-wrap gap-2">
+                        {TONE_OPTIONS.map((option: any) => (
+                            <button
+                                key={option.value}
+                                type="button"
+                                onClick={() => toggleTone(option.value)}
+                                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${formData.tones.includes(option.value)
+                                    ? 'bg-[var(--brand-primary)] border-[var(--brand-primary)] text-[var(--brand-primary-foreground)] shadow-md'
+                                    : 'bg-[var(--bg-input)] border-[var(--border-default)] text-[var(--text-muted)] hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]'
+                                    }`}
+                            >
+                                {option.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div>
+                    <label className={`${T.labelText} ${S.meta} block mb-1`}>MisiÃ³n / Objetivo (Prompt Base)</label>
+                    <textarea
+                        required rows={4}
+                        className={`ui-textarea ${T.inputText} ${S.body} font-mono text-xs leading-relaxed`}
+                        value={formData.systemPrompt}
+                        onChange={(e) => setFormData({ ...formData, systemPrompt: e.target.value })}
+                        placeholder="Tu misiÃ³n es ayudar a..."
+                    />
+                </div>
+
+                <div>
+                    <label className={`${T.labelText} ${S.meta} block mb-1`}>Notas de Personalidad (Opcional)</label>
+                    <textarea
+                        rows={2}
+                        className={`ui-textarea ${T.inputText} ${S.body}`}
+                        value={formData.personalityNotes || ''}
+                        onChange={(e) => setFormData({ ...formData, personalityNotes: e.target.value })}
+                        placeholder="Ej: Evita usar jerga tÃ©cnica. SÃ© muy amable con las quejas."
+                    />
+                </div>
+
+                <div className="p-4 bg-[var(--bg-input)] rounded-xl space-y-4 border border-[var(--border-default)]">
+                    <h3 className={`${T.cardTitle} text-sm`}>Manejo de Respuestas Fallidas (Baja Confianza)</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {FALLBACK_PRESETS.map((preset: FallbackPreset) => (
+                            <label key={preset.value} className={`p-3 rounded-lg border transition-all cursor-pointer ${formData.fallbackMode === preset.value ? 'bg-[var(--brand-primary)]/10 border-[var(--brand-primary)] shadow-lg' : 'bg-[var(--bg-card)] border-[var(--border-default)] hover:border-[var(--text-muted)]/20'
+                                }`}>
+                                <div className="flex items-center gap-2 mb-1">
+                                    <input
+                                        type="radio" name="fallback"
+                                        className="accent-[var(--brand-primary)]"
+                                        checked={formData.fallbackMode === preset.value}
+                                        onChange={() => setFormData({ ...formData, fallbackMode: preset.value })}
+                                    />
+                                    <span className={`text-xs font-bold ${formData.fallbackMode === preset.value ? 'text-[var(--brand-primary)]' : 'text-[var(--text-strong)]'}`}>{preset.label}</span>
+                                </div>
+                                {preset.text && <p className="text-[10px] text-[var(--text-muted)] leading-tight">{preset.text}</p>}
+                            </label>
+                        ))}
+                    </div>
+                    {formData.fallbackMode === 'CUSTOM' && (
+                        <textarea
+                            rows={2}
+                            className={`ui-textarea ${T.inputText} ${S.body} bg-[var(--bg-card)]`}
+                            value={formData.fallbackCustomMessage}
+                            onChange={(e) => setFormData({ ...formData, fallbackCustomMessage: e.target.value })}
+                            placeholder="Mensaje personalizado de fallback..."
+                        />
+                    )}
+                </div>
+
+                <div className="flex gap-4">
+                    <button
+                        type="submit"
+                        className={`flex-1 bg-[var(--brand-primary)] py-3 rounded-xl font-bold hover:brightness-110 transition shadow-lg ${T.buttonPrimaryText}`}
+                    >
+                        {editingId ? 'Guardar Cambios' : 'Crear Perfil'}
+                    </button>
+                </div>
+            </form>
+        </div>
+    );
+
+    const renderKnowledgeSection = () => (
+        <div className="flex h-full min-h-0 flex-col rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] p-6 shadow-2xl overflow-hidden">
+            <div className="mb-4 flex items-center justify-between">
+                <h3 className={`${T.cardTitle} text-sm`}>Base de Conocimiento</h3>
+                <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                        type="checkbox" className="sr-only peer"
+                        checked={formData.kbEnabled}
+                        onChange={(e) => setFormData({ ...formData, kbEnabled: e.target.checked })}
+                    />
+                    <div className="w-9 h-5 bg-[var(--bg-input)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-[var(--bg-page)] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[var(--text-muted)] after:border-[var(--border-default)] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--brand-primary)]"></div>
+                </label>
+            </div>
+
+            <div className="mb-4">
+                <div className={`border-2 border-dashed rounded-xl p-4 text-center transition ${uploading ? 'bg-[var(--bg-input)] border-[var(--border-default)]' : 'border-[var(--border-default)] bg-[var(--bg-card)] hover:bg-[var(--bg-input)] hover:border-[var(--brand-primary)]/50'}`}>
+                    <input
+                        type="file"
+                        accept=".pdf,.csv,.xlsx,.xls,application/pdf,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+                        className="hidden"
+                        id="kb-upload"
+                        onChange={handleUploadPdf}
+                        disabled={uploading}
+                    />
+                    <label htmlFor="kb-upload" className="cursor-pointer block">
+                        <div className="text-[var(--brand-primary)] mb-1">
+                            <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                        </div>
+                        <span className={`${T.menuText} text-xs`}>{uploading ? 'Subiendo...' : 'Subir documento'}</span>
+                        <p className={`${T.helperText} text-[9px] mt-0.5`}>PDF Â· CSV Â· XLSX Â· XLS â€” mÃ¡x. 25 MB</p>
+                    </label>
+                </div>
+            </div>
+
+            <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
+                {kbFiles.length === 0 && <p className={`${T.emptyStateBody} py-4 text-center text-xs`}>Sin documentos indexados</p>}
+                {kbFiles.map((file: KbFile) => (
+                    <div key={file.id} className="p-3 bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl relative group transition-all hover:border-[var(--brand-primary)]/30">
+                        <div className="flex justify-between items-start">
+                            <div className="max-w-[80%]">
+                                <p className={`${T.tableCell} text-xs truncate`}>{file.filename}</p>
+                                <p className={`${T.helperText} text-[10px]`}>{(file.size / 1024).toFixed(1)} KB</p>
+                            </div>
+                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">
+                                <button onClick={() => handleViewKbFile(file.id)} className="p-1 hover:bg-[var(--brand-primary)]/20 rounded transition" title="Ver PDF">
+                                    <svg className="w-3.5 h-3.5 text-[var(--brand-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                </button>
+                                <button onClick={() => handleReindexKbFile(file.id)} className="p-1 hover:bg-[var(--brand-primary)]/20 rounded transition" title="Reindexar">
+                                    <svg className="w-3.5 h-3.5 text-[var(--brand-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                </button>
+                                <button onClick={() => handleDeleteKbFile(file.id)} className="p-1 hover:bg-red-500/20 rounded transition" title="Eliminar">
+                                    <svg className="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div className="mt-2 flex items-center justify-between">
+                            <span className={`${T.statusText} text-[9px] px-1.5 py-0.5 rounded ${
+                                file.status === 'INDEXED' ? 'bg-[var(--brand-primary)]/20 text-[var(--brand-primary)]' :
+                                file.status === 'PROCESSING' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-red-500/20 text-red-500'
+                            }`}>
+                                {file.status}
+                            </span>
+                            <span className={`${T.helperText} text-[9px]`}>{new Date(file.updatedAt).toLocaleDateString()}</span>
+                        </div>
+                        {file.error && <p className="mt-1 text-[8px] text-red-400 leading-tight italic line-clamp-2">{file.error}</p>}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+
+    const renderWebSourcesSection = () => (
+        <div className="flex h-full min-h-0 flex-col rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] p-6 shadow-2xl">
+            <div className="mb-4 flex flex-col">
+                <h3 className={`${T.cardTitle} text-sm`}>Sitios Web</h3>
+                <p className={`${T.cardSubtitle} text-xs mt-1`}>Agrega URLs para que la IA aprenda de tu sitio web, FAQs o pÃ¡ginas de productos.</p>
+            </div>
+
+            <div className="mb-4 rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] p-3 space-y-2">
+                <input
+                    type="text"
+                    placeholder="Nombre (ej: FAQs del sitio)"
+                    value={newSourceName}
+                    onChange={e => setNewSourceName(e.target.value)}
+                    className={`w-full px-3 py-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`}
+                />
+                <div className="flex flex-col gap-2 sm:flex-row">
+                    <input
+                        type="url"
+                        placeholder="https://mi-sitio.com/preguntas-frecuentes"
+                        value={newSourceUrl}
+                        onChange={e => setNewSourceUrl(e.target.value)}
+                        className={`flex-1 px-3 py-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`}
+                    />
+                    <button
+                        onClick={handleAddSource}
+                        disabled={addingSource || !newSourceName.trim() || !newSourceUrl.trim()}
+                        className="px-3 py-2 rounded-lg bg-[var(--brand-primary)] text-white text-xs font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition shrink-0"
+                    >
+                        {addingSource ? '...' : 'Agregar'}
+                    </button>
+                </div>
+            </div>
+
+            <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1 xl:max-h-[16rem]">
+                {kbSources.length === 0 && (
+                    <p className={`${T.emptyStateBody} text-center text-xs py-4`}>Sin sitios web indexados</p>
+                )}
+                {kbSources.map((source: KbSource) => (
+                    <div key={source.id} className="p-3 bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl relative group transition-all hover:border-[var(--brand-primary)]/30">
+                        <div className="flex justify-between items-start">
+                            <div className="max-w-[80%]">
+                                <p className={`${T.tableCell} text-xs truncate`}>{source.name}</p>
+                                <p className={`${T.helperText} text-[10px] truncate`}>{source.config?.url}</p>
+                            </div>
+                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">
+                                <button
+                                    onClick={() => source.config?.url && window.open(source.config.url, '_blank')}
+                                    className="p-1 hover:bg-[var(--brand-primary)]/20 rounded transition"
+                                    title="Abrir URL"
+                                >
+                                    <svg className="w-3.5 h-3.5 text-[var(--brand-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                </button>
+                                <button
+                                    onClick={() => handleReindexSource(source.id)}
+                                    className="p-1 hover:bg-[var(--brand-primary)]/20 rounded transition"
+                                    title="Re-indexar"
+                                >
+                                    <svg className="w-3.5 h-3.5 text-[var(--brand-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                </button>
+                                <button
+                                    onClick={() => handleDeleteSource(source.id)}
+                                    className="p-1 hover:bg-red-500/20 rounded transition"
+                                    title="Eliminar"
+                                >
+                                    <svg className="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div className="mt-2 flex items-center justify-between">
+                            <span className={`${T.statusText} text-[9px] px-1.5 py-0.5 rounded ${
+                                source.status === 'INDEXED'    ? 'bg-[var(--brand-primary)]/20 text-[var(--brand-primary)]' :
+                                source.status === 'PROCESSING' ? 'bg-yellow-500/20 text-yellow-500' :
+                                source.status === 'PENDING'    ? 'bg-blue-500/20 text-blue-400' :
+                                                                 'bg-red-500/20 text-red-500'
+                            }`}>
+                                {source.status === 'PENDING' ? 'En cola' : source.status}
+                            </span>
+                            <span className={`${T.helperText} text-[9px]`}>
+                                {source.vectorSyncAt ? `Sync: ${new Date(source.vectorSyncAt).toLocaleDateString()}` : new Date(source.createdAt).toLocaleDateString()}
+                            </span>
+                        </div>
+                        {source.error && <p className="mt-1 text-[8px] text-red-400 leading-tight italic line-clamp-2">{source.error}</p>}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+
+    const renderDatabaseSection = () => (
+        <div className="flex h-full min-h-0 flex-col rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] p-6 shadow-2xl">
+            <div className="mb-4 flex flex-col">
+                <h3 className={`${T.cardTitle} text-sm`}>Base de Datos (Read-Only)</h3>
+                <p className={`${T.cardSubtitle} text-xs mt-1`}>Conecta una BD externa para que la IA consulte datos en tiempo real (solo lectura).</p>
+            </div>
+
+            <div className="mb-4 rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] p-3 space-y-2">
+                <input value={dbForm.name} onChange={e => setDbForm(f => ({...f, name: e.target.value}))} placeholder="Nombre de la fuente" className={`w-full px-3 py-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`} />
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    <input value={dbForm.host} onChange={e => setDbForm(f => ({...f, host: e.target.value}))} placeholder="Host" className={`px-3 py-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`} />
+                    <input value={dbForm.port} onChange={e => setDbForm(f => ({...f, port: e.target.value}))} placeholder="Puerto" className={`px-3 py-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`} />
+                    <input value={dbForm.database} onChange={e => setDbForm(f => ({...f, database: e.target.value}))} placeholder="Base de datos" className={`px-3 py-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`} />
+                    <input value={dbForm.user} onChange={e => setDbForm(f => ({...f, user: e.target.value}))} placeholder="Usuario" className={`px-3 py-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`} />
+                </div>
+                <input value={dbForm.password} onChange={e => setDbForm(f => ({...f, password: e.target.value}))} type="password" placeholder="ContraseÃ±a" className={`w-full px-3 py-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`} />
+                <div className="flex items-center gap-2">
+                    <input type="checkbox" id="db-ssl" checked={dbForm.ssl} onChange={e => setDbForm(f => ({...f, ssl: e.target.checked}))} className="w-3 h-3" />
+                    <label htmlFor="db-ssl" className={`${T.helperText} text-[10px]`}>Usar SSL</label>
+                </div>
+                <button onClick={handleTestDb} disabled={testingDb || !dbForm.host || !dbForm.database} className="w-full py-2 rounded-lg border border-[var(--brand-primary)] text-xs text-[var(--brand-primary)] font-bold uppercase tracking-widest disabled:opacity-40 hover:bg-[var(--brand-primary)]/10 transition">
+                    {testingDb ? 'Probando...' : 'Probar conexiÃ³n'}
+                </button>
+            </div>
+
+            {dbTested && dbTables.length > 0 && (
+                <div className="mb-4 space-y-3">
+                    <p className={`${T.cardSubtitle} text-xs`}>Selecciona las columnas que la IA podrÃ¡ leer:</p>
+                    <div className="max-h-[16rem] space-y-3 overflow-y-auto pr-1">
+                        {dbTables.slice(0, 8).map(table => (
+                            <div key={`${table.schema}.${table.name}`} className="p-2 bg-[var(--bg-input)] border border-[var(--border-default)] rounded-lg">
+                                <p className={`${T.tableCell} text-[10px] mb-1 font-bold`}>{table.schema}.{table.name}</p>
+                                <div className="flex flex-wrap gap-1">
+                                    {table.columns.map(col => {
+                                        const key = `${table.schema}.${table.name}`;
+                                        const mapping = dbMappings.find(m => m.table === key);
+                                        const selected = mapping?.columns.includes(col.name) ?? false;
+                                        return (
+                                            <button key={col.name} onClick={() => toggleDbColumn(key, col.name)}
+                                                className={`px-1.5 py-0.5 rounded text-[9px] transition border ${selected ? 'bg-[var(--brand-primary)]/20 border-[var(--brand-primary)] text-[var(--brand-primary)]' : 'bg-[var(--bg-surface)] border-[var(--border-default)] text-[var(--tx-helperText-color,#999)] hover:border-[var(--brand-primary)]/40'}`}>
+                                                {col.name}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <button onClick={handleAddDbSource} disabled={addingDb || !dbForm.name.trim() || dbMappings.length === 0}
+                        className="w-full py-2 rounded-xl bg-[var(--brand-primary)] text-white text-xs font-bold uppercase tracking-widest disabled:opacity-40 hover:opacity-90 transition">
+                        {addingDb ? 'Indexando...' : `Indexar ${dbMappings.reduce((s, m) => s + m.columns.length, 0)} columnas`}
+                    </button>
+                </div>
+            )}
+
+            <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
+                {kbSources.filter(s => s.sourceType === 'DATABASE').length === 0 && (
+                    <p className={`${T.emptyStateBody} text-center text-xs py-2`}>Sin bases de datos indexadas</p>
+                )}
+                {kbSources.filter(s => s.sourceType === 'DATABASE').map(source => (
+                    <div key={source.id} className="p-3 bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl flex items-center justify-between gap-2">
+                        <div>
+                            <p className={`${T.tableCell} text-xs`}>{source.name}</p>
+                            <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold ${source.status === 'INDEXED' ? 'bg-[var(--brand-primary)]/20 text-[var(--brand-primary)]' : source.status === 'PROCESSING' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-red-500/20 text-red-400'}`}>{source.status}</span>
+                        </div>
+                        <div className="flex gap-1">
+                            <button onClick={() => editingId && aiApi.reindexDbSource(editingId, source.id).then(() => loadKbSources(editingId!))} className="p-1 hover:bg-[var(--brand-primary)]/20 rounded transition" title="Re-indexar">
+                                <svg className="w-3.5 h-3.5 text-[var(--brand-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                            </button>
+                            <button onClick={() => handleDeleteSource(source.id)} className="p-1 hover:bg-red-500/20 rounded transition" title="Eliminar">
+                                <svg className="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+
     return (
-        <div className="p-8 max-w-6xl mx-auto space-y-6 bg-[var(--bg-page)] min-h-screen">
-            <header className="flex justify-between items-end">
+        <div className="mx-auto min-h-screen w-full max-w-[1600px] space-y-6 bg-[var(--bg-page)] px-4 py-6 sm:px-6 lg:px-8">
+            <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                 <div>
                     <h1 className={`${T.pageTitle} ${S.displayMd}`}>Perfiles de <span className="text-[var(--ty-accent)]">IA</span></h1>
                     <p className={`${T.pageSubtitle} ${S.body}`}>Configura los perfiles conversacionales y base de conocimiento.</p>
@@ -436,13 +895,38 @@ const AiProfilesPage: React.FC = () => {
             </header>
 
             {/* Form Modal / Section */}
-            {(showCreate || editingId) && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 space-y-6">
+            {editingId && (
+                <div className="space-y-6">
+                    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(360px,420px)] xl:items-stretch">
+                        <div className="min-w-0">
+                            {renderProfileEditor()}
+                        </div>
+                        <div className="min-w-0 xl:h-full">
+                            <div className="grid min-h-0 gap-6 xl:sticky xl:top-6 xl:h-[calc(100vh-7rem)] xl:grid-rows-[minmax(0,1fr)_auto] xl:min-h-full">
+                                {renderKnowledgeSection()}
+                                {renderWebSourcesSection()}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(360px,420px)] xl:items-stretch">
+                        <div className="min-w-0">
+                            {renderToolsSection()}
+                        </div>
+                        <div className="min-w-0">
+                            {renderDatabaseSection()}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showCreate && !editingId && (
+                <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(360px,420px)] xl:items-start">
+                    <div className="min-w-0 space-y-5">
                         <div className="bg-[var(--bg-card)] p-6 rounded-2xl border border-[var(--border-default)] shadow-2xl">
-                            <h2 className={`${T.sectionTitle} text-xl flex justify-between items-center`}>
+                            <h2 className={`${T.sectionTitle} flex flex-col gap-4 text-xl lg:flex-row lg:items-center lg:justify-between`}>
                                 <span>{editingId ? 'Editar Perfil' : 'Crear Perfil'}</span>
-                                <div className="flex items-center gap-4">
+                                <div className="flex flex-wrap items-center gap-3">
                                     <div className="flex bg-[var(--bg-input)] p-1 rounded-xl">
                                         <button
                                             type="button"
@@ -476,8 +960,8 @@ const AiProfilesPage: React.FC = () => {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="col-span-1">
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                    <div className="col-span-1 min-w-0">
                                         <label className={`${T.labelText} ${S.meta} block mb-1`}>Nombre Agente (Público)</label>
                                         <input
                                             type="text"
@@ -487,7 +971,7 @@ const AiProfilesPage: React.FC = () => {
                                             placeholder="Ej: Ana, Soporte, Bot"
                                         />
                                     </div>
-                                    <div className="col-span-1">
+                                    <div className="col-span-1 min-w-0">
                                         <label className={`${T.labelText} ${S.meta} block mb-1`}>Título/Rol</label>
                                         <input
                                             type="text"
@@ -582,13 +1066,15 @@ const AiProfilesPage: React.FC = () => {
                                 </div>
                             </form>
                         </div>
+
+                        {editingId && renderToolsSection()}
                     </div>
 
                     {/* Sidebar: KB & Settings */}
-                    <div className="space-y-6">
+                    <div className="min-w-0 space-y-6">
                         {editingId ? (
                             <>
-                            <div className="bg-[var(--bg-card)] p-6 rounded-2xl border border-[var(--border-default)] shadow-2xl overflow-hidden">
+                            <div className="bg-[var(--bg-card)] p-5 rounded-2xl border border-[var(--border-default)] shadow-2xl overflow-hidden">
                                 <div className="flex justify-between items-center mb-4">
                                     <h3 className={`${T.cardTitle} text-sm`}>Base de Conocimiento</h3>
                                     <label className="relative inline-flex items-center cursor-pointer">
@@ -601,8 +1087,8 @@ const AiProfilesPage: React.FC = () => {
                                     </label>
                                 </div>
 
-                                <div className="mb-6">
-                                    <div className={`border-2 border-dashed rounded-xl p-4 text-center transition ${uploading ? 'bg-[var(--bg-input)] border-[var(--border-default)]' : 'border-[var(--border-default)] bg-[var(--bg-card)] hover:bg-[var(--bg-input)] hover:border-[var(--brand-primary)]/50'}`}>
+                                <div className="mb-3">
+                                    <div className={`border-2 border-dashed rounded-xl p-3.5 text-center transition ${uploading ? 'bg-[var(--bg-input)] border-[var(--border-default)]' : 'border-[var(--border-default)] bg-[var(--bg-card)] hover:bg-[var(--bg-input)] hover:border-[var(--brand-primary)]/50'}`}>
                                         <input
                                             type="file"
                                             accept=".pdf,.csv,.xlsx,.xls,application/pdf,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
@@ -621,7 +1107,7 @@ const AiProfilesPage: React.FC = () => {
                                     </div>
                                 </div>
 
-                                <div className="space-y-3">
+                                <div className="space-y-3 max-h-[16rem] overflow-y-auto pr-1">
                                     {kbFiles.length === 0 && <p className={`${T.emptyStateBody} text-center text-xs py-4`}>Sin documentos indexados</p>}
                                     {kbFiles.map((file: KbFile) => (
                                         <div key={file.id} className="p-3 bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl relative group transition-all hover:border-[var(--brand-primary)]/30">
@@ -658,14 +1144,14 @@ const AiProfilesPage: React.FC = () => {
                             </div>
 
                             {/* KB Sources — Web Scraping */}
-                            <div className="bg-[var(--bg-card)] p-6 rounded-2xl border border-[var(--border-default)] shadow-2xl">
+                            <div className="bg-[var(--bg-card)] p-5 rounded-2xl border border-[var(--border-default)] shadow-2xl">
                                 <div className="flex flex-col mb-4">
                                     <h3 className={`${T.cardTitle} text-sm`}>Sitios Web</h3>
                                     <p className={`${T.cardSubtitle} text-xs mt-1`}>Agrega URLs para que la IA aprenda de tu sitio web, FAQs o páginas de productos.</p>
                                 </div>
 
                                 {/* Add source form */}
-                                <div className="mb-4 p-3 bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl space-y-2">
+                                <div className="mb-3 rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] p-3 space-y-2">
                                     <input
                                         type="text"
                                         placeholder="Nombre (ej: FAQs del sitio)"
@@ -673,7 +1159,7 @@ const AiProfilesPage: React.FC = () => {
                                         onChange={e => setNewSourceName(e.target.value)}
                                         className={`w-full px-3 py-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`}
                                     />
-                                    <div className="flex gap-2">
+                                    <div className="flex flex-col gap-2 sm:flex-row">
                                         <input
                                             type="url"
                                             placeholder="https://mi-sitio.com/preguntas-frecuentes"
@@ -692,7 +1178,7 @@ const AiProfilesPage: React.FC = () => {
                                 </div>
 
                                 {/* Sources list */}
-                                <div className="space-y-3">
+                                <div className="space-y-3 max-h-[10rem] overflow-y-auto pr-1">
                                     {kbSources.length === 0 && (
                                         <p className={`${T.emptyStateBody} text-center text-xs py-4`}>Sin sitios web indexados</p>
                                     )}
@@ -754,9 +1240,9 @@ const AiProfilesPage: React.FC = () => {
                                 </div>
 
                                 {/* Connection form */}
-                                <div className="p-3 bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl space-y-2 mb-4">
+                                <div className="mb-4 rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] p-3 space-y-2">
                                     <input value={dbForm.name} onChange={e => setDbForm(f => ({...f, name: e.target.value}))} placeholder="Nombre de la fuente" className={`w-full px-3 py-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`} />
-                                    <div className="grid grid-cols-2 gap-2">
+                                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                                         <input value={dbForm.host} onChange={e => setDbForm(f => ({...f, host: e.target.value}))} placeholder="Host" className={`px-3 py-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`} />
                                         <input value={dbForm.port} onChange={e => setDbForm(f => ({...f, port: e.target.value}))} placeholder="Puerto" className={`px-3 py-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`} />
                                         <input value={dbForm.database} onChange={e => setDbForm(f => ({...f, database: e.target.value}))} placeholder="Base de datos" className={`px-3 py-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-default)] text-xs ${T.inputText} focus:outline-none focus:border-[var(--brand-primary)]`} />
@@ -776,24 +1262,26 @@ const AiProfilesPage: React.FC = () => {
                                 {dbTested && dbTables.length > 0 && (
                                     <div className="mb-4 space-y-3">
                                         <p className={`${T.cardSubtitle} text-xs`}>Selecciona las columnas que la IA podrá leer:</p>
-                                        {dbTables.slice(0, 8).map(table => (
-                                            <div key={`${table.schema}.${table.name}`} className="p-2 bg-[var(--bg-input)] border border-[var(--border-default)] rounded-lg">
-                                                <p className={`${T.tableCell} text-[10px] mb-1 font-bold`}>{table.schema}.{table.name}</p>
-                                                <div className="flex flex-wrap gap-1">
-                                                    {table.columns.map(col => {
-                                                        const key = `${table.schema}.${table.name}`;
-                                                        const mapping = dbMappings.find(m => m.table === key);
-                                                        const selected = mapping?.columns.includes(col.name) ?? false;
-                                                        return (
-                                                            <button key={col.name} onClick={() => toggleDbColumn(key, col.name)}
-                                                                className={`px-1.5 py-0.5 rounded text-[9px] transition border ${selected ? 'bg-[var(--brand-primary)]/20 border-[var(--brand-primary)] text-[var(--brand-primary)]' : 'bg-[var(--bg-surface)] border-[var(--border-default)] text-[var(--tx-helperText-color,#999)] hover:border-[var(--brand-primary)]/40'}`}>
-                                                                {col.name}
-                                                            </button>
-                                                        );
-                                                    })}
+                                        <div className="max-h-[24rem] space-y-3 overflow-y-auto pr-1">
+                                            {dbTables.slice(0, 8).map(table => (
+                                                <div key={`${table.schema}.${table.name}`} className="p-2 bg-[var(--bg-input)] border border-[var(--border-default)] rounded-lg">
+                                                    <p className={`${T.tableCell} text-[10px] mb-1 font-bold`}>{table.schema}.{table.name}</p>
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {table.columns.map(col => {
+                                                            const key = `${table.schema}.${table.name}`;
+                                                            const mapping = dbMappings.find(m => m.table === key);
+                                                            const selected = mapping?.columns.includes(col.name) ?? false;
+                                                            return (
+                                                                <button key={col.name} onClick={() => toggleDbColumn(key, col.name)}
+                                                                    className={`px-1.5 py-0.5 rounded text-[9px] transition border ${selected ? 'bg-[var(--brand-primary)]/20 border-[var(--brand-primary)] text-[var(--brand-primary)]' : 'bg-[var(--bg-surface)] border-[var(--border-default)] text-[var(--tx-helperText-color,#999)] hover:border-[var(--brand-primary)]/40'}`}>
+                                                                    {col.name}
+                                                                </button>
+                                                            );
+                                                        })}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            ))}
+                                        </div>
                                         <button onClick={handleAddDbSource} disabled={addingDb || !dbForm.name.trim() || dbMappings.length === 0}
                                             className="w-full py-2 rounded-xl bg-[var(--brand-primary)] text-white text-xs font-bold uppercase tracking-widest disabled:opacity-40 hover:opacity-90 transition">
                                             {addingDb ? 'Indexando...' : `Indexar ${dbMappings.reduce((s, m) => s + m.columns.length, 0)} columnas`}
@@ -802,7 +1290,7 @@ const AiProfilesPage: React.FC = () => {
                                 )}
 
                                 {/* DB sources list (shared with URL sources via kbSources) */}
-                                <div className="space-y-2">
+                                <div className="space-y-2 max-h-[20rem] overflow-y-auto pr-1">
                                     {kbSources.filter(s => s.sourceType === 'DATABASE').length === 0 && (
                                         <p className={`${T.emptyStateBody} text-center text-xs py-2`}>Sin bases de datos indexadas</p>
                                     )}
@@ -826,7 +1314,7 @@ const AiProfilesPage: React.FC = () => {
                             </div>
 
                             {/* AI Tools Section */}
-                            <div className="bg-[var(--bg-card)] p-6 rounded-2xl border border-[var(--border-default)] shadow-2xl">
+                            <div className="hidden bg-[var(--bg-card)] p-6 rounded-2xl border border-[var(--border-default)] shadow-2xl">
                                 <div className="flex flex-col mb-4">
                                     <h3 className={`${T.cardTitle} text-sm`}>Herramientas del Asistente</h3>
                                     <p className={`${T.cardSubtitle} text-xs mt-1`}>Activa las herramientas a las que este Agente tendrá acceso.</p>
@@ -841,13 +1329,13 @@ const AiProfilesPage: React.FC = () => {
                                     )}
                                     {profileTools.map(tool => (
                                         <div key={tool.id} className={`p-4 bg-[var(--bg-input)] border rounded-xl transition-all ${tool.isLinked ? 'border-[var(--brand-primary)]/50 shadow-sm' : 'border-[var(--border-default)]'}`}>
-                                            <div className="flex justify-between items-start">
-                                                <div className="flex-1">
+                                            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                                                <div className="min-w-0 flex-1">
                                                     <div className="flex items-center gap-2">
-                                                        <h4 className={`${T.menuText} text-sm`}>{tool.displayName}</h4>
-                                                        <span className={`${T.helperText} text-[10px] lowercase px-1.5 py-0.5 bg-[var(--bg-card)] rounded border border-[var(--border-default)]`}>{tool.name}</span>
+                                                        <h4 className={`${T.menuText} min-w-0 text-sm`}>{tool.displayName}</h4>
+                                                        <span className={`${T.helperText} max-w-full truncate text-[10px] lowercase px-1.5 py-0.5 bg-[var(--bg-card)] rounded border border-[var(--border-default)]`}>{tool.name}</span>
                                                     </div>
-                                                    <p className={`${T.helperText} text-[10px] mt-1 pr-4`}>{tool.description}</p>
+                                                    <p className={`${T.helperText} mt-1 text-[10px] leading-relaxed`}>{tool.description}</p>
                                                     
                                                     {!tool.globalIsActive && (
                                                         <div className="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-red-400 text-[10px]">
@@ -856,10 +1344,10 @@ const AiProfilesPage: React.FC = () => {
                                                         </div>
                                                     )}
                                                 </div>
-                                                <div className="flex items-center gap-4 ml-4">
+                                                <div className="flex shrink-0 items-stretch gap-3 lg:ml-4">
                                                     {tool.isLinked ? (
-                                                        <div className="flex flex-col items-end gap-2">
-                                                            <div className="flex items-center gap-2">
+                                                        <div className="flex w-full flex-col gap-2 lg:items-end">
+                                                            <div className="flex items-center justify-between gap-2 lg:justify-end">
                                                                 <span className={`${T.helperText} text-[10px]`}>Estado en este Perfil:</span>
                                                                 <button
                                                                     onClick={() => handleToggleProfileTool(tool.id, tool.profileIsActive)}
@@ -878,7 +1366,7 @@ const AiProfilesPage: React.FC = () => {
                                                     ) : (
                                                         <button
                                                             onClick={() => handleLinkTool(tool.id)}
-                                                            className={`${T.buttonText} px-3 py-1.5 bg-[var(--bg-input)] hover:bg-[var(--bg-card)] text-xs rounded-lg transition-colors border border-[var(--border-default)] hover:border-[var(--brand-primary)]/50`}
+                                                            className={`${T.buttonText} w-full whitespace-nowrap px-3 py-2 bg-[var(--bg-input)] hover:bg-[var(--bg-card)] text-xs rounded-lg transition-colors border border-[var(--border-default)] hover:border-[var(--brand-primary)]/50 lg:w-auto`}
                                                         >
                                                             + Vincular Tool
                                                         </button>

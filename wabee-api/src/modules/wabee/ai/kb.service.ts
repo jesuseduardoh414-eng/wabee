@@ -39,6 +39,33 @@ export interface RetrievalResult {
     sourceRef: string;
 }
 
+/* ── In-memory chunk cache ──
+ * Evita golpear la BD en cada mensaje cargando todos los chunks del tenant/perfil.
+ * El scoring sigue ejecutándose fresco por query — solo se cachea la carga de BD.
+ * TTL corto + invalidación explícita al reindexar mantienen la frescura. */
+interface CachedChunk {
+    id: string;
+    content: string;
+    contentNorm: string | null;
+    section: string | null;
+    file: { filename: string; id: string } | null;
+    source: { name: string; id: string } | null;
+}
+
+const CHUNK_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
+const chunkCache = new Map<string, { chunks: CachedChunk[]; expiresAt: number }>();
+
+function chunkCacheKey(tenantId: string, profileId?: string): string {
+    return `${tenantId}:${profileId || 'GLOBAL'}`;
+}
+
+/** Invalida todas las entradas de caché de un tenant (todos los perfiles). */
+function invalidateChunkCache(tenantId: string): void {
+    for (const key of chunkCache.keys()) {
+        if (key.startsWith(`${tenantId}:`)) chunkCache.delete(key);
+    }
+}
+
 export class KbService {
 
     /* ═══════════════════════════════════════════
@@ -188,6 +215,8 @@ export class KbService {
                 data: { status: 'INDEXED', error: null },
             });
 
+            invalidateChunkCache(tenantId);
+
             const duration = Date.now() - t0;
             console.log(
                 `[KbService] INDEX_OK file=${fileId} chunks=${chunks.length} ms=${duration}`
@@ -261,6 +290,8 @@ export class KbService {
                 where: { id: sourceId },
                 data: { status: 'INDEXED', error: null, vectorSyncAt: new Date() },
             });
+
+            invalidateChunkCache(tenantId);
 
             console.log(`[KbService] SOURCE_INDEX_OK sourceId=${sourceId} chunks=${chunks.length} ms=${Date.now() - t0}`);
 
@@ -345,6 +376,8 @@ export class KbService {
                 },
             });
 
+            invalidateChunkCache(tenantId);
+
             console.log(`[KbService] DB_INDEX_OK sourceId=${sourceId} chunks=${chunks.length} ms=${Date.now() - t0}`);
 
         } catch (error: any) {
@@ -373,26 +406,34 @@ export class KbService {
         console.log(`[KbService] RETRIEVE_START profile=${profileId || 'GLOBAL'} qlen=${query.length}`);
 
         try {
-            // Load chunks — include both file and source relations (either can be null)
-            const chunks = await withDbRetry(async () => {
-                return await prisma.kbChunk.findMany({
-                    where: {
-                        tenantId,
-                        profileId: profileId || undefined,
-                    },
-                    select: {
-                        id: true,
-                        fileId: true,
-                        sourceId: true,
-                        content: true,
-                        contentNorm: true,
-                        section: true,
-                        embedding: true,
-                        file: { select: { filename: true, id: true } },
-                        source: { select: { name: true, id: true } },
-                    },
-                });
-            }, { label: 'KB_RETRIEVAL' });
+            // Load chunks (cached) — include both file and source relations (either can be null)
+            const cacheKey = chunkCacheKey(tenantId, profileId);
+            const cached   = chunkCache.get(cacheKey);
+            let chunks: CachedChunk[];
+
+            if (cached && cached.expiresAt > Date.now()) {
+                chunks = cached.chunks;
+                console.log(`[KbService] RETRIEVE_CACHE_HIT key=${cacheKey} chunks=${chunks.length}`);
+            } else {
+                const loaded = await withDbRetry(async () => {
+                    return await prisma.kbChunk.findMany({
+                        where: {
+                            tenantId,
+                            profileId: profileId || undefined,
+                        },
+                        select: {
+                            id: true,
+                            content: true,
+                            contentNorm: true,
+                            section: true,
+                            file: { select: { filename: true, id: true } },
+                            source: { select: { name: true, id: true } },
+                        },
+                    });
+                }, { label: 'KB_RETRIEVAL' });
+                chunks = loaded as CachedChunk[];
+                chunkCache.set(cacheKey, { chunks, expiresAt: Date.now() + CHUNK_CACHE_TTL_MS });
+            }
 
             if (chunks.length === 0) {
                 console.log('[KbService] RETRIEVE_DONE count=0 best=0');

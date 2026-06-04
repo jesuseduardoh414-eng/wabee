@@ -2,6 +2,7 @@ import * as express from 'express';
 import jwt from 'jsonwebtoken';
 
 import { PlanSnapshot } from '../modules/billing/plan-resolver';
+import { requireJwtSecret } from '../config/env';
 
 export interface AuthRequest extends express.Request {
     user?: any;
@@ -32,8 +33,16 @@ export const authMiddleware = (req: AuthRequest, res: express.Response, next: ex
         });
     }
 
+    let secret: string;
     try {
-        const secret = process.env.JWT_SECRET || 'fallback-secret';
+        secret = requireJwtSecret();
+    } catch {
+        return res.status(500).json({
+            error: { code: 'CONFIG_ERROR', message: 'Error de configuración del servidor (JWT).' }
+        });
+    }
+
+    try {
         const decoded = jwt.verify(token, secret);
 
         // Inyectamos el usuario decodificado en el request

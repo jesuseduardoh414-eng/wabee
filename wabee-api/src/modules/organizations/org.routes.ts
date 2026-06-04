@@ -5,6 +5,7 @@ import { coreAdapter } from '../core/core.adapter';
 import { GlobalAuditLogService } from '@/modules/audit/global-audit-log.service';
 import { getAuditContext } from '@/shared/http/request-audit-context';
 import { CoreInternalService } from '../core/core.internal.service';
+import { requireJwtSecret } from '../../config/env';
 
 const router = Router();
 
@@ -415,7 +416,7 @@ router.post('/:orgId/members/:userId/impersonate', authMiddleware, requireAdmin,
         const session = await coreAdapter.organizations.impersonation.start(orgId, adminId, targetUserId, reason);
         if (!session) throw new Error('No se pudo crear la sesión de suplantación.');
 
-        const secret = process.env.JWT_SECRET || 'fallback-secret';
+        const secret = requireJwtSecret();
         const proxyToken = jwt.sign(
             {
                 ...req.user,

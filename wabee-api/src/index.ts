@@ -7,6 +7,8 @@ applyRedisPatch();
 
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import path from 'path';
 import * as crypto from 'crypto';
 
@@ -53,6 +55,30 @@ import { initStorage } from './lib/supabase-storage';
 
 const app = express();
 const port = Number(process.env.PORT) || 4000;
+
+// ─── Trust proxy (Render/Vercel) — necesario para que rate-limit lea la IP real ─
+app.set('trust proxy', 1);
+
+// ─── Helmet (cabeceras de seguridad) ────────────────────────────────────────────
+// Se desactivan las directivas que romperían el Web Widget embebible cross-origin
+// (iframes en sitios de clientes): frameguard, CSP, CORP y COEP.
+// Se mantienen las seguras: nosniff, HSTS, referrer-policy, ocultar X-Powered-By, etc.
+app.use(helmet({
+    frameguard: false,
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: false,
+    crossOriginEmbedderPolicy: false,
+}));
+
+// ─── Rate limiting en endpoints sensibles de autenticación ──────────────────────
+// Protege /v1/auth contra fuerza bruta. Ventana de 15 min, 40 intentos por IP.
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 40,
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+    message: { error: { code: 'RATE_LIMITED', message: 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.' } },
+});
 
 // ─── CORS ─────────────────────────────────────────────────────────────────────
 // Soporta múltiples orígenes separados por coma en CORS_ALLOWED_ORIGINS.
@@ -171,7 +197,7 @@ app.get('/health', async (_req, res) => {
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 app.use('/v1/wabee/dashboard', wabeeDashboardRoutes);
-app.use('/v1/auth', authRoutes);
+app.use('/v1/auth', authLimiter, authRoutes);
 app.use('/v1/dashboard', dashboardRoutes);
 
 app.use('/v1/orgs', (req: any, _res: any, next: any) => {

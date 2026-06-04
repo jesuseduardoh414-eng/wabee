@@ -144,4 +144,17 @@ if (env.NODE_ENV === 'production') {
     }
 }
 
+/**
+ * Devuelve el JWT_SECRET validado. Lanza si no está configurado.
+ * Reemplaza el antiguo fallback inseguro `'fallback-secret'`, que permitía
+ * falsificar tokens si la variable de entorno faltaba.
+ */
+export function requireJwtSecret(): string {
+    const secret = env.JWT_SECRET;
+    if (!secret || secret.length < 16) {
+        throw new Error('JWT_SECRET no está configurado (o es demasiado corto). Configúralo en las variables de entorno.');
+    }
+    return secret;
+}
+
 export default env;

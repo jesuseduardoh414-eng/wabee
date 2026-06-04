@@ -58,7 +58,7 @@ export async function chatGemini(opts: {
     // Auto-resolve legacy model names to the current fast model.
     let targetModel = model;
     if (model === 'gemini-1.5-flash' || model === 'gemini-1.5-flash-latest') {
-        targetModel = 'gemini-2.5-flash';
+        targetModel = 'gemini-3.5-flash';
     }
 
     const modelPath = targetModel.startsWith('models/') ? targetModel : `models/${targetModel}`;

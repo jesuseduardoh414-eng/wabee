@@ -100,7 +100,6 @@ export const OrganizationsPage = () => {
             
             // Usar el Store centralizado para persistencia atómica y consistente
             ImpersonationStore.start({
-                realToken: localStorage.getItem('wabee_token') || '',
                 realUser: localStorage.getItem('wabee_user'),
                 realRole: localStorage.getItem('wabee_role'),
                 impersonationToken: data.token,

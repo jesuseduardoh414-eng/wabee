@@ -15,6 +15,9 @@ router.post('/', whatsappController.createChannel);
 // Manual create (without session)
 router.post('/manual', whatsappController.createManualChannel);
 
+// Embedded Signup (Coexistence / standard) — canje de código + registro de canal
+router.post('/embedded-signup', whatsappController.embeddedSignup);
+
 // Discover assets (POST as per req)
 router.post('/detect', whatsappController.discoverAssets);
 

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../../../../config/core/core.prisma';
-import { CreateWhatsAppChannelSchema, TestMessageSchema } from './whatsapp.schemas';
+import { CreateWhatsAppChannelSchema, TestMessageSchema, EmbeddedSignupSchema } from './whatsapp.schemas';
+import { exchangeEmbeddedSignupCode, registerCoexistenceChannel } from '@/modules/oauth/meta/meta.oauth.service';
 import { decrypt } from './token.crypto';
 import { graphGet } from './meta.graph.client';
 import { tenancyAdapter } from '../../_adapters/tenancy.adapter';
@@ -115,6 +116,95 @@ export const createManualChannel = async (req: Request, res: Response) => {
     return createChannel(req, res);
 };
 
+
+// POST /embedded-signup
+// Canjea el código de Embedded Signup (Meta) y registra el canal.
+// Soporta onboardingMode = COEXISTENCE (la app del cliente sigue activa) o STANDARD.
+export const embeddedSignup = async (req: Request, res: Response) => {
+    const auditCtx = getAuditContext(req);
+    try {
+        const tenantId = tenancyAdapter.getTenantId(req);
+        const validation = EmbeddedSignupSchema.safeParse(req.body);
+
+        if (!validation.success) {
+            return res.status(400).json({ error: validation.error.errors });
+        }
+
+        const { code, wabaId, phoneNumberId, onboardingMode, name } = validation.data;
+
+        // --- ENFORCEMENT CHECK (mismo criterio que createChannel) ---
+        const plan = (req as any).orgPlan;
+        const limit = plan?.limits?.channels ?? null;
+
+        if (limit !== -1) {
+            // Solo cuenta como nuevo si el número aún no existe para el tenant.
+            const existing = await prisma.whatsappChannel.findFirst({
+                where: { tenantId, phoneNumberId }
+            });
+            if (!existing) {
+                const currentCount = await prisma.whatsappChannel.count({ where: { tenantId } });
+                if (limit === null || currentCount >= limit) {
+                    await GlobalAuditLogService.logEvent({
+                        category: 'channels',
+                        eventType: 'channel.limit_reached',
+                        severity: 'warning',
+                        outcome: 'failure',
+                        message: `Intento de conexión (Embedded Signup) fallido: Límite de canales alcanzado (${limit})`,
+                        metadata: { tenantId, limit, currentCount }
+                    }, auditCtx);
+
+                    return res.status(403).json({
+                        error: 'CHANNEL_LIMIT_REACHED',
+                        message: `Has alcanzado el límite de ${limit} canales de tu plan. Elimina uno para conectar un nuevo número.`
+                    });
+                }
+            }
+        }
+
+        // 1. Canjear código por token y crear sesión Meta.
+        const { session, accessToken } = await exchangeEmbeddedSignupCode(code, tenantId);
+
+        // 2. Registrar/reactivar el canal con su modo de onboarding.
+        const channel = await registerCoexistenceChannel({
+            tenantId,
+            sessionId: session.id,
+            accessToken,
+            wabaId,
+            phoneNumberId,
+            onboardingMode,
+            name,
+        });
+
+        await GlobalAuditLogService.logEvent({
+            category: 'channels',
+            eventType: 'channel.create',
+            severity: 'success',
+            outcome: 'success',
+            message: `Canal conectado vía Embedded Signup (${onboardingMode}): ${channel.name} (${channel.displayPhone || phoneNumberId})`,
+            targetType: 'whatsapp_channel',
+            targetId: channel.id,
+            newValues: { name: channel.name, phoneNumberId, wabaId, onboardingMode }
+        }, auditCtx);
+
+        return res.status(201).json(channel);
+    } catch (error: any) {
+        const metaError = error.response?.data?.error;
+        console.error('Error en Embedded Signup:', metaError || error.message);
+        await GlobalAuditLogService.logEvent({
+            category: 'channels',
+            eventType: 'channel.create.failed',
+            severity: 'critical',
+            outcome: 'failure',
+            message: `Error en Embedded Signup: ${metaError?.message || error.message}`,
+            metadata: { body: { ...req.body, code: '[redacted]' }, error: metaError?.message || error.message }
+        }, auditCtx);
+        return res.status(502).json({
+            code: 'EMBEDDED_SIGNUP_FAILED',
+            message: metaError?.message || 'No se pudo completar la conexión con Meta.',
+            metaCode: metaError?.code,
+        });
+    }
+};
 
 // POST /detect
 export const discoverAssets = async (req: Request, res: Response) => {
@@ -352,6 +442,7 @@ export const listChannels = async (req: Request, res: Response) => {
                 webhookStatus: true,
                 purpose: true,
                 wabaId: true,
+                onboardingMode: true,
                 archivedAt: true,
                 createdAt: true
             }

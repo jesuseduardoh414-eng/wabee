@@ -56,34 +56,58 @@ export class CampaignWebhook {
         //    recibe 200 en ~20 s, por eso cada item tiene su propio try/catch.
         try {
             const entry = body.entry?.[0];
-            const change = entry?.changes?.[0];
-            const value = change?.value;
+            const changes = entry?.changes;
 
-            if (!value) {
-                console.warn('[Webhook] ⚠️ Evento sin value, ignorando');
+            if (!Array.isArray(changes) || changes.length === 0) {
+                console.warn('[Webhook] ⚠️ Evento sin changes, ignorando');
                 return res.status(200).send('EVENT_RECEIVED');
             }
 
-            // ── Status updates ────────────────────────────────────────────────────
-            if (value.statuses && Array.isArray(value.statuses)) {
-                for (const statusObj of value.statuses) {
-                    try {
-                        await CampaignWebhook.processStatusUpdate(statusObj);
-                    } catch (err) {
-                        console.error('[Webhook] ❌ Error procesando status update:', err);
-                        // Continuamos con el siguiente item
+            // Iteramos TODAS las changes (no solo la primera) y ruteamos por tipo.
+            // Coexistence agrega `smb_message_echoes` (mensajes enviados desde la app
+            // del cliente) e `history`/`smb_app_state_sync` (sync de historial).
+            for (const change of changes) {
+                const value = change?.value;
+                const field = change?.field;
+                if (!value) continue;
+
+                // ── History sync (Coexistence) — recepción sin importación (diferido) ──
+                if (field === 'history' || field === 'smb_app_state_sync' || value.history) {
+                    CampaignWebhook.processHistorySync(field, value);
+                    continue;
+                }
+
+                // ── Status updates ──────────────────────────────────────────────────
+                if (value.statuses && Array.isArray(value.statuses)) {
+                    for (const statusObj of value.statuses) {
+                        try {
+                            await CampaignWebhook.processStatusUpdate(statusObj);
+                        } catch (err) {
+                            console.error('[Webhook] ❌ Error procesando status update:', err);
+                        }
                     }
                 }
-            }
 
-            // ── Inbound messages ──────────────────────────────────────────────────
-            if (value.messages && Array.isArray(value.messages)) {
-                for (const msgObj of value.messages) {
-                    try {
-                        await CampaignWebhook.processIncomingMessage(value.metadata, msgObj);
-                    } catch (err) {
-                        console.error('[Webhook] ❌ Error procesando mensaje entrante:', err);
-                        // Continuamos con el siguiente item
+                // ── Message echoes (Coexistence) — mensajes enviados desde la app ─────
+                const echoes = value.message_echoes;
+                if (echoes && Array.isArray(echoes)) {
+                    for (const echoObj of echoes) {
+                        try {
+                            await CampaignWebhook.processMessageEcho(value.metadata, echoObj);
+                        } catch (err) {
+                            console.error('[Webhook] ❌ Error procesando message echo:', err);
+                        }
+                    }
+                }
+
+                // ── Inbound messages ─────────────────────────────────────────────────
+                if (value.messages && Array.isArray(value.messages)) {
+                    for (const msgObj of value.messages) {
+                        try {
+                            await CampaignWebhook.processIncomingMessage(value.metadata, msgObj);
+                        } catch (err) {
+                            console.error('[Webhook] ❌ Error procesando mensaje entrante:', err);
+                        }
                     }
                 }
             }
@@ -284,6 +308,130 @@ export class CampaignWebhook {
                 contactName: thread.contactName
             }
         });
+    }
+
+    // ─── Procesamiento de message echoes (Coexistence) ────────────────────────
+    /**
+     * En Coexistence, los mensajes que el cliente envía DESDE su app de WhatsApp
+     * Business llegan como `smb_message_echoes`. Los persistimos como OUTBOUND para
+     * que el inbox de Wabee refleje la conversación completa (mirroring).
+     *
+     * Idempotencia: WebhookEvent con eventId = `echo:${waMessageId}` + índice único
+     * parcial (organization_id, wa_message_id).
+     *
+     * Nota: el destinatario (cliente) viene en `echoObj.to`; `echoObj.from` es el
+     * número del negocio.
+     */
+    private static async processMessageEcho(metadata: any, echoObj: any) {
+        const phoneId = metadata?.phone_number_id;
+        const waMessageId = echoObj?.id;
+        const toPhone = echoObj?.to;
+
+        if (!phoneId || !waMessageId || !toPhone) {
+            console.warn('[Webhook] ⚠️ Echo con datos insuficientes, ignorando', { phoneId, waMessageId, toPhone });
+            return;
+        }
+
+        console.log(`[Webhook] 🔁 Message echo received | wamid=${waMessageId} phone_number_id=${phoneId} to=${toPhone}`);
+
+        // 1. Resolver canal por Phone Number ID → tenant
+        const channel = await prisma.whatsappChannel.findFirst({
+            where: { phoneNumberId: phoneId }
+        });
+
+        if (!channel) {
+            console.warn(`[Webhook] ⚠️ Echo sin canal para phone_number_id=${phoneId}, ignorando`);
+            return;
+        }
+
+        const tenantId = channel.tenantId;
+
+        // 2. Idempotencia
+        try {
+            await coreAdapter.system.createWebhookEvent({
+                tenantId,
+                provider: 'meta_whatsapp',
+                eventId: `echo:${waMessageId}`,
+                eventType: 'wa_message_echo'
+            });
+        } catch (error: any) {
+            if (error.code === 'P2002') {
+                console.log(`[Webhook] ⚠️ Duplicate echo ignored | wamid=${waMessageId}`);
+                return;
+            }
+            throw error;
+        }
+
+        // 3. Resolver hilo (el "remoto" es el cliente destinatario)
+        const preview = echoObj.text?.body || `[${echoObj.type}]`;
+        const thread = await WhatsAppSharedService.resolveThread({
+            tenantId,
+            channelId: channel.id,
+            contactPhone: toPhone,
+            lastMessagePreview: preview,
+            isInbound: false
+        });
+
+        // 4. Persistir como OUTBOUND originado en la app del cliente
+        const newMessage = await prisma.whatsappMessage.create({
+            data: {
+                tenantId,
+                channelId: channel.id,
+                threadId: thread.id,
+                direction: 'OUTBOUND',
+                fromPhone: channel.displayPhone || echoObj.from || 'system',
+                toPhone,
+                remotePhone: toPhone,
+                type: echoObj.type,
+                textBody: echoObj.text?.body,
+                waMessageId,
+                timestamp: new Date(parseInt(echoObj.timestamp) * 1000),
+                status: 'SENT',
+                deliveryStatus: 'SENT',
+                source: 'APP',
+                rawPayload: echoObj
+            }
+        });
+
+        console.log(`[Webhook] 🔁 Echo persisted as OUTBOUND | msgId=${newMessage.id} threadId=${thread.id} tenantId=${tenantId}`);
+
+        // 5. Emitir realtime al Inbox
+        try {
+            RealtimeBus.publish(tenantId, {
+                type: 'inbox.message',
+                threadId: thread.id,
+                payload: {
+                    message: {
+                        id: newMessage.id,
+                        threadId: thread.id,
+                        channelId: channel.id,
+                        direction: 'OUTBOUND',
+                        fromPhone: channel.displayPhone || 'system',
+                        toPhone,
+                        remotePhone: toPhone,
+                        type: echoObj.type,
+                        textBody: echoObj.text?.body,
+                        waMessageId,
+                        timestamp: newMessage.timestamp,
+                        status: 'SENT',
+                        deliveryStatus: 'SENT',
+                    }
+                }
+            });
+        } catch (pubErr) {
+            console.warn('[Webhook] ⚠️ No se pudo publicar echo realtime:', pubErr);
+        }
+    }
+
+    // ─── Sync de historial (Coexistence) — recepción sin importación ───────────
+    /**
+     * Coexistence puede enviar el historial reciente de chats vía `history` /
+     * `smb_app_state_sync`. La importación completa está fuera de alcance por ahora;
+     * aquí solo se acusa recibo y se loguea para no romper el flujo del webhook.
+     */
+    private static processHistorySync(field: string | undefined, value: any) {
+        const threadCount = Array.isArray(value?.history) ? value.history.length : undefined;
+        console.log(`[Webhook] 🗂️ History sync recibido (field=${field || 'history'}, items=${threadCount ?? 'n/a'}). Importación diferida — no se persiste todavía.`);
     }
 
     // ─── Procesamiento de status updates ──────────────────────────────────────

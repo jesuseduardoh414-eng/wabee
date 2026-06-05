@@ -12,6 +12,7 @@ export interface Channel {
     webhookStatus?: 'VERIFIED' | 'FAILED' | 'PENDING';
     purpose?: 'SALES' | 'SUPPORT' | 'GENERAL';
     wabaId?: string;
+    onboardingMode?: 'STANDARD' | 'COEXISTENCE';
     createdAt?: string;
 }
 
@@ -40,6 +41,21 @@ export const createChannel = async (data: any): Promise<Channel> => {
 };
 
 export const connectChannel = createChannel; // Alias for createChannel
+
+export interface EmbeddedSignupPayload {
+    code: string;
+    wabaId: string;
+    phoneNumberId: string;
+    onboardingMode: 'STANDARD' | 'COEXISTENCE';
+    name?: string;
+}
+
+export const embeddedSignupExchange = async (data: EmbeddedSignupPayload): Promise<Channel> => {
+    return apiClient<Channel>('/channels/embedded-signup', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+};
 
 export const getChannelHealth = async (id: string): Promise<any> => {
     return apiClient<any>(`/channels/${id}/health`);

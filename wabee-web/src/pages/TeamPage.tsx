@@ -296,7 +296,6 @@ export const TeamPage = () => {
             const { impersonateToken } = res.data;
             const target = members.find((m) => m.userId === userId);
             ImpersonationStore.start({
-                realToken: localStorage.getItem('wabee_token') || '',
                 realUser: localStorage.getItem('wabee_user') || null,
                 realRole: localStorage.getItem('wabee_role') || null,
                 impersonationToken: impersonateToken,

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { env } from '../../../config/env';
 import { prisma } from '../../../config/core/core.prisma';
 import { encrypt } from '../../wabee/channels/whatsapp/token.crypto';
-import { graphGet } from '../../wabee/channels/whatsapp/meta.graph.client';
+import { graphGet, graphPost } from '../../wabee/channels/whatsapp/meta.graph.client';
 
 export async function exchangeCodeForToken(code: string, tenantId: string) {
     const url = `https://graph.facebook.com/${env.META_GRAPH_VERSION}/oauth/access_token`;
@@ -39,6 +39,119 @@ export async function exchangeCodeForToken(code: string, tenantId: string) {
     await syncChannelsFromMeta(tenantId, session.id, access_token);
 
     return session;
+}
+
+/**
+ * Embedded Signup (ES): canjea el `code` que devuelve el SDK de Facebook por un
+ * access token de negocio. A diferencia del OAuth clásico, ES NO usa `redirect_uri`
+ * en el canje. Crea/actualiza la MetaOauthSession del tenant y devuelve el token en
+ * claro para registrar el canal inmediatamente.
+ */
+export async function exchangeEmbeddedSignupCode(code: string, tenantId: string) {
+    const url = `https://graph.facebook.com/${env.META_GRAPH_VERSION}/oauth/access_token`;
+
+    const response = await axios.get(url, {
+        params: {
+            client_id: env.META_APP_ID,
+            client_secret: env.META_APP_SECRET,
+            code,
+        },
+    });
+
+    const { access_token, expires_in } = response.data;
+    const encrypted = encrypt(access_token);
+    const expiresAt = expires_in ? new Date(Date.now() + expires_in * 1000) : null;
+
+    const session = await (prisma as any).metaOauthSession.create({
+        data: {
+            tenantId,
+            accessTokenCiphertext: encrypted.ciphertext,
+            accessTokenIv: encrypted.iv,
+            accessTokenTag: encrypted.tag,
+            tokenExpiresAt: expiresAt,
+            scopes: ['whatsapp_business_management', 'whatsapp_business_messaging', 'business_management'],
+            provider: 'META',
+        },
+    });
+
+    return { session, accessToken: access_token as string };
+}
+
+/**
+ * Registra (o reactiva) un canal de WhatsApp obtenido vía Embedded Signup.
+ * - Suscribe la app de Wabee al WABA para recibir webhooks.
+ * - Lee los datos del número (display_phone_number, verified_name).
+ * - Persiste el canal con su `onboardingMode` (STANDARD | COEXISTENCE).
+ *
+ * No lanza si la suscripción de webhooks falla (se loguea); el canal igual queda
+ * registrado y el operador puede revisar la suscripción en Meta.
+ */
+export async function registerCoexistenceChannel(opts: {
+    tenantId: string;
+    sessionId: string;
+    accessToken: string;
+    wabaId: string;
+    phoneNumberId: string;
+    onboardingMode: 'STANDARD' | 'COEXISTENCE';
+    name?: string;
+}) {
+    const { tenantId, sessionId, accessToken, wabaId, phoneNumberId, onboardingMode, name } = opts;
+
+    // 1. Suscribir la app al WABA (necesario para recibir mensajes/echoes).
+    try {
+        await graphPost(`/${wabaId}/subscribed_apps`, accessToken, {});
+        console.log(`[ES] App suscrita al WABA ${wabaId}`);
+    } catch (err: any) {
+        console.error(`[ES] No se pudo suscribir la app al WABA ${wabaId}:`, err.response?.data || err.message);
+    }
+
+    // 2. Obtener datos del número.
+    let displayPhone: string | null = null;
+    let verifiedName: string | null = null;
+    try {
+        const phone = await graphGet(`/${phoneNumberId}`, accessToken, {
+            fields: 'display_phone_number,verified_name',
+        });
+        displayPhone = phone.display_phone_number || null;
+        verifiedName = phone.verified_name || null;
+    } catch (err: any) {
+        console.error(`[ES] No se pudieron leer datos del número ${phoneNumberId}:`, err.response?.data || err.message);
+    }
+
+    const isCoexistence = onboardingMode === 'COEXISTENCE';
+    const channelName = name || verifiedName || displayPhone || 'WhatsApp Channel';
+
+    // 3. Upsert del canal.
+    const channel = await (prisma as any).whatsappChannel.upsert({
+        where: { tenantId_phoneNumberId: { tenantId, phoneNumberId } },
+        update: {
+            name: channelName,
+            wabaId,
+            displayPhone,
+            verifiedName,
+            status: 'CONNECTED',
+            oauthSessionId: sessionId,
+            onboardingMode,
+            historySyncEnabled: isCoexistence,
+            coexistenceLinkedAt: isCoexistence ? new Date() : null,
+            archivedAt: null,
+        },
+        create: {
+            tenantId,
+            phoneNumberId,
+            wabaId,
+            name: channelName,
+            displayPhone,
+            verifiedName,
+            status: 'CONNECTED',
+            oauthSessionId: sessionId,
+            onboardingMode,
+            historySyncEnabled: isCoexistence,
+            coexistenceLinkedAt: isCoexistence ? new Date() : null,
+        },
+    });
+
+    return channel;
 }
 
 export function generateMetaAuthUrl(tenantId: string) {

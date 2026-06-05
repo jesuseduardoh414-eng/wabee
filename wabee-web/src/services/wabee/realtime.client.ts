@@ -79,27 +79,22 @@ export function connectCampaignStream(
     const connect = () => {
         if (closed) return;
 
-        // ── Leer credenciales de localStorage ─────────────────────────────────
-        const token = localStorage.getItem('wabee_token') ?? '';
-        // IMPORTANTE: EventSource no puede enviar x-tenant-id como header,
-        // así que lo mandamos por query param. tenancyAdapter lo lee desde req.query.tenantId
         const tenantId = localStorage.getItem('wabee_orgId') || localStorage.getItem('tenant_key') || '';
-        const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:4000/v1';
+        const API_URL = (import.meta as any).env?.VITE_API_URL || '/v1';
 
-        if (!token) {
-            console.warn('[RealtimeClient] No hay token JWT, no se abre SSE.');
+        if (!localStorage.getItem('wabee_session')) {
+            console.warn('[RealtimeClient] No hay sesión activa, no se abre SSE.');
             onFallback?.();
             return;
         }
 
         const params = new URLSearchParams();
-        params.set('token', token);
         if (tenantId) params.set('tenantId', tenantId);
 
         const url = `${API_URL}/wabee/realtime/stream?${params.toString()}`;
 
         console.log('[RealtimeClient] Conectando SSE...');
-        es = new EventSource(url);
+        es = new EventSource(url, { withCredentials: true });
 
         es.onopen = () => {
             retryCount = 0; // Reset al reconectar exitosamente

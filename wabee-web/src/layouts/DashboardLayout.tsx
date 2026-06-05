@@ -40,6 +40,7 @@ import { SuperAdminTenantSelector } from '../components/SuperAdminTenantSelector
 import { ImpersonationStore } from '../lib/impersonation.store';
 import { T, S } from '@/lib/text-tokens';
 import { BrandLogo } from '../components/BrandLogo';
+import { OnboardingModal, shouldShowOnboarding } from '../components/wabee/OnboardingModal';
 
 export const DashboardLayout = () => {
     const location = useLocation();
@@ -165,13 +166,13 @@ export const DashboardLayout = () => {
     const isActive = (path: string) => location.pathname === path;
 
     const handleLogout = () => {
-        localStorage.removeItem('wabee_token');
+        client.post('/auth/logout').catch(() => {});
+        localStorage.removeItem('wabee_session');
         localStorage.removeItem('wabee_user');
         localStorage.removeItem('wabee_orgId');
         localStorage.removeItem('wabee_orgName');
         localStorage.removeItem('wabee_role');
         localStorage.removeItem('wabee_globalRole');
-        // Limpiar tema personal del usuario al cerrar sesión
         localStorage.removeItem('wabee_user_theme_id');
         localStorage.removeItem('wabee_user_theme_colors');
         localStorage.removeItem('wabee_user_theme_typography');
@@ -180,6 +181,7 @@ export const DashboardLayout = () => {
 
     return (
         <div className="wabee-admin flex h-screen bg-[var(--bg-page)] text-[var(--text-body)] overflow-hidden">
+            {shouldShowOnboarding() && <OnboardingModal />}
             {/* Sidebar Ultra-Slim */}
             {!hideNav && (
                 <aside className="wabee-admin__sidebar w-60 flex flex-col p-4 gap-5 shrink-0">

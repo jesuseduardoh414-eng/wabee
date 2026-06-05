@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import client from '../api/client';
 import {
     ArrowRight,
     Bot,
     Check,
     CheckCircle2,
+    Crown,
     FileText,
     Globe,
     Inbox,
@@ -30,8 +32,27 @@ import { BrandLogo } from '../components/BrandLogo';
 const NAV_LINKS = [
     { label: 'Funcionalidades', href: '#features' },
     { label: 'Modulos', href: '#modules' },
+    { label: 'Planes', href: '#plans' },
     { label: 'Como funciona', href: '#how' },
 ];
+
+type PublicPlan = {
+    id: string;
+    code: string;
+    name: string;
+    description: string;
+    monthlyPrice: number;
+    annualPrice: number;
+    currency: string;
+    limits: {
+        channels: number;
+        contacts: number;
+        aiTokensPerMonth: number;
+        storageMb: number;
+        users: number;
+    };
+    flags: Record<string, boolean>;
+};
 
 const MODULES = [
     {
@@ -144,9 +165,26 @@ const HERO_METRICS = [
     { value: 'Tiempo real', label: 'Visibilidad comercial y operativa' },
 ];
 
+const PLAN_FLAG_LABELS: Record<string, string> = {
+    inbox: 'Inbox',
+    contacts: 'Contactos',
+    templatesHub: 'Plantillas',
+    channels: 'Canales',
+    campaigns: 'Campanas',
+    aiProfiles: 'IA',
+    team: 'Equipo',
+    integrationsTools: 'Integraciones',
+    groups: 'Grupos',
+    segments: 'Segmentos',
+    audit: 'Auditoria',
+    webWidgets: 'Widgets',
+};
+
 export const LandingPage = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const [plans, setPlans] = useState<PublicPlan[]>([]);
+    const [plansLoading, setPlansLoading] = useState(true);
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 24);
@@ -154,7 +192,36 @@ export const LandingPage = () => {
         return () => window.removeEventListener('scroll', onScroll);
     }, []);
 
+    useEffect(() => {
+        let active = true;
+
+        const loadPlans = async () => {
+            try {
+                const { data } = await client.get('/billing/public-plans');
+                if (active) setPlans(data.plans || []);
+            } catch (error) {
+                console.error('[landing] No se pudieron cargar los planes publicos', error);
+            } finally {
+                if (active) setPlansLoading(false);
+            }
+        };
+
+        loadPlans();
+
+        return () => {
+            active = false;
+        };
+    }, []);
+
     const closeMenu = () => setMenuOpen(false);
+    const formatPrice = (value: number, currency: string) => new Intl.NumberFormat('es-MX', {
+        style: 'currency',
+        currency,
+        maximumFractionDigits: 0,
+    }).format(value);
+    const highlightedPlanId = plans.length > 1
+        ? [...plans].sort((a, b) => b.monthlyPrice - a.monthlyPrice)[0]?.id
+        : plans[0]?.id;
 
     return (
         <div className="wabee-redesign min-h-screen text-[var(--text-strong)]">
@@ -416,6 +483,137 @@ export const LandingPage = () => {
                             <h3>Lectura ejecutiva</h3>
                             <p>El sitio y el producto dejan claro el valor de negocio desde el primer pantallazo.</p>
                         </article>
+                    </div>
+                </section>
+
+                <section className="wabee-shell wabee-modules-section" id="plans">
+                    <div className="wabee-section-heading">
+                        <span>Planes de Wabee</span>
+                        <h2>Capas de crecimiento para equipos que venden, responden y operan por WhatsApp</h2>
+                        <p className="wabee-pricing-intro">
+                            Diseñamos los planes como una evolucion natural del panal: empiezas con una base clara,
+                            sumas capacidad real y mantienes el control de conversaciones, automatizacion e IA
+                            dentro de la misma plataforma.
+                        </p>
+                    </div>
+
+                    <div className="wabee-pricing-hero">
+                        <div className="wabee-pricing-hero__copy">
+                            <div className="wabee-kicker">
+                                <Sparkles size={16} />
+                                Estructura comercial Wabee
+                            </div>
+                            <h3>De un equipo compacto a una operacion con mas volumen, sin salir del ecosistema Wabee.</h3>
+                            <p>
+                                Cada plan combina usuarios, canales, contactos y capacidad de IA con una experiencia
+                                visual alineada a la marca: clara, conversacional y lista para escalar.
+                            </p>
+                        </div>
+
+                        <div className="wabee-pricing-hive" aria-hidden="true">
+                            <div className="wabee-pricing-hive__cell wabee-pricing-hive__cell--primary">
+                                <strong>Inbox</strong>
+                                <span>Coordinacion central</span>
+                            </div>
+                            <div className="wabee-pricing-hive__cell">
+                                <strong>IA</strong>
+                                <span>Asistencia operativa</span>
+                            </div>
+                            <div className="wabee-pricing-hive__cell">
+                                <strong>CRM</strong>
+                                <span>Contactos y segmentos</span>
+                            </div>
+                            <div className="wabee-pricing-hive__cell">
+                                <strong>API</strong>
+                                <span>WhatsApp Cloud</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="wabee-pricing-grid">
+                        {plansLoading ? (
+                            <article className="wabee-pricing-card">
+                                <h3>Cargando planes...</h3>
+                                <p>Estamos obteniendo la informacion comercial disponible.</p>
+                            </article>
+                        ) : plans.length === 0 ? (
+                            <article className="wabee-pricing-card">
+                                <h3>Planes no disponibles</h3>
+                                <p>Por ahora no hay planes publicos configurados. Puedes solicitar una demo o contactarnos para una propuesta.</p>
+                            </article>
+                        ) : plans.map((plan) => (
+                            <article
+                                key={plan.id}
+                                className={`wabee-pricing-card${plan.id === highlightedPlanId ? ' wabee-pricing-card--featured' : ''}`}
+                            >
+                                <div className="wabee-pricing-card__glow" aria-hidden="true" />
+
+                                <div className="wabee-pricing-card__header">
+                                    <div>
+                                        <div className="wabee-pricing-card__eyebrow">
+                                            <span>{plan.code.replaceAll('_', ' ')}</span>
+                                            {plan.id === highlightedPlanId ? (
+                                                <span className="wabee-pricing-card__badge">
+                                                    <Crown size={14} />
+                                                    Recomendado
+                                                </span>
+                                            ) : null}
+                                        </div>
+                                        <h3>{plan.name}</h3>
+                                        <p>{plan.description}</p>
+                                    </div>
+                                </div>
+
+                                <div className="wabee-pricing-card__price">
+                                    <strong className="block text-3xl font-semibold text-[var(--text-strong)]">
+                                        {formatPrice(plan.monthlyPrice, plan.currency)}
+                                    </strong>
+                                    <span className="text-sm text-[color:color-mix(in_srgb,var(--text-strong),transparent_42%)]">
+                                        mensual o {formatPrice(plan.annualPrice, plan.currency)} anual
+                                    </span>
+                                </div>
+
+                                <div className="wabee-pricing-card__stats">
+                                    <div>
+                                        <span>Usuarios</span>
+                                        <strong>{plan.limits.users}</strong>
+                                    </div>
+                                    <div>
+                                        <span>Canales</span>
+                                        <strong>{plan.limits.channels}</strong>
+                                    </div>
+                                    <div>
+                                        <span>Contactos</span>
+                                        <strong>{plan.limits.contacts.toLocaleString('es-MX')}</strong>
+                                    </div>
+                                </div>
+
+                                <ul className="wabee-pricing-card__list">
+                                    <li className="flex items-center gap-2"><CheckCircle2 size={16} /> {plan.limits.users} usuarios operativos</li>
+                                    <li className="flex items-center gap-2"><CheckCircle2 size={16} /> {plan.limits.contacts.toLocaleString('es-MX')} contactos centralizados</li>
+                                    <li className="flex items-center gap-2"><CheckCircle2 size={16} /> {plan.limits.channels} canales de WhatsApp</li>
+                                    <li className="flex items-center gap-2"><CheckCircle2 size={16} /> {plan.limits.aiTokensPerMonth.toLocaleString('es-MX')} tokens IA por mes</li>
+                                    <li className="flex items-center gap-2"><CheckCircle2 size={16} /> {plan.limits.storageMb.toLocaleString('es-MX')} MB de almacenamiento</li>
+                                </ul>
+
+                                <div className="wabee-pricing-card__chips">
+                                    {Object.entries(plan.flags || {})
+                                        .filter(([, enabled]) => Boolean(enabled))
+                                        .slice(0, 5)
+                                        .map(([key]) => (
+                                            <span key={key}>
+                                                {PLAN_FLAG_LABELS[key] || key}
+                                            </span>
+                                        ))}
+                                </div>
+
+                                <div className="wabee-pricing-card__footer">
+                                    <Link to="/register" className={plan.id === highlightedPlanId ? 'wabee-primary-button' : 'wabee-secondary-button'}>
+                                        Crear cuenta <ArrowRight size={16} />
+                                    </Link>
+                                </div>
+                            </article>
+                        ))}
                     </div>
                 </section>
 

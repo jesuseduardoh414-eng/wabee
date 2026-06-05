@@ -2,11 +2,10 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 
 export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
-    const token = localStorage.getItem('wabee_token');
+    const hasSession = !!localStorage.getItem('wabee_session');
     const location = useLocation();
 
-    if (!token) {
-        // Redirigir a login pero guardar la ubicación a la que intentaba ir
+    if (!hasSession) {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 

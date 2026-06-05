@@ -18,6 +18,27 @@ const supabaseAdmin = createClient(
 
 const router = Router();
 
+function setAuthCookie(res: any, token: string) {
+    const isProd = process.env.NODE_ENV === 'production';
+    res.cookie('wabee_token', token, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? 'none' : 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: '/',
+    });
+}
+
+function clearAuthCookie(res: any) {
+    const isProd = process.env.NODE_ENV === 'production';
+    res.clearCookie('wabee_token', {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? 'none' : 'lax',
+        path: '/',
+    });
+}
+
 const loginSchema = z.object({
     email: z.string().email(),
     password: z.string().min(6),
@@ -64,6 +85,10 @@ router.post('/login', async (req, res) => {
                 targetType: 'User',
                 targetId: result.user?.id
             }, getAuditContext(req));
+
+            if ((result as any).token) {
+                setAuthCookie(res, (result as any).token);
+            }
         }
 
         res.json(result);
@@ -98,6 +123,9 @@ router.post('/2fa/confirm-setup', async (req, res) => {
         if (!result.success) {
             return res.status(400).json(result);
         }
+        if ((result as any).token) {
+            setAuthCookie(res, (result as any).token);
+        }
         res.json(result);
     } catch (error: any) {
         res.status(400).json({
@@ -117,6 +145,9 @@ router.post('/2fa/verify', async (req, res) => {
         if (!result.success) {
             return res.status(400).json(result);
         }
+        if ((result as any).token) {
+            setAuthCookie(res, (result as any).token);
+        }
         res.json(result);
     } catch (error: any) {
         res.status(400).json({
@@ -125,6 +156,12 @@ router.post('/2fa/verify', async (req, res) => {
             debug: { body: req.body }
         });
     }
+});
+
+// POST /v1/auth/logout
+router.post('/logout', (req, res) => {
+    clearAuthCookie(res);
+    res.json({ success: true });
 });
 
 // POST /v1/auth/invitations/accept

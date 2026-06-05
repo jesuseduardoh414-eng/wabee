@@ -144,7 +144,8 @@ router.post(
 
 /**
  * POST /threads/:id/resume-ai
- * V1: 501 Not Implemented
+ * Reactiva la IA en el thread después de un takeover humano.
+ * Agent solo en sus threads; Supervisor en cualquiera del tenant.
  */
 router.post(
     '/threads/:id/resume-ai',

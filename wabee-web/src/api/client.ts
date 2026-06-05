@@ -2,19 +2,20 @@ import axios from 'axios';
 import { ImpersonationStore } from '../lib/impersonation.store';
 
 const client = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:4000/v1',
+    baseURL: import.meta.env.VITE_API_URL || '/v1',
+    withCredentials: true,
 });
 
-// Interceptor para inyectar Token JWT y Tenant ID
-// El token activo ya es manejado por ImpersonationStore.start() que reemplaza wabee_token
+// Interceptor: solo inyecta Authorization cuando hay impersonación activa (override de cookie)
 client.interceptors.request.use((config) => {
-    const token = localStorage.getItem('wabee_token');
-    const tenantId = localStorage.getItem('wabee_orgId') || localStorage.getItem('tenant_key');
-
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+    if (ImpersonationStore.isActive()) {
+        const impState = ImpersonationStore.get();
+        if (impState?.impersonationToken) {
+            config.headers.Authorization = `Bearer ${impState.impersonationToken}`;
+        }
     }
 
+    const tenantId = localStorage.getItem('wabee_orgId') || localStorage.getItem('tenant_key');
     if (tenantId) {
         config.headers['x-tenant-id'] = tenantId;
     }
@@ -31,15 +32,15 @@ client.interceptors.response.use(
 
         // Sesión de impersonación terminada por el backend
         if (code === 'IMPERSONATION_ENDED') {
-            ImpersonationStore.stop(); // restaura token real
+            ImpersonationStore.stop();
             window.location.reload();
             return Promise.reject(error);
         }
 
         // Usuario suspendido mientras navegaba
         if (code === 'MEMBER_SUSPENDED') {
-            ImpersonationStore.forceClean(); // no restaurar, simplemente limpiar
-            localStorage.removeItem('wabee_token');
+            ImpersonationStore.forceClean();
+            localStorage.removeItem('wabee_session');
             localStorage.removeItem('wabee_user');
             localStorage.removeItem('wabee_orgId');
             localStorage.removeItem('wabee_orgName');
@@ -48,10 +49,10 @@ client.interceptors.response.use(
             return Promise.reject(error);
         }
 
-        // 401 genérico: limpiar todo y redirigir al login
+        // 401 genérico: limpiar sesión y redirigir al login
         if (status === 401) {
             ImpersonationStore.forceClean();
-            localStorage.removeItem('wabee_token');
+            localStorage.removeItem('wabee_session');
             if (window.location.pathname !== '/login') {
                 window.location.href = '/login';
             }

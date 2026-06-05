@@ -49,7 +49,6 @@ export function OrganizationUsersModal({ isOpen, onClose, organization }: Organi
             const response = await superAdminOrgsApi.impersonate(organization.id, member.userId);
             if (response.success && response.token) {
                 ImpersonationStore.start({
-                    realToken: localStorage.getItem('wabee_token') || '',
                     realUser: localStorage.getItem('wabee_user'),
                     realRole: localStorage.getItem('wabee_role'),
                     impersonationToken: response.token,

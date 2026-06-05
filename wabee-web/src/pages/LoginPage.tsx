@@ -53,7 +53,7 @@ export const LoginPage = () => {
                 });
                 setStep('2fa');
             } else {
-                localStorage.setItem('wabee_token', data.token);
+                localStorage.setItem('wabee_session', '1');
                 localStorage.setItem('wabee_user', JSON.stringify(data.user));
 
                 const savedThemeId = data.user?.preferences?.selectedThemeId;
@@ -100,7 +100,7 @@ export const LoginPage = () => {
                 code: otpCode,
             });
 
-            localStorage.setItem('wabee_token', data.token);
+            localStorage.setItem('wabee_session', '1');
             localStorage.setItem('wabee_user', JSON.stringify(data.user));
 
             const savedThemeId = data.user?.preferences?.selectedThemeId;

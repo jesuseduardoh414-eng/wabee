@@ -23,7 +23,12 @@ export default defineConfig({
     ],
     server: {
         port: 5173,
-        strictPort: true
+        strictPort: true,
+        proxy: {
+            '/v1': { target: 'http://localhost:4000', changeOrigin: true },
+            '/oauth': { target: 'http://localhost:4000', changeOrigin: true },
+            '/webhooks': { target: 'http://localhost:4000', changeOrigin: true },
+        },
     },
     build: {
         rollupOptions: {

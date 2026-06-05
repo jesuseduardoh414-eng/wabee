@@ -12,6 +12,15 @@ export const CreateWhatsAppChannelSchema = z.object({
 
 export const ConnectManualChannelSchema = CreateWhatsAppChannelSchema;
 
+export const EmbeddedSignupSchema = z.object({
+    code: z.string().min(1, 'Authorization code is required'),
+    wabaId: z.string().min(1, 'WABA ID is required'),
+    phoneNumberId: z.string().min(1, 'Phone Number ID is required'),
+    onboardingMode: z.enum(['STANDARD', 'COEXISTENCE']).default('COEXISTENCE'),
+    name: z.string().optional(),
+    purpose: z.enum(['SALES', 'SUPPORT', 'GENERAL']).default('GENERAL'),
+});
+
 export const DetectChannelSchema = z.object({
     purpose: z.enum(['SALES', 'SUPPORT', 'GENERAL']).default('GENERAL'),
 });

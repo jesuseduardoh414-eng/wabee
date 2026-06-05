@@ -78,6 +78,9 @@ export const env = {
     META_APP_SECRET: process.env.META_APP_SECRET || '',
     META_REDIRECT_URI: process.env.META_REDIRECT_URI || '',
     META_GRAPH_VERSION: process.env.META_GRAPH_VERSION || 'v19.0',
+    // Embedded Signup: configuration_id de "Facebook Login for Business".
+    // Lo usa el frontend; se referencia aquí para documentación/validación.
+    META_CONFIG_ID: process.env.META_CONFIG_ID || '',
 
     // ─── Token encryption (for OAuth session storage) ────────────────────────────
     // Must be a 64-char hex string (32 bytes) in production.

@@ -48,6 +48,14 @@ ${channel.lastErrorMessage ? `Error: ${channel.lastErrorMessage}` : ''}`}
                     <span className={`px-2.5 py-0.5 rounded-full ${T.badgeText} ${S.meta} ${getStatusBadge()}`}>
                         {isIncomplete ? 'INCOMPLETE' : channel.status}
                     </span>
+                    {channel.onboardingMode === 'COEXISTENCE' && (
+                        <span
+                            className={`${T.badgeText} ${S.meta} text-[#128C7E] bg-[#25D366]/10 px-2 py-0.5 rounded border border-[#25D366]/30 uppercase tracking-tighter`}
+                            title="Coexistence: el cliente sigue usando su app de WhatsApp Business mientras opera este número desde Wabee."
+                        >
+                            Coexistence
+                        </span>
+                    )}
                     {channel.healthStatus === 'RED' && (
                         <span className={`${T.badgeText} ${S.meta} text-[color:var(--state-danger)] bg-[var(--state-danger)]/10 px-2 py-0.5 rounded border border-[var(--state-danger)]/20 uppercase tracking-tighter`}>
                             ERROR CRÍTICO
@@ -116,7 +124,7 @@ ${channel.lastErrorMessage ? `Error: ${channel.lastErrorMessage}` : ''}`}
             </div>
 
             <div className={`mt-4 flex justify-between items-center ${T.helperText} ${S.meta} opacity-40 uppercase tracking-widest`}>
-                <span>WhatsApp Cloud API</span>
+                <span>{channel.onboardingMode === 'COEXISTENCE' ? 'WhatsApp Coexistence' : 'WhatsApp Cloud API'}</span>
                 <span>{channel.createdAt ? new Date(channel.createdAt).toLocaleDateString() : '—'}</span>
             </div>
         </div>

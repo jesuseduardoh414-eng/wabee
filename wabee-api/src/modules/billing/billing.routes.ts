@@ -16,6 +16,150 @@ import { getAuditContext } from '@/shared/http/request-audit-context';
 
 const router = Router();
 
+type PublicPlanResponse = {
+    id: string;
+    code: string;
+    name: string;
+    monthlyPrice: number;
+    annualPrice: number;
+    currency: string;
+    activationMode: 'direct' | 'stripe';
+    canActivateDirectly: boolean;
+    canCheckoutMonthly: boolean;
+    canCheckoutAnnual: boolean;
+    checkoutStatus: string;
+    checkoutMessage: string;
+    isEnterprise: boolean;
+    limits: {
+        channels: number;
+        contacts: number;
+        aiTokensPerMonth: number;
+        storageMb: number;
+        users: number;
+    };
+    flags: Record<string, any>;
+    description: string;
+};
+
+const getWabeeProductId = async (): Promise<string | null> => {
+    const wabeeProduct = await corePrisma.product.findFirst({
+        where: { slug: { equals: 'wabee', mode: 'insensitive' } },
+        select: { id: true }
+    });
+
+    return wabeeProduct?.id || null;
+};
+
+const buildPublicPlansResponse = async (productId: string | null): Promise<PublicPlanResponse[]> => {
+    const rawTemplates: any[] = await corePrisma.$queryRaw`
+        SELECT id, name, description, metadata, deleted_at as "deletedAt", is_active as "isActive"
+        FROM core.plan_templates
+        WHERE deleted_at IS NULL
+          AND is_active = true
+          AND (${productId}::uuid IS NULL OR product_id = ${productId}::uuid)
+    `;
+
+    const plansWithVersions = await Promise.all(rawTemplates.map(async (template) => {
+        const versions: any[] = await corePrisma.$queryRaw`
+            SELECT monthly_price as "monthlyPrice",
+                   annual_price as "annualPrice",
+                   currency,
+                   stripe_price_monthly_id as "stripePriceMonthlyId",
+                   stripe_price_annual_id as "stripePriceAnnualId",
+                   limits_json as "limitsJson",
+                   features_json as "featuresJson",
+                   is_published as "isPublished",
+                   is_current as "isCurrent"
+            FROM core.plan_versions
+            WHERE plan_template_id = ${template.id}::uuid
+              AND is_current = true
+              AND deleted_at IS NULL
+            LIMIT 1
+        `;
+
+        return { ...template, version: versions[0] || null };
+    }));
+
+    return plansWithVersions
+        .filter((plan) => {
+            const meta = (plan.metadata || {}) as Record<string, any>;
+            const code = String(meta.code || plan.name || '').toUpperCase();
+
+            if (plan.deletedAt || plan.isActive !== true) return false;
+            if (meta.isPublic !== true) return false;
+            if (code === 'TRIAL' || code === 'FREE') return false;
+            if (!plan.version?.isPublished || !plan.version?.isCurrent) return false;
+
+            return true;
+        })
+        .map((plan) => {
+            const version = plan.version;
+            const meta = (plan.metadata || {}) as Record<string, any>;
+            const limits = (version.limitsJson || {}) as Record<string, any>;
+            const monthlyPrice = Number(version.monthlyPrice ?? 0);
+            const annualPrice = Number(version.annualPrice ?? 0);
+            const isFree = monthlyPrice === 0 && annualPrice === 0;
+            const monthlyStripePriceId = meta?.stripePriceMonthlyId || version.stripePriceMonthlyId || null;
+            const annualStripePriceId = meta?.stripePriceAnnualId || version.stripePriceAnnualId || null;
+            const canCheckoutMonthly = !!(monthlyStripePriceId && String(monthlyStripePriceId).startsWith('price_'));
+            const canCheckoutAnnual = !!(annualStripePriceId && String(annualStripePriceId).startsWith('price_'));
+
+            let checkoutStatus = 'incomplete';
+            let checkoutMessage = 'Configuracion de Stripe pendiente';
+
+            if (isFree) {
+                checkoutStatus = 'free';
+                checkoutMessage = 'Activacion directa disponible';
+            } else if (canCheckoutMonthly && canCheckoutAnnual) {
+                checkoutStatus = 'ready_both';
+                checkoutMessage = 'Disponible mensual y anual';
+            } else if (canCheckoutMonthly) {
+                checkoutStatus = 'monthly_only';
+                checkoutMessage = 'Disponible solo mensual';
+            } else if (canCheckoutAnnual) {
+                checkoutStatus = 'annual_only';
+                checkoutMessage = 'Disponible solo anual';
+            }
+
+            return {
+                id: plan.id,
+                code: meta.code || plan.name,
+                name: meta.displayName || plan.name,
+                monthlyPrice,
+                annualPrice,
+                currency: String(version.currency || 'USD').toUpperCase(),
+                activationMode: isFree ? 'direct' as const : 'stripe' as const,
+                canActivateDirectly: isFree,
+                canCheckoutMonthly,
+                canCheckoutAnnual,
+                checkoutStatus,
+                checkoutMessage,
+                isEnterprise: String(meta.code || '').toUpperCase() === 'ENTERPRISE',
+                limits: {
+                    channels: Number(limits.channels ?? 0),
+                    contacts: Number(limits.contacts ?? 0),
+                    aiTokensPerMonth: Number(limits.aiTokensPerMonth ?? 0),
+                    storageMb: Number(limits.storageMb ?? 0),
+                    users: Number(limits.users ?? 0),
+                },
+                flags: (version.featuresJson || {}) as Record<string, any>,
+                description: String(plan.description || ''),
+            };
+        })
+        .sort((a, b) => a.monthlyPrice - b.monthlyPrice);
+};
+
+router.get('/public-plans', async (_req, res) => {
+    try {
+        const productId = await getWabeeProductId();
+        const plans = await buildPublicPlansResponse(productId);
+        res.json({ plans });
+    } catch (error: any) {
+        console.error('[billing/public-plans] Error:', error.message);
+        res.status(500).json({ error: { code: 'PUBLIC_PLANS_ERROR', message: 'Error al obtener planes publicos.' } });
+    }
+});
+
 // Apply auth, tenant and prevent-impersonation middleware automatically to all billing routes
 router.use(authMiddleware);
 router.use(tenantMiddleware);

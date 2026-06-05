@@ -19,8 +19,13 @@ export const authMiddleware = (req: AuthRequest, res: express.Response, next: ex
 
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
+        // Bearer header takes precedence (used by impersonation override)
         token = authHeader.split(' ')[1];
+    } else if ((req as any).cookies?.wabee_token) {
+        // HttpOnly cookie (standard session auth)
+        token = (req as any).cookies.wabee_token;
     } else if (req.query.token && typeof req.query.token === 'string') {
+        // Query param fallback (SSE EventSource)
         token = req.query.token;
     }
 

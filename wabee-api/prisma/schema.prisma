@@ -71,6 +71,11 @@ model WhatsappChannel {
   lastErrorMessage        String?                 @map("last_error_message")
   lastErrorAt             DateTime?               @map("last_error_at") @db.Timestamptz(6)
   oauthSessionId          String?                 @map("oauth_session_id") @db.Uuid
+  /// STANDARD = Cloud API normal (el número se migra a la API).
+  /// COEXISTENCE = el número sigue activo en la app de WhatsApp Business y en Wabee a la vez.
+  onboardingMode          String                  @default("STANDARD") @map("onboarding_mode")
+  historySyncEnabled      Boolean                 @default(false) @map("history_sync_enabled")
+  coexistenceLinkedAt     DateTime?               @map("coexistence_linked_at") @db.Timestamptz(6)
   createdAt               DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt               DateTime                @updatedAt @map("updated_at") @db.Timestamptz(6)
   archivedAt              DateTime?               @map("archived_at") @db.Timestamptz(6)

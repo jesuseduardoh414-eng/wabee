@@ -1316,6 +1316,268 @@ input::selection, textarea::selection {
   gap: 16px;
 }
 
+.wabee-pricing-intro {
+  margin: 18px 0 0;
+  color: var(--wabee-copy);
+  line-height: 1.8;
+  max-width: 66ch;
+}
+
+.wabee-pricing-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  gap: 26px;
+  margin-bottom: 26px;
+  padding: 30px;
+  border-radius: 34px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--brand-primary), transparent 78%), transparent 36%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 249, 238, 0.94));
+  border: 1px solid rgba(255, 194, 26, 0.18);
+  box-shadow: 0 22px 60px rgba(56, 40, 0, 0.08);
+}
+
+.wabee-pricing-hero::after {
+  content: "";
+  position: absolute;
+  inset: auto -30px -30px auto;
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--brand-primary), transparent 72%);
+  filter: blur(45px);
+  pointer-events: none;
+}
+
+.wabee-pricing-hero__copy {
+  position: relative;
+  z-index: 1;
+}
+
+.wabee-pricing-hero__copy h3 {
+  margin: 18px 0 12px;
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  line-height: 0.98;
+  letter-spacing: -0.07em;
+}
+
+.wabee-pricing-hero__copy p {
+  margin: 0;
+  color: var(--wabee-copy);
+  line-height: 1.8;
+  max-width: 56ch;
+}
+
+.wabee-pricing-hive {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-self: center;
+  z-index: 1;
+}
+
+.wabee-pricing-hive__cell {
+  padding: 20px 18px;
+  border-radius: 28px;
+  min-height: 116px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(26, 26, 26, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.wabee-pricing-hive__cell--primary {
+  background: linear-gradient(135deg, var(--brand-primary), #ffdb71);
+  color: #1f1a17;
+  transform: translateY(-8px);
+}
+
+.wabee-pricing-hive__cell strong,
+.wabee-pricing-hive__cell span {
+  display: block;
+}
+
+.wabee-pricing-hive__cell strong {
+  font-size: 1.05rem;
+  letter-spacing: -0.03em;
+}
+
+.wabee-pricing-hive__cell span {
+  margin-top: 8px;
+  line-height: 1.5;
+  color: rgba(31, 26, 23, 0.72);
+}
+
+.wabee-pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+
+.wabee-pricing-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 28px;
+  border-radius: 34px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 252, 247, 0.96));
+  border: 1px solid rgba(26, 26, 26, 0.08);
+  box-shadow: 0 20px 52px rgba(44, 34, 16, 0.08);
+}
+
+.wabee-pricing-card--featured {
+  border-color: rgba(255, 194, 26, 0.38);
+  transform: translateY(-8px);
+  box-shadow: 0 28px 70px rgba(255, 194, 26, 0.18);
+}
+
+.wabee-pricing-card__glow {
+  position: absolute;
+  top: -30px;
+  right: -16px;
+  width: 150px;
+  height: 150px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--brand-primary), transparent 72%);
+  filter: blur(42px);
+  pointer-events: none;
+}
+
+.wabee-pricing-card__header,
+.wabee-pricing-card__price,
+.wabee-pricing-card__stats,
+.wabee-pricing-card__list,
+.wabee-pricing-card__chips,
+.wabee-pricing-card__footer {
+  position: relative;
+  z-index: 1;
+}
+
+.wabee-pricing-card__eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(31, 26, 23, 0.72);
+}
+
+.wabee-pricing-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(31, 26, 23, 0.92);
+  color: #fff7dc;
+  letter-spacing: 0.12em;
+}
+
+.wabee-pricing-card h3 {
+  margin: 0;
+  font-size: clamp(2rem, 3vw, 2.7rem);
+  line-height: 0.95;
+  letter-spacing: -0.07em;
+}
+
+.wabee-pricing-card p {
+  margin: 14px 0 0;
+  max-width: 38ch;
+  color: var(--wabee-copy);
+}
+
+.wabee-pricing-card__price {
+  margin-top: 22px;
+}
+
+.wabee-pricing-card__price strong {
+  font-size: clamp(2.8rem, 4vw, 4rem);
+  line-height: 0.95;
+  letter-spacing: -0.09em;
+}
+
+.wabee-pricing-card__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.wabee-pricing-card__stats div {
+  padding: 14px 16px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(26, 26, 26, 0.08);
+}
+
+.wabee-pricing-card__stats span,
+.wabee-pricing-card__stats strong {
+  display: block;
+}
+
+.wabee-pricing-card__stats span {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(31, 26, 23, 0.56);
+}
+
+.wabee-pricing-card__stats strong {
+  margin-top: 10px;
+  font-size: 1.2rem;
+  letter-spacing: -0.04em;
+  color: var(--wabee-charcoal);
+}
+
+.wabee-pricing-card__list {
+  margin-top: 22px;
+  display: grid;
+  gap: 12px;
+  color: rgba(31, 26, 23, 0.84);
+}
+
+.wabee-pricing-card__list li svg {
+  color: color-mix(in srgb, var(--brand-primary), black 12%);
+}
+
+.wabee-pricing-card__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.wabee-pricing-card__chips span {
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 194, 26, 0.24);
+  background: rgba(255, 194, 26, 0.08);
+  color: rgba(31, 26, 23, 0.82);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+.wabee-pricing-card__footer {
+  margin-top: auto;
+  padding-top: 24px;
+}
+
+.wabee-pricing-card__footer a {
+  width: fit-content;
+}
+
 .wabee-flow article {
   padding: 22px;
   border-radius: 26px;
@@ -1346,7 +1608,8 @@ input::selection, textarea::selection {
 @media (max-width: 1100px) {
   .wabee-hero,
   .wabee-preview-section,
-  .wabee-system-card {
+  .wabee-system-card,
+  .wabee-pricing-hero {
     grid-template-columns: 1fr;
   }
 
@@ -1356,7 +1619,8 @@ input::selection, textarea::selection {
 
   .wabee-modules,
   .wabee-flow,
-  .wabee-token-grid {
+  .wabee-token-grid,
+  .wabee-pricing-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -1373,6 +1637,16 @@ input::selection, textarea::selection {
 
   .wabee-nav {
     flex-wrap: wrap;
+  }
+
+  .wabee-pricing-grid,
+  .wabee-pricing-card__stats,
+  .wabee-pricing-hive {
+    grid-template-columns: 1fr;
+  }
+
+  .wabee-pricing-card--featured {
+    transform: none;
   }
 
   .wabee-nav__links,

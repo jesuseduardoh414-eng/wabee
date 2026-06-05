@@ -12,6 +12,7 @@ initSentry();
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 import * as crypto from 'crypto';
@@ -76,24 +77,59 @@ process.on('uncaughtException', (err: Error) => {
 app.set('trust proxy', 1);
 
 // ─── Helmet (cabeceras de seguridad) ────────────────────────────────────────────
-// Se desactivan las directivas que romperían el Web Widget embebible cross-origin
-// (iframes en sitios de clientes): frameguard, CSP, CORP y COEP.
-// Se mantienen las seguras: nosniff, HSTS, referrer-policy, ocultar X-Powered-By, etc.
+// frameguard/CSP/CORP/COEP desactivados: el Web Widget se embebe en iframes
+// cross-origin en sitios de clientes y requiere carga de recursos desde cualquier origen.
+// El resto de headers de seguridad permanecen activos (nosniff, HSTS, referrer, etc).
 app.use(helmet({
     frameguard: false,
     contentSecurityPolicy: false,
     crossOriginResourcePolicy: false,
     crossOriginEmbedderPolicy: false,
+    hsts: {
+        maxAge: 31536000, // 1 año
+        includeSubDomains: true,
+        preload: true,
+    },
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
 }));
 
-// ─── Rate limiting en endpoints sensibles de autenticación ──────────────────────
-// Protege /v1/auth contra fuerza bruta. Ventana de 15 min, 40 intentos por IP.
+// ─── Rate limiting ────────────────────────────────────────────────────────────────
+
+// Auth: protege contra fuerza bruta. 40 intentos / 15 min por IP.
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 40,
     standardHeaders: 'draft-7',
     legacyHeaders: false,
     message: { error: { code: 'RATE_LIMITED', message: 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.' } },
+});
+
+// API general: previene abuso y DDoS básico. 300 req / min por IP.
+const generalLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    limit: 300,
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+    skip: (req) => req.path.startsWith('/health'),
+    message: { error: { code: 'RATE_LIMITED', message: 'Demasiadas solicitudes. Espera un momento e inténtalo de nuevo.' } },
+});
+
+// Mensajes: evita spam de envío masivo manual. 60 mensajes / min por IP.
+const messageLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    limit: 60,
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+    message: { error: { code: 'RATE_LIMITED', message: 'Límite de envío de mensajes alcanzado. Espera un momento.' } },
+});
+
+// Campañas: previene creación/disparo masivo accidental. 20 req / min por IP.
+const campaignLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    limit: 20,
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+    message: { error: { code: 'RATE_LIMITED', message: 'Límite de operaciones de campaña alcanzado. Espera un momento.' } },
 });
 
 // ─── CORS ─────────────────────────────────────────────────────────────────────
@@ -161,6 +197,7 @@ app.get('/v1/webhooks/whatsapp', CampaignWebhook.verify.bind(CampaignWebhook));
 app.post('/v1/webhooks/whatsapp', captureRawBody, CampaignWebhook.handle.bind(CampaignWebhook));
 
 // ─── Global Middleware (CORS específico se aplica más abajo) ────────────────────
+app.use(cookieParser());
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ limit: '5mb', extended: true }));
 
@@ -263,15 +300,17 @@ import { tenantMiddleware } from './middleware/tenant';
 import { authGuardMiddleware } from './middleware/auth-guard.middleware';
 import { planResolverMiddleware } from './middleware/plan.resolver.middleware';
 
+app.use('/v1', generalLimiter);
+
 app.use('/v1/wabee/contacts', authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, wabeeContactsRoutes);
-app.use('/v1/wabee/inbox', authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, wabeeInboxRoutes);
-app.use('/v1/wabee/inbox/roles', authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, wabeeInboxRolesRoutes);
+app.use('/v1/wabee/inbox', messageLimiter, authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, wabeeInboxRoutes);
+app.use('/v1/wabee/inbox/roles', messageLimiter, authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, wabeeInboxRolesRoutes);
 app.use('/v1/wabee/channels', authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, wabeeChannelsRoutes);
-app.use('/v1/wabee/whatsapp', authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, wabeeWhatsappOutboundRoutes);
+app.use('/v1/wabee/whatsapp', messageLimiter, authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, wabeeWhatsappOutboundRoutes);
 app.use('/v1/wabee/ai', authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, wabeeAiRoutes);
 app.use('/v1/wabee/web-widgets', authMiddleware, webWidgetPreviewRouter);
 app.use('/v1/wabee/web-widgets', authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, wabeeAdminWidgetRoutes);
-app.use('/v1/wabee/campaigns', authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, campaignsRoutes);
+app.use('/v1/wabee/campaigns', campaignLimiter, authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, campaignsRoutes);
 app.use('/v1/wabee/analytics', authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, analyticsRoutes);
 app.use('/v1/wabee/automations',   authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, automationsRouter);
 app.use('/v1/wabee/integrations', authMiddleware, tenantMiddleware, planResolverMiddleware, authGuardMiddleware, integrationsRouter);

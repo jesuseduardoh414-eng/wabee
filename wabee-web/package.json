@@ -19,6 +19,7 @@
         "axios": "^1.6.2",
         "date-fns": "^4.1.0",
         "emoji-picker-react": "^4.18.0",
+        "framer-motion": "^12.40.0",
         "lucide-react": "^0.294.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",

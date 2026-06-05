@@ -34,7 +34,7 @@ const LIGHT_DEFAULT_COLORS: Record<string, string> = {
     'chart-1': '#FFC21A',
     'chart-2': '#16a34a',
     'chart-3': '#2563eb',
-    'chart-4': '#9524E3',
+    'chart-4': '#CA9CFC',
     'chart-5': '#FF8C00',
     'chart-grid': '#E8DED0',
     'chart-axis': '#837A72',

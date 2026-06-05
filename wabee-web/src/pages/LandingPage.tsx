@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, type Variants } from 'framer-motion';
 import client from '../api/client';
 import {
     ArrowRight,
@@ -10,21 +11,16 @@ import {
     FileText,
     Globe,
     Inbox,
-    LayoutTemplate,
     Layers,
     Lock,
     Menu,
     MessageCircle,
-    MessagesSquare,
-    PanelLeft,
     Phone,
-    PlayCircle,
     Send,
     ShieldCheck,
     Sparkles,
     Tag,
     Users,
-    UsersRound,
     X,
 } from 'lucide-react';
 import { BrandLogo } from '../components/BrandLogo';
@@ -139,7 +135,7 @@ const HOW_STEPS = [
     {
         number: '02',
         title: 'Importa o crea tus contactos',
-        desc: 'Sube un CSV o añade contactos manualmente. Asigna etiquetas y organizalos en grupos.',
+        desc: 'Sube un CSV o anade contactos manualmente. Asigna etiquetas y organizalos en grupos.',
     },
     {
         number: '03',
@@ -178,6 +174,53 @@ const PLAN_FLAG_LABELS: Record<string, string> = {
     segments: 'Segmentos',
     audit: 'Auditoria',
     webWidgets: 'Widgets',
+};
+
+const SECTION_VIEWPORT = { once: true, amount: 0.2 } as const;
+const MOTION_EASE = [0.16, 1, 0.3, 1] as const;
+
+const sectionVariants: Variants = {
+    hidden: { opacity: 0, y: 40 },
+    show: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            duration: 0.6,
+            ease: MOTION_EASE,
+            when: 'beforeChildren',
+            staggerChildren: 0.12,
+        },
+    },
+};
+
+const titleVariants: Variants = {
+    hidden: { opacity: 0, y: 40 },
+    show: {
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.6, ease: MOTION_EASE },
+    },
+};
+
+const revealVariants: Variants = {
+    hidden: { opacity: 0, y: 40 },
+    show: {
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.6, ease: MOTION_EASE },
+    },
+};
+
+const cardVariants: Variants = {
+    hidden: (index: number = 0) => ({
+        opacity: 0,
+        x: index % 2 === 0 ? -40 : 40,
+    }),
+    show: {
+        opacity: 1,
+        x: 0,
+        transition: { duration: 0.6, ease: MOTION_EASE },
+    },
 };
 
 export const LandingPage = () => {
@@ -284,52 +327,60 @@ export const LandingPage = () => {
             </div>
 
             <main className="relative z-10">
-                <section className="wabee-shell wabee-hero">
-                    <div className="wabee-hero__copy">
-                        <span className="wabee-kicker">
+                <motion.section
+                    className="wabee-shell wabee-hero"
+                    variants={sectionVariants}
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={SECTION_VIEWPORT}
+                >
+                    <motion.div className="wabee-hero__copy" variants={revealVariants}>
+                        <motion.span className="wabee-kicker" variants={titleVariants}>
                             <Sparkles size={16} />
                             WhatsApp Cloud API - Multi-agente
-                        </span>
+                        </motion.span>
 
-                        <h1>
+                        <motion.h1 variants={titleVariants}>
                             La plataforma para gestionar
                             <span>WhatsApp con tu equipo</span>
-                        </h1>
+                        </motion.h1>
 
-                        <p>
+                        <motion.p variants={titleVariants}>
                             Wabee centraliza conversaciones, contactos, automatizacion y campanas en una sola
                             plataforma. Pensado para empresas que necesitan una operacion comercial mas
                             ordenada, atencion colaborativa y una experiencia de software con presencia real
                             de marca.
-                        </p>
+                        </motion.p>
 
-                        <div className="wabee-hero__actions">
+                        <motion.div className="wabee-hero__actions" variants={titleVariants}>
                             <Link to="/register" className="wabee-primary-button">
                                 Crear cuenta gratis <ArrowRight size={18} />
                             </Link>
                             <Link to="/login" className="wabee-secondary-button">
                                 Iniciar sesion
                             </Link>
-                        </div>
+                        </motion.div>
 
-                        <ul className="wabee-hero__checks">
-                            {ENTERPRISE_POINTS.map((point) => (
-                                <li key={point}><Check size={16} /> {point}</li>
+                        <motion.ul className="wabee-hero__checks" variants={sectionVariants}>
+                            {ENTERPRISE_POINTS.map((point, index) => (
+                                <motion.li key={point} custom={index} variants={cardVariants}>
+                                    <Check size={16} /> {point}
+                                </motion.li>
                             ))}
-                        </ul>
+                        </motion.ul>
 
-                        <div className="wabee-hero__microstats" aria-label="Resumen de valor de Wabee">
-                            {HERO_METRICS.map((item) => (
-                                <article key={item.value} className="wabee-hero__microstat">
+                        <motion.div className="wabee-hero__microstats" aria-label="Resumen de valor de Wabee" variants={sectionVariants}>
+                            {HERO_METRICS.map((item, index) => (
+                                <motion.article key={item.value} className="wabee-hero__microstat" custom={index} variants={cardVariants}>
                                     <strong>{item.value}</strong>
                                     <span>{item.label}</span>
-                                </article>
+                                </motion.article>
                             ))}
-                        </div>
-                    </div>
+                        </motion.div>
+                    </motion.div>
 
-                    <div className="wabee-hero__visual" id="preview">
-                        <div className="wabee-showcase">
+                    <motion.div className="wabee-hero__visual" id="preview" variants={revealVariants}>
+                        <motion.div className="wabee-showcase" variants={revealVariants}>
                             <div className="wabee-showcase__topbar">
                                 <div className="wabee-showcase__dots">
                                     <span />
@@ -340,210 +391,263 @@ export const LandingPage = () => {
                             </div>
 
                             <div className="wabee-showcase__body">
-                                <div className="wabee-landing-mockup">
-                                    <div className="wabee-landing-mockup__header">
-                                        <span>Inbox</span>
-                                        <div className="wabee-landing-mockup__filters">
-                                            <span className="is-active">Todos</span>
-                                            <span>IA</span>
-                                            <span>Mios</span>
+                                <div className="wabee-inbox-mock">
+                                    {/* Sidebar */}
+                                    <div className="wabee-inbox-mock__sidebar">
+                                        <div className="wabee-inbox-mock__search">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                                            <span>Buscar conversaciones...</span>
+                                        </div>
+                                        <div className="wabee-inbox-mock__tabs">
+                                            <span className="is-active">Todos <em>4</em></span>
+                                            <span>IA activa <em>3</em></span>
+                                            <span>Para mi</span>
+                                        </div>
+                                        <div className="wabee-inbox-mock__thread is-selected">
+                                            <div className="wabee-inbox-mock__avatar">S</div>
+                                            <div className="wabee-inbox-mock__thread-copy">
+                                                <strong>Sofia Mendez</strong>
+                                                <small>Claro, tu plan incluye hasta 5 agentes...</small>
+                                            </div>
+                                            <div className="wabee-inbox-mock__thread-right">
+                                                <span className="wabee-inbox-mock__time">Ahora</span>
+                                                <span className="wabee-inbox-mock__unread">2</span>
+                                                <span className="wabee-inbox-mock__ia-badge">IA</span>
+                                            </div>
+                                        </div>
+                                        <div className="wabee-inbox-mock__thread">
+                                            <div className="wabee-inbox-mock__avatar wabee-inbox-mock__avatar--muted">R</div>
+                                            <div className="wabee-inbox-mock__thread-copy">
+                                                <strong>Ricardo Vega</strong>
+                                                <small>Cuantos contactos puedo importar?</small>
+                                            </div>
+                                            <div className="wabee-inbox-mock__thread-right">
+                                                <span className="wabee-inbox-mock__time">10:42</span>
+                                                <span className="wabee-inbox-mock__unread">1</span>
+                                                <span className="wabee-inbox-mock__ia-badge">IA</span>
+                                            </div>
+                                        </div>
+                                        <div className="wabee-inbox-mock__thread">
+                                            <div className="wabee-inbox-mock__avatar wabee-inbox-mock__avatar--muted">L</div>
+                                            <div className="wabee-inbox-mock__thread-copy">
+                                                <strong>Laura Paredes</strong>
+                                                <small>Perfecto, ya conecte mi numero 🙌</small>
+                                            </div>
+                                            <div className="wabee-inbox-mock__thread-right">
+                                                <span className="wabee-inbox-mock__time">09:15</span>
+                                                <span className="wabee-inbox-mock__ia-badge">IA</span>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div className="wabee-landing-thread">
-                                        <div className="wabee-landing-thread__avatar">M</div>
-                                        <div className="wabee-landing-thread__copy">
-                                            <strong>Maria Lopez</strong>
-                                            <small>¿Cuando llega mi pedido?</small>
+                                    {/* Chat panel */}
+                                    <div className="wabee-inbox-mock__chat">
+                                        <div className="wabee-inbox-mock__chat-header">
+                                            <div className="wabee-inbox-mock__avatar">S</div>
+                                            <div className="wabee-inbox-mock__chat-info">
+                                                <strong>Sofia Mendez</strong>
+                                                <span><span className="wabee-inbox-mock__online-dot" />En línea</span>
+                                            </div>
+                                            <div className="wabee-inbox-mock__chat-actions">
+                                                <span>Contacto</span>
+                                                <span>Notas</span>
+                                            </div>
                                         </div>
-                                        <div className="wabee-landing-thread__meta">
-                                            <span className="wabee-landing-thread__badge wabee-landing-thread__badge--ia">IA</span>
-                                            <span className="wabee-landing-thread__count">2</span>
+                                        <div className="wabee-inbox-mock__messages">
+                                            <div className="wabee-inbox-mock__bubble wabee-inbox-mock__bubble--in">
+                                                Hola, cuantos agentes puedo agregar a mi equipo?
+                                            </div>
+                                            <div className="wabee-inbox-mock__bubble wabee-inbox-mock__bubble--out">
+                                                Hola Sofia! 👋 Tu plan incluye hasta 5 agentes.<br />
+                                                <br />
+                                                Puedes asignar chats, filtrar por agente y ver quien esta activo en tiempo real desde el Inbox.
+                                            </div>
                                         </div>
-                                    </div>
-
-                                    <div className="wabee-landing-thread wabee-landing-thread--highlight">
-                                        <div className="wabee-landing-thread__avatar">C</div>
-                                        <div className="wabee-landing-thread__copy">
-                                            <strong>Carlos Ruiz</strong>
-                                            <small>Perfecto, muchas gracias.</small>
+                                        <div className="wabee-inbox-mock__input">
+                                            <span>Toma el chat para poder responder</span>
                                         </div>
-                                        <div className="wabee-landing-thread__meta">
-                                            <span className="wabee-landing-thread__badge">Asignado</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="wabee-landing-thread wabee-landing-thread--soft">
-                                        <div className="wabee-landing-thread__avatar">A</div>
-                                        <div className="wabee-landing-thread__copy">
-                                            <strong>Ana Torres</strong>
-                                            <small>Necesito hablar con alguien</small>
-                                        </div>
-                                        <div className="wabee-landing-thread__meta">
-                                            <span className="wabee-landing-thread__badge wabee-landing-thread__badge--pending">Pendiente</span>
-                                            <span className="wabee-landing-thread__count">1</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="wabee-landing-mockup__footer">
-                                        <div className="wabee-landing-mockup__status">
-                                            <span className="wabee-landing-mockup__dot" />
-                                            <small>3 agentes activos</small>
-                                        </div>
-                                        <strong>En vivo · SSE</strong>
                                     </div>
                                 </div>
 
                                 <div className="wabee-showcase-pulse wabee-showcase-pulse--amber" aria-hidden="true" />
                                 <div className="wabee-showcase-pulse wabee-showcase-pulse--violet" aria-hidden="true" />
                             </div>
-                        </div>
-                    </div>
-                </section>
+                        </motion.div>
+                    </motion.div>
+                </motion.section>
 
-                <section className="wabee-shell wabee-grid-section" id="features">
+                <motion.section
+                    className="wabee-shell wabee-grid-section"
+                    id="features"
+                    variants={sectionVariants}
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={SECTION_VIEWPORT}
+                >
                     <div className="wabee-bee wabee-bee--five" aria-hidden="true">
                         <span className="wabee-bee__wing wabee-bee__wing--left" />
                         <span className="wabee-bee__wing wabee-bee__wing--right" />
                         <span className="wabee-bee__body" />
                     </div>
-                    <div className="wabee-section-heading">
-                        <span>Por que elegir Wabee</span>
-                        <h2>Un software de operacion conversacional pensado para empresas y equipos reales</h2>
-                    </div>
+                    <motion.div className="wabee-section-heading" variants={titleVariants}>
+                        <motion.span variants={titleVariants}>Por que elegir Wabee</motion.span>
+                        <motion.h2 variants={titleVariants}>Un software de operacion conversacional pensado para empresas y equipos reales</motion.h2>
+                    </motion.div>
 
-                    <div className="wabee-pillars wabee-pillars--wide">
-                        {BENEFITS.map((item) => {
+                    <motion.div className="wabee-pillars wabee-pillars--wide" variants={sectionVariants}>
+                        {BENEFITS.map((item, index) => {
                             const Icon = item.icon;
                             return (
-                                <article key={item.title} className="wabee-glass-card">
+                                <motion.article key={item.title} className="wabee-glass-card" custom={index} variants={cardVariants}>
                                     <div className="wabee-icon-badge">
                                         <Icon size={20} />
                                     </div>
                                     <h3>{item.title}</h3>
                                     <p>{item.desc}</p>
-                                </article>
+                                </motion.article>
                             );
                         })}
-                    </div>
-                </section>
+                    </motion.div>
+                </motion.section>
 
-                <section className="wabee-shell wabee-modules-section" id="modules">
+                <motion.section
+                    className="wabee-shell wabee-modules-section"
+                    id="modules"
+                    variants={sectionVariants}
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={SECTION_VIEWPORT}
+                >
                     <div className="wabee-bee wabee-bee--six" aria-hidden="true">
                         <span className="wabee-bee__wing wabee-bee__wing--left" />
                         <span className="wabee-bee__wing wabee-bee__wing--right" />
                         <span className="wabee-bee__body" />
                     </div>
-                    <div className="wabee-section-heading">
-                        <span>Lo que incluye la plataforma</span>
-                        <h2>Modulos que ya estan disponibles dentro de Wabee</h2>
-                    </div>
+                    <motion.div className="wabee-section-heading" variants={titleVariants}>
+                        <motion.span variants={titleVariants}>Lo que incluye la plataforma</motion.span>
+                        <motion.h2 variants={titleVariants}>Modulos que ya estan disponibles dentro de Wabee</motion.h2>
+                    </motion.div>
 
-                    <div className="wabee-modules">
-                        {MODULES.map((module) => {
+                    <motion.div className="wabee-modules" variants={sectionVariants}>
+                        {MODULES.map((module, index) => {
                             const Icon = module.icon;
                             return (
-                                <article key={module.title} className="wabee-module-card">
+                                <motion.article key={module.title} className="wabee-module-card" custom={index} variants={cardVariants}>
                                     <div className="wabee-module-card__icon">
                                         <Icon size={20} />
                                     </div>
                                     <h3>{module.title}</h3>
                                     <p>{module.desc}</p>
-                                </article>
+                                </motion.article>
                             );
                         })}
-                    </div>
-                </section>
+                    </motion.div>
+                </motion.section>
 
-                <section className="wabee-shell wabee-preview-section wabee-preview-section--enterprise">
-                    <div className="wabee-preview-copy">
-                        <span>Enfoque SaaS</span>
-                        <h2>Una interfaz que comunica control, claridad operativa y solidez de software.</h2>
-                        <p>
+                <motion.section
+                    className="wabee-shell wabee-preview-section wabee-preview-section--enterprise"
+                    variants={sectionVariants}
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={SECTION_VIEWPORT}
+                >
+                    <motion.div className="wabee-preview-copy" variants={revealVariants}>
+                        <motion.span variants={titleVariants}>Enfoque SaaS</motion.span>
+                        <motion.h2 variants={titleVariants}>Una interfaz que comunica control, claridad operativa y solidez de software.</motion.h2>
+                        <motion.p variants={titleVariants}>
                             Wabee no solo tiene que verse atractivo. Tiene que proyectar confianza para equipos
                             comerciales, operaciones, soporte y direccion. Por eso la nueva direccion visual usa
                             la paleta oficial, mas aire, mejor contraste y detalles de marca que refuerzan una
                             sensacion de plataforma premium.
-                        </p>
-                    </div>
+                        </motion.p>
+                    </motion.div>
 
-                    <div className="wabee-preview-stack">
-                        <article className="wabee-preview-card">
+                    <motion.div className="wabee-preview-stack" variants={sectionVariants}>
+                        <motion.article className="wabee-preview-card" custom={0} variants={cardVariants}>
                             <span>Operaciones</span>
                             <h3>Prioridades visibles</h3>
                             <p>Las conversaciones, asignaciones y estados se leen mas rapido en equipos con alto volumen.</p>
-                        </article>
-                        <article className="wabee-preview-card">
+                        </motion.article>
+                        <motion.article className="wabee-preview-card" custom={1} variants={cardVariants}>
                             <span>Ventas</span>
                             <h3>Producto con presencia</h3>
                             <p>La experiencia transmite una plataforma SaaS premium, no solo una herramienta tecnica.</p>
-                        </article>
-                        <article className="wabee-preview-card">
+                        </motion.article>
+                        <motion.article className="wabee-preview-card" custom={2} variants={cardVariants}>
                             <span>Direccion</span>
                             <h3>Lectura ejecutiva</h3>
                             <p>El sitio y el producto dejan claro el valor de negocio desde el primer pantallazo.</p>
-                        </article>
-                    </div>
-                </section>
+                        </motion.article>
+                    </motion.div>
+                </motion.section>
 
-                <section className="wabee-shell wabee-modules-section" id="plans">
-                    <div className="wabee-section-heading">
-                        <span>Planes de Wabee</span>
-                        <h2>Capas de crecimiento para equipos que venden, responden y operan por WhatsApp</h2>
-                        <p className="wabee-pricing-intro">
-                            Diseñamos los planes como una evolucion natural del panal: empiezas con una base clara,
+                <motion.section
+                    className="wabee-shell wabee-modules-section"
+                    id="plans"
+                    variants={sectionVariants}
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={SECTION_VIEWPORT}
+                >
+                    <motion.div className="wabee-section-heading" variants={titleVariants}>
+                        <motion.span variants={titleVariants}>Planes de Wabee</motion.span>
+                        <motion.h2 variants={titleVariants}>Capas de crecimiento para equipos que venden, responden y operan por WhatsApp</motion.h2>
+                        <motion.p className="wabee-pricing-intro" variants={titleVariants}>
+                            Disenamos los planes como una evolucion natural del panal: empiezas con una base clara,
                             sumas capacidad real y mantienes el control de conversaciones, automatizacion e IA
                             dentro de la misma plataforma.
-                        </p>
-                    </div>
+                        </motion.p>
+                    </motion.div>
 
-                    <div className="wabee-pricing-hero">
-                        <div className="wabee-pricing-hero__copy">
-                            <div className="wabee-kicker">
+                    <motion.div className="wabee-pricing-hero" variants={sectionVariants}>
+                        <motion.div className="wabee-pricing-hero__copy" variants={revealVariants}>
+                            <motion.div className="wabee-kicker" variants={titleVariants}>
                                 <Sparkles size={16} />
                                 Estructura comercial Wabee
-                            </div>
-                            <h3>De un equipo compacto a una operacion con mas volumen, sin salir del ecosistema Wabee.</h3>
-                            <p>
+                            </motion.div>
+                            <motion.h3 variants={titleVariants}>De un equipo compacto a una operacion con mas volumen, sin salir del ecosistema Wabee.</motion.h3>
+                            <motion.p variants={titleVariants}>
                                 Cada plan combina usuarios, canales, contactos y capacidad de IA con una experiencia
                                 visual alineada a la marca: clara, conversacional y lista para escalar.
-                            </p>
-                        </div>
+                            </motion.p>
+                        </motion.div>
 
-                        <div className="wabee-pricing-hive" aria-hidden="true">
-                            <div className="wabee-pricing-hive__cell wabee-pricing-hive__cell--primary">
+                        <motion.div className="wabee-pricing-hive" aria-hidden="true" variants={sectionVariants}>
+                            <motion.div className="wabee-pricing-hive__cell wabee-pricing-hive__cell--primary" custom={0} variants={cardVariants}>
                                 <strong>Inbox</strong>
                                 <span>Coordinacion central</span>
-                            </div>
-                            <div className="wabee-pricing-hive__cell">
+                            </motion.div>
+                            <motion.div className="wabee-pricing-hive__cell" custom={1} variants={cardVariants}>
                                 <strong>IA</strong>
                                 <span>Asistencia operativa</span>
-                            </div>
-                            <div className="wabee-pricing-hive__cell">
+                            </motion.div>
+                            <motion.div className="wabee-pricing-hive__cell" custom={2} variants={cardVariants}>
                                 <strong>CRM</strong>
                                 <span>Contactos y segmentos</span>
-                            </div>
-                            <div className="wabee-pricing-hive__cell">
+                            </motion.div>
+                            <motion.div className="wabee-pricing-hive__cell" custom={3} variants={cardVariants}>
                                 <strong>API</strong>
                                 <span>WhatsApp Cloud</span>
-                            </div>
-                        </div>
-                    </div>
+                            </motion.div>
+                        </motion.div>
+                    </motion.div>
 
-                    <div className="wabee-pricing-grid">
+                    <motion.div className="wabee-pricing-grid" variants={sectionVariants}>
                         {plansLoading ? (
-                            <article className="wabee-pricing-card">
+                            <motion.article className="wabee-pricing-card" variants={revealVariants}>
                                 <h3>Cargando planes...</h3>
                                 <p>Estamos obteniendo la informacion comercial disponible.</p>
-                            </article>
+                            </motion.article>
                         ) : plans.length === 0 ? (
-                            <article className="wabee-pricing-card">
+                            <motion.article className="wabee-pricing-card" variants={revealVariants}>
                                 <h3>Planes no disponibles</h3>
                                 <p>Por ahora no hay planes publicos configurados. Puedes solicitar una demo o contactarnos para una propuesta.</p>
-                            </article>
-                        ) : plans.map((plan) => (
-                            <article
+                            </motion.article>
+                        ) : plans.map((plan, index) => (
+                            <motion.article
                                 key={plan.id}
+                                custom={index}
+                                variants={cardVariants}
                                 className={`wabee-pricing-card${plan.id === highlightedPlanId ? ' wabee-pricing-card--featured' : ''}`}
                             >
                                 <div className="wabee-pricing-card__glow" aria-hidden="true" />
@@ -612,46 +716,68 @@ export const LandingPage = () => {
                                         Crear cuenta <ArrowRight size={16} />
                                     </Link>
                                 </div>
-                            </article>
+                            </motion.article>
                         ))}
-                    </div>
-                </section>
+                    </motion.div>
+                </motion.section>
 
-                <section className="wabee-shell wabee-flow-section" id="how">
-                    <div className="wabee-section-heading">
-                        <span>Flujo real del producto</span>
-                        <h2>Como se usa Wabee en una operacion real</h2>
-                    </div>
+                <motion.section
+                    className="wabee-shell wabee-flow-section"
+                    id="how"
+                    variants={sectionVariants}
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={SECTION_VIEWPORT}
+                >
+                    <motion.div className="wabee-section-heading" variants={titleVariants}>
+                        <motion.span variants={titleVariants}>Flujo real del producto</motion.span>
+                        <motion.h2 variants={titleVariants}>Como se usa Wabee en una operacion real</motion.h2>
+                    </motion.div>
 
-                    <div className="wabee-flow">
-                        {HOW_STEPS.map((step) => (
-                            <article key={step.number}>
+                    <motion.div className="wabee-flow" variants={sectionVariants}>
+                        {HOW_STEPS.map((step, index) => (
+                            <motion.article key={step.number} custom={index} variants={cardVariants}>
                                 <span>{step.number}</span>
                                 <p>{step.title}</p>
                                 <small className="mt-3 block leading-7 text-[color:color-mix(in_srgb,var(--text-strong),transparent_32%)]">{step.desc}</small>
-                            </article>
+                            </motion.article>
                         ))}
-                    </div>
-                </section>
+                    </motion.div>
+                </motion.section>
 
-                <section className="wabee-shell wabee-cta">
-                    <div>
-                        <span>Listo para comenzar</span>
-                        <h2>Todo en un inbox. Conversaciones, contactos, campanas e IA en un solo lugar para tu empresa.</h2>
-                    </div>
+                <motion.section
+                    className="wabee-shell wabee-cta"
+                    variants={sectionVariants}
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={SECTION_VIEWPORT}
+                >
+                    <motion.div variants={revealVariants}>
+                        <motion.span variants={titleVariants}>Listo para comenzar</motion.span>
+                        <motion.h2 variants={titleVariants}>Todo en un inbox. Conversaciones, contactos, campanas e IA en un solo lugar para tu empresa.</motion.h2>
+                    </motion.div>
 
-                    <div className="wabee-cta__actions">
+                    <motion.div className="wabee-cta__actions" variants={titleVariants}>
                         <Link to="/register" className="wabee-primary-button">
                             Crear cuenta
                         </Link>
                         <Link to="/login" className="wabee-secondary-button">
                             Iniciar sesion
                         </Link>
-                    </div>
-                </section>
+                    </motion.div>
+                </motion.section>
 
-                <footer className="wabee-shell pb-12">
-                    <div className="flex flex-col gap-4 border-t border-[var(--border-default)] pt-8 text-sm text-[color:color-mix(in_srgb,var(--text-strong),transparent_42%)] md:flex-row md:items-center md:justify-between">
+                <motion.footer
+                    className="wabee-shell pb-12"
+                    variants={sectionVariants}
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={SECTION_VIEWPORT}
+                >
+                    <motion.div
+                        className="flex flex-col gap-4 border-t border-[var(--border-default)] pt-8 text-sm text-[color:color-mix(in_srgb,var(--text-strong),transparent_42%)] md:flex-row md:items-center md:justify-between"
+                        variants={titleVariants}
+                    >
                         <p>© 2026 WABEE. Todos los derechos reservados.</p>
                         <div className="flex flex-wrap gap-5">
                             <Link to="/legal/privacy">Privacidad</Link>
@@ -659,8 +785,8 @@ export const LandingPage = () => {
                             <Link to="/legal/cookies">Cookies</Link>
                             <Link to="/data-deletion">Eliminar datos</Link>
                         </div>
-                    </div>
-                </footer>
+                    </motion.div>
+                </motion.footer>
             </main>
         </div>
     );

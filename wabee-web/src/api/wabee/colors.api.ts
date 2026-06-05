@@ -26,7 +26,7 @@ export const DEFAULT_COLORS: ColorsConfig = {
     'chart-1': '#FFD700',
     'chart-2': '#22c55e',
     'chart-3': '#3b82f6',
-    'chart-4': '#9524E3',
+    'chart-4': '#CA9CFC',
     'chart-5': '#FF8C00',
     'chart-grid': '#3A382F',
     'chart-axis': '#B9B28E',

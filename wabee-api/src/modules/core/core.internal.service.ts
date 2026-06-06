@@ -350,7 +350,7 @@ export class CoreInternalService {
         if (userId) {
             await getCorePrisma().auditTrail.create({
                 data: {
-                    userId: userId === 'SYSTEM' ? null : userId,
+                    actorUserId: userId === 'SYSTEM' ? null : userId,
                     userType: userId === 'SYSTEM' ? 'SYSTEM' : 'USER',
                     action: actionName || 'update_system_setting',
                     modelType: 'SystemSetting',
@@ -380,7 +380,7 @@ export class CoreInternalService {
         if (userId && oldSetting) {
             await getCorePrisma().auditTrail.create({
                 data: {
-                    userId: userId === 'SYSTEM' ? null : userId,
+                    actorUserId: userId === 'SYSTEM' ? null : userId,
                     userType: userId === 'SYSTEM' ? 'SYSTEM' : 'USER',
                     action: 'delete_system_setting',
                     modelType: 'SystemSetting',
@@ -410,7 +410,7 @@ export class CoreInternalService {
         if (userId && oldSettings.length > 0) {
             await getCorePrisma().auditTrail.create({
                 data: {
-                    userId: userId === 'SYSTEM' ? null : userId,
+                    actorUserId: userId === 'SYSTEM' ? null : userId,
                     userType: userId === 'SYSTEM' ? 'SYSTEM' : 'USER',
                     action: 'reset_system_settings',
                     modelType: 'SystemSetting',

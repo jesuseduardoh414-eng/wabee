@@ -253,8 +253,7 @@ export const aiApi = {
     viewKbFileUrl: (profileId: string, fileId: string) => {
         const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/v1';
         const tenantKey = localStorage.getItem('wabee_orgId') || localStorage.getItem('wabee_tenant_key') || localStorage.getItem('tenant_key') || 'dev-api-key-tenant-1';
-        const token = localStorage.getItem('wabee_token') || localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
-        return `${baseUrl}/wabee/ai/ai-profiles/${profileId}/kb/files/${fileId}/view?tenantId=${tenantKey}&token=${token}`;
+        return `${baseUrl}/wabee/ai/ai-profiles/${profileId}/kb/files/${fileId}/view?tenantId=${tenantKey}`;
     },
 
     // KB Sources — Database (read-only)

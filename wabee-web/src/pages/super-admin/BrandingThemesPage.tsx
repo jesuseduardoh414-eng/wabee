@@ -203,9 +203,9 @@ export const BrandingThemesPage = () => {
     );
 
     return (
-        <div className="p-4 sm:p-6 lg:p-10 w-full max-w-7xl mx-auto space-y-10">
+        <div className="w-full max-w-7xl mx-auto space-y-8 p-3 sm:p-6 lg:p-10">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6">
+            <div className="flex flex-col justify-between gap-6 xl:flex-row xl:items-start">
                 <div className="space-y-2">
                     <h1 className={`${T.pageTitle} ${S.displayMd}`}>
                         Biblioteca de <span className="text-[var(--brand-primary)]">Temas</span>
@@ -215,19 +215,19 @@ export const BrandingThemesPage = () => {
                     </p>
                 </div>
 
-                <div className="flex gap-3 shrink-0">
-                    <form onSubmit={handleCreate} className="flex gap-3">
+                <div className="w-full shrink-0 xl:w-auto">
+                    <form onSubmit={handleCreate} className="flex w-full flex-col gap-3 sm:flex-row xl:w-auto">
                         <input 
                             type="text" 
                             placeholder="Nombre del nuevo tema..."
                             value={newThemeName}
                             onChange={(e) => setNewThemeName(e.target.value)}
-                            className="bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl px-4 py-2 text-xs text-[var(--text-strong)] outline-none focus:border-[var(--brand-primary)]/50 min-w-[200px] placeholder:text-[var(--text-muted)]"
+                            className="min-w-0 flex-1 rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-4 py-3 text-xs text-[var(--text-strong)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--brand-primary)]/50 sm:min-w-[240px]"
                         />
                         <button
                             type="submit"
                             disabled={creating || !newThemeName.trim()}
-                            className={`flex items-center gap-2 px-6 py-2 bg-[var(--brand-primary)]  rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all disabled:opacity-50 ${T.buttonPrimaryText}`}
+                            className={`flex items-center justify-center gap-2 rounded-xl bg-[var(--brand-primary)] px-6 py-3 font-black text-xs uppercase tracking-widest transition-all hover:scale-[1.02] disabled:opacity-50 ${T.buttonPrimaryText}`}
                         >
                             <Plus size={16} /> {creating ? 'Creando...' : 'Nuevo Tema'}
                         </button>
@@ -240,14 +240,14 @@ export const BrandingThemesPage = () => {
                 {themes.map((theme) => (
                     <div 
                         key={theme.id}
-                        className={`group relative bg-[var(--bg-card)] border rounded-[2.5rem] p-8 space-y-6 transition-all duration-300 overflow-hidden ${
+                        className={`group relative overflow-hidden rounded-[2.5rem] border bg-[var(--bg-card)] p-5 sm:p-8 space-y-6 transition-all duration-300 ${
                             theme.isActive 
                                 ? 'border-[var(--brand-primary)] shadow-[0_0_40px_rgba(234,208,24,0.1)] ring-1 ring-[var(--brand-primary)]/20' 
                                 : 'border-[var(--border-default)] hover:border-[var(--brand-primary)]/30'
                         }`}
                     >
                         {/* Status Badges y Acción de Default */}
-                        <div className="absolute top-6 right-6 flex flex-col items-end gap-2">
+                        <div className="absolute right-4 top-4 flex max-w-[calc(100%-2rem)] flex-col items-end gap-2 sm:right-6 sm:top-6">
                             {theme.isActive ? (
                                 <div className="flex items-center gap-1.5 px-3 py-1 bg-yellow-500/15 text-yellow-500 border border-yellow-500/30 rounded-full shadow-[0_0_10px_rgba(234,208,24,0.1)]">
                                     <Star size={12} className="fill-current" />
@@ -270,7 +270,7 @@ export const BrandingThemesPage = () => {
                             ) : null}
                         </div>
 
-                        <div className="space-y-1">
+                        <div className="space-y-1 pr-20 sm:pr-24">
                             {editingThemeId === theme.id ? (
                                 <input
                                     type="text"
@@ -297,7 +297,7 @@ export const BrandingThemesPage = () => {
                                     <span className="opacity-0 group-hover/title:opacity-100 text-[9px] uppercase font-bold text-[var(--text-muted)] p-1 bg-[var(--bg-input)] rounded ml-1 transition-opacity">Editar</span>
                                 </h3>
                             )}
-                            <div className={`${T.helperText} flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest`}>
+                            <div className={`${T.helperText} flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-widest`}>
                                 <Clock size={12} /> Actualizado: {new Date(theme.updatedAt).toLocaleDateString()}
                             </div>
                         </div>
@@ -325,7 +325,7 @@ export const BrandingThemesPage = () => {
 
                         {/* Acciones */}
                         <div className="pt-4 flex flex-col gap-3">
-                            <div className="flex gap-2">
+                            <div className="flex flex-col gap-2 sm:flex-row">
                                 <button
                                     onClick={() => navigate(`/dashboard/super-admin/themes/${theme.id}/colors`)}
                                     className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-default)] ${T.buttonText} hover:bg-[var(--bg-hover)] transition-all font-black text-[10px] uppercase tracking-widest`}
@@ -354,12 +354,12 @@ export const BrandingThemesPage = () => {
                                     <Star size={14} className={theme.isActive ? "fill-current" : ""} /> {theme.isActive ? 'Es Default' : 'Hacer Default'}
                                 </button>
                                 {/* Acción Secundaria Ocultada/Miniaturizada */}
-                                <div className="flex gap-2 w-full justify-between items-center">
+                                <div className="flex w-full flex-wrap items-center gap-2">
                                     <button
                                         onClick={() => handlePublish(theme)}
                                         disabled={theme.isActive}
                                         title={theme.isActive ? 'El tema global por defecto siempre está publicado' : (theme.isPublished ? 'Quitar publicación' : 'Publicar tema para otros usuarios')}
-                                        className={`flex items-center justify-center gap-2 px-3 py-2 rounded-xl transition-all font-bold text-[9px] uppercase tracking-widest flex-1 disabled:opacity-40 disabled:cursor-not-allowed border ${
+                                        className={`flex min-w-[180px] flex-1 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-[9px] font-bold uppercase tracking-widest transition-all disabled:cursor-not-allowed disabled:opacity-40 ${
                                             (theme.isPublished || theme.isActive)
                                                 ? 'bg-[var(--state-success)]/10 border-[var(--state-success)]/40 text-[var(--state-success)] hover:bg-[var(--state-success)]/20'
                                                 : 'bg-[var(--bg-card)] border-[var(--border-default)] text-[var(--text-muted)] hover:border-[var(--brand-primary)]/30 hover:text-[var(--brand-primary)]'
@@ -371,7 +371,7 @@ export const BrandingThemesPage = () => {
                                         onClick={() => handleDuplicate(theme)}
                                         disabled={duplicating}
                                         title="Duplicar tema"
-                                        className={`w-9 h-9 flex items-center justify-center bg-[var(--bg-card)] border border-[var(--border-default)] text-[var(--text-muted)] hover:bg-[var(--bg-hover)] rounded-xl transition-all disabled:opacity-50`}
+                                        className={`flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)] text-[var(--text-muted)] transition-all hover:bg-[var(--bg-hover)] disabled:opacity-50`}
                                     >
                                         <Copy size={13} />
                                     </button>
@@ -391,7 +391,7 @@ export const BrandingThemesPage = () => {
                 ))}
 
                 {/* Empty State / Create Box */}
-                <div className="border-2 border-dashed border-[var(--border-default)] rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center space-y-4 hover:border-[var(--brand-primary)]/30 transition-all cursor-pointer group" onClick={() => document.querySelector<HTMLInputElement>('input[placeholder="Nombre del nuevo tema..."]')?.focus()}>
+                <div className="group flex cursor-pointer flex-col items-center justify-center space-y-4 rounded-[2.5rem] border-2 border-dashed border-[var(--border-default)] p-6 text-center transition-all hover:border-[var(--brand-primary)]/30 sm:p-8" onClick={() => document.querySelector<HTMLInputElement>('input[placeholder="Nombre del nuevo tema..."]')?.focus()}>
                     <div className="w-16 h-16 rounded-full bg-[var(--bg-surface)] border border-[var(--border-default)] flex items-center justify-center group-hover:text-[var(--brand-primary)] group-hover:border-[var(--brand-primary)]/30 transition-all">
                         <Plus size={32} />
                     </div>
@@ -403,8 +403,8 @@ export const BrandingThemesPage = () => {
             </div>
 
             {/* Gestión de Marca Global (Branding) */}
-            <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-[2.5rem] p-8 space-y-8">
-                <div className="flex items-center justify-between">
+            <div className="space-y-8 rounded-[2.5rem] border border-[var(--border-default)] bg-[var(--bg-card)] p-5 sm:p-8">
+                <div className="flex items-center justify-between gap-3">
                     <div className="flex gap-3">
                          <Globe className="text-[var(--brand-primary)]" size={24} />
                          <h3 className={`${T.cardTitle} ${S.headingMd}`}>Branding Global de Plataforma</h3>
@@ -421,7 +421,7 @@ export const BrandingThemesPage = () => {
                                 Logo Principal (Sidebar/Auth)
                             </label>
                             
-                            <div className="flex items-center gap-6 p-6 bg-[var(--bg-elevated)] rounded-2xl border border-[var(--border-default)]">
+                            <div className="flex flex-col gap-5 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-elevated)] p-5 sm:flex-row sm:items-center sm:gap-6 sm:p-6">
                                 <div className="w-20 h-20 bg-[var(--bg-page)] rounded-xl border border-[var(--border-default)] flex items-center justify-center overflow-hidden p-2">
                                     {branding?.logoUrl ? (
                                         <img src={branding.logoUrl || undefined} alt="Logo" className="max-w-full max-h-full object-contain" />
@@ -430,7 +430,7 @@ export const BrandingThemesPage = () => {
                                     )}
                                 </div>
                                 <div className="flex-1 space-y-3">
-                                    <div className="flex gap-2">
+                                    <div className="flex flex-col gap-2 sm:flex-row">
                                         <label className="flex-1 cursor-pointer bg-[var(--brand-primary)] text-[var(--brand-primary-foreground)] px-4 py-2.5 rounded-xl font-bold text-xs hover:brightness-110 transition-all flex items-center justify-center gap-2 shadow-sm">
                                             <Upload size={14} />
                                             Subir Logo
@@ -457,7 +457,7 @@ export const BrandingThemesPage = () => {
                                 Browser Favicon (Pestaña)
                             </label>
                             
-                            <div className="flex items-center gap-6 p-6 bg-[var(--bg-elevated)] rounded-2xl border border-[var(--border-default)]">
+                            <div className="flex flex-col gap-5 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-elevated)] p-5 sm:flex-row sm:items-center sm:gap-6 sm:p-6">
                                 <div className="w-12 h-12 bg-[var(--bg-page)] rounded-xl border border-[var(--border-default)] flex items-center justify-center overflow-hidden p-2">
                                     {branding?.faviconUrl ? (
                                         <img src={branding.faviconUrl || undefined} alt="Favicon" className="w-8 h-8 object-contain" />
@@ -468,7 +468,7 @@ export const BrandingThemesPage = () => {
                                     )}
                                 </div>
                                 <div className="flex-1 space-y-3">
-                                    <div className="flex gap-2">
+                                    <div className="flex flex-col gap-2 sm:flex-row">
                                         <label className="flex-1 cursor-pointer bg-[var(--bg-page)] text-[var(--text-strong)] border border-[var(--border-default)] px-4 py-2.5 rounded-xl font-bold text-xs hover:bg-[var(--bg-hover)] transition-all flex items-center justify-center gap-2">
                                             <Upload size={14} />
                                             Subir Favicon
@@ -493,7 +493,7 @@ export const BrandingThemesPage = () => {
                         <p className={`${T.helperText} ${S.body}`}>
                             Personaliza la identidad visual global de tu plataforma. Estos cambios se aplican a <strong>todos los usuarios</strong> sin importar el tema seleccionado.
                         </p>
-                        <div className="p-8 bg-[var(--bg-elevated)] rounded-3xl border border-[var(--border-default)] space-y-4">
+                        <div className="space-y-4 rounded-3xl border border-[var(--border-default)] bg-[var(--bg-elevated)] p-5 sm:p-8">
                             <h5 className={`${T.cardTitle} text-sm font-bold`}>¿Por qué cambiar el Favicon?</h5>
                             <p className={`${T.helperText} text-xs leading-relaxed`}>
                                 El Favicon es lo primero que ven tus usuarios en sus pestañas y marcadores. Personalizarlo refuerza la marca blanca y ofrece una experiencia profesional de extremo a extremo.

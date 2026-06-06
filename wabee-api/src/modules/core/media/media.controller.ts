@@ -23,6 +23,16 @@ const ALLOWED_MIMES: Record<string, string> = {
     'application/pdf': 'DOCUMENT',
 };
 
+// ─── Magic bytes validators ───────────────────────────────────────────────────
+// Validates actual file content regardless of declared MIME type.
+const MAGIC_BYTES: Record<string, (buf: Buffer) => boolean> = {
+    'image/png':       buf => buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4E && buf[3] === 0x47,
+    'image/jpeg':      buf => buf[0] === 0xFF && buf[1] === 0xD8 && buf[2] === 0xFF,
+    'image/webp':      buf => buf.slice(0, 4).toString('ascii') === 'RIFF' && buf.slice(8, 12).toString('ascii') === 'WEBP',
+    'video/mp4':       buf => buf.length > 11 && buf.slice(4, 8).toString('ascii') === 'ftyp',
+    'application/pdf': buf => buf.slice(0, 4).toString('ascii') === '%PDF',
+};
+
 const BUCKET_NAME = process.env.SUPABASE_MEDIA_BUCKET || 'media';
 
 export class MediaController {
@@ -40,6 +50,15 @@ export class MediaController {
                 return res.status(400).json({
                     code: 'INVALID_MIME',
                     message: `Tipo de archivo no permitido: ${file.mimetype}. Permitidos: ${Object.keys(ALLOWED_MIMES).join(', ')}`
+                });
+            }
+
+            // Validate magic bytes — ensures file content matches declared MIME
+            const magicCheck = MAGIC_BYTES[file.mimetype];
+            if (magicCheck && !magicCheck(file.buffer)) {
+                return res.status(400).json({
+                    code: 'INVALID_FILE_CONTENT',
+                    message: 'El contenido del archivo no coincide con su tipo declarado'
                 });
             }
 

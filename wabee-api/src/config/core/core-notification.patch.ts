@@ -15,12 +15,14 @@ export interface BaseNotification {
 }
 
 export function applyNotificationPatch(coreInstance: any) {
-    // 1. Determinar el punto de anclaje adaptativo
-    // En v1.0.5 usamos notificationService. En v5.x el módulo expone send directamente.
-    let ns = coreInstance.notifications?.notificationService;
-    
-    if (!ns && coreInstance.notifications?.send) {
-        ns = coreInstance.notifications;
+    // 1. Determinar el punto de anclaje: siempre parchamos el Facade directamente.
+    // El Facade valida plantillas ANTES de llamar al servicio interno; si parchamos solo
+    // el servicio interno, el Facade retorna { success: false } antes de llegar a él.
+    let ns: any = null;
+    if (coreInstance.notifications?.send) {
+        ns = coreInstance.notifications; // Facade — intercepta primero
+    } else if (coreInstance.notifications?.notificationService?.send) {
+        ns = coreInstance.notifications.notificationService; // Fallback (versiones antiguas)
     }
 
     if (!ns) {

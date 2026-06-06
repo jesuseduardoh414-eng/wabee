@@ -11,7 +11,8 @@ export class LimitsService {
     static async countChannels(tenantId: string): Promise<number> {
         return await (prisma as any).whatsappChannel.count({
             where: {
-                tenantId
+                tenantId,
+                archivedAt: null
             }
         });
     }

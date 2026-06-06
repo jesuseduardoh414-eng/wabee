@@ -199,11 +199,11 @@ function HeaderMediaRenderer({
 
     const refreshUrl = async () => {
         if (!headerMedia.mediaFileId) return;
-        const token = localStorage.getItem('wabee_token') ?? '';
         const tenantId = localStorage.getItem('wabee_orgId') || localStorage.getItem('tenant_key') || '';
         try {
             const res = await fetch(`${API_URL}/core/media/${headerMedia.mediaFileId}/signed-url`, {
-                headers: { Authorization: `Bearer ${token}`, 'x-tenant-id': tenantId },
+                credentials: 'include',
+                headers: { 'x-tenant-id': tenantId },
             });
             if (res.ok) {
                 const data = await res.json();

@@ -129,11 +129,10 @@ interface InlineTemplateEditorProps {
     focusedId?: string | null;
     templateInputMapping?: Record<string, any> | null;
     tenantId?: string;
-    token?: string;
     apiUrl?: string;
 }
 
-export function InlineTemplateEditor({ template, inputs, values, onChange, focusedId, templateInputMapping, tenantId, token, apiUrl }: InlineTemplateEditorProps) {
+export function InlineTemplateEditor({ template, inputs, values, onChange, focusedId, templateInputMapping, tenantId, apiUrl }: InlineTemplateEditorProps) {
     useEffect(() => {
         if (focusedId) {
             // Find the first chip matching the placeholderId 
@@ -199,7 +198,7 @@ export function InlineTemplateEditor({ template, inputs, values, onChange, focus
         resolveMediaPreviewUrl({
             value: v,
             apiUrl: apiUrl || import.meta.env.VITE_API_URL || '',
-            token: token || '',
+
             tenantId: tenantId || ''
         })
             .then((url) => {
@@ -208,7 +207,7 @@ export function InlineTemplateEditor({ template, inputs, values, onChange, focus
             })
             .catch(() => setHeaderMediaErr('No se pudo cargar el archivo'))
             .finally(() => setHeaderMediaLoading(false));
-    }, [template?.id, headerMediaInput?.id, values[headerMediaInput?.id || ''], templateInputMapping, apiUrl, token, tenantId]);
+    }, [template?.id, headerMediaInput?.id, values[headerMediaInput?.id || ''], templateInputMapping, apiUrl, tenantId]);
 
     return (
         <div className="bg-[#e4dfd5] rounded-xl w-full h-full max-w-[560px] shadow-sm relative overflow-y-auto custom-scrollbar">

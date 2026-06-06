@@ -41,7 +41,7 @@ const ALL_DEFAULT_EMAIL_TEMPLATES = [
         name: 'Restablecer Contraseña',
         category: 'Seguridad',
         status: 'published',
-        subject: 'Restablecer contraseña - {{org_name}}',
+        subject: 'Instrucciones para restablecer tu contraseña',
         title: '¿Olvidaste tu contraseña?',
         body: 'No te preocupes, recibimos una solicitud para restablecer tu contraseña. Haz clic abajo para elegir una nueva.',
         cta: 'Restablecer ahora',

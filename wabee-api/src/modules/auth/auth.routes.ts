@@ -117,7 +117,6 @@ router.post('/login', async (req, res) => {
 // POST /v1/auth/2fa/confirm-setup
 router.post('/2fa/confirm-setup', async (req, res) => {
     try {
-        console.log('[API] /2fa/confirm-setup body:', req.body);
         const data = twoFactorSchema.parse(req.body);
         const result = await coreAdapter.auth.verify2FA(data as any);
         if (!result.success) {
@@ -131,7 +130,6 @@ router.post('/2fa/confirm-setup', async (req, res) => {
         res.status(400).json({
             success: false,
             message: error.message || 'Error al confirmar 2FA',
-            debug: { body: req.body }
         });
     }
 });
@@ -139,7 +137,6 @@ router.post('/2fa/confirm-setup', async (req, res) => {
 // POST /v1/auth/2fa/verify
 router.post('/2fa/verify', async (req, res) => {
     try {
-        console.log('[API] /2fa/verify body:', req.body);
         const data = twoFactorSchema.parse(req.body);
         const result = await coreAdapter.auth.verify2FA(data as any);
         if (!result.success) {
@@ -153,7 +150,6 @@ router.post('/2fa/verify', async (req, res) => {
         res.status(400).json({
             success: false,
             message: error.message || 'Error al verificar 2FA',
-            debug: { body: req.body }
         });
     }
 });

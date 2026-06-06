@@ -15,11 +15,10 @@ export function isHttpsUrl(v: string): boolean {
 interface ResolveMediaUrlArgs {
     value: string | null;
     apiUrl: string;
-    token: string;
     tenantId: string;
 }
 
-export async function resolveMediaPreviewUrl({ value, apiUrl, token, tenantId }: ResolveMediaUrlArgs): Promise<string | null> {
+export async function resolveMediaPreviewUrl({ value, apiUrl, tenantId }: ResolveMediaUrlArgs): Promise<string | null> {
     if (!value || value.trim() === '') return null;
 
     if (isHttpsUrl(value)) {
@@ -29,10 +28,8 @@ export async function resolveMediaPreviewUrl({ value, apiUrl, token, tenantId }:
     if (isUuid(value)) {
         try {
             const res = await fetch(`${apiUrl}/core/media/${value}/signed-url`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'x-tenant-id': tenantId
-                }
+                credentials: 'include',
+                headers: { 'x-tenant-id': tenantId }
             });
 
             if (!res.ok) {

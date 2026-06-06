@@ -77,21 +77,27 @@ process.on('uncaughtException', (err: Error) => {
 app.set('trust proxy', 1);
 
 // ─── Helmet (cabeceras de seguridad) ────────────────────────────────────────────
-// frameguard/CSP/CORP/COEP desactivados: el Web Widget se embebe en iframes
-// cross-origin en sitios de clientes y requiere carga de recursos desde cualquier origen.
-// El resto de headers de seguridad permanecen activos (nosniff, HSTS, referrer, etc).
-app.use(helmet({
+// Configuración estricta para todas las rutas (auth, dashboard, API interna).
+const helmetStrict = helmet({
+    frameguard: { action: 'deny' },
+    contentSecurityPolicy: false,          // API JSON — no sirve HTML propio
+    crossOriginResourcePolicy: { policy: 'same-origin' },
+    crossOriginEmbedderPolicy: true,
+    hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+});
+
+// Configuración relajada solo para rutas del widget (se embebe cross-origin).
+const helmetWidget = helmet({
     frameguard: false,
     contentSecurityPolicy: false,
-    crossOriginResourcePolicy: false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
     crossOriginEmbedderPolicy: false,
-    hsts: {
-        maxAge: 31536000, // 1 año
-        includeSubDomains: true,
-        preload: true,
-    },
+    hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
     referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-}));
+});
+
+app.use(helmetStrict);
 
 // ─── Rate limiting ────────────────────────────────────────────────────────────────
 
@@ -134,7 +140,8 @@ const campaignLimiter = rateLimit({
 
 // ─── CORS ─────────────────────────────────────────────────────────────────────
 // Soporta múltiples orígenes separados por coma en CORS_ALLOWED_ORIGINS.
-// En dev (NODE_ENV !== 'production') permite *, en prod requiere lista explícita.
+// En development sin config: permite cualquier origen.
+// En cualquier otro entorno sin config: bloquea (evita despliegues inseguros).
 const allowedOrigins: string[] = env.CORS_ALLOWED_ORIGINS
     ? env.CORS_ALLOWED_ORIGINS.split(',').map((o: string) => o.trim()).filter(Boolean)
     : [];
@@ -143,8 +150,12 @@ const corsStrictOptions: cors.CorsOptions = {
     origin: (origin, callback) => {
         // Peticiones sin origin (curl, Postman, server-to-server) siempre permitidas
         if (!origin) return callback(null, true);
-        if (allowedOrigins.length === 0 || allowedOrigins.includes('*')) {
+        if (allowedOrigins.includes('*')) {
             return callback(null, true);
+        }
+        if (allowedOrigins.length === 0) {
+            if (env.NODE_ENV === 'development') return callback(null, true);
+            return callback(new Error('CORS: CORS_ALLOWED_ORIGINS no configurado'));
         }
         if (allowedOrigins.includes(origin)) {
             return callback(null, true);
@@ -226,7 +237,7 @@ const publicDir = path.resolve(__dirname, '..', 'public');
 console.log(`[Static] Serving files from: ${publicDir}`);
 
 // Archivos estáticos del widget (habilitado explícitamente con preflight)
-app.use('/v1/wabee-widget.js', cors(corsPublicOptions));
+app.use('/v1/wabee-widget.js', helmetWidget, cors(corsPublicOptions));
 app.use('/v1', express.static(publicDir, {
     setHeaders: (res) => {
         res.setHeader('Access-Control-Allow-Origin', '*');
@@ -236,7 +247,7 @@ app.use('/v1', express.static(publicDir, {
 }));
 
 // API pública del widget (habilitado explícitamente con preflight)
-app.use('/v1/public/widgets', cors(corsPublicOptions), wabeePublicWidgetRoutes);
+app.use('/v1/public/widgets', helmetWidget, cors(corsPublicOptions), wabeePublicWidgetRoutes);
 app.options('/v1/public/widgets/*', cors(corsPublicOptions));
 
 // ─── Strict CORS para el resto de la aplicación (Admin / Dashboard) ────────────

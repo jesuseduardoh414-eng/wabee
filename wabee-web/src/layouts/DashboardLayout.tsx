@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
 import { usePlanEnforcement } from '../hooks/usePlanEnforcement';
 import client from '../api/client';
 import {
@@ -8,15 +7,9 @@ import {
     Send,
     Users,
     Zap,
-    BarChart3,
-    Settings,
-    Search,
-    Bell,
-    HelpCircle,
     ChevronDown,
     User,
     LogOut,
-    ExternalLink,
     Building2,
     CreditCard,
     MessageSquare,
@@ -27,24 +20,23 @@ import {
     Filter,
     ShieldAlert,
     PaintBucket,
-    ToggleRight,
-    Blocks,
     Mail,
     UserX,
     Workflow,
-    Link2
+    Link2,
+    Menu,
+    X
 } from 'lucide-react';
 import { NotificationDropdown } from '../components/wabee/NotificationDropdown';
 import { SuperAdminImpersonationBanner } from '../components/SuperAdminImpersonationBanner';
-import { SuperAdminTenantSelector } from '../components/SuperAdminTenantSelector';
 import { ImpersonationStore } from '../lib/impersonation.store';
-import { T, S } from '@/lib/text-tokens';
+import { T } from '@/lib/text-tokens';
 import { BrandLogo } from '../components/BrandLogo';
-import { OnboardingModal, shouldShowOnboarding } from '../components/wabee/OnboardingModal';
 
 export const DashboardLayout = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const profileMenuRef = useRef<HTMLDivElement>(null);
     const [searchParams] = useSearchParams();
@@ -67,11 +59,14 @@ export const DashboardLayout = () => {
         };
     }, [isProfileOpen]);
 
-    // Detectar si estamos en el Inbox y si debemos mostrar la navegación
+    useEffect(() => {
+        setIsMobileNavOpen(false);
+        setIsProfileOpen(false);
+    }, [location.pathname]);
+
     const isInbox = location.pathname.includes('/wabee/inbox');
     const hideNav = isInbox && searchParams.get('view') !== 'standard';
 
-    // Recuperar datos de usuario y rol de localStorage
     const [user, setUser] = React.useState(() => {
         const savedUser = localStorage.getItem('wabee_user');
         try {
@@ -95,13 +90,12 @@ export const DashboardLayout = () => {
         window.addEventListener('profileUpdated', handleProfileUpdate);
         return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
     }, []);
-    
+
     const globalRole = localStorage.getItem('wabee_globalRole');
     let role = (localStorage.getItem('wabee_role') || 'AGENT').toUpperCase();
 
     const isImpersonatingValue = ImpersonationStore.isActive();
 
-    // El rol global domina SI NO estamos suplantando
     if (globalRole === 'admin' && !isImpersonatingValue) {
         role = 'ADMIN';
     }
@@ -111,12 +105,8 @@ export const DashboardLayout = () => {
     const showOrgContext = !isSuperAdminMode;
 
     const isAdmin = role === 'ADMIN';
-    const isSupervisor = role === 'SUPERVISOR';
-    const isAgent = role === 'AGENT';
-
     const orgId = localStorage.getItem('wabee_orgId') || '';
 
-    // Centralizado bajo el nuevo hook de enforcement
     const { summary, isLoading: isPlanLoading, isModuleEnabled } = usePlanEnforcement();
 
     const menuItems = [
@@ -146,20 +136,17 @@ export const DashboardLayout = () => {
         { icon: UserX, label: 'Privacidad', path: '/dashboard/super-admin/data-deletion', roles: ['SUPER_ADMIN'] },
     ];
 
-    // Filtrar items según rol y módulos activos del plan
-    const currentMenu = isSuperAdminMode 
-        ? superAdminMenuItems 
+    const currentMenu = isSuperAdminMode
+        ? superAdminMenuItems
         : menuItems.filter(item => {
             const hasRole = item.roles.includes(role);
             if (!hasRole) return false;
-            
-            // Si todavía no cargó el resumen del plan, no ocultamos el menú.
-            // Esto evita que Admin/Supervisor vean una barra vacía por un fetch tardío.
+
             const hasAssignedPlan = !!summary?.plan?.id;
             if (item.module && summary && !isPlanLoading && hasAssignedPlan && !isModuleEnabled(item.module)) {
                 return false;
             }
-            
+
             return true;
         });
 
@@ -180,141 +167,172 @@ export const DashboardLayout = () => {
     };
 
     return (
-        <div className="wabee-admin flex h-screen bg-[var(--bg-page)] text-[var(--text-body)] overflow-hidden">
-            {shouldShowOnboarding() && <OnboardingModal />}
-            {/* Sidebar Ultra-Slim */}
-            {!hideNav && (
-                <aside className="wabee-admin__sidebar w-60 flex flex-col p-4 gap-5 shrink-0">
-                <div className="flex flex-col gap-2 px-1">
-                    <BrandLogo variant="full" showProHub={true} size={28} />
-                    {isSuperAdminMode && (
-                        <div className="mt-1 flex items-center gap-1">
-                            <span className={`${T.badgeText} text-[9px] px-2 py-1 rounded-full border border-[color:color-mix(in_srgb,var(--brand-primary),transparent_84%)] bg-[color:color-mix(in_srgb,var(--brand-primary),transparent_90%)] text-[var(--brand-primary)] font-bold leading-none shrink-0`}>
-                                Super Admin
-                            </span>
-                        </div>
-                    )}
-                </div>
-
-                <nav className="flex-1 flex flex-col gap-2">
-                    {currentMenu.map((item) => (
-                        <div
-                            key={item.label}
-                            onClick={() => navigate(item.path)}
-                            className={`sidebar-item cursor-pointer mb-0.5 ${isActive(item.path) ? 'sidebar-item-active' : ''}`}
-                        >
-                            <item.icon size={14} className={isActive(item.path) ? 'text-[var(--brand-primary-foreground)]' : 'text-[var(--text-muted)] group-hover:text-[var(--brand-primary)]'} />
-                            {/* navText ya incluye truncate — correcto para sidebar */}
-                            <span className={`${T.navText} text-[11px]`}>{item.label}</span>
-                        </div>
-                    ))}
-                </nav>
-
-                <div className="mt-auto flex flex-col gap-6">
-
-                </div>
-            </aside>
+        <div className="wabee-admin flex min-h-screen flex-col bg-[var(--bg-page)] text-[var(--text-body)] lg:h-screen lg:flex-row lg:overflow-hidden">
+            {!hideNav && isMobileNavOpen && (
+                <button
+                    type="button"
+                    aria-label="Cerrar navegación"
+                    className="fixed inset-0 z-40 bg-black/45 backdrop-blur-[2px] lg:hidden"
+                    onClick={() => setIsMobileNavOpen(false)}
+                />
             )}
 
-            {/* Main Content */}
-            <div className="flex-1 flex flex-col overflow-hidden bg-[var(--bg-page)]">
-                {/* Banner de Impersonation — visible en cualquier vista protegida */}
-                {!hideNav && <SuperAdminImpersonationBanner />}
-                {/* Header Ultra-Slim */}
-                {!hideNav && (
-                    <header className="wabee-admin__topbar h-14 flex items-center justify-between px-5 shrink-0 sticky top-0 z-30">
-                        <div className="flex-1 flex items-center">
-                            {/* Selector de organización eliminado a petición del usuario */}
+            {!hideNav && (
+                <aside
+                    className={`wabee-admin__sidebar fixed inset-y-0 left-0 z-50 flex w-[280px] max-w-[85vw] flex-col gap-5 overflow-y-auto p-4 transition-transform duration-300 ease-out lg:static lg:z-auto lg:w-60 lg:max-w-none lg:translate-x-0 lg:overflow-visible ${
+                        isMobileNavOpen ? 'translate-x-0' : '-translate-x-full'
+                    }`}
+                >
+                    <div className="flex items-start justify-between gap-3 px-1 lg:block">
+                        <div className="flex flex-col gap-2">
+                            <BrandLogo variant="full" showProHub={true} size={28} />
+                            {isSuperAdminMode && (
+                                <div className="mt-1 flex items-center gap-1">
+                                    <span className={`${T.badgeText} text-[9px] px-2 py-1 rounded-full border border-[color:color-mix(in_srgb,var(--brand-primary),transparent_84%)] bg-[color:color-mix(in_srgb,var(--brand-primary),transparent_90%)] text-[var(--brand-primary)] font-bold leading-none shrink-0`}>
+                                        Super Admin
+                                    </span>
+                                </div>
+                            )}
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        <button
+                            type="button"
+                            className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] text-[var(--text-muted)] transition-all hover:text-[var(--brand-primary)] lg:hidden"
+                            onClick={() => setIsMobileNavOpen(false)}
+                            aria-label="Cerrar menú"
+                        >
+                            <X size={18} />
+                        </button>
+                    </div>
+
+                    <nav className="flex flex-1 flex-col gap-2">
+                        {currentMenu.map((item) => (
+                            <div
+                                key={item.label}
+                                onClick={() => {
+                                    navigate(item.path);
+                                    setIsMobileNavOpen(false);
+                                }}
+                                className={`sidebar-item cursor-pointer mb-0.5 ${isActive(item.path) ? 'sidebar-item-active' : ''}`}
+                            >
+                                <item.icon size={14} className={isActive(item.path) ? 'text-[var(--brand-primary-foreground)]' : 'text-[var(--text-muted)] group-hover:text-[var(--brand-primary)]'} />
+                                <span className={`${T.navText} text-[11px]`}>{item.label}</span>
+                            </div>
+                        ))}
+                    </nav>
+
+                    <div className="mt-auto flex flex-col gap-6" />
+                </aside>
+            )}
+
+            <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[var(--bg-page)]">
+                {!hideNav && <SuperAdminImpersonationBanner />}
+
+                {!hideNav && (
+                    <header className="wabee-admin__topbar sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between gap-3 px-3 sm:px-5">
+                        <div className="flex min-w-0 flex-1 items-center gap-2">
+                            <button
+                                type="button"
+                                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] text-[var(--text-muted)] transition-all hover:text-[var(--brand-primary)] lg:hidden"
+                                onClick={() => setIsMobileNavOpen(true)}
+                                aria-label="Abrir menú"
+                            >
+                                <Menu size={18} />
+                            </button>
+
+                            <div className="min-w-0 lg:hidden">
+                                <p className={`${T.menuText} truncate text-xs font-bold`}>
+                                    {isSuperAdminMode ? 'Super Admin' : orgName}
+                                </p>
+                                {!isSuperAdminMode && orgId ? (
+                                    <p className="truncate text-[10px] text-[var(--text-muted)]">{orgId}</p>
+                                ) : null}
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 sm:gap-3">
                             <div className="flex items-center gap-2 text-[var(--text-muted)]">
                                 <NotificationDropdown />
                             </div>
 
-                            <div className="h-8 w-px bg-[var(--border-default)]"></div>
+                            <div className="hidden h-8 w-px bg-[var(--border-default)] sm:block"></div>
 
                             <div className="relative" ref={profileMenuRef}>
                                 <div
-                                    className="flex items-center gap-2 cursor-pointer group p-1 bg-[var(--bg-card)] border border-[var(--border-default)] rounded-2xl hover:border-[var(--brand-primary)]/30 transition-all shadow-[0_18px_34px_rgba(26,26,26,0.06)]"
+                                    className="flex cursor-pointer items-center gap-2 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] p-1 shadow-[0_18px_34px_rgba(26,26,26,0.06)] transition-all hover:border-[var(--brand-primary)]/30 group"
                                     onClick={() => setIsProfileOpen(!isProfileOpen)}
                                 >
-                                    <div className="text-right hidden sm:block ml-1.5">
-                                        <p className={`${T.menuText} text-[10px] group-hover:text-[var(--brand-primary)] transition-all truncate max-w-[96px] italic`}>{user.name}</p>
+                                    <div className="ml-1.5 hidden text-right sm:block">
+                                        <p className={`${T.menuText} max-w-[96px] truncate text-[10px] italic transition-all group-hover:text-[var(--brand-primary)]`}>{user.name}</p>
                                     </div>
-                                    <div className="w-8 h-8 rounded-xl bg-[var(--bg-input)] overflow-hidden border border-[var(--border-default)] group-hover:border-[var(--brand-primary)]/50 transition-all">
+                                    <div className="h-8 w-8 overflow-hidden rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] transition-all group-hover:border-[var(--brand-primary)]/50">
                                         <img
                                             src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=ead018&color=121208`}
                                             alt="User"
-                                            className="w-full h-full object-cover"
+                                            className="h-full w-full object-cover"
                                         />
                                     </div>
-                                    <ChevronDown size={12} className={`text-[var(--text-muted)] mr-0.5 transition-transform duration-300 ${isProfileOpen ? 'rotate-180' : ''}`} />
+                                    <ChevronDown size={12} className={`mr-0.5 text-[var(--text-muted)] transition-transform duration-300 ${isProfileOpen ? 'rotate-180' : ''}`} />
                                 </div>
 
-                                {/* Dropdown Menu */}
                                 {isProfileOpen && (
-                                    <>
-                                        <div className="absolute right-0 mt-4 w-56 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-[1.5rem] shadow-[0_30px_80px_rgba(26,26,26,0.12)] p-2 z-20 animate-in fade-in zoom-in-95 duration-200">
-                                                {showOrgContext && (
-                                                    <div className="px-3 py-2 border-b border-[var(--border-default)] mb-2">
-                                                        {/* labelText sin size — usamos meta */}
-                                                        <p className={`${T.labelText} text-[9px] mb-1`}>Organización</p>
-                                                        <p className={`${T.cardTitle} text-xs font-bold`}>{orgName}</p>
-                                                    </div>
-                                                )}
-
-                                            <div className="space-y-1">
-                                                <button
-                                                    onClick={() => { setIsProfileOpen(false); navigate('/dashboard/profile'); }}
-                                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm hover:bg-[var(--bg-input)] hover:brightness-110 transition-all"
-                                                    style={{ color: 'var(--tx-menuText-color)' }}
-                                                >
-                                                    <User size={18} />
-                                                    <span className={`${T.menuText} text-sm`}>Mi Perfil</span>
-                                                </button>
-                                                {isAdmin && showOrgContext && (
-                                                    <>
-                                                        <button
-                                                            onClick={() => { setIsProfileOpen(false); navigate('/dashboard/settings/organization'); }}
-                                                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm hover:bg-[var(--bg-input)] hover:brightness-110 transition-all"
-                                                            style={{ color: 'var(--tx-menuText-color)' }}
-                                                        >
-                                                            <Building2 size={18} />
-                                                            <span className={`${T.menuText} text-sm`}>Organización</span>
-                                                        </button>
-                                                        <button
-                                                            onClick={() => { setIsProfileOpen(false); navigate('/dashboard/settings/plan'); }}
-                                                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm hover:bg-[var(--bg-input)] hover:brightness-110 transition-all"
-                                                            style={{ color: 'var(--tx-menuText-color)' }}
-                                                        >
-                                                            <CreditCard size={18} />
-                                                            <span className={`${T.menuText} text-sm`}>Plan y Facturación</span>
-                                                        </button>
-                                                    </>
-                                                )}
+                                    <div className="absolute right-0 z-20 mt-4 w-56 rounded-[1.5rem] border border-[var(--border-default)] bg-[var(--bg-elevated)] p-2 shadow-[0_30px_80px_rgba(26,26,26,0.12)] animate-in fade-in zoom-in-95 duration-200">
+                                        {showOrgContext && (
+                                            <div className="mb-2 border-b border-[var(--border-default)] px-3 py-2">
+                                                <p className={`${T.labelText} mb-1 text-[9px]`}>Organización</p>
+                                                <p className={`${T.cardTitle} text-xs font-bold`}>{orgName}</p>
                                             </div>
+                                        )}
 
-                                            <div className="mt-2 pt-2 border-t border-[var(--border-default)]">
-                                                <button
-                                                    onClick={handleLogout}
-                                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm hover:bg-red-400/10 transition-all font-bold"
-                                                    style={{ color: 'var(--tx-menuText-color)' }}
-                                                >
-                                                    <LogOut size={18} className="hover:text-red-500 transition-colors" />
-                                                    <span className={`${T.menuText} text-sm`}>Cerrar Sesión</span>
-                                                </button>
-                                            </div>
+                                        <div className="space-y-1">
+                                            <button
+                                                onClick={() => { setIsProfileOpen(false); navigate('/dashboard/profile'); }}
+                                                className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all hover:bg-[var(--bg-input)] hover:brightness-110"
+                                                style={{ color: 'var(--tx-menuText-color)' }}
+                                            >
+                                                <User size={18} />
+                                                <span className={`${T.menuText} text-sm`}>Mi Perfil</span>
+                                            </button>
+                                            {isAdmin && showOrgContext && (
+                                                <>
+                                                    <button
+                                                        onClick={() => { setIsProfileOpen(false); navigate('/dashboard/settings/organization'); }}
+                                                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all hover:bg-[var(--bg-input)] hover:brightness-110"
+                                                        style={{ color: 'var(--tx-menuText-color)' }}
+                                                    >
+                                                        <Building2 size={18} />
+                                                        <span className={`${T.menuText} text-sm`}>Organización</span>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => { setIsProfileOpen(false); navigate('/dashboard/settings/plan'); }}
+                                                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all hover:bg-[var(--bg-input)] hover:brightness-110"
+                                                        style={{ color: 'var(--tx-menuText-color)' }}
+                                                    >
+                                                        <CreditCard size={18} />
+                                                        <span className={`${T.menuText} text-sm`}>Plan y Facturación</span>
+                                                    </button>
+                                                </>
+                                            )}
                                         </div>
-                                    </>
+
+                                        <div className="mt-2 border-t border-[var(--border-default)] pt-2">
+                                            <button
+                                                onClick={handleLogout}
+                                                className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold transition-all hover:bg-red-400/10"
+                                                style={{ color: 'var(--tx-menuText-color)' }}
+                                            >
+                                                <LogOut size={18} className="transition-colors hover:text-red-500" />
+                                                <span className={`${T.menuText} text-sm`}>Cerrar Sesión</span>
+                                            </button>
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         </div>
                     </header>
                 )}
 
-                {/* Page Content */}
-                <main className={`flex-1 overflow-y-auto ${hideNav ? 'p-0' : 'p-5'} bg-[var(--bg-page)] selection:bg-[var(--brand-primary)]/20`}>
+                <main className={`flex-1 overflow-y-auto ${hideNav ? 'p-0' : 'p-3 sm:p-5'} bg-[var(--bg-page)] selection:bg-[var(--brand-primary)]/20`}>
                     <Outlet />
                 </main>
             </div>

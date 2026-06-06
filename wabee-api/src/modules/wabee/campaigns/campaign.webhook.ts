@@ -33,19 +33,16 @@ export class CampaignWebhook {
 
     // ─── POST: Recepción de eventos de WhatsApp ───────────────────────────────────
     static async handle(req: Request, res: Response) {
-        // 1. Validar firma (producción: obligatorio; desarrollo: flexible)
+        // 1. Validar firma — obligatorio si META_APP_SECRET está configurado, en cualquier entorno
         const signature = req.headers['x-hub-signature-256'] as string | undefined;
 
-        if (env.NODE_ENV === 'production') {
+        if (env.META_APP_SECRET) {
             if (!CampaignWebhook.isValidSignature((req as any).rawBody, signature)) {
                 console.warn('[Webhook] ❌ Invalid signature – request rejected');
                 return res.status(401).send('Invalid signature');
             }
-        } else if (signature && env.META_APP_SECRET) {
-            // En dev: validar si se envía firma, pero no bloquear si no viene
-            if (!CampaignWebhook.isValidSignature((req as any).rawBody, signature)) {
-                console.warn('[Webhook] ⚠️ [DEV] Signature validation failed – continuing anyway');
-            }
+        } else {
+            console.warn('[Webhook] ⚠️ META_APP_SECRET no configurado – validación de firma omitida');
         }
 
         const body = req.body;
@@ -122,17 +119,9 @@ export class CampaignWebhook {
     }
 
     // ─── Firma HMAC-SHA256 (raw body) ──────────────────────────────────────────
-    /**
-     * Valida la firma X-Hub-Signature-256 de Meta.
-     *
-     * IMPORTANTE: se debe pasar req.rawBody (Buffer capturado ANTES de express.json)
-     * y NO JSON.stringify(req.body), porque JSON.stringify puede alterar el orden
-     * de las claves y el whitespace, produciendo un hash diferente al de Meta.
-     *
-     * Condición de flexibilización en dev:
-     *   - Si META_APP_SECRET no está definido: no se puede validar → retorna true.
-     *   - Si la firma no viene en el header: retorna true en dev, false en prod.
-     */
+    // Valida X-Hub-Signature-256. Usa rawBody (Buffer antes de express.json) para
+    // evitar diferencias de serialización. Sin META_APP_SECRET retorna true (caller
+    // decide si bloquear). Sin firma o sin rawBody retorna false.
     private static isValidSignature(rawBody: Buffer | undefined, signature: string | undefined): boolean {
         if (!env.META_APP_SECRET) {
             // Sin secret configurado no podemos validar; en prod esto ya fue advertido al arrancar.

@@ -1,0 +1,32 @@
+[
+  {
+    "numeroActividad": 18,
+    "titulo": "Migrar SMTP de Gmail a Resend",
+    "descripcion": "El servidor de correo actual usa Gmail SMTP (smtp.gmail.com) con una app password. Gmail tiene un limite de ~500 emails por dia en cuentas personales, lo cual es insuficiente para un SaaS en crecimiento. Migrar a Resend (resend.com): crear cuenta gratuita (3000 emails/mes, 100/dia), verificar el dominio de envio, generar API key SMTP, y actualizar las variables SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS y SMTP_FROM en el .env y en Render. Resend es mas confiable, tiene mejor deliverability y panel de analytics de envios.",
+    "estado": "PENDIENTE",
+    "prioridad": "MEDIA",
+    "fechaInicio": "2026-06-06",
+    "venceEn": "2026-06-08",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 19,
+    "titulo": "Verificar que JWT migro correctamente a cookies HttpOnly",
+    "descripcion": "La tarea #2 marca la migracion de JWT de localStorage a cookies HttpOnly como completada, pero nunca se hizo una verificacion manual en produccion. Abrir la app en el navegador, iniciar sesion, y revisar en DevTools (Application > Local Storage y Application > Cookies) que: (1) el token NO aparece en localStorage bajo ninguna clave como wabee_token, auth_token o token, (2) existe una cookie HttpOnly con el JWT que no es accesible desde JavaScript (document.cookie no la muestra), (3) el logout borra la cookie correctamente. Si se encuentra alguna clave de token en localStorage, corregir el archivo correspondiente.",
+    "estado": "COMPLETADO",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-06",
+    "venceEn": "2026-06-07",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 20,
+    "titulo": "QA end-to-end antes de abrir registro publico",
+    "descripcion": "Recorrer el flujo completo de la plataforma simulando ser un cliente nuevo para detectar errores, fricciones o pantallas rotas antes de abrir el registro publico. El recorrido debe incluir: registro de nueva cuenta y verificacion de email, login con 2FA si aplica, navegacion por Dashboard, Inbox, Contactos, Campanas, Perfiles IA, Automatizaciones y Web Widgets. Documentar cualquier error de consola, pantalla rota, boton que no funcione o flujo confuso. Reparar los hallazgos criticos antes de considerar la plataforma lista para usuarios reales.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-07",
+    "venceEn": "2026-06-09",
+    "asignadoEmail": ""
+  }
+]

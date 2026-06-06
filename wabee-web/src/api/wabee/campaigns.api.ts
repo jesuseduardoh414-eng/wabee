@@ -191,16 +191,14 @@ export const uploadCampaignMedia = async (file: File): Promise<{ success: boolea
     formData.append('file', file);
     // apiClient by default sets Content-Type to application/json if we pass body as string
     // but for FormData, we should let the browser set it automatically with boundary.
-    const token = localStorage.getItem('wabee_token');
     const tenantId = localStorage.getItem('wabee_orgId') || localStorage.getItem('tenant_key');
 
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/v1';
 
-    // Call the generic core media endpoint
     const res = await fetch(`${API_URL}/core/media/upload`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
-            'Authorization': `Bearer ${token ?? ''}`,
             'x-tenant-id': tenantId ?? ''
         },
         body: formData

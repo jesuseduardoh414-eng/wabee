@@ -140,6 +140,7 @@ if (env.NODE_ENV === 'production') {
         'WHATSAPP_PHONE_NUMBER_ID',
         'WHATSAPP_VERIFY_TOKEN',
         'META_APP_SECRET',
+        'CORS_ALLOWED_ORIGINS',
     ];
     const missing = required.filter(k => !env[k as keyof typeof env]);
     if (missing.length > 0) {

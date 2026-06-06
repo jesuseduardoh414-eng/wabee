@@ -548,7 +548,6 @@ export default function CampaignWizard({ initialData, onClose, onSuccess }: Camp
                                 onChange={updateInlineValue}
                                 focusedId={focusedId}
                                 templateInputMapping={generateMapping()}
-                                token={localStorage.getItem('wabee_token') || localStorage.getItem('token') || ''}
                                 tenantId={localStorage.getItem('wabee_orgId') || localStorage.getItem('tenant_key') || localStorage.getItem('orgId') || ''}
                                 apiUrl={import.meta.env.VITE_API_URL || 'http://localhost:4000/v1'}
                             />

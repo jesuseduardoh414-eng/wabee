@@ -43,7 +43,7 @@
     "numeroActividad": 5,
     "titulo": "Habilitar Redis en Render para campanas y metricas en tiempo real",
     "descripcion": "REDIS_ENABLED esta en false y sin URL configurada. En produccion el sistema de campanas y el SSE de metricas pueden tener condiciones de carrera sin Redis. Crear una instancia gratuita en Upstash, setear REDIS_ENABLED=true y REDIS_URL en Render, y validar que las campanas y los eventos de metricas funcionen correctamente.",
-    "estado": "PENDIENTE",
+    "estado": "COMPLETADO",
     "prioridad": "ALTA",
     "fechaInicio": "2026-06-07",
     "venceEn": "2026-06-08",

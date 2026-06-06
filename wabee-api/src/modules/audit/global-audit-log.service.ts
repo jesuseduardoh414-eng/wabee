@@ -1,5 +1,6 @@
 import { AuditContext } from '../../shared/http/request-audit-context';
 import { CoreInternalService } from '../core/core.internal.service';
+import { captureError } from '../../lib/sentry';
 
 export type AuditCategory = 'auth' | 'user' | 'org' | 'templates' | 'ai' | 'widget' | 'integrations' | 'channels' | 'campaigns' | 'system' | 'billing' | 'super_admin' | 'ui';
 export type AuditSeverity = 'info' | 'warning' | 'critical' | 'success';
@@ -84,8 +85,8 @@ export class GlobalAuditLogService {
 
             await CoreInternalService.createGlobalAuditEvent(data);
         } catch (error) {
-            // No bloqueamos el flujo principal si falla la auditoría, solo logueamos el error
             console.error('[GlobalAuditLogService] Error al persistir evento de auditoría:', error);
+            captureError(error, { eventType: input.eventType, category: input.category });
         }
     }
 }

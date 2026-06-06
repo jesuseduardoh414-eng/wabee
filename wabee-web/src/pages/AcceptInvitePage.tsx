@@ -36,12 +36,7 @@ export const AcceptInvitePage = () => {
 
             setSuccess(true);
 
-            if (data.token) {
-                localStorage.setItem('wabee_token', data.token);
-                setTimeout(() => navigate('/dashboard'), 2000);
-            } else {
-                setTimeout(() => navigate('/login'), 2000);
-            }
+            setTimeout(() => navigate('/dashboard'), 2000);
         } catch (err: any) {
             const msg = err.response?.data?.error?.message || 'Error al aceptar la invitacion';
             if (msg.includes('contrasena')) {

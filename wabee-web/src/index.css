@@ -3294,6 +3294,7 @@ input::selection, textarea::selection {
   --wabee-admin-surface-top: color-mix(in srgb, var(--bg-page), white 4%);
   --wabee-admin-surface-bottom: color-mix(in srgb, var(--bg-page), var(--bg-surface) 24%);
   position: relative;
+  isolation: isolate;
   font-size: 14px;
   background:
     radial-gradient(circle at 12% 10%, color-mix(in srgb, var(--wabee-admin-purple), transparent 88%), transparent 28%),
@@ -3317,6 +3318,7 @@ input::selection, textarea::selection {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 0;
   pointer-events: none;
   opacity: 0.34;
   background-image:
@@ -3328,7 +3330,6 @@ input::selection, textarea::selection {
 }
 
 .wabee-admin > * {
-  position: relative;
   z-index: 1;
 }
 

@@ -152,6 +152,24 @@ export const DashboardLayout = () => {
 
     const isActive = (path: string) => location.pathname === path;
 
+    const renderMenuItems = () => (
+        <>
+            {currentMenu.map((item) => (
+                <div
+                    key={item.label}
+                    onClick={() => {
+                        navigate(item.path);
+                        setIsMobileNavOpen(false);
+                    }}
+                    className={`sidebar-item cursor-pointer mb-0.5 ${isActive(item.path) ? 'sidebar-item-active' : ''}`}
+                >
+                    <item.icon size={14} className={isActive(item.path) ? 'text-[var(--brand-primary-foreground)]' : 'text-[var(--text-muted)] group-hover:text-[var(--brand-primary)]'} />
+                    <span className={`${T.navText} text-[11px]`}>{item.label}</span>
+                </div>
+            ))}
+        </>
+    );
+
     const handleLogout = () => {
         client.post('/auth/logout').catch(() => {});
         localStorage.removeItem('wabee_session');
@@ -177,12 +195,8 @@ export const DashboardLayout = () => {
                 />
             )}
 
-            {!hideNav && (
-                <aside
-                    className={`wabee-admin__sidebar fixed inset-y-0 left-0 z-50 flex w-[280px] max-w-[85vw] flex-col gap-5 overflow-y-auto p-4 transition-transform duration-300 ease-out lg:static lg:z-auto lg:w-60 lg:max-w-none lg:translate-x-0 lg:overflow-visible ${
-                        isMobileNavOpen ? 'translate-x-0' : '-translate-x-full'
-                    }`}
-                >
+            {!hideNav && isMobileNavOpen && (
+                <aside className="wabee-admin__sidebar fixed inset-y-0 left-0 z-50 flex w-[280px] max-w-[85vw] flex-col gap-5 overflow-y-auto p-4 lg:hidden">
                     <div className="flex items-start justify-between gap-3 px-1 lg:block">
                         <div className="flex flex-col gap-2">
                             <BrandLogo variant="full" showProHub={true} size={28} />
@@ -206,19 +220,28 @@ export const DashboardLayout = () => {
                     </div>
 
                     <nav className="flex flex-1 flex-col gap-2">
-                        {currentMenu.map((item) => (
-                            <div
-                                key={item.label}
-                                onClick={() => {
-                                    navigate(item.path);
-                                    setIsMobileNavOpen(false);
-                                }}
-                                className={`sidebar-item cursor-pointer mb-0.5 ${isActive(item.path) ? 'sidebar-item-active' : ''}`}
-                            >
-                                <item.icon size={14} className={isActive(item.path) ? 'text-[var(--brand-primary-foreground)]' : 'text-[var(--text-muted)] group-hover:text-[var(--brand-primary)]'} />
-                                <span className={`${T.navText} text-[11px]`}>{item.label}</span>
+                        {renderMenuItems()}
+                    </nav>
+
+                    <div className="mt-auto flex flex-col gap-6" />
+                </aside>
+            )}
+
+            {!hideNav && (
+                <aside className="wabee-admin__sidebar hidden w-60 shrink-0 flex-col gap-5 overflow-y-auto p-4 lg:flex">
+                    <div className="flex flex-col gap-2 px-1">
+                        <BrandLogo variant="full" showProHub={true} size={28} />
+                        {isSuperAdminMode && (
+                            <div className="mt-1 flex items-center gap-1">
+                                <span className={`${T.badgeText} text-[9px] px-2 py-1 rounded-full border border-[color:color-mix(in_srgb,var(--brand-primary),transparent_84%)] bg-[color:color-mix(in_srgb,var(--brand-primary),transparent_90%)] text-[var(--brand-primary)] font-bold leading-none shrink-0`}>
+                                    Super Admin
+                                </span>
                             </div>
-                        ))}
+                        )}
+                    </div>
+
+                    <nav className="flex flex-1 flex-col gap-2">
+                        {renderMenuItems()}
                     </nav>
 
                     <div className="mt-auto flex flex-col gap-6" />

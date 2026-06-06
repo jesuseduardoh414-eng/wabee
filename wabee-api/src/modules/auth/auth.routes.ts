@@ -190,17 +190,23 @@ router.post('/register', async (req, res) => {
                 const verificationLink = (linkData as any)?.properties?.action_link;
                 if (verificationLink) {
                     const userName = data.name || data.email.split('@')[0];
-                    await core.notifications.send({
-                        to: data.email,
-                        channel: 'email',
-                        templateName: 'VERIFY_EMAIL',
-                        data: {
-                            user_name: userName,
-                            org_name: data.organizationName,
-                            link: verificationLink,
-                            verification_link: verificationLink
-                        }
-                    });
+                    const verifyTimeout = new Promise<void>((_, reject) =>
+                        setTimeout(() => reject(new Error('Email send timeout after 15s')), 15000)
+                    );
+                    await Promise.race([
+                        core.notifications.send({
+                            to: data.email,
+                            channel: 'email',
+                            templateName: 'VERIFY_EMAIL',
+                            data: {
+                                user_name: userName,
+                                org_name: data.organizationName,
+                                link: verificationLink,
+                                verification_link: verificationLink
+                            }
+                        }),
+                        verifyTimeout
+                    ]);
                     console.log(`[authRoutes] ✅ Verification email sent to ${data.email}`);
                 }
             } catch (emailError: any) {
@@ -303,16 +309,22 @@ router.post('/recover', async (req, res) => {
             const profile = await CoreInternalService.getProfileByEmail(data.email);
             try {
                 const userName = profile?.name || data.email.split('@')[0];
-                await core.notifications.send({
-                    to: data.email,
-                    channel: 'email',
-                    templateName: 'PASSWORD_RESET',
-                    data: {
-                        user_name: userName,
-                        link: recoveryLink,
-                        expires_in: '24 horas',
-                    }
-                });
+                const emailTimeout = new Promise<void>((_, reject) =>
+                    setTimeout(() => reject(new Error('Email send timeout after 15s')), 15000)
+                );
+                await Promise.race([
+                    core.notifications.send({
+                        to: data.email,
+                        channel: 'email',
+                        templateName: 'PASSWORD_RESET',
+                        data: {
+                            user_name: userName,
+                            link: recoveryLink,
+                            expires_in: '24 horas',
+                        }
+                    }),
+                    emailTimeout
+                ]);
                 console.log(`[authRoutes] ✅ Recovery email sent to ${data.email}`);
             } catch (emailError: any) {
                 console.error('[authRoutes] Non-blocking: Failed to send recovery email:', emailError.message);

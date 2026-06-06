@@ -33,16 +33,6 @@ export class AnalyticsAggregator {
         const now = new Date();
 
         // 2. Buscar eventos nuevos desde el último cursor
-        // Auditoría
-        await coreAdapter.system.createAuditLog({
-            tenantId,
-            userId: 'SYSTEM',
-            action: 'ANALYTICS_AGGREGATION',
-            modelType: 'Analytics',
-            description: `Agregación incremental para tenant ${tenantId}`,
-            newValues: { lastAggregatedAt, now } as any
-        });
-
         const events = await prisma.analyticsEvent.findMany({
             where: {
                 tenantId,

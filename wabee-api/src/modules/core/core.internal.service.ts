@@ -1138,12 +1138,17 @@ export class CoreInternalService {
      * Registra un evento en el log de auditoría (core.audit_trail).
      */
     static async createAuditTrail(data: any): Promise<void> {
-        const safeData = { ...data };
-        if (safeData.userId === 'SYSTEM') {
-            safeData.userId = null;
-            safeData.userType = 'SYSTEM';
+        try {
+            const { tenantId, userId, actorUserId: _rawActorUserId, ...rest } = data;
+            const resolvedActorId = userId === 'SYSTEM' ? null : (userId || _rawActorUserId || null);
+            const prismaData: any = { ...rest };
+            if (tenantId) prismaData.organization = { connect: { id: tenantId } };
+            if (resolvedActorId) prismaData.actor = { connect: { id: resolvedActorId } };
+            if (!prismaData.userType && userId === 'SYSTEM') prismaData.userType = 'SYSTEM';
+            await getCorePrisma().auditTrail.create({ data: prismaData });
+        } catch (err) {
+            console.warn('[CoreInternalService] createAuditTrail error (non-fatal):', (err as any)?.message);
         }
-        await getCorePrisma().auditTrail.create({ data: safeData });
     }
 
     /**

@@ -97,20 +97,26 @@ export class DataDeletionService {
         if (status === DeletionRequestStatus.IN_REVIEW && updatedRequest) {
             try {
                 console.log(`[DataDeletion] Enviando correo de confirmación a: ${updatedRequest.email}`);
-                await core.notifications.send({
-                    to: updatedRequest.email,
-                    channel: 'email',
-                    templateName: 'DATA_DELETION_CONFIRMATION',
-                    subject: 'Revisión: Solicitud de Eliminación de Datos',
-                    content: 'Hola {{fullName}},<br><br>Hemos recibido una solicitud para la eliminación de tus datos asociados a este correo electrónico.<br><br>Para proceder con la eliminación y confirmar que solicitaste esta acción, por favor haz clic en el botón de confirmar de abajo o contáctanos haciendo referencia a tu ID de solicitud: <strong>{{requestId}}</strong>.<br><br>Fecha de Solicitud: {{requestedAt}}',
-                    data: {
-                        fullName: updatedRequest.fullName,
-                        requestId: updatedRequest.id,
-                        requestedAt: new Date(updatedRequest.requestedAt).toLocaleDateString(),
-                        link: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/data-deletion/confirm/${updatedRequest.id}`,
-                        cta_override: 'Confirmar solicitud'
-                    }
-                });
+                const deletionTimeout = new Promise<void>((_, reject) =>
+                    setTimeout(() => reject(new Error('Email send timeout after 15s')), 15000)
+                );
+                await Promise.race([
+                    core.notifications.send({
+                        to: updatedRequest.email,
+                        channel: 'email',
+                        templateName: 'DATA_DELETION_CONFIRMATION',
+                        subject: 'Revisión: Solicitud de Eliminación de Datos',
+                        content: 'Hola {{fullName}},<br><br>Hemos recibido una solicitud para la eliminación de tus datos asociados a este correo electrónico.<br><br>Para proceder con la eliminación y confirmar que solicitaste esta acción, por favor haz clic en el botón de confirmar de abajo o contáctanos haciendo referencia a tu ID de solicitud: <strong>{{requestId}}</strong>.<br><br>Fecha de Solicitud: {{requestedAt}}',
+                        data: {
+                            fullName: updatedRequest.fullName,
+                            requestId: updatedRequest.id,
+                            requestedAt: new Date(updatedRequest.requestedAt).toLocaleDateString(),
+                            link: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/data-deletion/confirm/${updatedRequest.id}`,
+                            cta_override: 'Confirmar solicitud'
+                        }
+                    }),
+                    deletionTimeout
+                ]);
             } catch (notifyErr) {
                 console.error('[DataDeletion] Error al enviar notificación:', notifyErr);
             }

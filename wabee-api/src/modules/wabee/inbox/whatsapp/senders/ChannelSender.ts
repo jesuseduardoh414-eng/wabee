@@ -12,6 +12,17 @@ export interface SendResult {
     raw: any;
 }
 
+export interface SendMediaParams {
+    channel: any;
+    to: string;
+    mediaType: 'image' | 'video' | 'document';
+    mediaLink: string;
+    caption?: string;
+    filename?: string;
+    tenantId: string;
+    threadId: string;
+}
+
 export interface SendTemplateParams {
     channel: any;
     to: string;
@@ -22,5 +33,6 @@ export interface SendTemplateParams {
 
 export interface ChannelSender {
     sendText(params: SendTextParams): Promise<SendResult>;
+    sendMedia(params: SendMediaParams): Promise<SendResult>;
     sendTemplate(params: SendTemplateParams): Promise<SendResult>;
 }

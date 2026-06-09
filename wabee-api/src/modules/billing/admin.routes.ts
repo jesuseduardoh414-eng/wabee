@@ -12,13 +12,14 @@ import { prisma, corePrisma } from '../../config/core/core.prisma';
 import { StripeSyncService } from './stripe-sync.service';
 
 import { preventImpersonation } from '../../middleware/prevent-impersonation.middleware';
+import { isSuperAdmin } from '../../middleware/auth-role.middleware';
 
 const router = Router();
 
 // ─── Middleware Super Admin ───────────────────────────────────────────────────
 const requireSuperAdmin = async (req: AuthRequest, res: any, next: any) => {
     try {
-        if (req.user?.globalRole !== 'admin') {
+        if (!isSuperAdmin(req.user)) {
             return res.status(403).json({ error: { code: 'FORBIDDEN', message: 'Solo super administradores de plataforma.' } });
         }
         next();

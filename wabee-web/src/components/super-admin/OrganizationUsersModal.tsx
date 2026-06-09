@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { 
-    Users, ShieldAlert, UserCheck, Loader2, X, Shield, Mail
+import {
+    Users, ShieldAlert, UserCheck, Loader2, X,
 } from 'lucide-react';
 import { OrganizationMember, superAdminOrgsApi } from '@/api/wabee/super-admin-orgs.api';
 import { ImpersonationStore } from '@/lib/impersonation.store';
@@ -14,6 +14,71 @@ interface OrganizationUsersModalProps {
         id: string;
         name: string;
     } | null;
+}
+
+function MemberModalCard({
+    member,
+    impersonatingId,
+    onImpersonate,
+}: {
+    member: OrganizationMember;
+    impersonatingId: string | null;
+    onImpersonate: (member: OrganizationMember) => void;
+}) {
+    return (
+        <div className="rounded-[1.5rem] border border-[var(--border-default)] bg-[var(--bg-elevated)]/50 p-4">
+            <div className="flex items-start gap-3">
+                <img
+                    src={member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name || 'U')}&background=262626&color=ead018`}
+                    alt={member.name}
+                    className="h-10 w-10 shrink-0 rounded-xl border border-[var(--border-default)] object-cover"
+                />
+                <div className="min-w-0 flex-1">
+                    <p className={`${T.tableCell} ${S.body} truncate font-bold text-[var(--text-strong)]`}>{member.name || 'Sin nombre'}</p>
+                    <p className={`${T.helperText} ${S.meta} truncate text-[var(--text-muted)]`}>{member.email}</p>
+                </div>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-3">
+                <div>
+                    <p className={`${T.kpiLabel} ${S.meta} mb-1`}>Rol</p>
+                    <span className={`${T.badgeText} ${S.meta} rounded px-2 py-1 font-black uppercase tracking-wider bg-[var(--brand-primary)]/10 text-[var(--brand-primary)]`}>
+                        {member.role}
+                    </span>
+                </div>
+                <div>
+                    <p className={`${T.kpiLabel} ${S.meta} mb-1`}>Estado</p>
+                    <div className="flex items-center gap-2">
+                        <div className={`h-2 w-2 rounded-full ${
+                            member.status === 'active'
+                                ? 'bg-[var(--state-success)] shadow-[0_0_8px_var(--state-success)]'
+                                : 'bg-[var(--state-danger)] shadow-[0_0_8px_var(--state-danger)]'
+                        }`} />
+                        <span className={`${S.body} text-xs font-medium capitalize ${member.status === 'active' ? 'text-[var(--state-success)]' : 'text-[var(--state-danger)]'}`}>
+                            {member.status}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="mt-4">
+                {member.status === 'active' ? (
+                    <button
+                        onClick={() => onImpersonate(member)}
+                        disabled={impersonatingId !== null}
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand-primary)] px-4 py-2 shadow-lg shadow-[var(--brand-primary)]/20 transition-all hover:brightness-110 disabled:opacity-50"
+                    >
+                        {impersonatingId === member.userId ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserCheck className="h-4 w-4" />}
+                        <span className={`${T.buttonPrimaryText} ${S.meta} font-black`}>
+                            {impersonatingId === member.userId ? 'Iniciando...' : 'Suplantar'}
+                        </span>
+                    </button>
+                ) : (
+                    <span className={`${T.helperText} ${S.meta} italic text-[var(--text-muted)] opacity-50`}>Usuario no activo</span>
+                )}
+            </div>
+        </div>
+    );
 }
 
 export function OrganizationUsersModal({ isOpen, onClose, organization }: OrganizationUsersModalProps) {
@@ -35,7 +100,7 @@ export function OrganizationUsersModal({ isOpen, onClose, organization }: Organi
             const data = await superAdminOrgsApi.getMembers(organization.id);
             setMembers(data);
         } catch (error) {
-            toastError("Error al cargar miembros");
+            toastError('Error al cargar miembros');
         } finally {
             setLoading(false);
         }
@@ -43,7 +108,7 @@ export function OrganizationUsersModal({ isOpen, onClose, organization }: Organi
 
     const handleImpersonate = async (member: OrganizationMember) => {
         if (!organization) return;
-        
+
         setImpersonatingId(member.userId);
         try {
             const response = await superAdminOrgsApi.impersonate(organization.id, member.userId);
@@ -58,18 +123,16 @@ export function OrganizationUsersModal({ isOpen, onClose, organization }: Organi
                     targetUser: {
                         id: member.userId,
                         email: member.email,
-                        profile: { name: member.name }
+                        profile: { name: member.name },
                     },
                     orgId: organization.id,
-                    orgName: organization.name
+                    orgName: organization.name,
                 });
-                
+
                 toastSuccess(`Suplantando a ${member.email}`);
-                
-                // ImpersonationStore.start() ahora dispara window.location.href automáticamente
             }
         } catch (error: any) {
-            toastError(error.response?.data?.error?.message || "Error al iniciar suplantación");
+            toastError(error.response?.data?.error?.message || 'Error al iniciar suplantación');
         } finally {
             setImpersonatingId(null);
         }
@@ -78,121 +141,123 @@ export function OrganizationUsersModal({ isOpen, onClose, organization }: Organi
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm shadow-2xl" onClick={onClose} />
-            
-            <div className="relative bg-[var(--bg-card)] border border-[var(--border-default)] w-full max-w-4xl max-h-[85vh] rounded-[2.5rem] p-8 shadow-2xl flex flex-col animate-in zoom-in-95 duration-300">
-                {/* Header */}
-                <div className="flex items-start justify-between mb-6">
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-[var(--brand-primary)]/10 border border-[var(--brand-primary)]/20 flex items-center justify-center">
-                            <Users className="w-6 h-6 text-[var(--brand-primary)]" />
+        <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
+            <div className="absolute inset-0 bg-black/80 shadow-2xl backdrop-blur-sm" onClick={onClose} />
+
+            <div className="relative flex max-h-[100dvh] w-full flex-col overflow-hidden rounded-t-[2rem] border border-[var(--border-default)] bg-[var(--bg-card)] px-5 py-6 shadow-2xl sm:max-h-[85vh] sm:max-w-4xl sm:rounded-[2.5rem] sm:p-8">
+                <div className="mb-5 flex items-start justify-between gap-3 sm:mb-6">
+                    <div className="flex items-start gap-3 sm:items-center sm:gap-4">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[var(--brand-primary)]/20 bg-[var(--brand-primary)]/10 sm:h-12 sm:w-12">
+                            <Users className="h-5 w-5 text-[var(--brand-primary)] sm:h-6 sm:w-6" />
                         </div>
-                        <div>
+                        <div className="min-w-0">
                             <h3 className={`${T.sectionTitle} ${S.headingLg} text-[var(--text-strong)]`}>
                                 Miembros de <span className="text-[var(--brand-primary)]">{organization?.name}</span>
                             </h3>
-                            <p className={`${T.helperText} ${S.body} text-[var(--text-muted)] mt-1`}>
+                            <p className={`${T.helperText} ${S.body} mt-1 text-[var(--text-muted)]`}>
                                 Selecciona un usuario activo para suplantar su identidad y explorar el sistema desde su perspectiva.
                             </p>
                         </div>
                     </div>
-                    <button 
+                    <button
                         onClick={onClose}
-                        className="p-2 rounded-xl hover:bg-[var(--bg-hover)] text-[var(--text-muted)] transition-all"
+                        className="rounded-xl p-2 text-[var(--text-muted)] transition-all hover:bg-[var(--bg-hover)]"
                     >
                         <X size={20} />
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto min-h-[350px] pr-2">
+                <div className="min-h-[320px] flex-1 overflow-y-auto pr-0 sm:pr-2">
                     {loading ? (
-                        <div className="flex flex-col items-center justify-center h-full gap-3 py-10">
-                            <Loader2 className="w-10 h-10 animate-spin text-[var(--brand-primary)]" />
+                        <div className="flex h-full flex-col items-center justify-center gap-3 py-10">
+                            <Loader2 className="h-10 w-10 animate-spin text-[var(--brand-primary)]" />
                             <p className={`${T.helperText} ${S.body}`}>Cargando equipo administrativo...</p>
                         </div>
                     ) : members.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-full gap-3 py-10 opacity-40">
-                            <ShieldAlert className="w-16 h-16" />
+                        <div className="flex h-full flex-col items-center justify-center gap-3 py-10 opacity-40">
+                            <ShieldAlert className="h-16 w-16" />
                             <p className={`${T.helperText} ${S.body}`}>No se encontraron miembros en esta organización</p>
                         </div>
                     ) : (
-                        <table className="w-full">
-                            <thead>
-                                <tr className={`${T.tableHeader} ${S.meta} text-left border-b border-[var(--border-default)]`}>
-                                    <th className="pb-4 px-4 font-black uppercase tracking-widest text-[var(--text-muted)]">Colaborador</th>
-                                    <th className="pb-4 px-4 font-black uppercase tracking-widest text-[var(--text-muted)]">Rol</th>
-                                    <th className="pb-4 px-4 font-black uppercase tracking-widest text-[var(--text-muted)]">Estado</th>
-                                    <th className="pb-4 px-4 text-right font-black uppercase tracking-widest text-[var(--text-muted)]">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-[var(--border-default)]">
+                        <>
+                            <div className="grid grid-cols-1 gap-4 lg:hidden">
                                 {members.map((member) => (
-                                    <tr key={member.id} className="group hover:bg-[var(--bg-hover)]/30 transition-all">
-                                        <td className="py-5 px-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="relative">
-                                                    <img
-                                                        src={member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name || 'U')}&background=262626&color=ead018`}
-                                                        alt={member.name}
-                                                        className="w-10 h-10 rounded-xl object-cover border border-[var(--border-default)]"
-                                                    />
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <p className={`${T.tableCell} ${S.body} font-bold text-[var(--text-strong)] truncate`}>
-                                                        {member.name || 'Sin Nombre'}
-                                                    </p>
-                                                    <p className={`${T.helperText} ${S.meta} text-[var(--text-muted)] truncate`}>
-                                                        {member.email}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="py-5 px-4">
-                                            <span className={`${T.badgeText} ${S.meta} font-black bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] px-2 py-1 rounded uppercase tracking-wider`}>
-                                                {member.role}
-                                            </span>
-                                        </td>
-                                        <td className="py-5 px-4">
-                                            <div className="flex items-center gap-2">
-                                                <div className={`w-2 h-2 rounded-full ${
-                                                    member.status === 'active' 
-                                                    ? 'bg-[var(--state-success)] shadow-[0_0_8px_var(--state-success)]' 
-                                                    : 'bg-[var(--state-danger)] shadow-[0_0_8px_var(--state-danger)]'
-                                                }`} />
-                                                <span className={`${S.body} font-medium capitalize text-xs ${
-                                                    member.status === 'active' ? 'text-[var(--state-success)]' : 'text-[var(--state-danger)]'
-                                                }`}>
-                                                    {member.status}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td className="py-5 px-4 text-right">
-                                            {member.status === 'active' ? (
-                                                <button 
-                                                    onClick={() => handleImpersonate(member)}
-                                                    disabled={impersonatingId !== null}
-                                                    className="inline-flex items-center gap-2 bg-[var(--brand-primary)] px-4 py-2 rounded-xl hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-[var(--brand-primary)]/20 disabled:opacity-50"
-                                                >
-                                                    {impersonatingId === member.userId ? (
-                                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                                    ) : (
-                                                        <UserCheck className="w-4 h-4" />
-                                                    )}
-                                                    <span className={`${T.buttonPrimaryText} ${S.meta} font-black`}>
-                                                        {impersonatingId === member.userId ? 'Iniciando...' : 'Suplantar'}
-                                                    </span>
-                                                </button>
-                                            ) : (
-                                                <span className={`${T.helperText} ${S.meta} italic text-[var(--text-muted)] opacity-50`}>
-                                                    Usuario no-activo
-                                                </span>
-                                            )}
-                                        </td>
-                                    </tr>
+                                    <MemberModalCard
+                                        key={member.id}
+                                        member={member}
+                                        impersonatingId={impersonatingId}
+                                        onImpersonate={handleImpersonate}
+                                    />
                                 ))}
-                            </tbody>
-                        </table>
+                            </div>
+
+                            <div className="hidden lg:block">
+                                <table className="w-full min-w-[760px]">
+                                    <thead>
+                                        <tr className={`${T.tableHeader} ${S.meta} border-b border-[var(--border-default)] text-left`}>
+                                            <th className="px-4 pb-4 font-black uppercase tracking-widest text-[var(--text-muted)]">Colaborador</th>
+                                            <th className="px-4 pb-4 font-black uppercase tracking-widest text-[var(--text-muted)]">Rol</th>
+                                            <th className="px-4 pb-4 font-black uppercase tracking-widest text-[var(--text-muted)]">Estado</th>
+                                            <th className="px-4 pb-4 text-right font-black uppercase tracking-widest text-[var(--text-muted)]">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-[var(--border-default)]">
+                                        {members.map((member) => (
+                                            <tr key={member.id} className="group transition-all hover:bg-[var(--bg-hover)]/30">
+                                                <td className="px-4 py-5">
+                                                    <div className="flex items-center gap-3">
+                                                        <img
+                                                            src={member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name || 'U')}&background=262626&color=ead018`}
+                                                            alt={member.name}
+                                                            className="h-10 w-10 rounded-xl border border-[var(--border-default)] object-cover"
+                                                        />
+                                                        <div className="min-w-0">
+                                                            <p className={`${T.tableCell} ${S.body} truncate font-bold text-[var(--text-strong)]`}>{member.name || 'Sin nombre'}</p>
+                                                            <p className={`${T.helperText} ${S.meta} truncate text-[var(--text-muted)]`}>{member.email}</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-5">
+                                                    <span className={`${T.badgeText} ${S.meta} rounded px-2 py-1 font-black uppercase tracking-wider bg-[var(--brand-primary)]/10 text-[var(--brand-primary)]`}>
+                                                        {member.role}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-5">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className={`h-2 w-2 rounded-full ${
+                                                            member.status === 'active'
+                                                                ? 'bg-[var(--state-success)] shadow-[0_0_8px_var(--state-success)]'
+                                                                : 'bg-[var(--state-danger)] shadow-[0_0_8px_var(--state-danger)]'
+                                                        }`} />
+                                                        <span className={`${S.body} text-xs font-medium capitalize ${member.status === 'active' ? 'text-[var(--state-success)]' : 'text-[var(--state-danger)]'}`}>
+                                                            {member.status}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-5 text-right">
+                                                    {member.status === 'active' ? (
+                                                        <button
+                                                            onClick={() => handleImpersonate(member)}
+                                                            disabled={impersonatingId !== null}
+                                                            className="inline-flex items-center gap-2 rounded-xl bg-[var(--brand-primary)] px-4 py-2 shadow-lg shadow-[var(--brand-primary)]/20 transition-all hover:brightness-110 disabled:opacity-50"
+                                                        >
+                                                            {impersonatingId === member.userId ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserCheck className="h-4 w-4" />}
+                                                            <span className={`${T.buttonPrimaryText} ${S.meta} font-black`}>
+                                                                {impersonatingId === member.userId ? 'Iniciando...' : 'Suplantar'}
+                                                            </span>
+                                                        </button>
+                                                    ) : (
+                                                        <span className={`${T.helperText} ${S.meta} italic text-[var(--text-muted)] opacity-50`}>
+                                                            Usuario no activo
+                                                        </span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </>
                     )}
                 </div>
             </div>

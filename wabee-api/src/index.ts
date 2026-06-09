@@ -146,11 +146,20 @@ const allowedOrigins: string[] = env.CORS_ALLOWED_ORIGINS
     ? env.CORS_ALLOWED_ORIGINS.split(',').map((o: string) => o.trim()).filter(Boolean)
     : [];
 
+const isLocalDevOrigin = (origin: string) => {
+    if (env.NODE_ENV === 'production') return false;
+
+    return /^https?:\/\/(?:(localhost|127\.0\.0\.1|0\.0\.0\.0)|(?:192\.168\.\d{1,3}\.\d{1,3})|(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3})|(?:172\.(?:1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}))(?::\d+)?$/i.test(origin);
+};
+
 const corsStrictOptions: cors.CorsOptions = {
     origin: (origin, callback) => {
         // Peticiones sin origin (curl, Postman, server-to-server) siempre permitidas
         if (!origin) return callback(null, true);
         if (allowedOrigins.includes('*')) {
+            return callback(null, true);
+        }
+        if (isLocalDevOrigin(origin)) {
             return callback(null, true);
         }
         if (allowedOrigins.length === 0) {

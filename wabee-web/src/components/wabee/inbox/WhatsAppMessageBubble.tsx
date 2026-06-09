@@ -72,6 +72,7 @@ export function WhatsAppMessageBubble({ message, onMediaLoad }: WhatsAppMessageB
     const isOutbound = message.direction === 'OUTBOUND';
     const isCampaign = message.metadata?.source === 'campaign';
     const templatePreview = message.metadata?.templatePreview;
+    const inlineMedia = resolveInlineMedia(message);
     const isSystemTransfer =
         message.senderType === 'system' &&
         typeof (templatePreview?.bodyText || message.text) === 'string' &&
@@ -119,6 +120,10 @@ export function WhatsAppMessageBubble({ message, onMediaLoad }: WhatsAppMessageB
                 <div className="px-3 pt-2.5 pb-7 relative flex flex-col">
                     {templatePreview?.headerMedia && (
                         <HeaderMediaRenderer headerMedia={templatePreview.headerMedia} onMediaLoad={onMediaLoad} />
+                    )}
+
+                    {!templatePreview?.headerMedia && inlineMedia && (
+                        <InlineMediaRenderer media={inlineMedia} onMediaLoad={onMediaLoad} />
                     )}
 
                     {templatePreview?.headerText && (
@@ -250,4 +255,94 @@ function HeaderMediaRenderer({
     }
 
     return null;
+}
+
+function resolveInlineMedia(message: any) {
+    const kind = String(message.metadata?.mediaKind || message.type || '').toUpperCase();
+    const url = message.metadata?.mediaUrl || null;
+    const fileName = message.metadata?.fileName || 'Archivo adjunto';
+    const mediaFileId = message.metadata?.mediaFileId;
+
+    if (!url && !mediaFileId) return null;
+    if (!['IMAGE', 'VIDEO', 'DOCUMENT'].includes(kind)) return null;
+
+    return {
+        kind: kind as 'IMAGE' | 'VIDEO' | 'DOCUMENT',
+        url: url || '',
+        fileName,
+        mediaFileId,
+    };
+}
+
+function InlineMediaRenderer({
+    media,
+    onMediaLoad,
+}: {
+    media: { kind: 'IMAGE' | 'VIDEO' | 'DOCUMENT'; url: string; fileName: string; mediaFileId?: string };
+    onMediaLoad?: () => void;
+}) {
+    const [assetUrl, setAssetUrl] = useState(media.url);
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/v1';
+
+    const refreshUrl = async () => {
+        if (!media.mediaFileId) return;
+        const tenantId = localStorage.getItem('wabee_orgId') || localStorage.getItem('tenant_key') || '';
+        try {
+            const res = await fetch(`${API_URL}/core/media/${media.mediaFileId}/signed-url`, {
+                credentials: 'include',
+                headers: { 'x-tenant-id': tenantId },
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.signedUrl) setAssetUrl(data.signedUrl);
+            }
+        } catch (error) {
+            console.error('Failed to refresh inline media signed url', error);
+        }
+    };
+
+    if (media.kind === 'IMAGE') {
+        return (
+            <div className="-mx-1.5 -mt-1 mb-2.5 overflow-hidden rounded-[10px]">
+                <img
+                    src={assetUrl}
+                    alt={media.fileName}
+                    className="w-full max-h-[320px] object-cover"
+                    onError={refreshUrl}
+                    onLoad={onMediaLoad}
+                />
+            </div>
+        );
+    }
+
+    if (media.kind === 'VIDEO') {
+        return (
+            <div className="-mx-1.5 -mt-1 mb-2.5 overflow-hidden rounded-[10px] bg-black">
+                <video
+                    src={assetUrl}
+                    controls
+                    className="w-full max-h-[320px]"
+                    onError={refreshUrl}
+                    onLoadedData={onMediaLoad}
+                />
+            </div>
+        );
+    }
+
+    return (
+        <a
+            href={assetUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="mb-2 flex items-center gap-3 rounded-[10px] border border-[rgba(26,26,26,0.08)] bg-[rgba(26,26,26,0.04)] p-3 outline-none transition-all hover:bg-[rgba(26,26,26,0.07)]"
+        >
+            <svg className="h-7 w-7 flex-shrink-0 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            <div className="flex flex-col overflow-hidden">
+                <span className="truncate text-[13px] font-semibold leading-tight">{media.fileName}</span>
+                <span className="truncate text-[12px] opacity-45">Documento adjunto</span>
+            </div>
+        </a>
+    );
 }

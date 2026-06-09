@@ -1,4 +1,4 @@
-import { prisma } from '@/config/core/core.prisma';
+import { CoreInternalService } from '@/modules/core/core.internal.service';
 import { createClient } from '@supabase/supabase-js';
 
 function getSupabaseAdmin() {
@@ -35,9 +35,7 @@ export class CampaignMediaLinkService {
 
         // 2. Asumir UUID → buscar en core.media_files y generar Signed URL
         try {
-            const mediaFile = await (prisma as any).mediaFile.findUnique({
-                where: { id: mediaValue }
-            });
+            const mediaFile = await CoreInternalService.getMediaFileById(mediaValue);
 
             if (!mediaFile || mediaFile.tenantId !== tenantId) {
                 const err = new Error(`Archivo de media no encontrado para el tenant: ${mediaValue}`);

@@ -1,89 +1,29 @@
 [
   {
-    "numeroActividad": 1,
-    "titulo": "Implementar endpoint AI resume (actualmente retorna 501)",
-    "descripcion": "El endpoint POST /threads/:id/resume-ai en wabee-api/src/modules/wabee/inbox/inbox.routes.ts esta registrado pero devuelve 501 Not Implemented. Implementar el handler resumeAiHandler para que reactive el modo IA en la conversacion correspondiente. Sin esto los agentes no pueden reanudar la IA despues de pausarla manualmente.",
-    "estado": "COMPLETADO",
-    "prioridad": "ALTA",
-    "fechaInicio": "2026-06-05",
-    "venceEn": "2026-06-06",
-    "asignadoEmail": ""
-  },
-  {
-    "numeroActividad": 2,
-    "titulo": "Migrar tokens JWT de localStorage a cookies HttpOnly",
-    "descripcion": "El JWT de sesion se guarda en localStorage en wabee-web/src/api/client.ts y en LoginPage, AuthGuard y DashboardLayout. Hay un TODO explicito en realtime.client.ts:7 que lo marca como riesgo de seguridad. Migrar el almacenamiento a cookies HttpOnly con flag Secure para que el token no sea accesible desde JavaScript y quede protegido contra ataques XSS.",
-    "estado": "COMPLETADO",
-    "prioridad": "ALTA",
-    "fechaInicio": "2026-06-06",
-    "venceEn": "2026-06-08",
-    "asignadoEmail": ""
-  },
-  {
-    "numeroActividad": 3,
-    "titulo": "Automatizar ejecucion de migraciones Prisma en Render al hacer deploy",
-    "descripcion": "Actualmente las migraciones de Prisma deben correrse manualmente. Agregar el comando npx prisma migrate deploy como Pre-Deploy Command en Render para que cada nuevo deploy aplique automaticamente los cambios de schema sin intervencion manual.",
-    "estado": "COMPLETADO",
-    "prioridad": "ALTA",
-    "fechaInicio": "2026-06-06",
-    "venceEn": "2026-06-07",
-    "asignadoEmail": ""
-  },
-  {
-    "numeroActividad": 4,
-    "titulo": "Configurar META_CONFIG_ID para el flujo Embedded Signup de WhatsApp",
-    "descripcion": "La variable META_CONFIG_ID esta vacia y sin ella el boton de Conectar WhatsApp no puede activar el flujo nativo de Facebook Embedded Signup. Entrar al Meta Developer Portal, crear una configuracion de Facebook Login for Business, copiar el configuration_id resultante, setearlo en Render y probar que el flujo de conexion de canal funcione de extremo a extremo.",
+    "numeroActividad": 7,
+    "titulo": "Revisar las plantillas de WhatsApp que no se muestran o estan incompletas",
+    "descripcion": "Revisar el flujo de plantillas de WhatsApp: actualmente no se estan mostrando correctamente o salen incompletas, solo aparece 'hello world'. Verificar la sincronizacion con Meta, el renderizado de las plantillas (header, body, footer, botones y variables), la carga de la lista y el guardado en base de datos. El objetivo es que las plantillas reales del WABA se muestren completas y se puedan usar en campanas y respuestas.",
     "estado": "PENDIENTE",
     "prioridad": "ALTA",
-    "fechaInicio": "2026-06-07",
-    "venceEn": "2026-06-08",
-    "asignadoEmail": ""
-  },
-  {
-    "numeroActividad": 5,
-    "titulo": "Habilitar Redis en Render para campanas y metricas en tiempo real",
-    "descripcion": "REDIS_ENABLED esta en false y sin URL configurada. En produccion el sistema de campanas y el SSE de metricas pueden tener condiciones de carrera sin Redis. Crear una instancia gratuita en Upstash, setear REDIS_ENABLED=true y REDIS_URL en Render, y validar que las campanas y los eventos de metricas funcionen correctamente.",
-    "estado": "COMPLETADO",
-    "prioridad": "ALTA",
-    "fechaInicio": "2026-06-07",
-    "venceEn": "2026-06-08",
-    "asignadoEmail": ""
-  },
-  {
-    "numeroActividad": 6,
-    "titulo": "Implementar flujo de onboarding para nuevos usuarios",
-    "descripcion": "Al registrarse un usuario nuevo cae directamente en el dashboard sin ninguna guia. Implementar un flujo de 3 a 4 pasos que aparezca en el primer login y lleve al usuario a conectar un numero de WhatsApp, crear un perfil de IA, crear su primer contacto y enviar un mensaje de prueba. Puede ser un modal tipo stepper o una pagina dedicada de bienvenida.",
-    "estado": "COMPLETADO",
-    "prioridad": "ALTA",
-    "fechaInicio": "2026-06-08",
-    "venceEn": "2026-06-12",
-    "asignadoEmail": ""
-  },
-  {
-    "numeroActividad": 7,
-    "titulo": "Agregar headers de seguridad HTTP en la API",
-    "descripcion": "La API de Express no tiene headers de seguridad configurados. Instalar y configurar helmet para agregar: Content-Security-Policy, X-Frame-Options DENY, X-Content-Type-Options nosniff, Strict-Transport-Security (HSTS) y Referrer-Policy. Requerido por checklist de compliance y mejora la postura de seguridad ante clientes empresariales.",
-    "estado": "COMPLETADO",
-    "prioridad": "MEDIA",
-    "fechaInicio": "2026-06-09",
-    "venceEn": "2026-06-10",
-    "asignadoEmail": ""
-  },
-  {
-    "numeroActividad": 8,
-    "titulo": "Implementar rate limiting en endpoints criticos de la API",
-    "descripcion": "No hay rate limiting en ningun endpoint. Agregar limites por IP y por usuario autenticado en endpoints de autenticacion (login, register, reset-password), envio de mensajes y campanas, y creacion de recursos usando express-rate-limit. Esto previene abuso y protege el costo de la API de Gemini y WhatsApp.",
-    "estado": "COMPLETADO",
-    "prioridad": "MEDIA",
     "fechaInicio": "2026-06-09",
     "venceEn": "2026-06-11",
     "asignadoEmail": ""
   },
   {
+    "numeroActividad": 8,
+    "titulo": "Buscar formas para que Wabee funcione con Coexistence",
+    "descripcion": "Investigar e implementar el soporte de Coexistence de WhatsApp en Wabee, para que un negocio pueda usar la app de WhatsApp Business y la plataforma de Wabee al mismo tiempo sobre el mismo numero. Revisar requisitos de Meta, el Embedded Signup, el config id, la sincronizacion de mensajes y contactos, y las limitaciones del modo Coexistence. Documentar que es posible y dejar una propuesta de implementacion.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-09",
+    "venceEn": "2026-06-12",
+    "asignadoEmail": ""
+  },
+  {
     "numeroActividad": 9,
-    "titulo": "Migrar servicio de email transaccional de Gmail SMTP a Resend o SendGrid",
-    "descripcion": "El sistema usa Gmail SMTP para envios transaccionales. Gmail tiene limites bajos de envio diario y no es confiable para produccion. Migrar a Resend o SendGrid (ambos tienen tier gratuito), actualizar las variables SMTP en Render y validar el envio de invitaciones y recuperacion de contrasena.",
-    "estado": "COMPLETADO",
+    "titulo": "Revisar bien el modulo de CRM",
+    "descripcion": "Hacer una revision a fondo del modulo de CRM en Wabee: contactos, etapas, pipeline, seguimiento, etiquetas y datos asociados a cada lead. Validar que la informacion se guarde y muestre correctamente, que el flujo tenga sentido para el usuario y que se integre bien con inbox, campanas y automatizaciones. Documentar que funciona, que falta y que se debe mejorar.",
+    "estado": "PENDIENTE",
     "prioridad": "MEDIA",
     "fechaInicio": "2026-06-10",
     "venceEn": "2026-06-12",
@@ -91,12 +31,12 @@
   },
   {
     "numeroActividad": 10,
-    "titulo": "QA completo de extremo a extremo antes de abrir registro publico",
-    "descripcion": "Con todas las tareas anteriores completadas, hacer un recorrido completo simulando ser un cliente nuevo: registrarse, verificar email, completar onboarding, conectar canal de WhatsApp mediante Embedded Signup, crear perfil de IA, enviar un mensaje real y confirmar que la IA responde. Documentar cualquier friccion o error encontrado antes de abrir el registro publico.",
+    "titulo": "Revisar que funcion tiene el modulo de automatizaciones",
+    "descripcion": "Revisar el modulo de automatizaciones de Wabee para entender y documentar que hace actualmente: disparadores, condiciones, acciones, respuestas automaticas, flujos y su integracion con inbox, CRM y campanas. Validar que las automatizaciones existentes funcionen, identificar las que esten incompletas o sin uso y proponer mejoras o casos de uso claros para el usuario final.",
     "estado": "PENDIENTE",
-    "prioridad": "ALTA",
-    "fechaInicio": "2026-06-13",
-    "venceEn": "2026-06-14",
+    "prioridad": "MEDIA",
+    "fechaInicio": "2026-06-10",
+    "venceEn": "2026-06-12",
     "asignadoEmail": ""
   }
 ]

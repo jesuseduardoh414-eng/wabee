@@ -25,16 +25,16 @@ export default function ThreadList({ threads }: Props) {
 
     const getStatusBadge = (status: string) => {
         const colors = {
-            OPEN: 'bg-green-100 text-green-800',
-            SNOOZED: 'bg-yellow-100 text-yellow-800',
-            CLOSED: 'bg-gray-100 text-gray-800',
+            OPEN: 'bg-[var(--state-success)]/10 text-[var(--state-success)]',
+            SNOOZED: 'bg-[var(--state-warning)]/10 text-[var(--state-warning)]',
+            CLOSED: 'bg-[var(--bg-hover)] text-[var(--text-muted)]',
         };
-        return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+        return colors[status as keyof typeof colors] || 'bg-[var(--bg-hover)] text-[var(--text-muted)]';
     };
 
     if (threads.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center h-64 text-gray-500">
+            <div className="flex flex-col items-center justify-center h-64 text-[var(--text-muted)]">
                 <svg
                     className="w-16 h-16 mb-4"
                     fill="none"
@@ -55,17 +55,17 @@ export default function ThreadList({ threads }: Props) {
     }
 
     return (
-        <div className="divide-y divide-gray-200">
+        <div className="divide-y divide-[var(--border-default)]">
             {threads.map((thread) => (
                 <div
                     key={thread.id}
                     onClick={() => navigate(`/inbox/${thread.id}`)}
-                    className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                    className="p-4 hover:bg-[var(--bg-hover)] cursor-pointer transition-colors"
                 >
                     <div className="flex items-start justify-between mb-2">
                         <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                                <h4 className="font-semibold text-gray-900 truncate">
+                                <h4 className="font-semibold text-[var(--text-strong)] truncate">
                                     {thread.contactName || thread.remotePhone}
                                 </h4>
                                 {thread.metadata?.lastMessageSource === 'campaign' && (
@@ -77,16 +77,16 @@ export default function ThreadList({ threads }: Props) {
                                     {thread.status}
                                 </span>
                             </div>
-                            <p className="text-[10px] text-gray-500">{thread.remotePhone}</p>
+                            <p className="text-[10px] text-[var(--text-muted)]">{thread.remotePhone}</p>
                         </div>
-                        <span className="text-[10px] text-gray-500 ml-2 flex-shrink-0">
+                        <span className="text-[10px] text-[var(--text-muted)] ml-2 flex-shrink-0">
                             {formatTimestamp(thread.lastMessageAt)}
                         </span>
                     </div>
 
                     {thread.lastMessagePreview && (
                         <div className="flex items-center gap-2">
-                            <p className="text-sm text-gray-600 truncate">
+                            <p className="text-sm text-[var(--text-body)] truncate">
                                 {thread.lastMessagePreview}
                             </p>
                         </div>

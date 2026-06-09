@@ -6,6 +6,7 @@
  * Buckets:
  *   - wabee-branding  → PUBLIC  (logos, favicons — accesibles por URL directa)
  *   - wabee-campaigns → PRIVATE (snapshots de audiencia — solo acceso servidor)
+ *   - media           → PRIVATE (adjuntos del inbox / galería — acceso por signed URL)
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -15,9 +16,13 @@ const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY, {
     auth: { autoRefreshToken: false, persistSession: false },
 });
 
+// Debe coincidir con el bucket usado por MediaController (SUPABASE_MEDIA_BUCKET || 'media').
+const MEDIA_BUCKET = process.env.SUPABASE_MEDIA_BUCKET || 'media';
+
 const BUCKETS = {
     BRANDING: 'wabee-branding',
     CAMPAIGNS: 'wabee-campaigns',
+    MEDIA: MEDIA_BUCKET,
 } as const;
 
 /* ── Bucket initialization (idempotent) ────────────────────────────────────── */
@@ -39,6 +44,7 @@ export async function initStorage(): Promise<void> {
     try {
         await ensureBucket(BUCKETS.BRANDING, true);
         await ensureBucket(BUCKETS.CAMPAIGNS, false);
+        await ensureBucket(BUCKETS.MEDIA, false);
         _initialized = true;
         console.log('[Storage] ✅ Supabase Storage inicializado');
     } catch (err: any) {

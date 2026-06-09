@@ -25,7 +25,7 @@ export async function replyThread(ctx: InboxContext, input: ReplyThreadInput) {
     await InboxService.validateThreadAccess(ctx, threadId);
 
     // 2. Delegar al servicio de envío con trazabilidad
-    const message = await inboxService.sendMessage(tenantId, threadId, text, {
+    const message = await inboxService.sendMessage(tenantId, threadId, { text }, {
         senderType: MessageSenderType.human,
         senderUserId: ctx.userId,
         generatedBy: MessageGeneratedBy.user,

@@ -26,23 +26,23 @@ export const PlanVersionsDrawer: React.FC<PlanVersionsDrawerProps> = ({ planId, 
         new Intl.NumberFormat('es-MX', { style: 'currency', currency: currency.toUpperCase(), minimumFractionDigits: 2 }).format(price);
 
     return (
-        <div className="fixed inset-0 z-50 flex justify-end">
+        <div className="fixed inset-0 z-50 flex items-end justify-end sm:items-stretch">
             <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative z-10 w-full max-w-lg h-full bg-[var(--bg-card)] border-l border-[var(--border-default)] shadow-2xl flex flex-col overflow-hidden">
+            <div className="relative z-10 flex h-[88vh] w-full flex-col overflow-hidden rounded-t-[2rem] border border-[var(--border-default)] bg-[var(--bg-card)] shadow-2xl sm:h-full sm:max-w-lg sm:rounded-none sm:border-l sm:border-t-0">
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-[var(--border-default)] flex-shrink-0">
-                    <div>
+                <div className="flex flex-shrink-0 items-start justify-between gap-4 border-b border-[var(--border-default)] p-5 sm:items-center sm:p-6">
+                    <div className="min-w-0">
                         <div className="flex items-center gap-3 mb-1">
                             <History size={20} className="text-[var(--brand-primary)]" />
                             <h2 className={`${T.cardTitle} ${S.headingLg}`}>Historial de Versiones</h2>
                         </div>
-                        <p className={`${T.helperText} ${S.meta}`}>{planName}</p>
+                        <p className={`${T.helperText} ${S.meta} truncate`}>{planName}</p>
                     </div>
                     <button onClick={onClose} className="p-2 rounded-xl text-[var(--text-muted)] hover:bg-[var(--bg-hover)] transition-all"><X size={20} /></button>
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                <div className="flex-1 overflow-y-auto p-5 space-y-4 sm:p-6">
                     {loading ? (
                         Array.from({ length: 3 }).map((_, i) => (
                             <div key={i} className="animate-pulse bg-[var(--bg-surface)] rounded-2xl h-28" />
@@ -56,7 +56,7 @@ export const PlanVersionsDrawer: React.FC<PlanVersionsDrawerProps> = ({ planId, 
                         versions.map((v) => (
                             <div key={v.id} className={`p-5 rounded-2xl border transition-all ${v.isCurrent ? 'border-[var(--brand-primary)]/40 bg-[var(--brand-primary)]/[0.04]' : 'border-[var(--border-default)] bg-[var(--bg-surface)]'}`}>
                                 {/* Version header */}
-                                <div className="flex items-center justify-between mb-3">
+                                <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                     <div className="flex items-center gap-3">
                                         <span className={`${T.cardTitle} ${S.headingLg} text-[var(--brand-primary)]`}>
                                             v{v.versionNumber}
@@ -67,7 +67,7 @@ export const PlanVersionsDrawer: React.FC<PlanVersionsDrawerProps> = ({ planId, 
                                             </span>
                                         )}
                                     </div>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex flex-wrap items-center gap-2">
                                         {v.isCurrent && (
                                             <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--brand-primary)]/15 ${T.badgeText} ${S.meta} text-[var(--brand-primary)] font-bold`}>
                                                 <CheckCircle2 size={12} /> Vigente
@@ -103,7 +103,7 @@ export const PlanVersionsDrawer: React.FC<PlanVersionsDrawerProps> = ({ planId, 
                                 )}
 
                                 {/* Dates */}
-                                <div className={`flex items-center gap-4 ${T.helperText} ${S.meta} text-[var(--text-muted)]/70`}>
+                                <div className={`flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 ${T.helperText} ${S.meta} text-[var(--text-muted)]/70`}>
                                     <span className="flex items-center gap-1"><Clock size={12} /> Desde: {formatDate(v.effectiveFrom)}</span>
                                     {v.effectiveTo && <span>Hasta: {formatDate(v.effectiveTo)}</span>}
                                 </div>

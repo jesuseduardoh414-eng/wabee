@@ -11,6 +11,7 @@ import { normalizePeriod } from './billing.service';
 import { LimitsService } from './limits.service';
 import { tenancyAdapter } from '../wabee/_adapters/tenancy.adapter';
 import { tenantMiddleware } from '../../middleware/tenant';
+import { isSuperAdmin } from '../../middleware/auth-role.middleware';
 import { GlobalAuditLogService } from '@/modules/audit/global-audit-log.service';
 import { getAuditContext } from '@/shared/http/request-audit-context';
 
@@ -83,11 +84,9 @@ const buildPublicPlansResponse = async (productId: string | null): Promise<Publi
     return plansWithVersions
         .filter((plan) => {
             const meta = (plan.metadata || {}) as Record<string, any>;
-            const code = String(meta.code || plan.name || '').toUpperCase();
 
             if (plan.deletedAt || plan.isActive !== true) return false;
             if (meta.isPublic !== true) return false;
-            if (code === 'TRIAL' || code === 'FREE') return false;
             if (!plan.version?.isPublished || !plan.version?.isCurrent) return false;
 
             return true;
@@ -181,12 +180,31 @@ const requireAdmin = async (req: AuthRequest, res: any, next: any) => {
         const orgId = tenancyAdapter.getTenantId(req);
         res.locals.orgId = orgId;
         // Super Admin siempre tiene acceso a billing
-        if (req.user?.globalRole === 'admin') return next();
+        if (isSuperAdmin(req.user)) return next();
         // Usar coreAdapter — organizationMember pertenece al schema Core, no a WABEE
         const membership = await coreAdapter.organizations.getMembership(orgId, req.user.id);
         const role = ((membership as any)?.role?.slug || '').toUpperCase();
         if (role !== 'ADMIN') {
             return res.status(403).json({ error: { code: 'FORBIDDEN', message: 'Solo administradores pueden gestionar el billing.' } });
+        }
+        next();
+    } catch {
+        res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Error validando permisos.' } });
+    }
+};
+
+// Guard de solo-lectura: cualquier miembro de la organización puede consultar el resumen
+// de su plan (módulos/límites/estado), necesario para pintar el menú según su rol.
+// La gestión/mutación de billing sigue restringida a admins (requireAdmin).
+const requireMember = async (req: AuthRequest, res: any, next: any) => {
+    try {
+        const orgId = tenancyAdapter.getTenantId(req);
+        res.locals.orgId = orgId;
+        if (isSuperAdmin(req.user)) return next();
+        const userId = (req.user as any)?.impersonatedUserId || req.user.id;
+        const membership = await coreAdapter.organizations.getMembership(orgId, userId);
+        if (!membership) {
+            return res.status(403).json({ error: { code: 'FORBIDDEN', message: 'No perteneces a esta organización.' } });
         }
         next();
     } catch {
@@ -201,7 +219,7 @@ const periodLabel = (interval: string) => {
 };
 
 // GET /v1/billing/summary
-router.get('/summary', requireAdmin, async (req: AuthRequest, res) => {
+router.get('/summary', requireMember, async (req: AuthRequest, res) => {
     try {
         const orgId = tenancyAdapter.getTenantId(req);
 

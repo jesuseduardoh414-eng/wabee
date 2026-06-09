@@ -1,16 +1,16 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
+import { isSuperAdmin } from '../lib/roles';
 
 /**
  * Redireccionador inteligente para la raíz del Dashboard.
  * Envía a cada usuario al "primer módulo" de su lista según su rol.
  */
 export const DashboardIndex = () => {
-    const globalRole = localStorage.getItem('wabee_globalRole');
     const role = (localStorage.getItem('wabee_role') || 'AGENT').toUpperCase();
 
     // 1. Admin de Plataforma (sin empresa seleccionada) -> Ecosistema
-    if (globalRole === 'admin') {
+    if (isSuperAdmin()) {
         const isImpersonating = !!localStorage.getItem('wabee_impersonation_org_id');
         if (!isImpersonating) {
             return <Navigate to="/dashboard/super-admin" replace />;

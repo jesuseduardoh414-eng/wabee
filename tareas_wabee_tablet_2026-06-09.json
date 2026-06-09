@@ -1,0 +1,62 @@
+[
+  {
+    "numeroActividad": 1,
+    "titulo": "Ajustar responsive en tablet para Ecosistema",
+    "descripcion": "Revisar y corregir la vista de Ecosistema en super admin para mejorar espaciado, jerarquia visual, distribucion de bloques, formularios, tablas, cards y legibilidad general en tablet y pantallas pequenas.",
+    "estado": "COMPLETADA",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-09",
+    "venceEn": "2026-06-09",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 2,
+    "titulo": "Ajustar responsive en tablet para Planes",
+    "descripcion": "Optimizar la seccion de Planes en super admin revisando cards, tablas, filtros, formularios, modales y acciones para que el contenido se mantenga claro, usable y sin cortes en tablet y movil.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-09",
+    "venceEn": "2026-06-09",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 3,
+    "titulo": "Ajustar responsive en tablet para Temas",
+    "descripcion": "Corregir la experiencia visual de la seccion Temas en super admin para que listas, previews, selectores, formularios y controles mantengan buen acomodo y lectura comoda en resoluciones pequenas.",
+    "estado": "PENDIENTE",
+    "prioridad": "MEDIA",
+    "fechaInicio": "2026-06-09",
+    "venceEn": "2026-06-09",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 4,
+    "titulo": "Ajustar responsive en tablet para Auditoria Global",
+    "descripcion": "Adaptar la seccion de Auditoria Global en super admin revisando filtros, tablas, paneles, detalles y estados para conservar orden visual, trazabilidad clara y buena usabilidad en tablet y movil.",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "fechaInicio": "2026-06-09",
+    "venceEn": "2026-06-09",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 5,
+    "titulo": "Ajustar responsive en tablet para Personalizacion de correos",
+    "descripcion": "Mejorar la disposicion visual de Personalizacion de correos en super admin para que editores, previews, formularios, bloques y acciones no se vean saturados ni desalineados en pantallas pequenas.",
+    "estado": "PENDIENTE",
+    "prioridad": "MEDIA",
+    "fechaInicio": "2026-06-09",
+    "venceEn": "2026-06-09",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 6,
+    "titulo": "Ajustar responsive en tablet para Privacidad",
+    "descripcion": "Revisar la seccion de Privacidad en super admin para acomodar mejor textos, bloques informativos, formularios, tablas y acciones, buscando una experiencia clara y ordenada en tablet y movil.",
+    "estado": "PENDIENTE",
+    "prioridad": "MEDIA",
+    "fechaInicio": "2026-06-09",
+    "venceEn": "2026-06-09",
+    "asignadoEmail": ""
+  }
+]

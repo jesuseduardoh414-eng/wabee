@@ -723,7 +723,7 @@ export const SettingsPlanPage = () => {
     };
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500 pb-20">
+        <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500 pb-24 md:pb-20">
 
             {/* ── Modals ── */}
             {showUpgradeModal && (
@@ -746,11 +746,11 @@ export const SettingsPlanPage = () => {
 
             {/* ── Banner de Trial ── */}
             {activePlan?.isTrial && (
-                <div className="relative overflow-hidden bg-[var(--state-info)]/10 border border-[var(--state-info)]/20 rounded-[2.5rem] p-8 shadow-xl animate-in slide-in-from-top-4 duration-700">
+                <div className="relative overflow-hidden bg-[var(--state-info)]/10 border border-[var(--state-info)]/20 rounded-[2rem] md:rounded-[2.5rem] p-5 md:p-8 shadow-xl animate-in slide-in-from-top-4 duration-700">
                     <div className="absolute -top-20 -right-20 w-60 h-60 bg-[var(--state-info)]/[0.05] blur-[80px] rounded-full pointer-events-none" />
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-8 relative">
-                        <div className="flex items-center gap-5">
-                            <div className="w-14 h-14 rounded-[1.5rem] bg-[var(--state-info)]/15 border border-[var(--state-info)]/20 flex items-center justify-center text-[var(--state-info)]">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 md:gap-8 relative">
+                        <div className="flex items-start sm:items-center gap-4 md:gap-5">
+                            <div className="w-12 h-12 md:w-14 md:h-14 rounded-[1.25rem] md:rounded-[1.5rem] bg-[var(--state-info)]/15 border border-[var(--state-info)]/20 flex items-center justify-center text-[var(--state-info)]">
                                 <Clock className="animate-pulse" size={28} />
                             </div>
                             <div>
@@ -769,7 +769,7 @@ export const SettingsPlanPage = () => {
                         {actions?.canUpgrade && (
                             <button
                                 onClick={() => setShowUpgradeModal(true)}
-                                className={`px-8 py-4 bg-[var(--state-info)] text-white rounded-[1.5rem] ${T.buttonText} ${S.body} hover:scale-[1.02] transition-all flex items-center gap-3 shrink-0 shadow-xl`}
+                                className={`w-full sm:w-auto justify-center px-6 md:px-8 py-3.5 md:py-4 bg-[var(--state-info)] text-white rounded-[1.25rem] md:rounded-[1.5rem] ${T.buttonText} ${S.body} hover:scale-[1.02] transition-all flex items-center gap-3 shrink-0 shadow-xl`}
                             >
                                 <TrendingUp size={18} /> Convertir a Pro
                             </button>
@@ -779,7 +779,7 @@ export const SettingsPlanPage = () => {
             )}
 
             {/* ── Header de Página ── */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 md:gap-6">
                 <div>
                     <h1 className={`${T.pageTitle} ${S.displayMd}`}>
                         Plan & <span className="text-[var(--ty-accent)]">Facturación</span>
@@ -788,7 +788,7 @@ export const SettingsPlanPage = () => {
                         Administra tu nivel de servicio y consulta el consumo de recursos.
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex w-full sm:w-auto items-center justify-end gap-3">
                     {/* Refrescar */}
                     <button
                         onClick={() => refetch()}
@@ -822,32 +822,32 @@ export const SettingsPlanPage = () => {
             <CheckoutStatusBanner />
 
             {/* ── Grid Principal ── */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
 
                 {/* ── Columna Izquierda: Plan Card ── */}
-                <div className="lg:col-span-4 space-y-5">
+                <div className="lg:col-span-4 space-y-4 md:space-y-5">
 
                     {/* Tarjeta del plan actual */}
-                    <div className={`rounded-[2.5rem] p-8 relative overflow-hidden shadow-2xl ${
+                    <div className={`rounded-[2rem] md:rounded-[2.5rem] p-5 md:p-8 relative overflow-hidden shadow-2xl ${
                         activePlan?.isTrial
                             ? 'bg-gradient-to-br from-[var(--state-info)]/30 to-[var(--state-info)]/10 border border-[var(--state-info)]/30'
                             : 'bg-gradient-to-br from-[var(--brand-primary)] to-[color-mix(in_srgb,var(--brand-primary),white_15%)]'
                     }`}>
                         {/* Ícono decorativo */}
-                        <Zap className="absolute -top-4 -right-4 w-32 h-32 opacity-10 rotate-12" />
+                        <Zap className="absolute -top-3 -right-3 md:-top-4 md:-right-4 w-24 h-24 md:w-32 md:h-32 opacity-10 rotate-12" />
 
                         {/* Encabezado */}
-                        <div className="flex items-start justify-between mb-5">
+                        <div className="flex items-start justify-between gap-3 mb-4 md:mb-5">
                             {/* Etiqueta «Suscripción» — color inverso al fondo de marca */}
                             <p
                                 style={{ color: activePlan?.isTrial ? 'var(--ty-muted)' : 'var(--brand-primary-foreground)' }}
-                                className={`${S.meta} font-bold uppercase tracking-[4px] opacity-60`}
+                                className={`${S.meta} font-bold uppercase tracking-[3px] md:tracking-[4px] opacity-60`}
                             >
                                 Suscripción
                             </p>
                             {/* Badge de estado — contraste especial sobre fondo de marca */}
                             <span
-                                className={`${S.meta} font-black uppercase tracking-widest px-3 py-1 rounded-lg border ${
+                                className={`${S.meta} shrink-0 font-black uppercase tracking-widest px-2.5 md:px-3 py-1 rounded-lg border ${
                                     activePlan?.isTrial
                                         ? currentStatus.classes
                                         : 'bg-[var(--brand-primary-foreground)]/15 border-[var(--brand-primary-foreground)]/25 text-[var(--brand-primary-foreground)]'
@@ -857,10 +857,10 @@ export const SettingsPlanPage = () => {
                             </span>
                         </div>
 
-                        <div className="flex items-center gap-3 mb-1">
+                        <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-1">
                             <h2
                                 style={{ color: activePlan?.isTrial ? 'var(--ty-strong)' : 'var(--brand-primary-foreground)' }}
-                                className={`${S.displayMd} font-black italic uppercase tracking-tighter`}
+                                className={`${S.displayMd} text-[1.7rem] leading-none sm:text-[2.2rem] font-black italic uppercase tracking-tighter`}
                             >
                                 {activePlan?.displayName}
                             </h2>
@@ -880,7 +880,7 @@ export const SettingsPlanPage = () => {
                         {/* Subtítulo de facturación */}
                         <p
                             style={{ color: activePlan?.isTrial ? 'var(--ty-muted)' : 'var(--brand-primary-foreground)' }}
-                            className={`${S.body} font-bold mb-8 lowercase opacity-70`}
+                            className={`${S.body} font-bold mb-6 md:mb-8 lowercase opacity-70`}
                         >
                             {activePlan?.isTrial && activePlan?.trialDaysRemaining !== null
                                 ? `${activePlan.trialDaysRemaining} días restantes`
@@ -889,7 +889,7 @@ export const SettingsPlanPage = () => {
 
                         {/* Lista de características incluidas */}
                         <div
-                            className="space-y-3 pt-6 mt-2"
+                            className="space-y-3 pt-4 md:pt-6 mt-2"
                             style={{
                                 borderTop: `1px solid ${activePlan?.isTrial ? 'color-mix(in srgb, var(--state-info), transparent 80%)' : 'color-mix(in srgb, var(--brand-primary-foreground), transparent 85%)'}`
                             }}
@@ -943,7 +943,7 @@ export const SettingsPlanPage = () => {
                                         backgroundColor: activePlan?.isTrial ? 'var(--state-info)' : 'var(--brand-primary-foreground)',
                                         color:           activePlan?.isTrial ? '#ffffff'            : 'var(--brand-primary)'
                                     }}
-                                    className={`w-full py-4 font-black uppercase tracking-widest ${S.body} rounded-[1.5rem] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 shadow-xl`}
+                                    className={`w-full py-3.5 md:py-4 font-black uppercase tracking-widest ${S.body} rounded-[1.25rem] md:rounded-[1.5rem] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 shadow-xl`}
                                 >
                                     <ArrowUpRight size={18} />
                                     {activePlan?.isTrial ? 'Mejorar ahora' : 'Cambiar Plan'}
@@ -953,7 +953,7 @@ export const SettingsPlanPage = () => {
                                     <button
                                         onClick={() => manageSubscriptionMutation.mutate()}
                                         disabled={manageSubscriptionMutation.isPending}
-                                        className={`w-full py-4 border border-[var(--brand-primary-foreground)]/30 text-[var(--brand-primary-foreground)] font-black uppercase tracking-widest ${S.body} rounded-[1.5rem] hover:bg-white/10 transition-all flex items-center justify-center gap-3`}
+                                        className={`w-full py-3.5 md:py-4 border border-[var(--brand-primary-foreground)]/30 text-[var(--brand-primary-foreground)] font-black uppercase tracking-widest ${S.body} rounded-[1.25rem] md:rounded-[1.5rem] hover:bg-white/10 transition-all flex items-center justify-center gap-3`}
                                     >
                                         {manageSubscriptionMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <Settings size={18} />}
                                         Gestionar Facturación
@@ -971,12 +971,12 @@ export const SettingsPlanPage = () => {
                     </div>
 
                     {/* Tarjeta: Próxima Factura / Vencimiento */}
-                    <div className="bg-[var(--bg-page)] border border-[var(--border-default)] rounded-[2.5rem] p-8 relative overflow-hidden group">
+                    <div className="bg-[var(--bg-page)] border border-[var(--border-default)] rounded-[2rem] md:rounded-[2.5rem] p-5 md:p-8 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-24 h-24 bg-[var(--brand-primary)]/[0.03] blur-[30px] rounded-full pointer-events-none" />
-                        <h4 className={`${T.labelText} ${S.meta} tracking-[4px] mb-6`}>
+                        <h4 className={`${T.labelText} ${S.meta} tracking-[3px] md:tracking-[4px] mb-4 md:mb-6`}>
                             {activePlan?.cancelAtPeriodEnd ? 'Cancela el' : activePlan?.isTrial ? 'Expira el' : 'Próxima Factura'}
                         </h4>
-                        <div className="flex items-end justify-between">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                             <div>
                                 <p className={`${T.kpiValue} ${S.displaySm}`}>
                                     {activePlan?.isTrial ? '$0.00' : `$${activePlan?.price || 0}`}
@@ -987,7 +987,7 @@ export const SettingsPlanPage = () => {
                                     </p>
                                 )}
                             </div>
-                            <div className="text-right">
+                            <div className="text-left sm:text-right">
                                 <p className={`${T.labelText} ${S.meta} opacity-40 mb-1`}>FECHA</p>
                                 <p className={`${T.menuText} ${S.body} uppercase tracking-wider`}>{renewsAtDate}</p>
                             </div>
@@ -996,7 +996,7 @@ export const SettingsPlanPage = () => {
                 </div>
 
                 {/* ── Columna Derecha: Uso de Recursos + Facturas ── */}
-                <div className="lg:col-span-8 space-y-8">
+                <div className="lg:col-span-8 space-y-6 md:space-y-8">
 
                     {/* Grid de recursos */}
                     <div>
@@ -1039,7 +1039,7 @@ export const SettingsPlanPage = () => {
                     </div>
 
                     {/* Historial de Facturas */}
-                    <div className="bg-[var(--bg-page)] border border-[var(--border-default)] rounded-[3rem] p-8 sm:p-10 relative overflow-hidden">
+                    <div className="bg-[var(--bg-page)] border border-[var(--border-default)] rounded-[2rem] md:rounded-[3rem] p-5 sm:p-8 md:p-10 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--brand-primary)]/[0.01] blur-[80px] rounded-full pointer-events-none" />
 
                         {/* Encabezado de sección */}

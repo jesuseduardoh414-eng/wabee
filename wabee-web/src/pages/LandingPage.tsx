@@ -241,7 +241,7 @@ export const LandingPage = () => {
         const loadPlans = async () => {
             try {
                 const { data } = await client.get('/billing/public-plans');
-                if (active) setPlans(data.plans || []);
+                if (active) setPlans(Array.isArray(data?.plans) ? data.plans : []);
             } catch (error) {
                 console.error('[landing] No se pudieron cargar los planes publicos', error);
             } finally {
@@ -255,6 +255,17 @@ export const LandingPage = () => {
             active = false;
         };
     }, []);
+
+    useEffect(() => {
+        if (!menuOpen) return;
+
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+
+        return () => {
+            document.body.style.overflow = originalOverflow;
+        };
+    }, [menuOpen]);
 
     const closeMenu = () => setMenuOpen(false);
     const formatPrice = (value: number, currency: string) => new Intl.NumberFormat('es-MX', {
@@ -292,7 +303,7 @@ export const LandingPage = () => {
 
             <div className={`wabee-nav-outer${scrolled ? ' wabee-nav-outer--scrolled' : ''}`}>
                 <header className="wabee-shell">
-                    <nav className={`wabee-nav${menuOpen ? ' wabee-nav--open' : ''}`}>
+                    <nav className="wabee-nav">
                         <Link to="/" className="wabee-brand" aria-label="Ir al inicio de Wabee" onClick={closeMenu}>
                             <BrandLogo variant="full" size={56} />
                         </Link>
@@ -325,6 +336,54 @@ export const LandingPage = () => {
                     </nav>
                 </header>
             </div>
+
+            {menuOpen && (
+                <div className="wabee-nav-drawer" aria-hidden={!menuOpen}>
+                    <button
+                        type="button"
+                        className="wabee-nav-drawer__backdrop"
+                        aria-label="Cerrar menu"
+                        onClick={closeMenu}
+                    />
+
+                    <aside className="wabee-nav-drawer__panel" role="dialog" aria-modal="true" aria-label="Menu principal">
+                        <div className="wabee-nav-drawer__header">
+                            <Link to="/" className="wabee-brand" aria-label="Ir al inicio de Wabee" onClick={closeMenu}>
+                                <BrandLogo variant="full" size={54} />
+                            </Link>
+
+                            <button
+                                type="button"
+                                className="wabee-nav-drawer__close"
+                                onClick={closeMenu}
+                                aria-label="Cerrar menu"
+                            >
+                                <X size={22} />
+                            </button>
+                        </div>
+
+                        <div className="wabee-nav-drawer__body">
+                            <div className="wabee-nav-drawer__section">
+                                {NAV_LINKS.map((item) => (
+                                    <a key={item.href} href={item.href} className="wabee-nav-drawer__link" onClick={closeMenu}>
+                                        <span>{item.label}</span>
+                                        <ArrowRight size={16} />
+                                    </a>
+                                ))}
+                            </div>
+
+                            <div className="wabee-nav-drawer__section wabee-nav-drawer__section--actions">
+                                <Link to="/login" className="wabee-secondary-button" onClick={closeMenu}>
+                                    Iniciar sesion
+                                </Link>
+                                <Link to="/register" className="wabee-primary-button" onClick={closeMenu}>
+                                    Crear cuenta
+                                </Link>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            )}
 
             <main className="relative z-10">
                 <motion.section

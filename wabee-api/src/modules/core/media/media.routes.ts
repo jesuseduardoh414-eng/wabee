@@ -9,7 +9,7 @@ const router = Router();
 // Configure multer for memory storage (temporary before upload)
 const upload = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 10 * 1024 * 1024 } // 10MB
+    limits: { fileSize: 25 * 1024 * 1024 } // 25MB
 });
 
 // We need auth and tenant selection for core media

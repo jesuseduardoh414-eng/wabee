@@ -1,12 +1,39 @@
 import React, { useState } from 'react';
 import { contactsApi } from '@/api/wabee/contacts.api';
-import { X, Upload, FileText, CheckCircle2, AlertCircle, Download, Database } from 'lucide-react';
+import { X, Upload, CheckCircle2, AlertCircle, Database } from 'lucide-react';
 import { T, S } from '@/lib/text-tokens';
 
 interface ImportContactsModalProps {
     onClose: () => void;
     onSuccess: () => void;
 }
+
+const COPY = {
+    title: 'Importación',
+    highlight: 'Masiva',
+    subtitle: 'Gestiona tu CRM con carga de archivos CSV',
+    noFormat: '¿Sin formato oficial?',
+    templateHelp: 'Usa nuestra plantilla para una carga perfecta.',
+    required: '✦ Requerido: name, phone',
+    optional: '◌ Opcional: email, tags',
+    phoneRule: '⚠ Teléfono: texto plano',
+    downloadTemplate: 'Descargar Plantilla',
+    chooseFile: 'Seleccionar Archivo',
+    maxFile: 'Máximo 2MB · Formato CSV',
+    newItems: 'Nuevos',
+    updated: 'Actualizados',
+    skipped: 'Omitidos',
+    errors: 'Errores',
+    errorLog: 'Registro de Errores',
+    row: 'Fila',
+    phone: 'Teléfono',
+    failure: 'Descripción del Fallo',
+    success: 'Operación Finalizada con Éxito',
+    cancel: 'Cancelar',
+    importAction: 'Ejecutar Importación',
+    importing: 'Inyectando...',
+    finish: 'Finalizar Transacción',
+} as const;
 
 export const ImportContactsModal: React.FC<ImportContactsModalProps> = ({ onClose, onSuccess }) => {
     const [file, setFile] = useState<File | null>(null);
@@ -40,178 +67,173 @@ export const ImportContactsModal: React.FC<ImportContactsModalProps> = ({ onClos
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
-            <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-[40px] shadow-[0_32px_120px_-20px_rgba(0,0,0,0.8)] w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-500">
-                
-                {/* Header */}
-                <div className="p-10 pb-6 flex justify-between items-start">
-                    <div>
-                        <h2 className={`${T.sectionTitle} ${S.displayMd} italic tracking-tighter leading-none mb-2 uppercase`}>
-                            Importación <span className="text-[var(--brand-primary)]">Masiva</span>
+        <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/60 p-4 pt-6 backdrop-blur-md animate-in fade-in duration-300 sm:items-center">
+            <div className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-[28px] border border-[var(--border-default)] bg-[var(--bg-card)] shadow-[0_32px_120px_-20px_rgba(0,0,0,0.8)] animate-in zoom-in-95 duration-500 sm:rounded-[40px]">
+                <div className="flex items-start justify-between gap-4 p-5 pb-4 sm:p-10 sm:pb-6">
+                    <div className="min-w-0">
+                        <h2 className={`${T.sectionTitle} ${S.displayMd} mb-2 leading-none italic tracking-tighter uppercase`}>
+                            {COPY.title} <span className="text-[var(--brand-primary)]">{COPY.highlight}</span>
                         </h2>
-                        <p className={`${T.pageSubtitle} ${S.meta} opacity-80 uppercase tracking-wide`}>Gestiona tu CRM con carga de archivos CSV</p>
+                        <p className={`${T.pageSubtitle} ${S.meta} uppercase tracking-wide opacity-80`}>{COPY.subtitle}</p>
                     </div>
-                    <button 
+                    <button
                         onClick={onClose}
-                        className="p-3 bg-[var(--bg-input)] border border-[var(--border-default)] rounded-2xl text-[var(--text-muted)] hover:text-[var(--text-strong)] hover:border-[var(--brand-primary)]/40 transition-all"
+                        className="shrink-0 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-input)] p-3 text-[var(--text-muted)] transition-all hover:border-[var(--brand-primary)]/40 hover:text-[var(--text-strong)]"
                     >
                         <X size={20} />
                     </button>
                 </div>
 
-                {/* Body */}
-                <div className="px-10 pb-10 overflow-y-auto flex-1 space-y-8">
+                <div className="flex-1 space-y-6 overflow-y-auto px-5 pb-5 sm:space-y-8 sm:px-10 sm:pb-10">
                     {!result ? (
-                        <div className="space-y-8">
-                            {/* Step 1: Template */}
-                            <div className="relative group overflow-hidden bg-[var(--bg-input)] border border-[var(--border-default)] p-6 rounded-3xl transition-all hover:border-[var(--brand-primary)]/20">
-                                <div className="absolute top-0 left-0 w-1 h-full bg-[var(--brand-primary)]/40"></div>
-                                <div className="relative z-10 flex justify-between items-start gap-4">
+                        <div className="space-y-6 sm:space-y-8">
+                            <div className="relative overflow-hidden rounded-3xl border border-[var(--border-default)] bg-[var(--bg-input)] p-5 transition-all hover:border-[var(--brand-primary)]/20 sm:p-6">
+                                <div className="absolute left-0 top-0 h-full w-1 bg-[var(--brand-primary)]/40"></div>
+                                <div className="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                                     <div>
-                                        <h3 className={`${T.cardTitle} ${S.headingMd} italic tracking-tight uppercase`}>¿Sin formato oficial?</h3>
-                                        <p className={`${T.helperText} ${S.body} mt-1 text-[var(--text-muted)]`}>Usa nuestra plantilla para una carga perfecta.</p>
+                                        <h3 className={`${T.cardTitle} ${S.headingMd} italic tracking-tight uppercase`}>{COPY.noFormat}</h3>
+                                        <p className={`${T.helperText} ${S.body} mt-1 text-[var(--text-muted)]`}>{COPY.templateHelp}</p>
                                         <div className="mt-3 flex flex-wrap gap-2">
-                                            <span className={`${T.badgeText} ${S.meta} px-2 py-1 bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] uppercase rounded-lg border border-[var(--brand-primary)]/20`}>
-                                                ✦ Requerido: name, phone
-                                            </span>
-                                            <span className={`${T.badgeText} ${S.meta} px-2 py-1 bg-[var(--text-muted)]/10 text-[var(--text-muted)] uppercase rounded-lg border border-[var(--text-muted)]/20`}>
-                                                ○ Opcional: email, tags
-                                            </span>
-                                            <span className={`${T.badgeText} ${S.meta} px-2 py-1 bg-orange-500/10 text-orange-500 uppercase rounded-lg border border-orange-500/20`}>
-                                                ⚠ Teléfono: texto plano
-                                            </span>
+                                            <span className={`${T.badgeText} ${S.meta} rounded-lg border border-[var(--brand-primary)]/20 bg-[var(--brand-primary)]/10 px-2 py-1 uppercase text-[var(--brand-primary)]`}>{COPY.required}</span>
+                                            <span className={`${T.badgeText} ${S.meta} rounded-lg border border-[var(--text-muted)]/20 bg-[var(--text-muted)]/10 px-2 py-1 uppercase text-[var(--text-muted)]`}>{COPY.optional}</span>
+                                            <span className={`${T.badgeText} ${S.meta} rounded-lg border border-orange-500/20 bg-orange-500/10 px-2 py-1 uppercase text-orange-500`}>{COPY.phoneRule}</span>
                                         </div>
                                     </div>
                                     <button
                                         onClick={handleDownloadTemplate}
-                                        className={`${T.buttonPrimaryText} ${S.meta} shrink-0 relative z-10 bg-[var(--brand-primary)]/5 text-[var(--brand-primary)] px-6 py-3 rounded-2xl uppercase border border-[var(--brand-primary)]/20 hover:bg-[var(--brand-primary)] hover: transition-all`}
+                                        className={`${T.buttonPrimaryText} ${S.meta} relative z-10 shrink-0 rounded-2xl border border-[var(--brand-primary)]/20 bg-[var(--brand-primary)]/5 px-5 py-3 uppercase text-[var(--brand-primary)] transition-all hover:bg-[var(--brand-primary)]/12 sm:px-6`}
                                     >
-                                        Descargar Plantilla
+                                        {COPY.downloadTemplate}
                                     </button>
                                 </div>
                             </div>
 
-                            {/* Step 2: Upload Area */}
-                            <div className={`relative group border-2 border-dashed rounded-[40px] p-12 flex flex-col items-center justify-center text-center transition-all duration-500 ${
-                                file ? 'border-[var(--brand-primary)] bg-[var(--brand-primary)]/5' : 'border-[var(--border-default)] hover:border-[var(--brand-primary)]/40 bg-[var(--bg-input)]/50 hover:bg-[var(--bg-input)]'
+                            <div className={`relative flex flex-col items-center justify-center rounded-[32px] border-2 border-dashed p-8 text-center transition-all duration-500 sm:rounded-[40px] sm:p-12 ${
+                                file ? 'border-[var(--brand-primary)] bg-[var(--brand-primary)]/5' : 'border-[var(--border-default)] bg-[var(--bg-input)]/50 hover:border-[var(--brand-primary)]/40 hover:bg-[var(--bg-input)]'
                             }`}>
-                                <input 
-                                    type="file" 
+                                <input
+                                    type="file"
                                     accept=".csv"
-                                    className="absolute inset-0 opacity-0 cursor-pointer z-20"
+                                    className="absolute inset-0 z-20 cursor-pointer opacity-0"
                                     onChange={(e) => setFile(e.target.files?.[0] || null)}
                                 />
-                                
-                                <div className={`mb-6 p-6 rounded-3xl transition-all duration-500 ${
-                                    file ? 'bg-[var(--brand-primary)]  scale-110' : 'bg-[var(--bg-card)] text-[var(--text-muted)] group-hover:scale-110 group-hover:text-[var(--brand-primary)]'
-                                }`}>
-                                    <Upload size={40} />
+
+                                <div className={`mb-6 rounded-3xl p-5 transition-all duration-500 sm:p-6 ${file ? 'scale-110 bg-[var(--brand-primary)]' : 'bg-[var(--bg-card)] text-[var(--text-muted)]'}`}>
+                                    <Upload size={36} />
                                 </div>
 
                                 <div className="space-y-1">
-                                    <p className={`${T.buttonText} ${S.headingMd} uppercase italic ${file ? 'text-[var(--text-strong)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text-strong)]'}`}>
-                                        {file ? file.name : 'Seleccionar Archivo'}
+                                    <p className={`${T.buttonText} ${S.headingMd} break-all uppercase italic ${file ? 'text-[var(--text-strong)]' : 'text-[var(--text-muted)]'}`}>
+                                        {file ? file.name : COPY.chooseFile}
                                     </p>
                                     <p className={`${T.helperText} ${S.meta} uppercase tracking-widest text-[var(--brand-primary)]/60`}>
-                                        {file ? `${(file.size / 1024).toFixed(1)} KB` : 'Máximo 2MB · Formato CSV'}
+                                        {file ? `${(file.size / 1024).toFixed(1)} KB` : COPY.maxFile}
                                     </p>
                                 </div>
                             </div>
 
                             {error && (
-                                <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-[32px] flex items-center gap-4 animate-shake">
-                                    <AlertCircle className="text-red-500 shrink-0" size={24} />
+                                <div className="flex items-center gap-4 rounded-[28px] border border-red-500/20 bg-red-500/10 p-5 animate-shake sm:p-6">
+                                    <AlertCircle className="shrink-0 text-red-500" size={24} />
                                     <p className={`${T.helperText} ${S.body} text-red-500 uppercase italic tracking-tight`}>{error}</p>
                                 </div>
                             )}
                         </div>
                     ) : (
-                        <div className="space-y-10 py-4 animate-in fade-in slide-in-from-top-4 duration-500">
-                            {/* Detailed Results Grid */}
-                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                                <div className="bg-green-500/10 border border-green-500/20 p-6 rounded-[32px] transition-all hover:scale-[1.02]">
-                                    <div className={`${T.kpiValue} ${S.displayMd} text-green-500 italic tracking-tighter leading-none`}>{result.created}</div>
-                                    <div className={`${T.helperText} ${S.meta} text-green-500/80 uppercase tracking-widest mt-2`}>Nuevos</div>
+                        <div className="space-y-8 py-2 animate-in fade-in slide-in-from-top-4 duration-500 sm:space-y-10 sm:py-4">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-4">
+                                <div className="rounded-[28px] border border-green-500/20 bg-green-500/10 p-5 transition-all hover:scale-[1.02] sm:rounded-[32px] sm:p-6">
+                                    <div className={`${T.kpiValue} ${S.displayMd} leading-none italic tracking-tighter text-green-500`}>{result.created}</div>
+                                    <div className={`${T.helperText} ${S.meta} mt-2 uppercase tracking-widest text-green-500/80`}>{COPY.newItems}</div>
                                 </div>
-                                <div className="bg-blue-500/10 border border-blue-500/20 p-6 rounded-[32px] transition-all hover:scale-[1.02]">
-                                    <div className={`${T.kpiValue} ${S.displayMd} text-blue-500 italic tracking-tighter leading-none`}>{result.updated}</div>
-                                    <div className={`${T.helperText} ${S.meta} text-blue-500/80 uppercase tracking-widest mt-2`}>Actualizados</div>
+                                <div className="rounded-[28px] border border-blue-500/20 bg-blue-500/10 p-5 transition-all hover:scale-[1.02] sm:rounded-[32px] sm:p-6">
+                                    <div className={`${T.kpiValue} ${S.displayMd} leading-none italic tracking-tighter text-blue-500`}>{result.updated}</div>
+                                    <div className={`${T.helperText} ${S.meta} mt-2 uppercase tracking-widest text-blue-500/80`}>{COPY.updated}</div>
                                 </div>
-                                <div className="bg-[var(--bg-input)] border border-[var(--border-default)] p-6 rounded-[32px] transition-all hover:scale-[1.02]">
-                                    <div className={`${T.kpiValue} ${S.displayMd} text-[var(--text-muted)] italic tracking-tighter leading-none`}>{result.skipped}</div>
-                                    <div className={`${T.helperText} ${S.meta} text-[var(--text-muted)]/80 uppercase tracking-widest mt-2`}>Omitidos</div>
+                                <div className="rounded-[28px] border border-[var(--border-default)] bg-[var(--bg-input)] p-5 transition-all hover:scale-[1.02] sm:rounded-[32px] sm:p-6">
+                                    <div className={`${T.kpiValue} ${S.displayMd} leading-none italic tracking-tighter text-[var(--text-muted)]`}>{result.skipped}</div>
+                                    <div className={`${T.helperText} ${S.meta} mt-2 uppercase tracking-widest text-[var(--text-muted)]/80`}>{COPY.skipped}</div>
                                 </div>
-                                <div className="bg-red-500/10 border border-red-500/20 p-6 rounded-[32px] transition-all hover:scale-[1.02]">
-                                    <div className={`${T.kpiValue} ${S.displayMd} text-red-500 italic tracking-tighter leading-none`}>{result.errors?.length || 0}</div>
-                                    <div className={`${T.helperText} ${S.meta} text-red-500/80 uppercase tracking-widest mt-2`}>Errores</div>
+                                <div className="rounded-[28px] border border-red-500/20 bg-red-500/10 p-5 transition-all hover:scale-[1.02] sm:rounded-[32px] sm:p-6">
+                                    <div className={`${T.kpiValue} ${S.displayMd} leading-none italic tracking-tighter text-red-500`}>{result.errors?.length || 0}</div>
+                                    <div className={`${T.helperText} ${S.meta} mt-2 uppercase tracking-widest text-red-500/80`}>{COPY.errors}</div>
                                 </div>
                             </div>
 
-                            {/* Error Table */}
                             {result.errors && result.errors.length > 0 && (
-                                <div className="bg-[var(--bg-input)] border border-[var(--border-default)] rounded-[32px] overflow-hidden">
-                                    <div className="bg-red-500/10 px-8 py-4 border-b border-red-500/20 flex justify-between items-center">
-                                        <span className={`${T.sectionTitle} ${S.meta} text-red-500 uppercase tracking-[0.2em]`}>Registro de Errores</span>
-                                        <span className={`${T.badgeText} ${S.meta} bg-red-500 text-white px-2 py-1 rounded-lg`}>{result.errors.length}</span>
+                                <div className="overflow-hidden rounded-[28px] border border-[var(--border-default)] bg-[var(--bg-input)] sm:rounded-[32px]">
+                                    <div className="flex items-center justify-between border-b border-red-500/20 bg-red-500/10 px-5 py-4 sm:px-8">
+                                        <span className={`${T.sectionTitle} ${S.meta} uppercase tracking-[0.2em] text-red-500`}>{COPY.errorLog}</span>
+                                        <span className={`${T.badgeText} ${S.meta} rounded-lg bg-red-500 px-2 py-1 text-white`}>{result.errors.length}</span>
                                     </div>
                                     <div className="max-h-60 overflow-y-auto">
-                                        <table className="w-full text-left border-collapse">
-                                            <thead>
-                                                <tr className={`${T.tableHeader} ${S.meta} text-[var(--text-muted)] uppercase tracking-widest border-b border-[var(--border-default)]`}>
-                                                    <th className="px-8 py-4">Fila</th>
-                                                    <th className="px-8 py-4">Teléfono</th>
-                                                    <th className="px-8 py-4">Descripción del Fallo</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-[var(--border-default)]">
-                                                {result.errors.map((e: any, idx: number) => (
-                                                    <tr key={idx} className="hover:bg-[var(--text-strong)]/[0.02] transition-colors">
-                                                        <td className={`${T.tableCell} ${S.meta} px-8 py-4 text-[var(--brand-primary)] font-mono`}>#{e.row}</td>
-                                                        <td className={`${T.tableCell} ${S.meta} px-8 py-4 text-[var(--text-strong)]`}>{e.phone || '--'}</td>
-                                                        <td className={`${T.tableCell} ${S.meta} px-8 py-4 text-red-500`}>{e.reason}</td>
+                                        <div className="hidden md:block">
+                                            <table className="w-full border-collapse text-left">
+                                                <thead>
+                                                    <tr className={`${T.tableHeader} ${S.meta} border-b border-[var(--border-default)] uppercase tracking-widest text-[var(--text-muted)]`}>
+                                                        <th className="px-8 py-4">{COPY.row}</th>
+                                                        <th className="px-8 py-4">{COPY.phone}</th>
+                                                        <th className="px-8 py-4">{COPY.failure}</th>
                                                     </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody className="divide-y divide-[var(--border-default)]">
+                                                    {result.errors.map((e: any, idx: number) => (
+                                                        <tr key={idx} className="transition-colors hover:bg-[var(--text-strong)]/[0.02]">
+                                                            <td className={`${T.tableCell} ${S.meta} px-8 py-4 font-mono text-[var(--brand-primary)]`}>#{e.row}</td>
+                                                            <td className={`${T.tableCell} ${S.meta} px-8 py-4 text-[var(--text-strong)]`}>{e.phone || '--'}</td>
+                                                            <td className={`${T.tableCell} ${S.meta} px-8 py-4 text-red-500`}>{e.reason}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div className="divide-y divide-[var(--border-default)] md:hidden">
+                                            {result.errors.map((e: any, idx: number) => (
+                                                <div key={idx} className="space-y-2 px-5 py-4">
+                                                    <p className={`${T.helperText} ${S.meta} uppercase text-[var(--brand-primary)]`}>{COPY.row} #{e.row}</p>
+                                                    <p className={`${T.tableCell} ${S.body} break-all`}>{e.phone || '--'}</p>
+                                                    <p className={`${T.helperText} ${S.body} text-red-500`}>{e.reason}</p>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             )}
 
                             {result.created + result.updated > 0 && (
-                                <div className="flex items-center gap-4 p-6 bg-[var(--brand-primary)]/10 border border-[var(--brand-primary)]/20 rounded-[28px] animate-pulse">
-                                    <div className="bg-[var(--brand-primary)]  p-2 rounded-full">
+                                <div className="flex items-center gap-4 rounded-[28px] border border-[var(--brand-primary)]/20 bg-[var(--brand-primary)]/10 p-5 animate-pulse sm:p-6">
+                                    <div className="rounded-full bg-[var(--brand-primary)] p-2">
                                         <CheckCircle2 size={20} />
                                     </div>
-                                    <p className={`${T.sectionTitle} ${S.body} text-[var(--brand-primary)] uppercase italic tracking-tight`}>Operación Finalizada con Éxito</p>
+                                    <p className={`${T.sectionTitle} ${S.body} uppercase italic tracking-tight text-[var(--brand-primary)]`}>{COPY.success}</p>
                                 </div>
                             )}
                         </div>
                     )}
                 </div>
 
-                {/* Footer */}
-                <div className="px-10 py-8 bg-[var(--bg-card)] border-t border-[var(--border-default)] flex justify-end gap-5">
+                <div className="flex flex-col gap-3 border-t border-[var(--border-default)] bg-[var(--bg-card)] px-5 py-4 sm:flex-row sm:items-center sm:justify-end sm:gap-5 sm:px-10 sm:py-8">
                     {!result ? (
                         <>
                             <button
                                 onClick={onClose}
-                                className={`${T.buttonText} ${S.meta} px-8 py-4 text-[var(--text-muted)] uppercase tracking-[0.2em] hover:text-[var(--text-strong)] transition-all`}
+                                className={`${T.buttonText} ${S.meta} w-full px-8 py-3 text-center uppercase tracking-[0.2em] text-[var(--text-muted)] transition-all hover:text-[var(--text-strong)] sm:w-auto sm:py-4`}
                             >
-                                Cancelar
+                                {COPY.cancel}
                             </button>
                             <button
                                 onClick={handleImport}
                                 disabled={!file || uploading}
-                                className={`${T.buttonPrimaryText} ${S.meta} bg-[var(--brand-primary)] px-10 py-4 rounded-3xl uppercase hover:brightness-110 hover:shadow-[0_0_40px_-5px_var(--brand-primary)] transition-all active:scale-95 disabled:opacity-30 disabled:grayscale flex items-center gap-3`}
+                                className={`${T.buttonPrimaryText} ${S.meta} flex w-full items-center justify-center gap-3 rounded-3xl bg-[var(--brand-primary)] px-8 py-4 uppercase transition-all hover:brightness-110 hover:shadow-[0_0_40px_-5px_var(--brand-primary)] active:scale-95 disabled:grayscale disabled:opacity-30 sm:w-auto sm:px-10`}
                             >
                                 {uploading ? (
                                     <>
-                                        <div className="w-4 h-4 border-2 border-[var(--brand-primary-foreground)]/20 border-t-[var(--brand-primary-foreground)] rounded-full animate-spin"></div>
-                                        Inyectando...
+                                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--brand-primary-foreground)]/20 border-t-[var(--brand-primary-foreground)]"></div>
+                                        {COPY.importing}
                                     </>
                                 ) : (
                                     <>
-                                        Ejecutar Importación
+                                        {COPY.importAction}
                                         <Database size={16} />
                                     </>
                                 )}
@@ -220,9 +242,9 @@ export const ImportContactsModal: React.FC<ImportContactsModalProps> = ({ onClos
                     ) : (
                         <button
                             onClick={() => { onSuccess(); onClose(); }}
-                            className={`${T.buttonPrimaryText} ${S.meta} w-full bg-[var(--text-strong)] text-[var(--bg-card)] px-10 py-5 rounded-[24px] uppercase tracking-[0.3em] hover:bg-[var(--brand-primary)] hover: transition-all shadow-xl`}
+                            className={`${T.buttonPrimaryText} ${S.meta} w-full rounded-[24px] bg-[var(--text-strong)] px-10 py-5 uppercase tracking-[0.3em] text-[var(--bg-card)] shadow-xl transition-all hover:bg-[var(--brand-primary)]`}
                         >
-                            Finalizar Transacción
+                            {COPY.finish}
                         </button>
                     )}
                 </div>

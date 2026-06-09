@@ -14,6 +14,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { GlobalAuditEventListItem, AuditSeverity, AuditCategory } from '../types/globalAudit.types';
 import { T, S } from '@/lib/text-tokens';
+import { getAuditEventLabel, getAuditSeverityLabel } from '../utils/globalAuditLabels';
 
 interface Props {
     event: GlobalAuditEventListItem;
@@ -48,6 +49,8 @@ export const GlobalAuditEventRow: React.FC<Props> = ({ event, onViewDetail }) =>
     const Icon = getCategoryIcon(event.category);
     const severityClass = getSeverityStyles(event.severity);
     const timeAgo = formatDistanceToNow(new Date(event.createdAt), { addSuffix: true, locale: es });
+    const eventLabel = getAuditEventLabel(event.eventType);
+    const severityLabel = getAuditSeverityLabel(event.severity);
 
     return (
         <div className="p-6 flex flex-col sm:flex-row sm:items-center gap-6 group hover:bg-[var(--brand-primary)]/[0.02] transition-colors border-b border-[var(--border-default)] last:border-0">
@@ -60,12 +63,12 @@ export const GlobalAuditEventRow: React.FC<Props> = ({ event, onViewDetail }) =>
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-1">
                     <p className={`${T.tableCell} ${S.body} font-black group-hover:text-[var(--brand-primary)] transition-colors text-[var(--text-strong)]`}>
-                        {event.eventType}
+                        {eventLabel}
                     </p>
                     <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded border ${
                         event.severity === 'critical' ? 'border-red-500/30 text-red-600 bg-red-500/5' : 'border-[var(--border-default)] text-[var(--text-muted)]'
                     }`}>
-                        {event.severity}
+                        {severityLabel}
                     </span>
                     {event.isImpersonation && (
                         <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded border border-purple-500/30 text-purple-600 bg-purple-500/5 flex items-center gap-1">
@@ -73,6 +76,10 @@ export const GlobalAuditEventRow: React.FC<Props> = ({ event, onViewDetail }) =>
                         </span>
                     )}
                 </div>
+
+                <p className={`${T.helperText} ${S.meta} mb-2 uppercase tracking-wide text-[var(--text-muted)]/60`}>
+                    Código: {event.eventType}
+                </p>
 
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                     <p className={`${T.helperText} ${S.meta} flex items-center gap-1.5`}>

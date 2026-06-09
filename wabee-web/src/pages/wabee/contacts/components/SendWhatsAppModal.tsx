@@ -86,23 +86,23 @@ export const SendWhatsAppModal: React.FC<SendWhatsAppModalProps> = ({
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                <header className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+            <div className="bg-[var(--bg-card)] rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                <header className="px-6 py-4 border-b border-[var(--border-default)] flex justify-between items-center bg-[var(--bg-surface)]">
                     <div>
-                        <h2 className="text-xl font-bold text-gray-900">Enviar WhatsApp</h2>
-                        <p className="text-xs text-gray-500 mt-0.5">A: {contactName || contactPhone}</p>
+                        <h2 className="text-xl font-bold text-[var(--text-strong)]">Enviar WhatsApp</h2>
+                        <p className="text-xs text-[var(--text-muted)] mt-0.5">A: {contactName || contactPhone}</p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-white rounded-full transition shadow-sm">
-                        <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    <button onClick={onClose} className="p-2 hover:bg-[var(--bg-hover)] rounded-full transition shadow-sm">
+                        <svg className="w-5 h-5 text-[var(--text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                 </header>
 
                 <div className="p-6 space-y-4">
                     {/* Canal Selector */}
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Canal de WhatsApp</label>
+                        <label className="block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Canal de WhatsApp</label>
                         <select
-                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
+                            className="w-full px-4 py-2.5 bg-[var(--bg-input)] border border-[var(--border-default)] text-[var(--text-strong)] rounded-xl focus:ring-2 focus:ring-[var(--brand-primary)] outline-none transition"
                             value={selectedChannelId}
                             onChange={(e) => setSelectedChannelId(e.target.value)}
                         >
@@ -116,70 +116,70 @@ export const SendWhatsAppModal: React.FC<SendWhatsAppModalProps> = ({
                     </div>
 
                     {/* Toggle Template */}
-                    <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-100 rounded-xl">
+                    <div className="flex items-center gap-3 p-3 bg-[var(--state-info)]/10 border border-[var(--state-info)]/20 rounded-xl">
                         <input
                             type="checkbox"
                             id="use-template"
-                            className="w-4 h-4 text-blue-600 rounded cursor-pointer"
+                            className="w-4 h-4 accent-[var(--state-info)] rounded cursor-pointer"
                             checked={useTemplate}
                             onChange={(e) => setUseTemplate(e.target.checked)}
                         />
-                        <label htmlFor="use-template" className="text-sm font-semibold text-blue-900 cursor-pointer">
+                        <label htmlFor="use-template" className="text-sm font-semibold text-[var(--state-info)] cursor-pointer">
                             Usar Plantilla (Meta Template)
                         </label>
                     </div>
 
                     {!useTemplate ? (
                         <div>
-                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Mensaje de Texto</label>
+                            <label className="block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Mensaje de Texto</label>
                             <textarea
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition min-h-[120px]"
+                                className="w-full px-4 py-3 bg-[var(--bg-input)] border border-[var(--border-default)] text-[var(--text-strong)] rounded-xl focus:ring-2 focus:ring-[var(--brand-primary)] outline-none transition min-h-[120px]"
                                 placeholder="Escribe tu mensaje aquí..."
                                 value={text}
                                 onChange={(e) => setText(e.target.value)}
                             />
-                            <p className="text-[10px] text-gray-400 mt-2 italic">
+                            <p className="text-[10px] text-[var(--text-muted)] mt-2 italic">
                                 * Nota: Solo funcionará si la ventana de 24h está abierta.
                             </p>
                         </div>
                     ) : (
                         <div>
-                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nombre de la Plantilla</label>
+                            <label className="block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Nombre de la Plantilla</label>
                             <input
                                 type="text"
-                                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
+                                className="w-full px-4 py-2.5 bg-[var(--bg-input)] border border-[var(--border-default)] text-[var(--text-strong)] rounded-xl focus:ring-2 focus:ring-[var(--brand-primary)] outline-none transition"
                                 value={templateName}
                                 onChange={(e) => setTemplateName(e.target.value)}
                             />
-                            <p className="text-[10px] text-blue-500 mt-2 font-medium">
+                            <p className="text-[10px] text-[var(--state-info)] mt-2 font-medium">
                                 Recomendado para iniciar conversaciones o ventanas cerradas.
                             </p>
                         </div>
                     )}
 
                     {error && (
-                        <div className="bg-red-50 border border-red-100 text-red-600 p-3 rounded-xl text-xs font-medium flex gap-2 items-center animate-shake">
+                        <div className="bg-[var(--state-danger)]/10 border border-[var(--state-danger)]/20 text-[var(--state-danger)] p-3 rounded-xl text-xs font-medium flex gap-2 items-center animate-shake">
                             <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             {error}
                         </div>
                     )}
                 </div>
 
-                <footer className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex gap-3">
+                <footer className="px-6 py-4 bg-[var(--bg-surface)] border-t border-[var(--border-default)] flex gap-3">
                     <button
                         onClick={onClose}
-                        className="flex-1 px-4 py-2.5 rounded-xl font-bold text-gray-700 bg-white border border-gray-200 hover:bg-gray-100 transition"
+                        className="flex-1 px-4 py-2.5 rounded-xl font-bold text-[var(--text-body)] bg-[var(--bg-card)] border border-[var(--border-default)] hover:bg-[var(--bg-hover)] transition"
                     >
                         Cancelar
                     </button>
                     <button
                         onClick={handleSend}
                         disabled={loading || !selectedChannelId}
-                        className="flex-1 px-4 py-2.5 rounded-xl font-bold text-white bg-black hover:bg-gray-800 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="flex-1 px-4 py-2.5 rounded-xl font-bold text-[var(--brand-primary-foreground)] bg-[var(--brand-primary)] hover:brightness-110 transition disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                         {loading ? (
                             <>
-                                <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                <svg className="animate-spin h-4 w-4 text-[var(--brand-primary-foreground)]" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                 Enviando...
                             </>
                         ) : (

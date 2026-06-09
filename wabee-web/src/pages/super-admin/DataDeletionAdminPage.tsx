@@ -123,15 +123,18 @@ export const DataDeletionAdminPage: React.FC = () => {
             case 'CONFIRMED': return <span className="px-2 py-1 bg-indigo-500/10 text-indigo-500 text-[10px] uppercase tracking-wider rounded-md font-bold border border-indigo-500/20">Confirmado</span>;
             case 'COMPLETED': return <span className="px-2 py-1 bg-green-500/10 text-green-500 text-[10px] uppercase tracking-wider rounded-md font-bold border border-green-500/20">Completado</span>;
             case 'REJECTED': return <span className="px-2 py-1 bg-red-500/10 text-red-500 text-[10px] uppercase tracking-wider rounded-md font-bold border border-red-500/20">Rechazado</span>;
-            case 'SPAM': return <span className="px-2 py-1 bg-gray-500/10 text-gray-500 text-[10px] uppercase tracking-wider rounded-md font-bold border border-gray-500/20">SPAM</span>;
+            case 'SPAM': return <span className="px-2 py-1 bg-[var(--text-muted)]/10 text-[var(--text-muted)] text-[10px] uppercase tracking-wider rounded-md font-bold border border-[var(--text-muted)]/20">SPAM</span>;
             default: return null;
         }
     };
 
+    const formatRequestDate = (value: string) =>
+        new Date(value).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+
     return (
-        <div className="p-4 sm:p-6 lg:p-8 w-full max-w-7xl mx-auto space-y-8 animate-in fade-in duration-300">
+        <div className="mx-auto w-full max-w-7xl space-y-6 p-4 animate-in fade-in duration-300 sm:space-y-8 sm:p-6 lg:p-8">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div className="space-y-1">
                     <h1 className={`${T.pageTitle} ${S.headingLg}`}>Privacidad y Cumplimiento</h1>
                     <p className={`${T.pageSubtitle} ${S.body} opacity-60 italic`}>
@@ -141,7 +144,7 @@ export const DataDeletionAdminPage: React.FC = () => {
                 <button 
                     onClick={fetchRequests} 
                     disabled={loading}
-                    className="flex items-center gap-2 px-4 py-2 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl hover:bg-[var(--bg-hover)] transition-all disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--border-default)] bg-[var(--bg-elevated)] px-4 py-2 transition-all hover:bg-[var(--bg-hover)] disabled:opacity-50 sm:w-auto"
                 >
                     <RefreshCw className={`${loading ? 'animate-spin' : ''}`} size={18} />
                     <span className={`${T.buttonText} ${S.body}`}>Actualizar</span>
@@ -180,8 +183,147 @@ export const DataDeletionAdminPage: React.FC = () => {
             </div>
 
             {/* Table */}
-            <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-2xl shadow-sm">
-                <div className="overflow-x-auto">
+            <div className="overflow-hidden rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] shadow-sm">
+                <div className="space-y-4 p-4 lg:hidden">
+                    {loading ? (
+                        <div className="p-12 text-center">
+                            <div className="flex flex-col items-center gap-4">
+                                <Loader2 className="animate-spin text-[var(--brand-primary)]" size={32} />
+                                <p className={`${T.helperText} ${S.body}`}>Cargando solicitudes...</p>
+                            </div>
+                        </div>
+                    ) : filteredRequests.length === 0 ? (
+                        <div className="p-10 text-center">
+                            <div className="flex flex-col items-center gap-4 opacity-40">
+                                <UserX size={48} />
+                                <p className={`${T.helperText} ${S.body}`}>No se encontraron solicitudes.</p>
+                            </div>
+                        </div>
+                    ) : (
+                        filteredRequests.map((request) => (
+                            <div key={request.id} className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-elevated)]/20 p-4">
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                        <span className={`${T.tableCell} ${S.body} font-black uppercase italic tracking-tighter break-words`}>{request.fullName}</span>
+                                        <span className={`${T.helperText} ${S.meta} block opacity-40`}>ID: {request.id.split('-')[0]}...</span>
+                                    </div>
+                                    <div className="flex items-center justify-end relative">
+                                        {actionLoading === request.id ? (
+                                            <Loader2 className="animate-spin text-[var(--brand-primary)]" size={18} />
+                                        ) : (
+                                            <div className="relative">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        const rect = e.currentTarget.getBoundingClientRect();
+                                                        setMenuCoords({
+                                                            top: rect.bottom + window.scrollY,
+                                                            left: Math.max(16, rect.right + window.scrollX - 224)
+                                                        });
+                                                        setOpenMenuId(openMenuId === request.id ? null : request.id);
+                                                    }}
+                                                    className={`p-2 rounded-lg transition-all ${openMenuId === request.id ? 'bg-[var(--brand-primary)]/20 text-[var(--brand-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-strong)] hover:bg-[var(--bg-elevated)]'}`}
+                                                    title="Opciones de acciÃ³n"
+                                                >
+                                                    <MoreHorizontal size={18} />
+                                                </button>
+
+                                                {openMenuId === request.id && menuCoords && createPortal(
+                                                    <>
+                                                        <div
+                                                            className="fixed inset-0 z-[9998]"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setOpenMenuId(null);
+                                                            }}
+                                                        ></div>
+
+                                                        <div
+                                                            className="absolute z-[9999] w-56 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-elevated)] py-2 shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl animate-in fade-in zoom-in-95 duration-200"
+                                                            style={{
+                                                                top: menuCoords.top + 8,
+                                                                left: menuCoords.left
+                                                            }}
+                                                        >
+                                                            <div className="mb-1 border-b border-[var(--border-default)]/50 px-4 py-2">
+                                                                <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">Acciones</span>
+                                                            </div>
+                                                            {request.status === 'PENDING' && (
+                                                                <button onClick={() => { handleUpdateStatus(request.id, 'IN_REVIEW'); setOpenMenuId(null); }} className="w-full px-4 py-2.5 text-left text-xs font-bold text-[var(--text-strong)] transition-all hover:bg-blue-500/10 hover:text-blue-400">
+                                                                    Marcar en revisiÃ³n
+                                                                </button>
+                                                            )}
+                                                            {(request.status === 'PENDING' || request.status === 'IN_REVIEW' || request.status === 'CONFIRMED') && (
+                                                                <button onClick={() => { handleUpdateStatus(request.id, 'REJECTED'); setOpenMenuId(null); }} className="w-full px-4 py-2.5 text-left text-xs font-bold text-[var(--text-strong)] transition-all hover:bg-red-500/10 hover:text-red-400">
+                                                                    Rechazar solicitud
+                                                                </button>
+                                                            )}
+                                                            {request.status === 'CONFIRMED' && (
+                                                                <button
+                                                                    onClick={() => { handleComplete(request.id); setOpenMenuId(null); }}
+                                                                    disabled={!request.hasMatch}
+                                                                    className={`w-full px-4 py-2.5 text-left text-xs font-bold transition-all ${request.hasMatch ? 'text-[var(--text-strong)] hover:bg-green-500/10 hover:text-green-400' : 'cursor-not-allowed text-[var(--text-muted)] opacity-40'}`}
+                                                                >
+                                                                    Aceptar (Completar y anonimizar)
+                                                                </button>
+                                                            )}
+                                                            {(request.status === 'SPAM' || request.status === 'REJECTED' || request.status === 'COMPLETED') && (
+                                                                <>
+                                                                    <div className="my-1 border-t border-[var(--border-default)]"></div>
+                                                                    <button onClick={() => { handleDelete(request.id); setOpenMenuId(null); }} className="w-full px-4 py-2.5 text-left text-xs font-bold text-[var(--text-strong)] transition-all hover:bg-red-500/10 hover:text-red-400">
+                                                                        Eliminar registro
+                                                                    </button>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </>,
+                                                    document.body
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="mt-4 space-y-3">
+                                    <div>
+                                        <p className={`${T.helperText} ${S.meta} mb-1 uppercase tracking-widest opacity-50`}>Contacto</p>
+                                        <p className={`${T.tableCell} ${S.body} break-words`}>{request.email}</p>
+                                        {request.phone && <p className={`${T.helperText} ${S.meta} opacity-40`}>{request.phone}</p>}
+                                    </div>
+                                    <div>
+                                        <p className={`${T.helperText} ${S.meta} mb-1 uppercase tracking-widest opacity-50`}>Estado y match</p>
+                                        <div className="flex flex-col gap-2">
+                                            {getStatusBadge(request.status)}
+                                            {request.hasMatch ? (
+                                                <span className="flex items-center gap-1 text-[10px] text-[var(--state-success)] font-medium">
+                                                    <CheckCircle size={10} /> Encontrado
+                                                </span>
+                                            ) : (
+                                                <span className="flex items-center gap-1 text-[10px] text-[var(--state-danger)] font-medium">
+                                                    <AlertTriangle size={10} /> No encontrado
+                                                </span>
+                                            )}
+                                            {request.internalNote && (
+                                                <span className="text-[10px] italic leading-tight text-[var(--text-muted)]">
+                                                    {request.internalNote}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p className={`${T.helperText} ${S.meta} mb-1 uppercase tracking-widest opacity-50`}>Fecha de petición</p>
+                                        <div className="flex items-center gap-2 text-[var(--text-muted)]">
+                                            <Clock size={14} className="opacity-40" />
+                                            <span className={`${T.helperText} ${S.meta}`}>{formatRequestDate(request.requestedAt)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+
+                <div className="hidden overflow-x-auto lg:block">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="border-b border-[var(--border-default)] bg-[var(--bg-elevated)]/30">
@@ -251,7 +393,7 @@ export const DataDeletionAdminPage: React.FC = () => {
                                             <div className="flex items-center gap-2 text-[var(--text-muted)]">
                                                 <Clock size={14} className="opacity-40" />
                                                 <span className={`${T.helperText} ${S.meta}`}>
-                                                    {new Date(request.requestedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                                                    {formatRequestDate(request.requestedAt)}
                                                 </span>
                                             </div>
                                         </td>
@@ -296,12 +438,12 @@ export const DataDeletionAdminPage: React.FC = () => {
                                                                     }}
                                                                 >
                                                                     <div className="px-4 py-2 border-b border-[var(--border-default)]/50 mb-1">
-                                                                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Acciones</span>
+                                                                        <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">Acciones</span>
                                                                     </div>
                                                                     {request.status === 'PENDING' && (
                                                                         <button 
                                                                             onClick={() => { handleUpdateStatus(request.id, 'IN_REVIEW'); setOpenMenuId(null); }}
-                                                                            className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-gray-100 hover:text-blue-400 hover:bg-blue-500/10 transition-all"
+                                                                            className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-[var(--text-strong)] hover:text-blue-400 hover:bg-blue-500/10 transition-all"
                                                                         >
                                                                             <RefreshCw size={16} className="text-blue-500" />
                                                                             <span>Marcar en revisión</span>
@@ -312,7 +454,7 @@ export const DataDeletionAdminPage: React.FC = () => {
                                                                         <>
                                                                             <button 
                                                                                 onClick={() => { handleUpdateStatus(request.id, 'REJECTED'); setOpenMenuId(null); }}
-                                                                                className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-gray-100 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                                                                                className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-[var(--text-strong)] hover:text-red-400 hover:bg-red-500/10 transition-all"
                                                                             >
                                                                                 <XCircle size={16} className="text-red-500" />
                                                                                 <span>Rechazar solicitud</span>
@@ -326,11 +468,11 @@ export const DataDeletionAdminPage: React.FC = () => {
                                                                             disabled={!request.hasMatch}
                                                                             className={`w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold transition-all ${
                                                                                 request.hasMatch 
-                                                                                ? 'text-gray-100 hover:text-green-400 hover:bg-green-500/10' 
-                                                                                : 'text-gray-500 opacity-40 cursor-not-allowed'
+                                                                                ? 'text-[var(--text-strong)] hover:text-green-400 hover:bg-green-500/10' 
+                                                                                : 'text-[var(--text-muted)] opacity-40 cursor-not-allowed'
                                                                             }`}
                                                                         >
-                                                                            <CheckCircle size={16} className={request.hasMatch ? 'text-green-500' : 'text-gray-500'} />
+                                                                            <CheckCircle size={16} className={request.hasMatch ? 'text-green-500' : 'text-[var(--text-muted)]'} />
                                                                             <span>Aceptar (Completar y anonimizar)</span>
                                                                         </button>
                                                                     )}
@@ -342,7 +484,7 @@ export const DataDeletionAdminPage: React.FC = () => {
                                                                     {(request.status === 'SPAM' || request.status === 'REJECTED' || request.status === 'COMPLETED') && (
                                                                         <button 
                                                                             onClick={() => { handleDelete(request.id); setOpenMenuId(null); }}
-                                                                            className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-gray-100 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                                                                            className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-[var(--text-strong)] hover:text-red-400 hover:bg-red-500/10 transition-all"
                                                                         >
                                                                             <Trash2 size={16} className="text-red-500" />
                                                                             <span>Eliminar registro</span>

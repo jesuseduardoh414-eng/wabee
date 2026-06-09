@@ -120,7 +120,7 @@ export default function ChannelAiConfigSection({ channelId, onClose }: Props) {
                             checked={config.aiEnabled} 
                             onChange={e => setConfig({...config, aiEnabled: e.target.checked})} 
                         />
-                        <div className="w-14 h-7 bg-[var(--bg-elevated)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-[color:var(--text-strong)] after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-[color:var(--text-muted)] peer-checked:after:bg-[var(--bg-page)] after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[var(--brand-primary)]"></div>
+                        <div className="w-14 h-7 bg-[var(--bg-elevated)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-[color:var(--text-strong)] after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-[color:var(--text-muted)] peer-checked:after:bg-[var(--bg-page)] after:border-[var(--border-strong)] after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[var(--brand-primary)]"></div>
                     </label>
                 </div>
 
@@ -132,7 +132,7 @@ export default function ChannelAiConfigSection({ channelId, onClose }: Props) {
                             <div>
                                 <label className={`${T.labelText} ${S.meta} block uppercase tracking-widest text-[color:var(--text-muted)] mb-2`}>Modo Operativo IA</label>
                                 <select 
-                                    className="!text-white w-full bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--brand-primary)] focus:ring-1 focus:ring-[var(--brand-primary)] transition-all font-medium"
+                                    className="!text-[var(--text-strong)] w-full bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--brand-primary)] focus:ring-1 focus:ring-[var(--brand-primary)] transition-all font-medium"
                                     value={config.aiMode}
                                     onChange={e => setConfig({...config, aiMode: e.target.value as any})}
                                 >
@@ -148,7 +148,7 @@ export default function ChannelAiConfigSection({ channelId, onClose }: Props) {
                             <div>
                                 <label className={`${T.labelText} ${S.meta} block uppercase tracking-widest text-[color:var(--text-muted)] mb-2`}>Perfil de Agente IA (Base)</label>
                                 <select 
-                                    className="!text-white w-full bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--brand-primary)] focus:ring-1 focus:ring-[var(--brand-primary)] transition-all font-medium"
+                                    className="!text-[var(--text-strong)] w-full bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--brand-primary)] focus:ring-1 focus:ring-[var(--brand-primary)] transition-all font-medium"
                                     value={config.defaultAiProfileId || ''}
                                     onChange={e => setConfig({...config, defaultAiProfileId: e.target.value || null})}
                                 >
@@ -162,7 +162,7 @@ export default function ChannelAiConfigSection({ channelId, onClose }: Props) {
                             <div>
                                 <label className={`${T.labelText} ${S.meta} block uppercase tracking-widest text-[color:var(--text-muted)] mb-2`}>Mensaje Fallback (Error IA)</label>
                                 <textarea 
-                                    className="!text-white w-full bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--brand-primary)] transition-all font-medium text-sm"
+                                    className="!text-[var(--text-strong)] w-full bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--brand-primary)] transition-all font-medium text-sm"
                                     rows={2}
                                     placeholder="Mensaje automático si la IA falla. Ej: Dame un momento, estoy verificando..."
                                     value={config.fallbackMessage || ''}
@@ -187,7 +187,7 @@ export default function ChannelAiConfigSection({ channelId, onClose }: Props) {
                                         checked={config.humanHandoffEnabled} 
                                         onChange={e => setConfig({...config, humanHandoffEnabled: e.target.checked})} 
                                     />
-                                    <div className="w-11 h-6 bg-[var(--bg-elevated)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-[color:var(--text-strong)] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[color:var(--text-muted)] peer-checked:after:bg-[var(--bg-page)] after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--brand-primary)]"></div>
+                                    <div className="w-11 h-6 bg-[var(--bg-elevated)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-[color:var(--text-strong)] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[color:var(--text-muted)] peer-checked:after:bg-[var(--bg-page)] after:border-[var(--border-strong)] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--brand-primary)]"></div>
                                 </label>
                             </div>
 
@@ -210,7 +210,7 @@ export default function ChannelAiConfigSection({ channelId, onClose }: Props) {
                                         <label className={`${T.labelText} ${S.meta} block uppercase tracking-widest text-[color:var(--text-muted)] mb-2`}>Área / Equipo Referencia</label>
                                         <input 
                                             type="text"
-                                            className="!text-white w-full bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--brand-primary)] transition-all font-medium text-sm"
+                                            className="!text-[var(--text-strong)] w-full bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--brand-primary)] transition-all font-medium text-sm"
                                             placeholder="Ej: ventas, soporte-nivel-2"
                                             value={config.humanTeamRef || ''}
                                             onChange={e => setConfig({...config, humanTeamRef: e.target.value})}

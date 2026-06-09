@@ -8,6 +8,24 @@ interface CreateContactModalProps {
     onSuccess: () => void;
 }
 
+const COPY = {
+    required: 'Nombre y teléfono son obligatorios.',
+    invalidPhone: 'Formato de teléfono inválido. Usa +52...',
+    title: 'Nuevo',
+    highlighted: 'Contacto',
+    subtitle: 'Expande tu base de datos estratégica',
+    fullName: 'Identidad Completa',
+    fullNamePlaceholder: 'P. ej. Juan Pérez',
+    phoneProtocol: 'Protocolo Telefónico (E.164)',
+    phonePlaceholder: '+52 7713437831',
+    email: 'Correo Electrónico',
+    emailPlaceholder: 'usuario@dominio.com',
+    tags: 'Etiquetas de Segmentación (separadas por coma)',
+    tagsPlaceholder: 'VIP, Lead, Inversor...',
+    abort: 'Abortar',
+    submit: 'Inyectar Registro',
+} as const;
+
 export const CreateContactModal: React.FC<CreateContactModalProps> = ({ onClose, onSuccess }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -18,18 +36,16 @@ export const CreateContactModal: React.FC<CreateContactModalProps> = ({ onClose,
         tags: ''
     });
 
-    const isPhoneValid = (phone: string) => {
-        return /^\+?[1-9]\d{1,14}$/.test(phone.replace(/\s+/g, ''));
-    };
+    const isPhoneValid = (phone: string) => /^\+?[1-9]\d{1,14}$/.test(phone.replace(/\s+/g, ''));
 
     const handleCreate = async () => {
         if (!formData.name || !formData.phone) {
-            setError('Nombre y teléfono son obligatorios.');
+            setError(COPY.required);
             return;
         }
 
         if (!isPhoneValid(formData.phone)) {
-            setError('Formato de teléfono inválido. Usa +52...');
+            setError(COPY.invalidPhone);
             return;
         }
 
@@ -44,13 +60,8 @@ export const CreateContactModal: React.FC<CreateContactModalProps> = ({ onClose,
                 lifecycleStatus: 'NEW'
             };
 
-            if (formData.email.trim()) {
-                cleanedData.email = formData.email.trim();
-            }
-
-            if (formData.tags.trim()) {
-                cleanedData.tags = formData.tags;
-            }
+            if (formData.email.trim()) cleanedData.email = formData.email.trim();
+            if (formData.tags.trim()) cleanedData.tags = formData.tags;
 
             await contactsApi.create(cleanedData);
             onSuccess();
@@ -64,89 +75,82 @@ export const CreateContactModal: React.FC<CreateContactModalProps> = ({ onClose,
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
-            <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--border-default)] rounded-[40px] shadow-[0_32px_120px_-20px_rgba(0,0,0,0.8)] w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-500">
-
-                {/* Header */}
-                <div className="p-10 pb-6 flex justify-between items-start">
-                    <div>
-                        <h2 className={`${T.sectionTitle} ${S.headingLg} italic tracking-tighter uppercase mb-2`}>
-                            Nuevo <span className="text-[var(--brand-primary)]">Contacto</span>
+        <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/60 p-4 pt-6 backdrop-blur-md animate-in fade-in duration-300 sm:items-center">
+            <div className="flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-[28px] border border-[var(--border-default)] bg-[var(--bg-card)] shadow-[0_32px_120px_-20px_rgba(0,0,0,0.8)] animate-in zoom-in-95 duration-500 sm:rounded-[40px]">
+                <div className="flex items-start justify-between gap-4 p-5 pb-4 sm:p-10 sm:pb-6">
+                    <div className="min-w-0">
+                        <h2 className={`${T.sectionTitle} ${S.headingLg} mb-2 italic tracking-tighter uppercase`}>
+                            {COPY.title} <span className="text-[var(--brand-primary)]">{COPY.highlighted}</span>
                         </h2>
-                        <p className={`${T.helperText} ${S.body} opacity-80 uppercase italic`}>Expande tu base de datos estratégica</p>
+                        <p className={`${T.helperText} ${S.body} uppercase italic opacity-80`}>{COPY.subtitle}</p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-3 bg-[var(--bg-input)] border border-[var(--border-default)] rounded-2xl text-[var(--text-muted)] hover:text-[var(--text-strong)] hover:border-[var(--brand-primary)]/40 transition-all active:scale-90"
+                        className="shrink-0 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-input)] p-3 text-[var(--text-muted)] transition-all hover:border-[var(--brand-primary)]/40 hover:text-[var(--text-strong)] active:scale-90"
                     >
                         <X size={20} strokeWidth={3} />
                     </button>
                 </div>
 
-                {/* Form Body */}
-                <div className="px-10 pb-10 space-y-6">
-                    {/* Name */}
+                <div className="flex-1 space-y-5 overflow-y-auto px-5 pb-5 sm:space-y-6 sm:px-10 sm:pb-10">
                     <div className="space-y-2 group">
-                        <label className={`${T.helperText} ${S.meta} uppercase ml-2 opacity-50 group-focus-within:opacity-100 transition-opacity`}>Identidad Completa</label>
+                        <label className={`${T.helperText} ${S.meta} ml-2 uppercase opacity-50 transition-opacity group-focus-within:opacity-100`}>{COPY.fullName}</label>
                         <div className="relative">
-                            <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-[var(--text-muted)]">
+                            <div className="pointer-events-none absolute inset-y-0 left-5 flex items-center text-[var(--text-muted)]">
                                 <User size={18} />
                             </div>
                             <input
                                 type="text"
-                                placeholder="P. ej. Juan Pérez"
-                                className={`${T.inputText} ${S.body} w-full pl-14 pr-6 py-4 bg-[var(--bg-input)] border border-[var(--border-default)] text-[var(--text-strong)] rounded-2xl outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/50 focus:border-[var(--brand-primary)] transition-all placeholder:text-[var(--text-muted)]`}
+                                placeholder={COPY.fullNamePlaceholder}
+                                className={`${T.inputText} ${S.body} w-full rounded-2xl border border-[var(--border-default)] bg-[var(--bg-input)] py-4 pl-14 pr-6 text-[var(--text-strong)] outline-none transition-all placeholder:text-[var(--text-muted)] focus:border-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-primary)]/50`}
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             />
                         </div>
                     </div>
 
-                    {/* Phone */}
                     <div className="space-y-2 group">
-                        <label className={`${T.helperText} ${S.meta} uppercase ml-2 opacity-50 group-focus-within:opacity-100 transition-opacity`}>Protocolo Telefónico (E.164)</label>
+                        <label className={`${T.helperText} ${S.meta} ml-2 uppercase opacity-50 transition-opacity group-focus-within:opacity-100`}>{COPY.phoneProtocol}</label>
                         <div className="relative">
-                            <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-[var(--text-muted)]">
+                            <div className="pointer-events-none absolute inset-y-0 left-5 flex items-center text-[var(--text-muted)]">
                                 <Phone size={18} />
                             </div>
                             <input
                                 type="tel"
-                                placeholder="+52 1 55 ..."
-                                className={`${T.inputText} ${S.body} w-full pl-14 pr-6 py-4 bg-[var(--bg-input)] border border-[var(--border-default)] text-[var(--text-strong)] rounded-2xl outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/50 focus:border-[var(--brand-primary)] transition-all placeholder:text-[var(--text-muted)]`}
+                                placeholder={COPY.phonePlaceholder}
+                                className={`${T.inputText} ${S.body} w-full rounded-2xl border border-[var(--border-default)] bg-[var(--bg-input)] py-4 pl-14 pr-6 text-[var(--text-strong)] outline-none transition-all placeholder:text-[var(--text-muted)] focus:border-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-primary)]/50`}
                                 value={formData.phone}
                                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                             />
                         </div>
                     </div>
 
-                    {/* Email */}
                     <div className="space-y-2 group">
-                        <label className={`${T.helperText} ${S.meta} uppercase ml-2 opacity-50 group-focus-within:opacity-100 transition-opacity`}>Correo Electrónico</label>
+                        <label className={`${T.helperText} ${S.meta} ml-2 uppercase opacity-50 transition-opacity group-focus-within:opacity-100`}>{COPY.email}</label>
                         <div className="relative">
-                            <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-[var(--text-muted)]">
+                            <div className="pointer-events-none absolute inset-y-0 left-5 flex items-center text-[var(--text-muted)]">
                                 <Mail size={18} />
                             </div>
                             <input
                                 type="email"
-                                placeholder="usuario@dominio.com"
-                                className={`${T.inputText} ${S.body} w-full pl-14 pr-6 py-4 bg-[var(--bg-input)] border border-[var(--border-default)] text-[var(--text-strong)] rounded-2xl outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/50 focus:border-[var(--brand-primary)] transition-all placeholder:text-[var(--text-muted)]`}
+                                placeholder={COPY.emailPlaceholder}
+                                className={`${T.inputText} ${S.body} w-full rounded-2xl border border-[var(--border-default)] bg-[var(--bg-input)] py-4 pl-14 pr-6 text-[var(--text-strong)] outline-none transition-all placeholder:text-[var(--text-muted)] focus:border-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-primary)]/50`}
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             />
                         </div>
                     </div>
 
-                    {/* Tags */}
                     <div className="space-y-2 group">
-                        <label className={`${T.helperText} ${S.meta} uppercase ml-2 opacity-50 group-focus-within:opacity-100 transition-opacity`}>Etiquetas de Segmentación (separadas por coma)</label>
+                        <label className={`${T.helperText} ${S.meta} ml-2 uppercase opacity-50 transition-opacity group-focus-within:opacity-100`}>{COPY.tags}</label>
                         <div className="relative">
-                            <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-[var(--text-muted)]">
+                            <div className="pointer-events-none absolute inset-y-0 left-5 flex items-center text-[var(--text-muted)]">
                                 <Tag size={18} />
                             </div>
                             <input
                                 type="text"
-                                placeholder="VIP, Lead, Inversor..."
-                                className={`${T.inputText} ${S.body} w-full pl-14 pr-6 py-4 bg-[var(--bg-input)] border border-[var(--border-default)] text-[var(--text-strong)] rounded-2xl outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/50 focus:border-[var(--brand-primary)] transition-all placeholder:text-[var(--text-muted)]`}
+                                placeholder={COPY.tagsPlaceholder}
+                                className={`${T.inputText} ${S.body} w-full rounded-2xl border border-[var(--border-default)] bg-[var(--bg-input)] py-4 pl-14 pr-6 text-[var(--text-strong)] outline-none transition-all placeholder:text-[var(--text-muted)] focus:border-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-primary)]/50`}
                                 value={formData.tags}
                                 onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
                             />
@@ -154,32 +158,31 @@ export const CreateContactModal: React.FC<CreateContactModalProps> = ({ onClose,
                     </div>
 
                     {error && (
-                        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3 animate-shake">
-                            <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]"></div>
+                        <div className="flex items-center gap-3 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 animate-shake">
+                            <div className="h-2 w-2 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]"></div>
                             <p className={`${T.helperText} ${S.meta} text-red-500 uppercase tracking-widest`}>{error}</p>
                         </div>
                     )}
+                </div>
 
-                    {/* Footer Actions */}
-                    <div className="flex gap-4 pt-6">
-                        <button
-                            onClick={onClose}
-                            className={`flex-1 bg-[var(--bg-card)] py-5 rounded-[24px] border border-[var(--border-default)] hover:bg-[var(--bg-elevated)] transition-all active:scale-95 ${T.buttonText}`}
-                        >
-                            Abortar
-                        </button>
-                        <button
-                            onClick={handleCreate}
-                            disabled={loading}
-                            className={`${T.buttonPrimaryText} ${S.meta} flex-[2] bg-[var(--brand-primary)] py-5 rounded-[24px] uppercase shadow-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-30 disabled:grayscale`}
-                        >
-                            {loading ? (
-                                <div className="w-4 h-4 border-2 border-[var(--brand-primary-foreground)]/20 border-t-[var(--brand-primary-foreground)] rounded-full animate-spin"></div>
-                            ) : (
-                                <>Inyectar Registro <ArrowRight size={14} /></>
-                            )}
-                        </button>
-                    </div>
+                <div className="flex flex-col gap-3 border-t border-[var(--border-default)] bg-[var(--bg-card)] px-5 py-4 sm:flex-row sm:gap-4 sm:px-10 sm:py-6">
+                    <button
+                        onClick={onClose}
+                        className={`flex-1 rounded-[24px] border border-[var(--border-default)] bg-[var(--bg-card)] py-4 transition-all hover:bg-[var(--bg-elevated)] active:scale-95 ${T.buttonText}`}
+                    >
+                        {COPY.abort}
+                    </button>
+                    <button
+                        onClick={handleCreate}
+                        disabled={loading}
+                        className={`${T.buttonPrimaryText} ${S.meta} flex flex-[1.4] items-center justify-center gap-2 rounded-[24px] bg-[var(--brand-primary)] py-4 uppercase shadow-xl transition-all hover:brightness-110 active:scale-95 disabled:grayscale disabled:opacity-30`}
+                    >
+                        {loading ? (
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--brand-primary-foreground)]/20 border-t-[var(--brand-primary-foreground)]"></div>
+                        ) : (
+                            <>{COPY.submit} <ArrowRight size={14} /></>
+                        )}
+                    </button>
                 </div>
             </div>
         </div>

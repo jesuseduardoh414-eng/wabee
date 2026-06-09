@@ -228,6 +228,10 @@ const DEFAULT_COLORS: Record<string, string> = {
     'chart-axis': '#B9B28E',
     'chart-tooltip-bg': '#242424',
     'chart-tooltip-text': '#F4F4DC',
+    'mkt-surface': 'rgba(255, 255, 255, 0.72)',
+    'mkt-surface-2': 'rgba(255, 255, 255, 0.64)',
+    'mkt-border': 'rgba(26, 26, 26, 0.08)',
+    'mkt-ink': '#1f1f1f',
 };
 
 const COLOR_SETTING_KEY = 'global_branding_colors';
@@ -314,6 +318,10 @@ const DEFAULT_LIGHT_COLORS: Record<string, string> = {
     'chart-axis': '#837A72',
     'chart-tooltip-bg': '#FFFAF3',
     'chart-tooltip-text': '#1F1A1F',
+    'mkt-surface': 'rgba(255, 255, 255, 0.72)',
+    'mkt-surface-2': 'rgba(255, 255, 255, 0.64)',
+    'mkt-border': 'rgba(26, 26, 26, 0.08)',
+    'mkt-ink': '#1f1f1f',
 };
 
 const DEFAULT_LIGHT_TYPOGRAPHY: Record<string, { color: string; fontFamily: string }> = {
@@ -1120,6 +1128,9 @@ router.post('/branding/themes', async (req: any, res) => {
         res.json({ success: true, data: newTheme });
     } catch (error: any) {
         console.error('Error creating theme:', error);
+        if (error?.code === 'P2002') {
+            return res.status(409).json({ error: { message: 'Ya existe un tema con ese nombre. Elige un nombre distinto.' } });
+        }
         res.status(500).json({ error: { message: 'Error al crear tema' } });
     }
 });
@@ -1862,7 +1873,7 @@ router.post(['/organizations/:orgId/impersonate', '/organizations/:orgId/imperso
             {
                 id: targetUserId,
                 email: realUserEmail,
-                globalRole: 'admin',
+                globalRole: 'superadmin',
                 isImpersonating: true,
                 impersonatorUserId: realUserId,
                 impersonatedUserId: targetUserId,
@@ -1976,7 +1987,7 @@ router.post('/stop-impersonation', async (req: any, res) => {
             {
                 id: realUserId,
                 email: realUserEmail,
-                globalRole: 'admin'
+                globalRole: 'superadmin'
             },
             coreEnv.JWT_SECRET as string,
             { expiresIn: '24h' }

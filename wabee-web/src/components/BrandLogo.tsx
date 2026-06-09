@@ -11,6 +11,24 @@ interface BrandLogoProps {
     showProHub?: boolean;
 }
 
+const resolveBrandingUrl = (rawUrl: string | null | undefined) => {
+    if (!rawUrl) return null;
+    if (/^(https?:)?\/\//i.test(rawUrl) || rawUrl.startsWith('data:')) return rawUrl;
+
+    const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
+    const apiOrigin = apiUrl
+        ? (() => {
+            try {
+                return new URL(apiUrl, window.location.origin).origin;
+            } catch {
+                return window.location.origin;
+            }
+        })()
+        : window.location.origin;
+
+    return rawUrl.startsWith('/') ? `${apiOrigin}${rawUrl}` : `${apiOrigin}/${rawUrl}`;
+};
+
 export const BrandLogo: React.FC<BrandLogoProps> = ({ 
     variant = 'full', 
     className = '', 
@@ -26,8 +44,9 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
     });
 
     const logoUrl = branding?.logoUrl;
-    const versionedLogoUrl = logoUrl
-        ? `${logoUrl}${logoUrl.includes('?') ? '&' : '?'}v=${encodeURIComponent(branding?.updatedAt || 'current')}`
+    const resolvedLogoUrl = resolveBrandingUrl(logoUrl);
+    const versionedLogoUrl = resolvedLogoUrl
+        ? `${resolvedLogoUrl}${resolvedLogoUrl.includes('?') ? '&' : '?'}v=${encodeURIComponent(branding?.updatedAt || 'current')}`
         : null;
     const resolvedSize = size || (variant === 'icon' ? 33 : 37);
 

@@ -40,6 +40,10 @@ const LIGHT_DEFAULT_COLORS: Record<string, string> = {
     'chart-axis': '#837A72',
     'chart-tooltip-bg': '#FFFAF3',
     'chart-tooltip-text': '#1F1A1F',
+    'mkt-surface': 'rgba(255, 255, 255, 0.72)',
+    'mkt-surface-2': 'rgba(255, 255, 255, 0.64)',
+    'mkt-border': 'rgba(26, 26, 26, 0.08)',
+    'mkt-ink': '#1f1f1f',
 };
 
 /**

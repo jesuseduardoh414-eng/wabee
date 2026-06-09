@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { AuthRequest } from '@/middleware/auth.middleware';
 import { tenancyAdapter } from '@/modules/wabee/_adapters/tenancy.adapter';
-import { prisma } from '@/config/core/core.prisma';
+import { CoreInternalService } from '@/modules/core/core.internal.service';
 import { createClient } from '@supabase/supabase-js';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
@@ -85,21 +85,19 @@ export class MediaController {
                 });
             }
 
-            // ─── Insert into core.media_files via app's Prisma ───────────────
-            const mediaFile = await (prisma as any).mediaFile.create({
-                data: {
-                    id: mediaId,
-                    tenantId,
-                    fileName: file.originalname,
-                    bucket: BUCKET_NAME,
-                    filePath,
-                    mimeType: file.mimetype,
-                    sizeBytes: BigInt(file.size),
-                    collection: collectionName,
-                    isPublic,
-                    metadata: {},
-                    ...(req.user?.id ? { uploadedBy: req.user.id } : {}),
-                }
+            // ─── Insert into core.media_files (modelo del schema core) ───────
+            const mediaFile = await CoreInternalService.createMediaFile({
+                id: mediaId,
+                tenantId,
+                fileName: file.originalname,
+                bucket: BUCKET_NAME,
+                filePath,
+                mimeType: file.mimetype,
+                sizeBytes: BigInt(file.size),
+                collection: collectionName,
+                isPublic,
+                metadata: {},
+                ...(req.user?.id ? { uploadedBy: req.user.id } : {}),
             });
 
             console.log(`[MediaController] Archivo subido: ${mediaFile.id} (${file.originalname})`);
@@ -128,10 +126,8 @@ export class MediaController {
             const mediaId = req.params.id;
             const ttl = parseInt(req.query.ttl as string) || 3600;
 
-            // Validate tenant ownership via app Prisma
-            const mediaFile = await (prisma as any).mediaFile.findUnique({
-                where: { id: mediaId }
-            });
+            // Validate tenant ownership
+            const mediaFile = await CoreInternalService.getMediaFileById(mediaId);
 
             if (!mediaFile || mediaFile.tenantId !== tenantId) {
                 return res.status(404).json({ code: 'NOT_FOUND', message: 'Archivo no encontrado o sin acceso' });

@@ -631,22 +631,25 @@ export default function CampaignWizard({ initialData, onClose, onSuccess }: Camp
     const progressSegments = hasInputs ? [1, 2, 3, 4] : [1, 2, 4]; // 4 steps or skip 3
 
     return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-            <div className="bg-[var(--bg-card)] border border-[var(--border-default)] w-full max-w-4xl rounded-[32px] overflow-hidden shadow-2xl flex flex-col h-[680px] animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/50 backdrop-blur-md sm:items-center sm:p-4">
+            <div className="flex h-[100dvh] w-full flex-col overflow-hidden rounded-t-[28px] border border-[var(--border-default)] bg-[var(--bg-card)] shadow-2xl animate-in zoom-in-95 duration-200 sm:h-[680px] sm:max-h-[calc(100dvh-2rem)] sm:max-w-4xl sm:rounded-[32px]">
                 {/* Header */}
-                <div className="p-6 border-b border-[var(--border-default)] flex items-center justify-between bg-[var(--bg-elevated)]">
-                    <div className="flex items-center gap-4">
-                        <div className={`w-10 h-10 bg-[var(--brand-primary)] rounded-xl flex items-center justify-center shadow-lg rotate-2 ${T.buttonPrimaryText}`}>
+                <div className="flex items-start justify-between gap-3 border-b border-[var(--border-default)] bg-[var(--bg-elevated)] px-5 py-4 sm:items-center sm:px-6 sm:py-6">
+                    <div className="flex min-w-0 items-start gap-3 sm:items-center sm:gap-4">
+                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--brand-primary)] shadow-lg rotate-2 ${T.buttonPrimaryText}`}>
                             <Send size={18} className="text-[var(--brand-primary-foreground)]" />
                         </div>
-                        <div>
-                            <h2 className="text-xl font-black text-[color:var(--tx-sectionTitle-color)] italic leading-tight">Constructor de Campaña</h2>
+                        <div className="min-w-0">
+                            <h2 className="text-lg font-black italic leading-tight text-[color:var(--tx-sectionTitle-color)] sm:text-xl">Constructor de Campaña</h2>
                             <p className="text-[8px] font-black text-[var(--brand-primary)] uppercase tracking-[0.2em]">
                                 Paso {visualStep()} de {totalSteps} • {stepLabel()}
                             </p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-[var(--bg-hover)] rounded-full text-[color:var(--tx-helperText-color)] transition-colors">
+                    <button
+                        onClick={onClose}
+                        className="rounded-full p-2 text-[color:var(--tx-helperText-color)] transition-colors hover:bg-[var(--bg-hover)]"
+                    >
                         <X size={20} />
                     </button>
                 </div>
@@ -662,7 +665,7 @@ export default function CampaignWizard({ initialData, onClose, onSuccess }: Camp
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                <div className="custom-scrollbar flex-1 overflow-y-auto px-5 py-5 sm:p-8">
                     {step === STEP_CONFIG && renderStep1()}
                     {step === STEP_TEMPLATE && renderStep2()}
                     {step === STEP_PERSONALIZE && renderStep3Personalize()}
@@ -670,20 +673,20 @@ export default function CampaignWizard({ initialData, onClose, onSuccess }: Camp
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 border-t border-[var(--border-default)] flex gap-3 bg-[var(--bg-elevated)]">
+                <div className="flex flex-col-reverse gap-3 border-t border-[var(--border-default)] bg-[var(--bg-elevated)] px-5 py-4 sm:flex-row sm:items-center sm:px-6 sm:py-6">
                     {step > STEP_CONFIG && (
                         <button
                             onClick={prevStep}
-                            className="px-5 py-2 border border-[var(--border-default)] text-[color:var(--tx-helperText-color)] rounded-xl hover:text-[color:var(--tx-buttonText-color)] bg-[var(--bg-card)] hover:border-[var(--brand-primary)] transition-all flex items-center gap-1.5 font-bold text-[10px]"
+                            className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)] px-5 py-3 text-[10px] font-bold text-[color:var(--tx-helperText-color)] transition-all hover:border-[var(--brand-primary)] hover:text-[color:var(--tx-buttonText-color)] sm:w-auto sm:py-2"
                         >
                             <ChevronLeft size={14} /> Atrás
                         </button>
                     )}
-                    <div className="flex-1" />
+                    <div className="hidden flex-1 sm:block" />
                     <button
                         onClick={isLastStep ? handleSubmit : nextStep}
                         disabled={isNextDisabled() || loading}
-                        className={`px-8 py-2 bg-[var(--brand-primary)]  rounded-xl hover:brightness-110 transition-all font-black uppercase tracking-widest text-[10px] flex items-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed shadow-lg shadow-[#ead018]/10 ${T.buttonPrimaryText}`}
+                        className={`flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand-primary)] px-8 py-3 text-[10px] font-black uppercase tracking-widest transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-30 sm:w-auto sm:py-2 shadow-lg shadow-[#ead018]/10 ${T.buttonPrimaryText}`}
                     >
                         {loading ? 'Guardando...' : isLastStep ? 'Finalizar y Guardar' : 'Siguiente'}
                         {!loading && !isLastStep && <ChevronRight size={14} />}

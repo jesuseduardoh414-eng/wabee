@@ -39,16 +39,32 @@ export const BrandingThemesPage = () => {
         loadThemes();
     }, []);
 
+    const focusNameInput = () => {
+        document.querySelector<HTMLInputElement>('input[placeholder="Nombre del nuevo tema..."]')?.focus();
+    };
+
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newThemeName.trim()) return;
+        if (!newThemeName.trim()) {
+            toast.error('Escribe un nombre para el nuevo tema.');
+            focusNameInput();
+            return;
+        }
+        const trimmed = newThemeName.trim();
+        if (themes.some(t => t.name.toLowerCase() === trimmed.toLowerCase())) {
+            toast.error('Ya existe un tema con ese nombre. Elige un nombre distinto.');
+            return;
+        }
         setCreating(true);
         try {
-            await themesApi.createTheme(newThemeName);
+            await themesApi.createTheme(trimmed);
             setNewThemeName('');
+            toast.success(`Tema '${trimmed}' creado correctamente.`);
             loadThemes();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error creating theme:', error);
+            const msg = error?.response?.data?.error?.message || 'No se pudo crear el tema. Inténtalo de nuevo.';
+            toast.error(msg);
         } finally {
             setCreating(false);
         }
@@ -140,9 +156,10 @@ export const BrandingThemesPage = () => {
                 typography: theme.typography
             });
             loadThemes();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error duplicating theme:', error);
-            alert('Error al duplicar el tema.');
+            const msg = error?.response?.data?.error?.message || 'Error al duplicar el tema.';
+            toast.error(msg);
         } finally {
             setDuplicating(false);
         }
@@ -226,7 +243,7 @@ export const BrandingThemesPage = () => {
                         />
                         <button
                             type="submit"
-                            disabled={creating || !newThemeName.trim()}
+                            disabled={creating}
                             className={`flex items-center justify-center gap-2 rounded-xl bg-[var(--brand-primary)] px-6 py-3 font-black text-xs uppercase tracking-widest transition-all hover:scale-[1.02] disabled:opacity-50 ${T.buttonPrimaryText}`}
                         >
                             <Plus size={16} /> {creating ? 'Creando...' : 'Nuevo Tema'}
@@ -391,7 +408,7 @@ export const BrandingThemesPage = () => {
                 ))}
 
                 {/* Empty State / Create Box */}
-                <div className="group flex cursor-pointer flex-col items-center justify-center space-y-4 rounded-[2.5rem] border-2 border-dashed border-[var(--border-default)] p-6 text-center transition-all hover:border-[var(--brand-primary)]/30 sm:p-8" onClick={() => document.querySelector<HTMLInputElement>('input[placeholder="Nombre del nuevo tema..."]')?.focus()}>
+                <div className="group flex cursor-pointer flex-col items-center justify-center space-y-4 rounded-[2.5rem] border-2 border-dashed border-[var(--border-default)] p-6 text-center transition-all hover:border-[var(--brand-primary)]/30 sm:p-8" onClick={focusNameInput}>
                     <div className="w-16 h-16 rounded-full bg-[var(--bg-surface)] border border-[var(--border-default)] flex items-center justify-center group-hover:text-[var(--brand-primary)] group-hover:border-[var(--brand-primary)]/30 transition-all">
                         <Plus size={32} />
                     </div>

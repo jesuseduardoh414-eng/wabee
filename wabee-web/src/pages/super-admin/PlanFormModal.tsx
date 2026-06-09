@@ -181,19 +181,19 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({ plan, onClose, onS
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[var(--bg-card)] border border-[var(--border-default)] rounded-[2rem] shadow-2xl mx-4">
+            <div className="relative z-10 flex max-h-[100dvh] w-full flex-col overflow-hidden rounded-t-[2rem] border border-[var(--border-default)] bg-[var(--bg-card)] shadow-2xl sm:max-h-[90vh] sm:max-w-3xl sm:rounded-[2rem]">
                 {/* Header */}
-                <div className="sticky top-0 z-10 flex items-center justify-between p-6 border-b border-[var(--border-default)] bg-[var(--bg-card)] rounded-t-[2rem]">
-                    <div>
+                <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[var(--border-default)] bg-[var(--bg-card)] px-5 py-5 sm:items-center sm:px-6">
+                    <div className="min-w-0">
                         <h2 className={`${T.cardTitle} ${S.headingLg}`}>{isEdit ? 'Editar Plan' : 'Crear Nuevo Plan'}</h2>
                         {isEdit && <p className={`${T.helperText} ${S.meta} mt-1`}>Versión vigente: <span className="text-[var(--brand-primary)]">{cv?.displayCode || `v${cv?.versionNumber}`}</span></p>}
                     </div>
                     <button onClick={onClose} className="p-2 rounded-xl text-[var(--text-muted)] hover:bg-[var(--bg-hover)] transition-all"><X size={20} /></button>
                 </div>
 
-                <div className="p-6 pb-24 space-y-6">
+                <div className="space-y-6 overflow-y-auto px-5 py-5 pb-28 sm:px-6">
                     {/* Banner de nueva versión */}
                     {isEdit && willVersion && (
                         <div className="p-4 rounded-xl bg-[var(--state-warning)]/10 border border-[var(--state-warning)]/30">
@@ -225,7 +225,7 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({ plan, onClose, onS
                     <section>
                         <h3 className={`${T.sectionTitle} ${S.meta} uppercase tracking-widest mb-4`}>Información del Plan</h3>
                         <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div>
                                     <label className={`${T.helperText} ${S.meta} block mb-2`}>Nombre del Plan</label>
                                     <input value={name} onChange={e => setName(e.target.value)} placeholder="Pro Hub" className={`w-full bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl py-3 px-4 ${T.inputText} ${S.body} focus:border-[var(--brand-primary)]/50 outline-none transition-all placeholder:text-[var(--text-muted)]/40`} />
@@ -266,7 +266,7 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({ plan, onClose, onS
                         <h3 className={`${T.sectionTitle} ${S.meta} uppercase tracking-widest mb-1`}>Configuración Comercial</h3>
                         <p className={`${T.helperText} ${S.meta} mb-4 opacity-60`}>Define los precios. El sistema sincronizará con Stripe automáticamente.</p>
                         
-                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 xl:items-end">
                             <div className="sm:col-span-1">
                                 <label className={`${T.helperText} ${S.meta} block mb-2`}>Moneda</label>
                                 <div className="relative">
@@ -284,7 +284,7 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({ plan, onClose, onS
                                 <label className={`${T.helperText} ${S.meta} block mb-2`}>Precio Anual</label>
                                 <input type="number" min={0} step={0.01} value={annualPrice} onChange={e => { setAnnualPrice(e.target.value); checkWillVersion('annualPrice', e.target.value); }} className={`w-full bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl py-3 px-4 ${T.inputText} ${S.body} focus:border-[var(--brand-primary)]/50 outline-none transition-all`} />
                             </div>
-                            <div className="sm:col-span-1 flex flex-col justify-end h-full mb-1">
+                            <div className="flex h-full flex-col justify-end">
                                 <label className={`${T.helperText} ${S.meta} text-[var(--text-muted)] mb-2`}>Periodicidad</label>
                                 <div className="p-3 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-xl text-center">
                                     <span className={`${S.meta} font-bold opacity-60 text-[var(--text-muted)]`}>
@@ -317,7 +317,7 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({ plan, onClose, onS
                                     stripeSyncStatus === 'READY' ? 'bg-[var(--state-success)] text-white' :
                                     stripeSyncStatus === 'FAILED' ? 'bg-[var(--state-danger)] text-white' :
                                     stripeSyncStatus === 'PARTIAL' ? 'bg-[var(--state-warning)] text-white' :
-                                    'bg-[var(--brand-primary)] text-white'
+                                    'bg-[var(--brand-primary)] text-[var(--brand-primary-foreground)]'
                                 }`}>
                                     {willVersion ? 'REQUIERE ACTUALIZAR' : stripeSyncStatus}
                                 </div>
@@ -332,7 +332,7 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({ plan, onClose, onS
                             </p>
 
                             {!willVersion && (cv?.stripePriceMonthlyId || cv?.stripePriceAnnualId) && (
-                                <div className="mt-4 pt-4 border-t border-[var(--border-default)]/50 grid grid-cols-2 gap-4">
+                                <div className="mt-4 grid grid-cols-1 gap-4 border-t border-[var(--border-default)]/50 pt-4 sm:grid-cols-2">
                                     {cv.stripePriceMonthlyId?.startsWith?.('price_') && (
                                         <div className="flex flex-col">
                                             <span className={`${S.meta} ${T.helperText} text-[10px] uppercase font-bold`}>ID Mensual</span>
@@ -355,7 +355,7 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({ plan, onClose, onS
                         <h3 className={`${T.sectionTitle} ${S.meta} uppercase tracking-widest mb-1`}>Módulos del Producto</h3>
                         <p className={`${T.helperText} ${S.meta} mb-4 opacity-60`}>Activa o desactiva las secciones principales del dashboard</p>
                         
-                        <div className="grid grid-cols-2 gap-3 mb-6">
+                        <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
                             {Object.entries(modules).map(([key, val]) => {
                                 // Deshabilitar si dependen de otro (visual solamente)
                                 const isDependent = (key === 'webWidgets' || key === 'integrationsTools') ? !modules.aiProfiles : 
@@ -387,7 +387,7 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({ plan, onClose, onS
                     <section>
                         <h3 className={`${T.sectionTitle} ${S.meta} uppercase tracking-widest mb-1`}>Límites</h3>
                         <p className={`${T.helperText} ${S.meta} mb-4 opacity-60`}>Cambios aquí crean una nueva versión</p>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                             {Object.entries(limits).map(([key, val]) => (
                                 <div key={key}>
                                     <label className={`${T.helperText} ${S.meta} block mb-2 capitalize`}>{LIMIT_LABELS[key] || key.replace(/([A-Z])/g, ' $1')}</label>
@@ -400,9 +400,9 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({ plan, onClose, onS
                 </div>
 
                 {/* Footer */}
-                <div className="sticky bottom-0 p-6 border-t border-[var(--border-default)] bg-[var(--bg-card)] rounded-b-[2rem] flex items-center justify-end gap-3">
-                    <button onClick={onClose} className={`px-6 py-3 rounded-xl border border-[var(--border-default)] ${T.navText} ${S.body} hover:bg-[var(--bg-hover)] transition-all`}>Cancelar</button>
-                    <button onClick={handleSave} disabled={saving} className={`flex items-center gap-2 px-6 py-3 bg-[var(--brand-primary)] rounded-xl ${T.buttonPrimaryText} ${S.body} hover:scale-[1.02] transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed`}>
+                <div className="sticky bottom-0 flex flex-col-reverse gap-3 border-t border-[var(--border-default)] bg-[var(--bg-card)] px-5 py-4 sm:flex-row sm:items-center sm:justify-end sm:px-6">
+                    <button onClick={onClose} className={`w-full rounded-xl border border-[var(--border-default)] px-6 py-3 ${T.navText} ${S.body} transition-all hover:bg-[var(--bg-hover)] sm:w-auto`}>Cancelar</button>
+                    <button onClick={handleSave} disabled={saving} className={`flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand-primary)] px-6 py-3 ${T.buttonPrimaryText} ${S.body} transition-all hover:scale-[1.02] shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto`}>
                         {saving ? 'Guardando...' : isEdit ? (willVersion ? '✦ Guardar (nueva versión)' : 'Guardar cambios') : 'Crear Plan'}
                     </button>
                 </div>

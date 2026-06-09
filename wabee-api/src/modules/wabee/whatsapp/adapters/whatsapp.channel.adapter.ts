@@ -215,7 +215,7 @@ export class WhatsAppChannelAdapter {
             generatedBy: MessageGeneratedBy;
         },
     ) {
-        const outboundMsg = await sendMessage(tenantId, threadId, text, {
+        const outboundMsg = await sendMessage(tenantId, threadId, { text }, {
             senderType: traceData.senderType,
             aiProfileId: traceData.aiProfileId,
             generatedBy: traceData.generatedBy

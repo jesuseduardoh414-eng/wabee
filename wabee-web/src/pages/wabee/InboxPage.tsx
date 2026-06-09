@@ -7,10 +7,13 @@ import {
     MessageSquare,
     Inbox,
     Plus,
+    UserRound,
 } from 'lucide-react';
 import {
     getThreadMessages,
     sendMessageToThread,
+    sendAttachmentToThread,
+    uploadInboxAttachment,
     getThreadById,
     getThreadNotes,
     createThreadNote,
@@ -51,9 +54,42 @@ const FILTER_TABS: FilterTab[] = [
 
 type InboxFilter = 'all' | 'ai' | 'human_queue' | 'taken' | 'mine' | 'closed' | 'unassigned';
 
+function formatPhoneLabel(phone?: string | null) {
+    if (!phone) return '';
+    const digits = phone.replace(/\D/g, '');
+
+    if (digits.length === 13 && digits.startsWith('521')) {
+        return `+52 ${digits.slice(3)}`;
+    }
+    if (digits.length === 12 && digits.startsWith('52')) {
+        return `+52 ${digits.slice(2)}`;
+    }
+    if (digits.length === 10) {
+        return `+52 ${digits}`;
+    }
+
+    return phone;
+}
+
+function getVisibleThreadLabel(contactName?: string | null, remotePhone?: string | null) {
+    const candidate = (contactName || '').trim();
+    const digitsOnly = candidate.replace(/\D/g, '');
+
+    if (digitsOnly && digitsOnly.length >= 10 && digitsOnly.length <= 13) {
+        return formatPhoneLabel(candidate);
+    }
+
+    return candidate || formatPhoneLabel(remotePhone) || 'Usuario';
+}
+
 export default function InboxPage() {
     const [searchParams, setSearchParams] = useSearchParams();
     const isFullScreen = searchParams.get('view') !== 'standard';
+    const [viewportWidth, setViewportWidth] = useState(() =>
+        typeof window !== 'undefined' ? window.innerWidth : 1280
+    );
+    const isMobile = viewportWidth < 768;
+    const isTablet = viewportWidth >= 768 && viewportWidth < 1180;
 
     const [channels, setChannels] = useState<Channel[]>([]);
     const [threads, setThreads] = useState<Thread[]>([]);
@@ -79,6 +115,13 @@ export default function InboxPage() {
 
     const selectedChannelId = searchParams.get('channelId');
     const selectedThreadId = searchParams.get('threadId');
+
+    useEffect(() => {
+        const handleResize = () => setViewportWidth(window.innerWidth);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         getChannels()
@@ -199,6 +242,24 @@ export default function InboxPage() {
         } catch (error) {
             console.error('Failed to send', error);
             toastError('Error al enviar mensaje');
+        }
+    };
+
+    const handleSendAttachment = async (file: File, caption?: string) => {
+        if (!selectedThreadId || !selectedChannelId) return;
+
+        try {
+            const uploaded = await uploadInboxAttachment(file);
+            await sendAttachmentToThread(selectedThreadId, {
+                mediaFileId: uploaded.id,
+                caption,
+            });
+
+            const data = await getThreadMessages(selectedChannelId, selectedThreadId);
+            setMessages(data.items);
+        } catch (error) {
+            console.error('Failed to send attachment', error);
+            throw error;
         }
     };
 
@@ -367,13 +428,6 @@ export default function InboxPage() {
         return date.toLocaleDateString([], { day: '2-digit', month: '2-digit' });
     };
 
-    const getThreadInitials = (thread: Thread) => {
-        const label = thread.contactName || thread.remotePhone || 'WB';
-        const parts = label.trim().split(/\s+/).filter(Boolean);
-        if (parts.length >= 2) return `${parts[0][0] ?? ''}${parts[1][0] ?? ''}`.toUpperCase();
-        return label.slice(0, 2).toUpperCase();
-    };
-
     const getFilterCount = (tabId: InboxFilter) => {
         if (tabId === 'all') return threads.filter((t) => t.status !== 'CLOSED').length;
         if (tabId === 'ai') return threads.filter((t) => t.handlingMode === 'ai' || t.handlingMode === 'copilot').length;
@@ -387,19 +441,35 @@ export default function InboxPage() {
 
     const connectedChannels = channels.filter((c) => c.status === 'CONNECTED').length;
     const unreadThreadsCount = threads.filter((t) => t.unreadCount > 0).length;
+    const showMobileChat = isMobile && !!activeThread;
+    const showThreadList = !isMobile || !activeThread;
+
+    const handleBackToList = () => {
+        if (!selectedChannelId) return;
+        setSearchParams({ channelId: selectedChannelId });
+        setMessages([]);
+    };
+
+    const handleReturnToDashboardView = () => {
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            next.set('view', 'standard');
+            return next;
+        });
+    };
 
     return (
         <div
-            className={`flex bg-[#FBFBF4] text-[var(--text-strong)] overflow-hidden font-sans ${
+            className={`flex text-[var(--text-strong)] overflow-hidden font-sans ${
                 isFullScreen
                     ? 'h-screen w-screen border-none rounded-none'
                     : 'h-[calc(100vh-72px)] rounded-[28px] border border-[rgba(26,26,26,0.08)] shadow-[0_18px_46px_rgba(26,26,26,0.1)]'
-            }`}
+            } bg-[#FBFBF4]`}
         >
             {/* Channel rail */}
-            <aside className="w-[60px] bg-[#F7F7EC] flex flex-col items-center py-3 gap-3 border-r border-[rgba(26,26,26,0.08)] shrink-0 z-20">
-                <div className="w-[38px] h-[38px] rounded-[10px] bg-[var(--brand-primary)] flex items-center justify-center shadow-[0_4px_12px_rgba(255,140,0,0.24)]">
-                    <span className="text-[17px] font-bold text-white">W</span>
+            <aside className="hidden w-[54px] bg-[#F7F7EC] md:flex lg:w-[60px] flex-col items-center py-3 gap-3 border-r border-[rgba(26,26,26,0.08)] shrink-0 z-20">
+                <div className="flex h-[34px] w-[34px] items-center justify-center rounded-[10px] bg-[var(--brand-primary)] shadow-[0_4px_12px_rgba(255,140,0,0.24)] lg:h-[38px] lg:w-[38px]">
+                    <span className="text-[15px] font-bold text-white lg:text-[17px]">W</span>
                 </div>
                 <div className="w-6 h-px bg-[rgba(26,26,26,0.08)]" />
 
@@ -408,7 +478,7 @@ export default function InboxPage() {
                         <button
                             key={channel.id}
                             onClick={() => handleChannelSelect(channel.id)}
-                            className={`w-10 h-10 rounded-[10px] flex items-center justify-center transition-all relative flex-shrink-0 border text-[13px] font-bold ${
+                            className={`h-9 w-9 rounded-[10px] flex items-center justify-center transition-all relative flex-shrink-0 border text-[12px] font-bold lg:h-10 lg:w-10 lg:text-[13px] ${
                                 selectedChannelId === channel.id
                                     ? 'bg-white border-[rgba(255,140,0,0.18)] text-[var(--brand-primary)] shadow-[0_1px_4px_rgba(26,26,26,0.06)]'
                                     : 'bg-transparent border-transparent text-[rgba(26,26,26,0.4)] hover:bg-[rgba(26,26,26,0.04)]'
@@ -425,21 +495,23 @@ export default function InboxPage() {
             </aside>
 
             {/* Thread list sidebar */}
-            <aside className="w-[344px] bg-white border-r border-[rgba(26,26,26,0.08)] flex flex-col shrink-0 relative z-10">
+            <aside className={`${showThreadList ? 'flex' : 'hidden'} w-full md:w-[286px] lg:w-[344px] xl:w-[380px] bg-white border-r border-[rgba(26,26,26,0.08)] flex-col shrink-0 relative z-10 md:flex`}>
                 {/* Header */}
-                <div className="px-4 pt-4 pb-3 border-b border-[rgba(26,26,26,0.08)] shrink-0">
+                <div className="px-3 pt-4 pb-3 border-b border-[rgba(26,26,26,0.08)] shrink-0 md:px-3.5 lg:px-4">
                     <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-3 min-w-0">
                             {isFullScreen && (
                                 <button
-                                    onClick={() => setSearchParams((prev) => { prev.set('view', 'standard'); return prev; })}
-                                    className="p-1.5 hover:bg-[rgba(26,26,26,0.05)] rounded-lg transition-colors text-[var(--brand-primary)]"
+                                    onClick={handleReturnToDashboardView}
+                                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[var(--brand-primary)] transition-colors hover:bg-[rgba(26,26,26,0.05)]"
+                                    title="Volver al panel"
+                                    aria-label="Volver al panel"
                                 >
                                     <ArrowLeft size={16} />
                                 </button>
                             )}
                             <div>
-                                <h1 className={`${T.pageTitle} ${S.headingLg} tracking-tight`}>Mensajes</h1>
+                                <h1 className={`${T.pageTitle} ${S.headingLg} tracking-tight ${isTablet ? 'text-[28px]' : ''}`}>Mensajes</h1>
                                 <p className={`${T.helperText} ${S.meta} mt-0.5 text-[rgba(26,26,26,0.5)]`}>
                                     {filteredThreads.length} conversaciones · {unreadThreadsCount} sin leer
                                 </p>
@@ -463,7 +535,7 @@ export default function InboxPage() {
                         <input
                             type="text"
                             placeholder="Buscar conversaciones…"
-                            className={`${T.inputText} ${S.body} bg-transparent border-none w-full focus:ring-0 text-[var(--text-strong)]`}
+                            className={`${T.inputText} ${S.body} bg-transparent border-none w-full focus:ring-0 text-[13px] text-[var(--text-strong)] lg:text-[14px]`}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -471,7 +543,7 @@ export default function InboxPage() {
                 </div>
 
                 {/* Filter chips — horizontal scrollable */}
-                <div className="flex gap-1.5 px-4 py-3 overflow-x-auto no-scrollbar border-b border-[rgba(26,26,26,0.08)] shrink-0">
+                <div className="flex gap-1.5 px-3 py-3 overflow-x-auto no-scrollbar border-b border-[rgba(26,26,26,0.08)] shrink-0 md:px-3.5 lg:px-4">
                     {FILTER_TABS.filter((tab) => !tab.roles || tab.roles.includes(currentUser.role)).map((tab) => {
                         const count = getFilterCount(tab.id);
                         const isActive = filter === tab.id;
@@ -500,7 +572,7 @@ export default function InboxPage() {
 
                 {/* Assignee filter (admin/supervisor) */}
                 {['ADMIN', 'SUPERVISOR'].includes(currentUser.role) && assignees.length > 0 && (
-                    <div className="px-4 py-2 shrink-0 border-b border-[rgba(26,26,26,0.08)]">
+                    <div className="px-3 py-2 shrink-0 border-b border-[rgba(26,26,26,0.08)] md:px-3.5 lg:px-4">
                         <select
                             value={assigneeFilter}
                             onChange={(e) => setAssigneeFilter(e.target.value)}
@@ -515,7 +587,7 @@ export default function InboxPage() {
                 )}
 
                 {/* Thread list */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar py-2 px-2">
+                <div className="flex-1 overflow-y-auto custom-scrollbar py-2 px-2 md:px-2.5 lg:px-2">
                     {loadingThreads && threads.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 gap-3">
                             <div className="animate-spin rounded-full h-7 w-7 border-2 border-t-[var(--brand-primary)] border-transparent" />
@@ -540,12 +612,12 @@ export default function InboxPage() {
                                     <button
                                         key={thread.id}
                                         onClick={() => handleThreadSelect(thread.id)}
-                                        className={`w-full text-left flex items-start gap-3 px-3 py-3 rounded-[10px] transition-all relative ${
+                                        className={`w-full text-left flex items-start gap-3 px-2.5 py-3 rounded-[14px] transition-all relative border lg:px-3 ${
                                             isSelected
-                                                ? 'bg-[rgba(255,140,0,0.06)]'
-                                                : 'hover:bg-[rgba(26,26,26,0.03)]'
+                                                ? 'bg-[rgba(255,140,0,0.06)] border-transparent'
+                                                : 'border-transparent hover:bg-[rgba(26,26,26,0.03)]'
                                         }`}
-                                        style={isSelected ? { boxShadow: 'inset 3px 0 0 0 var(--brand-primary)' } : {}}
+                                        style={isSelected && !isMobile ? { boxShadow: 'inset 3px 0 0 0 var(--brand-primary)' } : {}}
                                     >
                                         {/* Avatar */}
                                         <div className="relative flex-shrink-0">
@@ -554,7 +626,15 @@ export default function InboxPage() {
                                                     ? 'bg-[rgba(255,140,0,0.1)] border-[rgba(255,140,0,0.18)] text-[var(--brand-primary)]'
                                                     : 'bg-[rgba(26,26,26,0.05)] border-[rgba(26,26,26,0.08)] text-[rgba(26,26,26,0.6)]'
                                             }`}>
-                                                {getThreadInitials(thread)}
+                                                {thread.avatarUrl ? (
+                                                    <img
+                                                        src={thread.avatarUrl}
+                                                        alt={getVisibleThreadLabel(thread.contactName, thread.remotePhone)}
+                                                        className="h-full w-full rounded-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <UserRound className="h-5 w-5" />
+                                                )}
                                             </div>
                                             {/* Mode dot */}
                                             {needsHuman && (
@@ -577,9 +657,9 @@ export default function InboxPage() {
                                             <div className="flex justify-between items-baseline gap-2">
                                                 <span
                                                     className={`${T.cardTitle} ${S.body} truncate transition-colors ${hasUnread ? 'font-bold' : ''}`}
-                                                    style={isSelected ? { color: 'var(--brand-primary)' } : {}}
+                                                    style={isSelected && !isMobile ? { color: 'var(--brand-primary)' } : {}}
                                                 >
-                                                    {thread.contactName || thread.remotePhone}
+                                                    {getVisibleThreadLabel(thread.contactName, thread.remotePhone)}
                                                 </span>
                                                 <span
                                                     className={`${T.helperText} flex-shrink-0 text-[10.5px] font-medium ${hasUnread ? 'font-bold' : ''}`}
@@ -635,12 +715,12 @@ export default function InboxPage() {
             </aside>
 
             {/* Main chat area */}
-            <main className="flex-1 bg-[#FBFBF4] relative flex flex-col h-full z-0">
+            <main className={`${showMobileChat || !isMobile ? 'flex' : 'hidden'} min-w-0 flex-1 relative flex-col h-full z-0 ${isMobile ? 'bg-[#0b141a]' : 'bg-[#FBFBF4]'}`}>
                 {activeThread ? (
                     <div className="h-full flex flex-col">
                         {/* Action bar */}
-                        <div className="h-[52px] bg-white px-4 border-b border-[rgba(26,26,26,0.08)] flex items-center justify-between gap-3 z-10 shrink-0">
-                            <div className="flex items-center gap-2">
+                        <div className="hidden bg-white px-3 py-2 border-b border-[rgba(26,26,26,0.08)] md:flex items-center justify-between gap-3 z-10 shrink-0 lg:px-4">
+                            <div className="flex flex-wrap items-center gap-2">
                                 {activeThread.assignedUserId ? (
                                     <div className="flex items-center gap-2">
                                         <span className="inline-flex items-center gap-1.5 px-[10px] h-[34px] rounded-[8px] text-[12.5px] font-semibold border border-[rgba(255,140,0,0.2)] bg-[rgba(255,140,0,0.06)] text-[var(--brand-primary)]">
@@ -691,7 +771,7 @@ export default function InboxPage() {
                                 <ThreadHandlingModeBadge mode={activeThread.handlingMode as any} aiPaused={activeThread.aiPaused} />
                             </div>
 
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 self-start md:self-auto">
                                 <span className={`${T.helperText} ${S.meta} text-[rgba(26,26,26,0.4)] hidden md:block`}>
                                     Estado: {activeThread.status}
                                 </span>
@@ -721,9 +801,12 @@ export default function InboxPage() {
                         <div className="flex-1 overflow-hidden">
                             <ChatPanel
                                 messages={messages}
-                                contactName={activeThread.contactName || activeThread.remotePhone || 'Usuario'}
+                                contactName={getVisibleThreadLabel(activeThread.contactName, activeThread.remotePhone)}
                                 contactPhone={activeThread.remotePhone}
-                                onSendMessage={handleSendMessage}
+                                 avatarUrl={activeThread.avatarUrl ?? null}
+                                 onSendMessage={handleSendMessage}
+                                 onSendAttachment={handleSendAttachment}
+                                 onBack={showMobileChat ? handleBackToList : undefined}
                                 threadId={activeThread.id}
                                 isNotesOpen={isNotesOpen}
                                 onToggleNotes={() => setIsNotesOpen(!isNotesOpen)}
@@ -735,18 +818,43 @@ export default function InboxPage() {
                                 threadStatus={activeThread.status}
                                 handlingMode={activeThread.handlingMode as any}
                                 aiPaused={activeThread.aiPaused}
+                                onTakeThread={!activeThread.assignedUserId ? handleTakeThread : undefined}
+                                onUnassignThread={
+                                    activeThread.assignedUserId &&
+                                    (activeThread.assignedUserId === currentUser.id || ['SUPERVISOR', 'ADMIN'].includes(currentUser.role))
+                                        ? handleUnassign
+                                        : undefined
+                                }
+                                assignmentControl={
+                                    ['SUPERVISOR', 'ADMIN'].includes(currentUser.role) && assignees.length > 0 ? (
+                                        <select
+                                            onChange={(e) => { if (e.target.value) handleAssignThread(e.target.value); e.target.value = ''; }}
+                                            className="h-[40px] w-full rounded-[12px] border border-[rgba(26,26,26,0.12)] bg-white px-3 text-[13px] text-[rgba(26,26,26,0.55)]"
+                                            defaultValue=""
+                                        >
+                                            <option value="" disabled>
+                                                {activeThread.assignedUserId ? 'Reasignar…' : 'Asignar a…'}
+                                            </option>
+                                            {assignees.map((a) => (
+                                                <option key={a.id} value={a.id}>
+                                                    {a.name || a.email}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    ) : undefined
+                                }
                             />
                         </div>
                     </div>
                 ) : (
-                    <div className="h-full w-full flex flex-col items-center justify-center text-center px-8">
+                    <div className="h-full w-full flex flex-col items-center justify-center text-center px-6 lg:px-8">
                         <div className="mb-5">
                             <div className="w-[72px] h-[72px] rounded-[14px] bg-white border border-[rgba(26,26,26,0.08)] flex items-center justify-center text-[var(--brand-primary)] shadow-[0_4px_12px_rgba(26,26,26,0.06)] mx-auto">
                                 <MessageSquare className="w-8 h-8" />
                             </div>
                         </div>
-                        <h2 className={`${T.emptyStateTitle} ${S.displayLg} mb-2`}>Selecciona una conversación</h2>
-                        <p className={`${T.emptyStateBody} ${S.body} max-w-xs mx-auto text-[rgba(26,26,26,0.5)]`}>
+                        <h2 className={`${T.emptyStateTitle} ${S.displayLg} mb-2 ${isTablet ? 'text-[28px] leading-[0.95]' : ''}`}>Selecciona una conversación</h2>
+                        <p className={`${T.emptyStateBody} ${S.body} mx-auto text-[rgba(26,26,26,0.5)] ${isTablet ? 'max-w-[240px]' : 'max-w-xs'}`}>
                             Empieza por la bandeja de prioridad o por tus conversaciones asignadas para atender y dar seguimiento.
                         </p>
                     </div>

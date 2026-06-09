@@ -123,18 +123,14 @@ export const DashboardPage = () => {
     }).format(new Date());
 
     const warmShadow = '0 24px 60px color-mix(in srgb, var(--text-strong), transparent 90%)';
-    const pageShellStyle: React.CSSProperties = {
-        borderColor: 'var(--border-default)',
-        background: 'color-mix(in srgb, var(--bg-page), white 6%)',
-        color: 'var(--text-strong)',
-        boxShadow: '0 30px 80px color-mix(in srgb, var(--text-strong), transparent 94%)',
-    };
-    const heroBackdropStyle: React.CSSProperties = {
+    const dashboardShellStyle: React.CSSProperties = {
         borderColor: 'color-mix(in srgb, var(--border-default), white 12%)',
         background: [
             'linear-gradient(135deg, color-mix(in srgb, var(--chart-4), transparent 90%) 0%, color-mix(in srgb, var(--bg-card), white 18%) 42%, color-mix(in srgb, var(--brand-primary), transparent 84%) 100%)',
             'var(--bg-page)',
         ].join(', '),
+        color: 'var(--text-strong)',
+        boxShadow: '0 30px 80px color-mix(in srgb, var(--text-strong), transparent 94%)',
     };
     const darkPanelStyle: React.CSSProperties = {
         background: 'linear-gradient(180deg, color-mix(in srgb, var(--bg-elevated), black 10%), var(--bg-elevated))',
@@ -168,11 +164,10 @@ export const DashboardPage = () => {
     };
 
     return (
-        <div className="min-h-screen rounded-[32px] border p-4 md:p-6" style={pageShellStyle}>
-            <div className="rounded-[28px] border p-4 md:p-6" style={heroBackdropStyle}>
-                <section className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
-                    <aside className="rounded-[30px] p-5" style={darkPanelStyle}>
-                        <div className="mb-6 flex items-center gap-3">
+        <div className="wabee-role-dashboard min-h-screen rounded-[22px] border p-3 sm:p-4 md:rounded-[32px] md:p-6" style={dashboardShellStyle}>
+                <section className="grid gap-4 md:gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
+                    <aside className="rounded-[22px] p-3.5 sm:p-5 md:rounded-[30px]" style={darkPanelStyle}>
+                        <div className="mb-4 flex items-center gap-3 sm:mb-6">
                             <div
                                 className="flex h-14 w-14 items-center justify-center rounded-[18px] text-xl font-black shadow-[0_16px_30px_rgba(255,140,0,0.35)]"
                                 style={{
@@ -188,7 +183,7 @@ export const DashboardPage = () => {
                             </div>
                         </div>
 
-                        <div className="space-y-3">
+                        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
                             <SidebarFeature
                                 icon={<Sparkles size={15} />}
                                 title="Canal activo"
@@ -216,42 +211,42 @@ export const DashboardPage = () => {
                             />
                         </div>
 
-                        <div className="mt-6 rounded-[24px] p-4 bg-[color:color-mix(in_srgb,var(--bg-card),white_8%)]">
+                        <div className="mt-4 rounded-[20px] p-3.5 bg-[color:color-mix(in_srgb,var(--bg-card),white_8%)] sm:mt-5 sm:rounded-[22px] sm:p-4 md:mt-6 md:rounded-[24px]">
                             <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--brand-primary)]">Pulso operativo</p>
                             <h3 className="mt-2 text-2xl font-black leading-none text-[var(--text-strong)]">{automationRate}</h3>
-                            <p className="mt-2 text-sm text-[var(--text-body)]">
+                            <p className="mt-2 text-[13px] leading-6 text-[var(--text-body)] sm:text-sm">
                                 Automatizacion actual con lectura clara para saber cuando intervenir.
                             </p>
                         </div>
                     </aside>
 
-                    <div className="space-y-6">
-                        <header className="rounded-[30px] border p-5 backdrop-blur" style={lightPanelStyle}>
-                            <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+                    <div className="space-y-4 sm:space-y-6">
+                        <header className="rounded-[22px] border p-3.5 backdrop-blur sm:p-5 md:rounded-[30px]" style={lightPanelStyle}>
+                            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                                 <div className="max-w-3xl">
-                                    <span className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[11px] font-black uppercase tracking-[0.18em]" style={tagStyle}>
+                                    <span className="inline-flex max-w-full items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] sm:px-4 sm:py-2 sm:text-[11px]" style={tagStyle}>
                                         <Sparkles size={14} className="text-[var(--chart-4)]" />
                                         Martes operativo
                                     </span>
-                                    <p className="mt-4 text-xs font-bold uppercase tracking-[0.24em] text-[var(--text-muted)]">
+                                    <p className="mt-3 text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--text-muted)] sm:mt-4 sm:text-xs">
                                         {todayLabel}
                                     </p>
-                                    <h1 className="mt-2 max-w-4xl text-4xl font-black leading-[0.95] tracking-[-0.05em] text-[var(--text-strong)] md:text-6xl">
+                                    <h1 className="mt-2 max-w-4xl text-[clamp(1.9rem,10.5vw,3.3rem)] font-black leading-[0.9] tracking-[-0.065em] text-[var(--text-strong)] md:text-6xl">
                                         Todo el equipo sabe que atender primero
                                     </h1>
-                                    <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--text-body)] md:text-lg">
+                                    <p className="mt-3 max-w-2xl text-[14px] leading-7 text-[var(--text-body)] sm:mt-4 sm:text-[15px] md:text-lg">
                                         El dashboard deja de sentirse tecnico y se convierte en una vista operativa
                                         con contexto, accion y lectura inmediata para ventas, soporte e inteligencia.
                                     </p>
                                 </div>
 
-                                <div className="flex flex-col items-start gap-3 xl:items-end">
-                                    <div className="flex flex-wrap gap-2">
+                                <div className="flex w-full flex-col items-start gap-3 xl:w-auto xl:items-end">
+                                    <div className="grid w-full grid-cols-1 gap-2 min-[380px]:grid-cols-2 xl:flex xl:w-auto xl:flex-wrap xl:justify-end">
                                         {(['today', '7d', '30d', 'custom'] as const).map((value) => (
                                             <button
                                                 key={value}
                                                 onClick={() => setPeriod(value)}
-                                                className={`rounded-full border px-4 py-2 text-[11px] font-black uppercase tracking-[0.18em] transition-all ${
+                                                className={`w-full rounded-full border px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em] transition-all sm:px-4 sm:text-[11px] xl:w-auto ${
                                                     period === value
                                                         ? ''
                                                         : 'bg-[color:color-mix(in_srgb,var(--bg-card),white_32%)] text-[var(--text-body)]'
@@ -264,25 +259,25 @@ export const DashboardPage = () => {
                                     </div>
 
                                     {period === 'custom' && (
-                                        <div className="flex flex-wrap gap-2">
+                                        <div className="flex w-full flex-wrap gap-2 xl:w-auto xl:justify-end">
                                             <input
                                                 type="date"
                                                 value={customRange.from}
                                                 onChange={(e) => setCustomRange((current) => ({ ...current, from: e.target.value }))}
-                                                className="rounded-2xl border bg-[color:color-mix(in_srgb,var(--bg-card),white_26%)] px-3 py-2 text-xs text-[var(--text-strong)] outline-none"
+                                                className="min-w-0 flex-1 rounded-2xl border bg-[color:color-mix(in_srgb,var(--bg-card),white_26%)] px-3 py-2 text-xs text-[var(--text-strong)] outline-none xl:flex-none"
                                                 style={{ borderColor: 'color-mix(in srgb, var(--border-default), white 14%)' }}
                                             />
                                             <input
                                                 type="date"
                                                 value={customRange.to}
                                                 onChange={(e) => setCustomRange((current) => ({ ...current, to: e.target.value }))}
-                                                className="rounded-2xl border bg-[color:color-mix(in_srgb,var(--bg-card),white_26%)] px-3 py-2 text-xs text-[var(--text-strong)] outline-none"
+                                                className="min-w-0 flex-1 rounded-2xl border bg-[color:color-mix(in_srgb,var(--bg-card),white_26%)] px-3 py-2 text-xs text-[var(--text-strong)] outline-none xl:flex-none"
                                                 style={{ borderColor: 'color-mix(in srgb, var(--border-default), white 14%)' }}
                                             />
                                         </div>
                                     )}
 
-                                    <div className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[11px] font-black uppercase tracking-[0.18em]" style={tagStyle}>
+                                    <div className="inline-flex max-w-full items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] sm:px-4 sm:py-2 sm:text-[11px]" style={tagStyle}>
                                         <PlayCircle size={14} className="text-[var(--text-strong)]" />
                                         Flujo principal
                                     </div>
@@ -290,7 +285,7 @@ export const DashboardPage = () => {
                             </div>
                         </header>
 
-                        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                        <section className="grid grid-cols-1 gap-3 min-[380px]:grid-cols-2 xl:grid-cols-4">
                             <HeroMetricCard
                                 label="Leads nuevos"
                                 value={summary?.leadsGenerated ?? 0}
@@ -313,14 +308,14 @@ export const DashboardPage = () => {
                             />
                         </section>
 
-                        <section className="grid gap-6 2xl:grid-cols-[1.25fr_0.95fr]">
-                            <article className="rounded-[30px] border p-6" style={lightPanelStyle}>
+                        <section className="grid gap-4 md:gap-6 2xl:grid-cols-[1.25fr_0.95fr]">
+                            <article className="rounded-[24px] border p-4 sm:p-5 md:rounded-[30px] md:p-6" style={lightPanelStyle}>
                                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                                     <div>
                                         <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[var(--text-muted)]">
                                             Conversacion prioritaria
                                         </p>
-                                        <h2 className="mt-2 text-3xl font-black tracking-[-0.04em] text-[var(--text-strong)]">
+                                        <h2 className="mt-2 text-2xl font-black tracking-[-0.04em] text-[var(--text-strong)] sm:text-3xl">
                                             Hay trabajo claro para hacer hoy
                                         </h2>
                                     </div>
@@ -330,7 +325,7 @@ export const DashboardPage = () => {
                                 </div>
 
                                 <div className="mt-5 grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-                                    <div className="rounded-[26px] p-5 bg-[color:color-mix(in_srgb,var(--bg-card),white_10%)]">
+                                    <div className="rounded-[22px] p-4 bg-[color:color-mix(in_srgb,var(--bg-card),white_10%)] sm:rounded-[26px] sm:p-5">
                                         <div className="space-y-3">
                                             <ChatBubble
                                                 mode="client"
@@ -363,13 +358,13 @@ export const DashboardPage = () => {
                                 </div>
                             </article>
 
-                            <article className="rounded-[30px] p-6" style={darkPanelStyle}>
+                            <article className="rounded-[24px] p-4 sm:p-5 md:rounded-[30px] md:p-6" style={darkPanelStyle}>
                                 <div className="flex items-start justify-between gap-4">
                                     <div>
                                         <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[var(--text-muted)]">
                                             Resumen ejecutivo
                                         </p>
-                                        <h2 className="mt-2 text-2xl font-black tracking-[-0.04em] text-[var(--text-strong)]">
+                                        <h2 className="mt-2 text-[1.9rem] font-black tracking-[-0.04em] text-[var(--text-strong)] sm:text-2xl">
                                             Lo urgente, sin ruido
                                         </h2>
                                     </div>
@@ -393,7 +388,7 @@ export const DashboardPage = () => {
                                     />
                                 </ul>
 
-                                <div className="mt-6 rounded-[24px] bg-[color:color-mix(in_srgb,var(--bg-card),white_8%)] p-4">
+                                <div className="mt-6 rounded-[22px] bg-[color:color-mix(in_srgb,var(--bg-card),white_8%)] p-4 sm:rounded-[24px]">
                                     <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)]">
                                         Campana destacada
                                     </p>
@@ -409,14 +404,14 @@ export const DashboardPage = () => {
                             </article>
                         </section>
 
-                        <section className="grid gap-6 xl:grid-cols-[1.35fr_0.9fr]">
-                            <article className="rounded-[30px] border p-6" style={lightPanelStyle}>
-                                <div className="mb-6 flex items-center justify-between gap-3">
+                        <section className="grid gap-4 md:gap-6 xl:grid-cols-[1.35fr_0.9fr]">
+                            <article className="rounded-[24px] border p-4 sm:p-5 md:rounded-[30px] md:p-6" style={lightPanelStyle}>
+                                <div className="mb-6 flex flex-col items-start justify-between gap-3 min-[440px]:flex-row min-[440px]:items-center">
                                     <div>
                                         <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[var(--text-muted)]">
                                             Rendimiento general
                                         </p>
-                                        <h2 className="mt-2 text-2xl font-black tracking-[-0.04em] text-[var(--text-strong)]">
+                                        <h2 className="mt-2 text-[1.9rem] font-black tracking-[-0.04em] text-[var(--text-strong)] sm:text-2xl">
                                             Conversaciones, leads e ingresos
                                         </h2>
                                     </div>
@@ -425,7 +420,7 @@ export const DashboardPage = () => {
                                     </span>
                                 </div>
 
-                                <div className="h-[320px] min-h-[320px] rounded-[26px] p-3 bg-[color:color-mix(in_srgb,var(--bg-card),white_10%)]">
+                                <div className="h-[240px] min-h-[240px] rounded-[22px] p-2 sm:h-[280px] sm:min-h-[280px] sm:rounded-[24px] sm:p-3 md:h-[320px] md:min-h-[320px] md:rounded-[26px]">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <AreaChart data={timeSeries || []}>
                                             <defs>
@@ -453,13 +448,13 @@ export const DashboardPage = () => {
                                 </div>
                             </article>
 
-                            <article className="rounded-[30px] border p-6" style={lightPanelStyle}>
+                            <article className="rounded-[24px] border p-4 sm:p-5 md:rounded-[30px] md:p-6" style={lightPanelStyle}>
                                 <div className="flex items-start justify-between gap-4">
                                     <div>
                                         <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[var(--text-muted)]">
                                             IA y handoff
                                         </p>
-                                        <h2 className="mt-2 text-2xl font-black tracking-[-0.04em] text-[var(--text-strong)]">
+                                        <h2 className="mt-2 text-[1.9rem] font-black tracking-[-0.04em] text-[var(--text-strong)] sm:text-2xl">
                                             Eficiencia operativa
                                         </h2>
                                     </div>
@@ -468,7 +463,7 @@ export const DashboardPage = () => {
                                     </div>
                                 </div>
 
-                                <div className="mt-5 h-[210px] min-h-[210px]">
+                                <div className="mt-5 h-[190px] min-h-[190px] sm:h-[210px] sm:min-h-[210px]">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <PieChart>
                                             <Pie
@@ -476,8 +471,8 @@ export const DashboardPage = () => {
                                                     { name: 'IA', value: aiVsHuman?.aiHandled || 0 },
                                                     { name: 'Humano', value: aiVsHuman?.humanHandled || 0 },
                                                 ]}
-                                                innerRadius={56}
-                                                outerRadius={82}
+                                                innerRadius={50}
+                                                outerRadius={72}
                                                 paddingAngle={5}
                                                 dataKey="value"
                                             >
@@ -494,7 +489,7 @@ export const DashboardPage = () => {
                                         Automatizacion actual
                                     </p>
                                     <div className="mt-2 flex items-end justify-between gap-3">
-                                        <span className="text-4xl font-black leading-none tracking-[-0.05em] text-[var(--text-strong)]">
+                                        <span className="text-[2.15rem] font-black leading-none tracking-[-0.05em] text-[var(--text-strong)] sm:text-4xl">
                                             {automationRate}
                                         </span>
                                         <span className="rounded-full bg-[var(--bg-elevated)] px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[var(--text-strong)]">
@@ -505,14 +500,14 @@ export const DashboardPage = () => {
                             </article>
                         </section>
 
-                        <section className="grid gap-6 xl:grid-cols-[1.02fr_1fr]">
-                            <article className="rounded-[30px] border p-6" style={lightPanelStyle}>
-                                <div className="flex items-center justify-between gap-4">
+                        <section className="grid gap-4 md:gap-6 xl:grid-cols-[1.02fr_1fr]">
+                            <article className="rounded-[24px] border p-4 sm:p-5 md:rounded-[30px] md:p-6" style={lightPanelStyle}>
+                                <div className="flex flex-col items-start justify-between gap-4 min-[440px]:flex-row min-[440px]:items-center">
                                     <div>
                                         <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[var(--text-muted)]">
                                             Equipo
                                         </p>
-                                        <h2 className="mt-2 text-2xl font-black tracking-[-0.04em] text-[var(--text-strong)]">
+                                        <h2 className="mt-2 text-[1.9rem] font-black tracking-[-0.04em] text-[var(--text-strong)] sm:text-2xl">
                                             Desempeno visible del equipo
                                         </h2>
                                     </div>
@@ -525,7 +520,7 @@ export const DashboardPage = () => {
                                     {(agents || []).slice(0, 4).map((agent) => (
                                         <div
                                             key={agent.agentId}
-                                            className="flex items-center justify-between rounded-[22px] border px-4 py-4 bg-[color:color-mix(in_srgb,var(--bg-card),white_12%)]"
+                                            className="flex flex-col items-start gap-3 rounded-[22px] border px-4 py-4 bg-[color:color-mix(in_srgb,var(--bg-card),white_12%)] sm:flex-row sm:items-center sm:justify-between"
                                             style={{ borderColor: 'color-mix(in srgb, var(--border-default), white 12%)' }}
                                         >
                                             <div className="flex items-center gap-3">
@@ -541,7 +536,7 @@ export const DashboardPage = () => {
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div className="text-right">
+                                            <div className="w-full text-left sm:w-auto sm:text-right">
                                                 <p className="text-2xl font-black leading-none tracking-[-0.04em] text-[var(--text-strong)]">
                                                     {agent.avgResponseTime}m
                                                 </p>
@@ -558,13 +553,13 @@ export const DashboardPage = () => {
                                 </div>
                             </article>
 
-                            <article className="rounded-[30px] p-6" style={darkPanelStyle}>
+                            <article className="rounded-[24px] p-4 sm:p-5 md:rounded-[30px] md:p-6" style={darkPanelStyle}>
                                 <div className="flex items-center justify-between gap-4">
                                     <div>
                                         <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[var(--text-muted)]">
                                             Estado del inbox
                                         </p>
-                                        <h2 className="mt-2 text-2xl font-black tracking-[-0.04em] text-[var(--text-strong)]">
+                                        <h2 className="mt-2 text-[1.9rem] font-black tracking-[-0.04em] text-[var(--text-strong)] sm:text-2xl">
                                             Operacion y alertas
                                         </h2>
                                     </div>
@@ -584,7 +579,7 @@ export const DashboardPage = () => {
                                     <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[var(--text-muted)]">
                                         Asignacion actual
                                     </p>
-                                    <div className="mt-3 grid grid-cols-2 gap-3">
+                                    <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                                         <AssignmentTile label="Asignados" value={inbox?.assigned || 0} />
                                         <AssignmentTile label="No asignados" value={inbox?.unassigned || 0} warning />
                                     </div>
@@ -593,17 +588,17 @@ export const DashboardPage = () => {
                         </section>
 
                         {highlightedAgent && (
-                            <section className="rounded-[30px] border p-6" style={lightPanelStyle}>
+                            <section className="rounded-[24px] border p-4 sm:p-5 md:rounded-[30px] md:p-6" style={lightPanelStyle}>
                                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                     <div>
                                         <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[var(--text-muted)]">
                                             Insight final
                                         </p>
-                                        <h2 className="mt-2 text-2xl font-black tracking-[-0.04em] text-[var(--text-strong)]">
+                                        <h2 className="mt-2 text-[1.9rem] font-black tracking-[-0.04em] text-[var(--text-strong)] sm:text-2xl">
                                             El panel ahora cuenta una historia operativa
                                         </h2>
                                     </div>
-                                    <div className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-black uppercase tracking-[0.16em]" style={tagStyle}>
+                                    <div className="inline-flex max-w-full items-center gap-2 rounded-full px-4 py-2 text-[11px] font-black uppercase tracking-[0.16em]" style={tagStyle}>
                                         <ArrowUpRight size={14} />
                                         Agente destacado {highlightedAgent.agentId.split('-')[0]}
                                     </div>
@@ -612,7 +607,6 @@ export const DashboardPage = () => {
                         )}
                     </div>
                 </section>
-            </div>
         </div>
     );
 };
@@ -632,7 +626,7 @@ function SidebarFeature({
 }) {
     return (
         <div
-            className={`rounded-[22px] border px-4 py-4 transition-all ${
+            className={`min-w-0 rounded-[20px] border px-3.5 py-3.5 transition-all sm:rounded-[22px] sm:px-4 sm:py-4 ${
                 active
                     ? 'bg-[linear-gradient(135deg,color-mix(in_srgb,var(--brand-primary),transparent_82%)_0%,color-mix(in_srgb,var(--chart-5),transparent_88%)_100%)]'
                     : 'bg-[color:color-mix(in_srgb,var(--bg-card),white_4%)]'
@@ -645,8 +639,8 @@ function SidebarFeature({
                 </div>
                 <span className="text-xs font-black uppercase tracking-[0.18em]">{title}</span>
             </div>
-            <p className="mt-3 text-sm font-black text-[var(--text-strong)]">{text}</p>
-            <p className="mt-1 text-xs leading-5 text-[var(--text-body)]">{hint}</p>
+            <p className="mt-2.5 text-[13px] font-black leading-5 text-[var(--text-strong)] sm:mt-3 sm:text-sm">{text}</p>
+            <p className="mt-1 text-[11px] leading-5 text-[var(--text-body)] sm:text-xs">{hint}</p>
         </div>
     );
 }
@@ -662,18 +656,18 @@ function HeroMetricCard({
 }) {
     return (
         <article
-            className="rounded-[28px] border px-5 py-5"
+            className="min-w-0 rounded-[18px] border px-3 py-3.5 sm:rounded-[24px] sm:px-5 sm:py-5 md:rounded-[28px]"
             style={{
                 borderColor: 'color-mix(in srgb, var(--border-default), white 12%)',
                 background: 'color-mix(in srgb, var(--bg-card), white 18%)',
                 boxShadow: '0 20px 45px color-mix(in srgb, var(--text-strong), transparent 94%)',
             }}
         >
-            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[var(--text-muted)]">{label}</p>
-            <strong className="mt-3 block text-4xl font-black leading-none tracking-[-0.06em] text-[var(--text-strong)]">
+            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[var(--text-muted)] sm:text-[11px]">{label}</p>
+            <strong className="mt-2 block text-[2rem] font-black leading-none tracking-[-0.065em] text-[var(--text-strong)] sm:mt-3 sm:text-4xl">
                 {value}
             </strong>
-            <p className="mt-3 text-sm leading-6 text-[var(--text-body)]">{helper}</p>
+            <p className="mt-2 text-[12px] leading-5 text-[var(--text-body)] sm:mt-3 sm:text-sm sm:leading-6">{helper}</p>
         </article>
     );
 }
@@ -683,7 +677,7 @@ function ChatBubble({ mode, text }: { mode: 'client' | 'agent'; text: string }) 
 
     return (
         <div
-            className={`max-w-[92%] rounded-[22px] px-4 py-3 text-sm leading-6 shadow-sm ${
+            className={`max-w-[94%] break-words rounded-[20px] px-3.5 py-3 text-[13px] leading-6 shadow-sm sm:max-w-[92%] sm:rounded-[22px] sm:px-4 sm:text-sm ${
                 isClient
                     ? 'bg-[color:color-mix(in_srgb,var(--bg-card),white_24%)] text-[var(--text-body)]'
                     : 'ml-auto bg-[var(--bg-elevated)] text-[var(--text-strong)]'
@@ -705,7 +699,7 @@ function MiniInsight({
 }) {
     return (
         <div
-            className="rounded-[22px] border p-4"
+            className="min-w-0 rounded-[20px] border p-3.5 sm:rounded-[22px] sm:p-4"
             style={{
                 borderColor: 'color-mix(in srgb, var(--border-default), white 12%)',
                 background: 'color-mix(in srgb, var(--bg-card), white 12%)',
@@ -717,18 +711,18 @@ function MiniInsight({
                 </div>
                 <span className="text-[11px] font-black uppercase tracking-[0.16em]">{title}</span>
             </div>
-            <p className="mt-3 text-2xl font-black leading-none tracking-[-0.04em] text-[var(--text-strong)]">{value}</p>
+            <p className="mt-2.5 text-[1.8rem] font-black leading-none tracking-[-0.04em] text-[var(--text-strong)] sm:mt-3 sm:text-2xl">{value}</p>
         </div>
     );
 }
 
 function ExecutiveLine({ icon, text }: { icon: React.ReactNode; text: string }) {
     return (
-        <li className="flex items-center gap-3 rounded-[20px] bg-[color:color-mix(in_srgb,var(--bg-card),white_8%)] px-4 py-3 text-sm text-[var(--text-body)]">
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[color:color-mix(in_srgb,var(--bg-card),white_10%)] text-[var(--brand-primary)]">
+        <li className="min-w-0 flex items-start gap-3 rounded-[18px] bg-[color:color-mix(in_srgb,var(--bg-card),white_8%)] px-3.5 py-3 text-[13px] text-[var(--text-body)] sm:rounded-[20px] sm:px-4 sm:text-sm">
+            <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[color:color-mix(in_srgb,var(--bg-card),white_10%)] text-[var(--brand-primary)]">
                 {icon}
             </span>
-            <span>{text}</span>
+            <span className="leading-6">{text}</span>
         </li>
     );
 }
@@ -752,12 +746,12 @@ function StatusTile({
     };
 
     return (
-        <div className={`rounded-[22px] border p-4 ${toneMap[tone]}`}>
+        <div className={`min-w-0 rounded-[20px] border p-4 sm:rounded-[22px] ${toneMap[tone]}`}>
             <div className="flex items-center justify-between gap-3">
                 <span className="text-[11px] font-black uppercase tracking-[0.16em] opacity-90">{label}</span>
                 <span className="opacity-70">{icon}</span>
             </div>
-            <p className="mt-3 text-3xl font-black leading-none tracking-[-0.05em]">{value}</p>
+            <p className="mt-3 text-[2.5rem] font-black leading-none tracking-[-0.05em] sm:text-3xl">{value}</p>
         </div>
     );
 }
@@ -773,14 +767,14 @@ function AssignmentTile({
 }) {
     return (
         <div
-            className={`rounded-[20px] px-4 py-4 ${
+            className={`min-w-0 rounded-[18px] px-4 py-4 sm:rounded-[20px] ${
                 warning
                     ? 'bg-[color:color-mix(in_srgb,var(--state-danger),transparent_88%)] text-[var(--state-danger)]'
                     : 'bg-[color:color-mix(in_srgb,var(--bg-card),white_8%)] text-[var(--text-strong)]'
             }`}
         >
             <p className="text-[11px] font-black uppercase tracking-[0.16em] opacity-75">{label}</p>
-            <p className="mt-2 text-3xl font-black leading-none tracking-[-0.05em]">{value}</p>
+            <p className="mt-2 text-[2.5rem] font-black leading-none tracking-[-0.05em] sm:text-3xl">{value}</p>
         </div>
     );
 }

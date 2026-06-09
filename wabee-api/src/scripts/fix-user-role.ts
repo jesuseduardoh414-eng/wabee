@@ -9,18 +9,19 @@ async function fix() {
         const roles = await prisma.role.findMany();
         console.log('Roles disponibles:', roles.map((r: any) => r.slug));
 
-        let superAdmin = roles.find((r: any) => r.slug === 'super-admin');
+        let superAdmin = roles.find((r: any) => r.slug === 'superadmin');
 
         if (!superAdmin) {
-            console.log('! No se encontró el rol "super-admin". Creándolo...');
+            console.log('! No se encontró el rol "superadmin". Creándolo bajo el producto Wabee...');
             superAdmin = await prisma.role.create({
                 data: {
                     name: 'Super Admin',
-                    slug: 'super-admin',
-                    description: 'Acceso total al sistema'
+                    slug: 'superadmin',
+                    description: 'Acceso total a la plataforma.',
+                    productId: 'ebda5a05-fd05-440d-b9ca-c52f1bc35481'
                 }
             });
-            console.log('V Rol "super-admin" creado.');
+            console.log('V Rol "superadmin" creado.');
         }
 
         console.log(`> Elevando privilegios de antigravityp5@gmail.com a SUPER_ADMIN...`);

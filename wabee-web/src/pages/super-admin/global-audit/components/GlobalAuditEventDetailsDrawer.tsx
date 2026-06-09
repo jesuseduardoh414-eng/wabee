@@ -16,6 +16,7 @@ import { GlobalAuditEventDetail } from '../types/globalAudit.types';
 import { T, S } from '@/lib/text-tokens';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { getAuditEventLabel, getAuditRoleLabel, getAuditTargetTypeLabel } from '../utils/globalAuditLabels';
 
 interface Props {
     event: GlobalAuditEventDetail | null;
@@ -37,6 +38,7 @@ export const GlobalAuditEventDetailsDrawer: React.FC<Props> = ({ event, isOpen, 
     const formatDate = (dateStr: string) => {
         return format(new Date(dateStr), "dd 'de' MMMM, yyyy HH:mm:ss", { locale: es });
     };
+    const eventLabel = getAuditEventLabel(event.eventType);
 
     return (
         <>
@@ -83,9 +85,12 @@ export const GlobalAuditEventDetailsDrawer: React.FC<Props> = ({ event, isOpen, 
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 px-3 py-1 bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] border border-[var(--brand-primary)]/20 rounded-full w-fit">
                             <Info size={14} />
-                            <span className="text-[10px] font-black uppercase tracking-widest">{event.eventType}</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest">{eventLabel}</span>
                         </div>
                         <h3 className={`${T.pageTitle} ${S.displaySm} leading-tight`}>{event.message}</h3>
+                        <p className={`${T.helperText} ${S.meta} uppercase tracking-wide text-[var(--text-muted)]/60`}>
+                            Código interno: {event.eventType}
+                        </p>
                         <p className={`${T.helperText} ${S.body} opacity-70`}>
                             Este evento fue registrado por el servicio de auditoría global para trazabilidad del sistema.
                         </p>
@@ -102,7 +107,7 @@ export const GlobalAuditEventDetailsDrawer: React.FC<Props> = ({ event, isOpen, 
                             icon={User} 
                             label="Actor" 
                             value={event.actorEmail || 'Sistema'} 
-                            subValue={event.actorRole ? `Rol: ${event.actorRole}` : undefined}
+                            subValue={event.actorRole ? `Rol: ${getAuditRoleLabel(event.actorRole)}` : undefined}
                         />
                         <InfoItem 
                             icon={Globe} 
@@ -111,18 +116,18 @@ export const GlobalAuditEventDetailsDrawer: React.FC<Props> = ({ event, isOpen, 
                         />
                         <InfoItem 
                             icon={Fingerprint} 
-                            label="Request ID" 
-                            value={event.requestId || 'N/A'} 
+                            label="ID de solicitud" 
+                            value={event.requestId || 'No disponible'} 
                         />
                         <InfoItem 
                             icon={Database} 
-                            label="Target" 
-                            value={event.targetLabel || event.targetId || 'N/A'} 
-                            subValue={`Tipo: ${event.targetType || 'N/A'}`}
+                            label="Objetivo" 
+                            value={event.targetLabel || event.targetId || 'No disponible'} 
+                            subValue={`Tipo: ${getAuditTargetTypeLabel(event.targetType)}`}
                         />
                         <InfoItem 
                             icon={Terminal} 
-                            label="User Agent" 
+                            label="Agente de usuario" 
                             value={event.userAgent || 'Desconocido'} 
                             isShorten
                         />

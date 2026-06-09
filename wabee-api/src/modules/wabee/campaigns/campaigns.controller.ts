@@ -7,6 +7,7 @@ import { coreAdapter } from '@/modules/core/core.adapter';
 import { CampaignsAnalyticsService } from './services/campaigns.analytics.service';
 import { GlobalAuditLogService } from '@/modules/audit/global-audit-log.service';
 import { getAuditContext } from '@/shared/http/request-audit-context';
+import { isSuperAdmin } from '@/middleware/auth-role.middleware';
 
 /**
  * Middleware para verificar si el módulo de campañas está habilitado para el tenant.
@@ -24,7 +25,7 @@ export const requireCampaignRole = (allowedRoles: string[]) => {
     return async (req: AuthRequest, res: Response, next: any) => {
         try {
             // Super Admin global siempre tiene acceso completo (modo suplantación incluido)
-            if (req.user?.globalRole === 'admin') {
+            if (isSuperAdmin(req.user)) {
                 return next();
             }
 

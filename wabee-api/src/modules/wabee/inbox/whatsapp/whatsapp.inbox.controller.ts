@@ -62,13 +62,17 @@ export async function sendMessage(req: any, res: Response, next: NextFunction) {
     try {
         const { threadId } = req.params;
         const tenantId = req.tenantId;
-        const { text } = req.body;
+        const { text, mediaFileId, caption } = req.body;
 
-        if (!text) {
-            return res.status(400).json({ message: 'El campo "text" es requerido.' });
+        if (!text && !mediaFileId) {
+            return res.status(400).json({ message: 'Se requiere texto o un archivo adjunto.' });
         }
 
-        const message = await inboxService.sendMessage(tenantId, threadId, text);
+        const message = await inboxService.sendMessage(tenantId, threadId, {
+            text,
+            mediaFileId,
+            caption,
+        });
         
         // [AUTO-TAKEOVER] Si un humano envía un mensaje manual, la IA debe pausarse para este thread.
         try {

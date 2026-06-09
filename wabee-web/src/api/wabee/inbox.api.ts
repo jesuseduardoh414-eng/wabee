@@ -1,9 +1,11 @@
 import { apiClient } from './client';
+import client from '../client';
 
 export interface Thread {
     id: string;
     remotePhone: string;
     contactName?: string | null;
+    avatarUrl?: string | null;
     contactId?: string | null;
     status: 'OPEN' | 'CLOSED' | 'SNOOZED';
     lastMessageAt: string;
@@ -56,6 +58,16 @@ export async function getChannelThreads(channelId: string): Promise<Thread[]> {
         id: t.id,
         remotePhone: t.contactPhone,
         contactName: t.contactName,
+        avatarUrl:
+            t.avatarUrl ??
+            t.avatar ??
+            t.contactAvatar ??
+            t.profilePhotoUrl ??
+            t.metadata?.avatarUrl ??
+            t.metadata?.avatar ??
+            t.metadata?.contactAvatar ??
+            t.metadata?.profilePhotoUrl ??
+            null,
         contactId: t.contactId ?? null,
         status: t.status,
         lastMessageAt: t.lastMessageAt,
@@ -113,6 +125,34 @@ export async function sendMessageToThread(threadId: string, text: string): Promi
     });
 }
 
+export async function uploadInboxAttachment(file: File): Promise<{ id: string; mimeType: string; path: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('collectionName', 'inbox');
+    formData.append('isPublic', 'false');
+
+    // Usa el mismo cliente axios que el resto de la API: respeta baseURL (proxy de
+    // Vite en dev, dominio real en prod), withCredentials y la cabecera x-tenant-id.
+    // Antes esto usaba un fetch con la URL absoluta http://localhost:4000 hardcodeada,
+    // que fallaba al acceder desde otro dispositivo (móvil en la LAN).
+    const response = await client.post('/core/media/upload', formData);
+
+    return response.data;
+}
+
+export async function sendAttachmentToThread(
+    threadId: string,
+    params: { mediaFileId: string; caption?: string }
+): Promise<Message> {
+    return apiClient<Message>(`/inbox/threads/${threadId}/send`, {
+        method: 'POST',
+        body: JSON.stringify({
+            mediaFileId: params.mediaFileId,
+            caption: params.caption,
+        }),
+    });
+}
+
 export async function markThreadRead(threadId: string): Promise<void> {
     return apiClient(`/inbox/threads/${threadId}/read`, {
         method: 'POST'
@@ -132,6 +172,16 @@ export async function getThreadById(threadId: string): Promise<Thread> {
         id: t.id,
         remotePhone: t.contactPhone,
         contactName: t.contactName,
+        avatarUrl:
+            t.avatarUrl ??
+            t.avatar ??
+            t.contactAvatar ??
+            t.profilePhotoUrl ??
+            t.metadata?.avatarUrl ??
+            t.metadata?.avatar ??
+            t.metadata?.contactAvatar ??
+            t.metadata?.profilePhotoUrl ??
+            null,
         contactId: t.contactId ?? null,
         status: t.status,
         lastMessageAt: t.lastMessageAt,

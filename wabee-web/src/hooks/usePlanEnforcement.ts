@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import client from '../api/client';
+import { isSuperAdmin as checkSuperAdmin } from '../lib/roles';
 
 export interface PlanSummary {
     plan: {
@@ -19,8 +20,7 @@ export interface PlanSummary {
  */
 export const usePlanEnforcement = () => {
     const orgId = localStorage.getItem('wabee_orgId') || '';
-    const globalRole = localStorage.getItem('wabee_globalRole');
-    const isSuperAdmin = globalRole === 'admin';
+    const isSuperAdmin = checkSuperAdmin();
 
     const { data: summary, isLoading, error } = useQuery<PlanSummary>({
         queryKey: ['billing', 'summary', orgId],

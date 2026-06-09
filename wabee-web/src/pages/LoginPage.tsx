@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import client from '../api/client';
-import { Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Loader2, ArrowLeft, ArrowRight } from 'lucide-react';
 import { T, S } from '@/lib/text-tokens';
 import { toast } from 'sonner';
 import { BrandLogo } from '../components/BrandLogo';
@@ -169,6 +169,11 @@ export const LoginPage = () => {
                             <div className="wabee-auth-card__glow wabee-auth-card__glow--orange" />
                             <div className="wabee-auth-card__glow wabee-auth-card__glow--purple" />
 
+                            <Link to="/" className={`${T.helperText} ${S.meta} wabee-auth-top-link`}>
+                                <ArrowLeft size={16} />
+                                Volver al inicio
+                            </Link>
+
                             <div className="wabee-auth-card__header">
                                 <h2 className={`${T.pageTitle} ${S.displayMd}`}>
                                     {twoFactorData.type === 'setup' ? 'Configurar 2FA' : 'Verificacion 2FA'}
@@ -254,6 +259,11 @@ export const LoginPage = () => {
                     <div className="wabee-auth-card">
                         <div className="wabee-auth-card__glow wabee-auth-card__glow--orange" />
                         <div className="wabee-auth-card__glow wabee-auth-card__glow--purple" />
+
+                        <Link to="/" className={`${T.helperText} ${S.meta} wabee-auth-top-link`}>
+                            <ArrowLeft size={16} />
+                            Volver al inicio
+                        </Link>
 
                         <div className="wabee-auth-card__header">
                             <h2 className={`${T.pageTitle} ${S.displayMd}`}>Bienvenido de nuevo</h2>

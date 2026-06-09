@@ -97,7 +97,31 @@ export class CoreInternalService {
 
         if (!sub) return null;
 
-        return sub as unknown as CoreSubscriptionDTO;
+        // El cliente Prisma del core fue compilado con un schema antiguo que NO expone las
+        // columnas de snapshot (snapshot_json, *_snapshot). Sin ellas, el plan-resolver no puede
+        // leer modules/limits/features y devuelve {} (menú vacío para roles no super-admin).
+        // Las leemos por SQL crudo y las fusionamos sobre el objeto de la suscripción.
+        const snapRows: any[] = await getCorePrisma().$queryRawUnsafe(
+            `SELECT
+                snapshot_json             AS "snapshotJson",
+                plan_code_snapshot        AS "planCodeSnapshot",
+                plan_name_snapshot        AS "planNameSnapshot",
+                version_number_snapshot   AS "versionNumberSnapshot",
+                price_snapshot::float     AS "priceSnapshot",
+                currency_snapshot         AS "currencySnapshot",
+                billing_interval_snapshot AS "billingIntervalSnapshot",
+                limits_snapshot           AS "limitsSnapshot",
+                features_snapshot         AS "featuresSnapshot",
+                capabilities_snapshot     AS "capabilitiesSnapshot",
+                modules_snapshot          AS "modulesSnapshot",
+                snapshot_created_at       AS "snapshotCreatedAt",
+                plan_version_id           AS "planVersionId"
+             FROM core.subscriptions WHERE id = $1::uuid LIMIT 1`,
+            (sub as any).id
+        );
+
+        const merged = snapRows[0] ? Object.assign(sub as any, snapRows[0]) : sub;
+        return merged as unknown as CoreSubscriptionDTO;
     }
 
     /**
@@ -1272,6 +1296,39 @@ export class CoreInternalService {
     static async getMediaFilesByUser(tenantId: string, userId: string, mediableType: string, collection: string): Promise<any[]> {
         return getCorePrisma().mediaFile.findMany({
             where: { tenantId, mediableId: userId, mediableType, collection }
+        });
+    }
+
+    /**
+     * Crea un registro de archivo de media en core.media_files.
+     * MediaFile es un modelo del schema `core`, por eso se accede vía CoreInternalService
+     * y no con el cliente Prisma de wabee (que no conoce este modelo).
+     */
+    static async createMediaFile(data: {
+        id?: string;
+        tenantId: string;
+        fileName: string;
+        bucket: string;
+        filePath: string;
+        mimeType: string;
+        sizeBytes: bigint;
+        collection: string;
+        isPublic: boolean;
+        metadata?: any;
+        uploadedBy?: string | null;
+        mediableType?: string | null;
+        mediableId?: string | null;
+    }): Promise<any> {
+        return getCorePrisma().mediaFile.create({ data });
+    }
+
+    /**
+     * Obtiene un archivo de media por su ID (sin filtrar por tenant).
+     * El llamador debe validar la pertenencia al tenant.
+     */
+    static async getMediaFileById(id: string): Promise<any | null> {
+        return getCorePrisma().mediaFile.findUnique({
+            where: { id }
         });
     }
 

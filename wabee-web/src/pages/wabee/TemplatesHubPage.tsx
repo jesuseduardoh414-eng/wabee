@@ -1,33 +1,66 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getChannels, Channel } from '@/api/wabee/whatsapp.api';
-import { templatesApi, Template, TemplatesResponse } from '@/api/wabee/templates.api';
+import { templatesApi, Template } from '@/api/wabee/templates.api';
 import { TemplatesWhatsAppCards } from '@/components/wabee/TemplatesWhatsAppCards';
 import { useToast } from '@/context/ToastContext';
 import { useDialog } from '@/context/DialogContext';
 import { T, S } from '@/lib/text-tokens';
 
-
+const COPY = {
+    inactiveTitle: 'Canales',
+    inactiveHighlight: 'Inactivos',
+    inactiveBody: 'No se han detectado puentes de comunicación de WhatsApp configurados en este entorno.',
+    configureChannels: 'Configurar Canales',
+    title: 'Templates',
+    highlight: 'Hub',
+    subtitle: 'Gestión centralizada de plantillas de Meta para campañas de alta conversión.',
+    offline: 'Offline',
+    structure: 'Estructura',
+    visual: 'Visual',
+    sync: 'Meta Sync',
+    syncing: 'Sincronizando...',
+    syncWarn: 'El canal debe estar CONNECTED y tener WABA ID para importar.',
+    syncConfirmTitle: 'Importar Templates',
+    syncConfirmDescription: '¿Importar templates desde Meta? Esto puede tomar unos segundos.',
+    syncConfirmButton: 'Importar',
+    syncSuccess: (data: { imported: number; updated: number; skipped: number }) =>
+        `Importación completa: ${data.imported} importados, ${data.updated} actualizados, ${data.skipped} omitidos.`,
+    status: 'Estado',
+    language: 'Idioma',
+    category: 'Categoría',
+    identifier: 'Identificador',
+    all: 'TODOS',
+    allCategories: 'TODAS',
+    filter: 'Filtrar',
+    templateName: 'Nombre de la plantilla...',
+    loading: 'Analizando Meta Registry...',
+    name: 'Nombre',
+    snippet: 'Cuerpo (Snippet)',
+    noTemplates: 'No se detectaron plantillas en esta frecuencia',
+    synced: 'Sincronizados',
+    page: 'Página',
+    approved: 'APPROVED',
+    pending: 'PENDING',
+    rejected: 'REJECTED',
+    marketing: 'MARKETING',
+    utility: 'UTILITY',
+    auth: 'AUTHENTICATION',
+    notAvailable: 'N/A',
+} as const;
 
 export default function TemplatesHubPage() {
     const navigate = useNavigate();
     const { channelId: urlChannelId } = useParams<{ channelId: string }>();
 
-    // Channels
     const [channels, setChannels] = useState<Channel[]>([]);
     const [selectedChannelId, setSelectedChannelId] = useState<string>('');
     const [loadingChannels, setLoadingChannels] = useState(true);
-
-    // View Mode
     const [viewMode, setViewMode] = useState<'table' | 'whatsapp'>('table');
-
-    // Templates
     const [templates, setTemplates] = useState<Template[]>([]);
     const [loadingTemplates, setLoadingTemplates] = useState(false);
     const [importing, setImporting] = useState(false);
     const [meta, setMeta] = useState<any>(null);
-
-    // Filters
     const [filters, setFilters] = useState({
         status: '',
         language: '',
@@ -38,11 +71,9 @@ export default function TemplatesHubPage() {
     const { error: toastError, success: toastSuccess, warning: toastWarn } = useToast();
     const { confirm } = useDialog();
 
-    // Tenant Key for Persistence
     const tenantKey = localStorage.getItem('tenant_key') || 'default';
     const storageKey = `wabee.templates.selectedChannel.${tenantKey}`;
 
-    // Load channels on mount
     useEffect(() => {
         const fetchChannelsData = async () => {
             try {
@@ -50,29 +81,16 @@ export default function TemplatesHubPage() {
                 const data = await getChannels({});
                 setChannels(data);
 
-                // Initialization Logic
                 let initialId = '';
-
-                // 1. URL Alias
                 if (urlChannelId && data.some(c => c.id === urlChannelId)) {
                     initialId = urlChannelId;
-                }
-                // 2. Local Storage
-                else {
+                } else {
                     const savedId = localStorage.getItem(storageKey);
-                    if (savedId && data.some(c => c.id === savedId)) {
-                        initialId = savedId;
-                    }
+                    if (savedId && data.some(c => c.id === savedId)) initialId = savedId;
                 }
 
-                // 3. First available
-                if (!initialId && data.length > 0) {
-                    initialId = data[0].id;
-                }
-
-                if (initialId) {
-                    setSelectedChannelId(initialId);
-                }
+                if (!initialId && data.length > 0) initialId = data[0].id;
+                if (initialId) setSelectedChannelId(initialId);
             } catch (error) {
                 console.error('Error loading channels:', error);
             } finally {
@@ -82,7 +100,6 @@ export default function TemplatesHubPage() {
         fetchChannelsData();
     }, [urlChannelId, storageKey]);
 
-    // Persist selection
     useEffect(() => {
         if (selectedChannelId) {
             localStorage.setItem(storageKey, selectedChannelId);
@@ -92,7 +109,6 @@ export default function TemplatesHubPage() {
 
     const fetchTemplates = async () => {
         if (!selectedChannelId) return;
-
         setLoadingTemplates(true);
         try {
             const data = await templatesApi.listTemplates(selectedChannelId, filters);
@@ -111,23 +127,21 @@ export default function TemplatesHubPage() {
         const channel = channels.find(c => c.id === selectedChannelId);
 
         if (!channel || channel.status !== 'CONNECTED' || !channel.wabaId) {
-            toastWarn('El canal debe estar CONNECTED y tener WABA ID para importar.');
+            toastWarn(COPY.syncWarn);
             return;
         }
 
         const isConfirmed = await confirm({
-            title: 'Importar Templates',
-            description: '¿Importar templates desde Meta? Esto puede tomar unos segundos.',
-            confirmText: 'Importar'
+            title: COPY.syncConfirmTitle,
+            description: COPY.syncConfirmDescription,
+            confirmText: COPY.syncConfirmButton
         });
         if (!isConfirmed) return;
 
         setImporting(true);
         try {
             const data = await templatesApi.importTemplates(selectedChannelId);
-
-            toastSuccess(`Importación completa: ${data.imported} importados, ${data.updated} actualizados, ${data.skipped} omitidos.`);
-
+            toastSuccess(COPY.syncSuccess(data));
             await fetchTemplates();
         } catch (error: any) {
             console.error('Error importing templates:', error);
@@ -138,39 +152,37 @@ export default function TemplatesHubPage() {
     };
 
     const extractBodyPreview = (components: any[]): string => {
-        if (!components || !Array.isArray(components)) return 'N/A';
-
+        if (!components || !Array.isArray(components)) return COPY.notAvailable;
         const bodyComponent = components.find(c => c.type === 'BODY');
-        if (!bodyComponent || !bodyComponent.text) return 'N/A';
-
+        if (!bodyComponent || !bodyComponent.text) return COPY.notAvailable;
         return bodyComponent.text.replace(/\{\{(\d+)\}\}/g, '____');
     };
 
     const selectedChannel = channels.find(c => c.id === selectedChannelId);
     const canImport = selectedChannel?.status === 'CONNECTED' && !!selectedChannel?.wabaId;
 
-    // Loading state
     if (loadingChannels) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="flex min-h-screen items-center justify-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
             </div>
         );
     }
 
-    // No channels state
     if (channels.length === 0) {
         return (
-            <div className="p-12 max-w-4xl mx-auto text-center">
-                <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-[40px] p-16 shadow-2xl relative overflow-hidden">
-                    <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-[var(--brand-primary)]/5 blur-[100px] pointer-events-none ${T.buttonPrimaryText}`}></div>
-                    <h1 className={`${T.pageTitle} text-4xl font-black text-[var(--text-strong)] mb-6 uppercase italic tracking-tighter`}>Canales <span className="text-[var(--brand-primary)]">Inactivos</span></h1>
-                    <p className={`${T.pageSubtitle} ${S.body} text-[var(--text-muted)] mb-10 font-medium max-w-sm mx-auto leading-relaxed`}>No se han detectado puentes de comunicación de WhatsApp configurados en este entorno.</p>
+            <div className="mx-auto max-w-4xl p-6 text-center sm:p-12">
+                <div className="relative overflow-hidden rounded-[32px] border border-[var(--border-default)] bg-[var(--bg-card)] p-8 shadow-2xl sm:rounded-[40px] sm:p-16">
+                    <div className={`pointer-events-none absolute left-1/2 top-0 h-64 w-64 -translate-x-1/2 bg-[var(--brand-primary)]/5 blur-[100px] ${T.buttonPrimaryText}`}></div>
+                    <h1 className={`${T.pageTitle} mb-6 text-4xl font-black uppercase italic tracking-tighter text-[var(--text-strong)]`}>
+                        {COPY.inactiveTitle} <span className="text-[var(--brand-primary)]">{COPY.inactiveHighlight}</span>
+                    </h1>
+                    <p className={`${T.pageSubtitle} ${S.body} mx-auto mb-10 max-w-sm font-medium leading-relaxed text-[var(--text-muted)]`}>{COPY.inactiveBody}</p>
                     <button
                         onClick={() => navigate('/dashboard/wabee/channels')}
-                        className={`bg-[var(--brand-primary)]  px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:brightness-110 transition-all active:scale-95 shadow-lg shadow-[var(--brand-primary)]/20 ${T.buttonPrimaryText}`}
+                        className={`rounded-2xl bg-[var(--brand-primary)] px-10 py-4 text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[var(--brand-primary)]/20 transition-all hover:brightness-110 active:scale-95 ${T.buttonPrimaryText}`}
                     >
-                        Configurar Canales
+                        {COPY.configureChannels}
                     </button>
                 </div>
             </div>
@@ -178,206 +190,243 @@ export default function TemplatesHubPage() {
     }
 
     return (
-        <div className="p-8 max-w-7xl mx-auto space-y-10 bg-[var(--bg-page)] min-h-screen">
-            {/* Header with Channel Selector */}
-            <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
+        <div className="mx-auto min-h-screen max-w-7xl space-y-8 bg-[var(--bg-page)] px-4 py-6 sm:space-y-10 sm:px-6 sm:py-8 lg:px-8">
+            <header className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                 <div className="space-y-4">
                     <div className="space-y-2">
-                        <h1 className={`${T.pageTitle} text-5xl font-black text-[var(--text-strong)] tracking-tighter uppercase italic`}>Templates <span className="text-[var(--brand-primary)]">Hub</span></h1>
-                        <p className={`${T.pageSubtitle} ${S.body} text-[var(--text-muted)] font-medium max-w-md`}>Gestión centralizada de plantillas de Meta para campañas de alta conversión.</p>
+                        <h1 className={`${T.pageTitle} text-4xl font-black uppercase italic tracking-tighter text-[var(--text-strong)] sm:text-5xl`}>
+                            {COPY.title} <span className="text-[var(--brand-primary)]">{COPY.highlight}</span>
+                        </h1>
+                        <p className={`${T.pageSubtitle} ${S.body} max-w-md font-medium text-[var(--text-muted)]`}>{COPY.subtitle}</p>
                     </div>
 
-                    {/* Channel Selector Styled */}
-                    <div className="flex items-center gap-4 bg-[var(--bg-card)] p-2 rounded-2xl border border-[var(--border-default)]">
-                        <div className="pl-4 text-[var(--brand-primary)]"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg></div>
+                    <div className="flex w-full items-center gap-3 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] p-2 sm:gap-4">
+                        <div className="pl-3 text-[var(--brand-primary)] sm:pl-4">
+                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                        </div>
                         <select
                             value={selectedChannelId}
                             onChange={(e) => setSelectedChannelId(e.target.value)}
-                            className={`${T.inputText} ${S.body} bg-transparent text-[var(--text-strong)] font-black uppercase tracking-widest text-[10px] py-2 pr-8 outline-none cursor-pointer appearance-none`}
+                            className={`${T.inputText} ${S.body} min-w-0 flex-1 cursor-pointer appearance-none bg-transparent py-2 pr-2 text-[10px] font-black uppercase tracking-widest text-[var(--text-strong)] outline-none sm:pr-8`}
                         >
                             {channels.map((channel) => (
                                 <option key={channel.id} value={channel.id} className="bg-[var(--bg-card)] text-[var(--text-strong)]">
-                                    {channel.name} ({channel.displayPhone || 'N/A'})
+                                    {channel.name} ({channel.displayPhone || COPY.notAvailable})
                                 </option>
                             ))}
                         </select>
                         {!canImport && selectedChannelId && (
-                            <div className="px-3 py-1 bg-[var(--state-danger)]/10 border border-[var(--state-danger)]/20 rounded-lg">
-                                <span className="text-[9px] text-[var(--state-danger)] font-black uppercase tracking-widest italic">Offline</span>
+                            <div className="rounded-lg border border-[var(--state-danger)]/20 bg-[var(--state-danger)]/10 px-2 py-1 sm:px-3">
+                                <span className="text-[9px] font-black uppercase tracking-widest italic text-[var(--state-danger)]">{COPY.offline}</span>
                             </div>
                         )}
                     </div>
                 </div>
 
-                <div className="flex items-center gap-4">
-                    {/* View Mode Toggle */}
-                    <div className="flex bg-[var(--bg-card)] p-1.5 rounded-2xl border border-[var(--border-default)]">
+                <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:w-auto lg:flex-col lg:items-stretch xl:flex-row">
+                    <div className="flex flex-1 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] p-1.5">
                         <button
                             onClick={() => setViewMode('table')}
-                            className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'table' ? 'bg-[var(--brand-primary)]  shadow-lg shadow-[var(--brand-primary)]/10' : 'text-[color:var(--text-muted)] hover:text-[color:var(--text-strong)]'} ${T.buttonPrimaryText}`}
+                            className={`flex-1 rounded-xl px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'table' ? 'bg-[var(--brand-primary)] shadow-lg shadow-[var(--brand-primary)]/10' : 'text-[color:var(--text-muted)] hover:text-[color:var(--text-strong)]'} ${T.buttonPrimaryText}`}
                         >
-                            Estructura
+                            {COPY.structure}
                         </button>
                         <button
                             onClick={() => setViewMode('whatsapp')}
-                            className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'whatsapp' ? 'bg-[var(--brand-primary)]  shadow-lg shadow-[var(--brand-primary)]/10' : 'text-[color:var(--text-muted)] hover:text-[color:var(--text-strong)]'} ${T.buttonPrimaryText}`}
+                            className={`flex-1 rounded-xl px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'whatsapp' ? 'bg-[var(--brand-primary)] shadow-lg shadow-[var(--brand-primary)]/10' : 'text-[color:var(--text-muted)] hover:text-[color:var(--text-strong)]'} ${T.buttonPrimaryText}`}
                         >
-                            Visual
+                            {COPY.visual}
                         </button>
                     </div>
 
                     <button
                         onClick={handleImport}
                         disabled={importing || !selectedChannelId || !canImport}
-                        className="bg-[var(--bg-card)] text-[color:var(--brand-primary)] px-8 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] border border-[var(--brand-primary)]/20 hover:bg-[var(--brand-primary)] hover: transition-all disabled:opacity-20 disabled:grayscale flex items-center gap-3 shadow-xl shadow-[var(--brand-primary)]/5"
+                        className="flex w-full items-center justify-center gap-3 rounded-2xl border border-[var(--brand-primary)]/20 bg-[var(--bg-card)] px-6 py-3.5 text-[10px] font-black uppercase tracking-widest text-[color:var(--brand-primary)] shadow-xl shadow-[var(--brand-primary)]/5 transition-all disabled:grayscale disabled:opacity-20 hover:bg-[var(--brand-primary)] sm:w-auto sm:px-8"
                     >
                         {importing ? (
-                            <><div className="animate-spin h-3 w-3 border-2 border-[var(--brand-primary-foreground)] border-t-transparent rounded-full" /> Sincronizando...</>
+                            <>
+                                <div className="h-3 w-3 animate-spin rounded-full border-2 border-[var(--brand-primary-foreground)] border-t-transparent"></div>
+                                {COPY.syncing}
+                            </>
                         ) : (
-                            <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg> Meta Sync</>
+                            <>
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                {COPY.sync}
+                            </>
                         )}
                     </button>
                 </div>
             </header>
 
-            {/* Filters */}
-            <div className="bg-[var(--bg-card)] p-6 rounded-3xl border border-[var(--border-default)] shadow-2xl flex flex-wrap gap-8 items-center">
-                <div className="min-w-[150px]">
-                    <label className={`${T.labelText} ${S.meta} block font-black text-[color:var(--text-muted)] uppercase tracking-[0.2em] mb-2 px-1`}>Estado</label>
-                    <div className="relative">
-                        <select
-                            value={filters.status}
-                            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                            className={`${T.inputText} ${S.body} w-full px-5 py-3 bg-[var(--bg-input)] border border-[var(--border-default)] text-[var(--text-strong)] rounded-xl outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/50 focus:border-[var(--brand-primary)] transition-all font-black uppercase tracking-widest text-[9px] appearance-none cursor-pointer`}
-                        >
-                            <option value="" className="bg-[var(--bg-card)]">TODOS</option>
-                            <option value="APPROVED" className="bg-[var(--bg-card)]">APPROVED</option>
-                            <option value="PENDING" className="bg-[var(--bg-card)]">PENDING</option>
-                            <option value="REJECTED" className="bg-[var(--bg-card)]">REJECTED</option>
-                        </select>
-                    </div>
+            <div className="grid grid-cols-1 gap-4 rounded-3xl border border-[var(--border-default)] bg-[var(--bg-card)] p-5 shadow-2xl sm:grid-cols-2 sm:gap-5 sm:p-6 xl:grid-cols-[150px_170px_190px_minmax(0,1fr)] xl:items-end">
+                <div>
+                    <label className={`${T.labelText} ${S.meta} mb-2 block px-1 font-black uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>{COPY.status}</label>
+                    <select
+                        value={filters.status}
+                        onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                        className={`${T.inputText} ${S.body} w-full cursor-pointer appearance-none rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-5 py-3 text-[9px] font-black uppercase tracking-widest text-[var(--text-strong)] outline-none transition-all focus:border-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-primary)]/50`}
+                    >
+                        <option value="" className="bg-[var(--bg-card)]">{COPY.all}</option>
+                        <option value="APPROVED" className="bg-[var(--bg-card)]">{COPY.approved}</option>
+                        <option value="PENDING" className="bg-[var(--bg-card)]">{COPY.pending}</option>
+                        <option value="REJECTED" className="bg-[var(--bg-card)]">{COPY.rejected}</option>
+                    </select>
                 </div>
 
-                <div className="min-w-[120px]">
-                    <label className={`${T.labelText} ${S.meta} block font-black text-[color:var(--text-muted)] uppercase tracking-[0.2em] mb-2 px-1`}>Idioma</label>
+                <div>
+                    <label className={`${T.labelText} ${S.meta} mb-2 block px-1 font-black uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>{COPY.language}</label>
                     <input
                         type="text"
                         value={filters.language}
                         onChange={(e) => setFilters({ ...filters, language: e.target.value })}
                         placeholder="ej: es_MX"
-                        className={`${T.inputText} w-full px-5 py-3 bg-[var(--bg-input)] border border-[var(--border-default)] text-[var(--text-strong)] rounded-xl outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/50 focus:border-[var(--brand-primary)] transition-all font-mono text-[10px] placeholder:text-[var(--text-muted)]`}
+                        className={`${T.inputText} w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-5 py-3 font-mono text-[10px] text-[var(--text-strong)] outline-none transition-all placeholder:text-[var(--text-muted)] focus:border-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-primary)]/50`}
                     />
                 </div>
 
-                <div className="min-w-[180px]">
-                    <label className={`${T.labelText} ${S.meta} block font-black text-[color:var(--text-muted)] uppercase tracking-[0.2em] mb-2 px-1`}>Categoría</label>
-                    <div className="relative">
-                        <select
-                            value={filters.category}
-                            onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-                            className={`${T.inputText} ${S.body} w-full px-5 py-3 bg-[var(--bg-input)] border border-[var(--border-default)] text-[var(--text-strong)] rounded-xl outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/50 focus:border-[var(--brand-primary)] transition-all font-black uppercase tracking-widest text-[9px] appearance-none cursor-pointer`}
-                        >
-                            <option value="" className="bg-[var(--bg-card)]">TODAS</option>
-                            <option value="MARKETING" className="bg-[var(--bg-card)]">MARKETING</option>
-                            <option value="UTILITY" className="bg-[var(--bg-card)]">UTILITY</option>
-                            <option value="AUTHENTICATION" className="bg-[var(--bg-card)]">AUTHENTICATION</option>
-                        </select>
-                    </div>
+                <div>
+                    <label className={`${T.labelText} ${S.meta} mb-2 block px-1 font-black uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>{COPY.category}</label>
+                    <select
+                        value={filters.category}
+                        onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                        className={`${T.inputText} ${S.body} w-full cursor-pointer appearance-none rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-5 py-3 text-[9px] font-black uppercase tracking-widest text-[var(--text-strong)] outline-none transition-all focus:border-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-primary)]/50`}
+                    >
+                        <option value="" className="bg-[var(--bg-card)]">{COPY.allCategories}</option>
+                        <option value="MARKETING" className="bg-[var(--bg-card)]">{COPY.marketing}</option>
+                        <option value="UTILITY" className="bg-[var(--bg-card)]">{COPY.utility}</option>
+                        <option value="AUTHENTICATION" className="bg-[var(--bg-card)]">{COPY.auth}</option>
+                    </select>
                 </div>
 
-                <div className="flex-1 min-w-[250px]">
-                    <label className={`${T.labelText} ${S.meta} block font-black text-[color:var(--text-muted)] uppercase tracking-[0.2em] mb-2 px-1`}>Identificador</label>
-                    <div className="flex gap-4">
+                <div>
+                    <label className={`${T.labelText} ${S.meta} mb-2 block px-1 font-black uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>{COPY.identifier}</label>
+                    <div className="flex gap-3">
                         <input
                             type="text"
                             value={filters.q}
                             onChange={(e) => setFilters({ ...filters, q: e.target.value })}
-                            placeholder="Nombre de la plantilla..."
-                            className={`${T.inputText} w-full px-5 py-3 bg-[var(--bg-input)] border border-[var(--border-default)] text-[var(--text-strong)] rounded-xl outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/50 focus:border-[var(--brand-primary)] transition-all font-medium placeholder:text-[var(--text-muted)]`}
+                            placeholder={COPY.templateName}
+                            className={`${T.inputText} min-w-0 flex-1 rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-5 py-3 font-medium text-[var(--text-strong)] outline-none transition-all placeholder:text-[var(--text-muted)] focus:border-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-primary)]/50`}
                         />
                         <button
                             onClick={fetchTemplates}
-                            className={`bg-[var(--brand-primary)]  px-8 rounded-xl font-black uppercase tracking-widest text-[9px] hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-[var(--brand-primary)]/20 ${T.buttonPrimaryText}`}
+                            className={`rounded-xl bg-[var(--brand-primary)] px-6 text-[9px] font-black uppercase tracking-widest shadow-lg shadow-[var(--brand-primary)]/20 transition-all hover:brightness-110 active:scale-95 sm:px-8 ${T.buttonPrimaryText}`}
                         >
-                            Filtrar
+                            {COPY.filter}
                         </button>
                     </div>
                 </div>
             </div>
 
-            {/* Templates Content */}
             {loadingTemplates ? (
-                <div className="py-32 flex flex-col items-center gap-6 bg-[var(--bg-card)] rounded-[40px] border border-[var(--border-default)] shadow-2xl">
-                    <div className="w-16 h-16 border-4 border-[var(--brand-primary)]/10 border-t-[var(--brand-primary)] rounded-full animate-spin"></div>
-                    <p className={`${T.helperText} ${S.meta} text-[color:var(--text-muted)] font-black uppercase tracking-[0.3em] text-[10px] animate-pulse`}>Analizando Meta Registry...</p>
+                <div className="flex flex-col items-center gap-6 rounded-[32px] border border-[var(--border-default)] bg-[var(--bg-card)] py-24 shadow-2xl sm:rounded-[40px] sm:py-32">
+                    <div className="h-16 w-16 animate-spin rounded-full border-4 border-[var(--brand-primary)]/10 border-t-[var(--brand-primary)]"></div>
+                    <p className={`${T.helperText} ${S.meta} text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--text-muted)] animate-pulse`}>{COPY.loading}</p>
                 </div>
             ) : (
-                <div className="space-y-8">
+                <div className="space-y-6 sm:space-y-8">
                     {viewMode === 'table' ? (
-                        <div className="bg-[var(--bg-card)] rounded-[32px] border border-[var(--border-default)] shadow-2xl overflow-hidden">
-                            <table className="w-full text-left border-collapse">
-                                <thead>
-                                    <tr className="bg-[var(--bg-muted)] border-b border-[var(--border-default)]">
-                                        <th className={`px-8 py-6 ${T.tableHeader} ${S.meta} font-black text-[color:var(--text-muted)] uppercase tracking-[0.2em] italic`}>Nombre</th>
-                                        <th className={`px-8 py-6 ${T.tableHeader} ${S.meta} font-black text-[color:var(--text-muted)] uppercase tracking-[0.2em] italic`}>Idioma</th>
-                                        <th className={`px-8 py-6 ${T.tableHeader} ${S.meta} font-black text-[color:var(--text-muted)] uppercase tracking-[0.2em] italic`}>Categoría</th>
-                                        <th className={`px-8 py-6 ${T.tableHeader} ${S.meta} font-black text-[color:var(--text-muted)] uppercase tracking-[0.2em] italic`}>Estatus</th>
-                                        <th className={`px-8 py-6 ${T.tableHeader} ${S.meta} font-black text-[color:var(--text-muted)] uppercase tracking-[0.2em] italic`}>Cuerpo (Snippet)</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-[var(--border-default)]">
-                                    {templates.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={5} className={`px-8 py-24 text-center ${T.tableCell} text-[color:var(--text-muted)] font-bold italic uppercase tracking-widest opacity-30 text-xs`}>
-                                                No se detectaron plantillas en esta frecuencia
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        templates.map((template) => (
-                                            <tr key={template.id} className="hover:bg-[var(--brand-primary)]/[0.02] transition-colors group">
-                                                <td className={`px-8 py-5 ${T.tableCell} text-sm font-extrabold text-[var(--text-strong)] group-hover:text-[var(--brand-primary)] transition-colors`}>
-                                                    {template.name}
-                                                </td>
-                                                <td className={`px-8 py-5 ${T.badgeText} text-[10px] font-black text-[color:var(--brand-primary)] uppercase tracking-widest`}>
-                                                    {template.language}
-                                                </td>
-                                                <td className="px-8 py-5">
-                                                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${template.category === 'MARKETING' ? 'bg-[color:var(--state-info)]/10 text-[color:var(--state-info)] border-[color:var(--state-info)]/20' :
-                                                        template.category === 'UTILITY' ? 'bg-[color:var(--state-success)]/10 text-[color:var(--state-success)] border-[color:var(--state-success)]/20' :
-                                                            'bg-[color:var(--state-warning)]/10 text-[color:var(--state-warning)] border-[color:var(--state-warning)]/20'
-                                                        }`}>
-                                                        {template.category}
-                                                    </span>
-                                                </td>
-                                                <td className="px-8 py-5">
-                                                    <span className={`px-3 py-1 rounded-full ${T.badgeText} text-[9px] font-black uppercase tracking-widest border ${template.status === 'APPROVED' ? 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] border-[var(--brand-primary)]/20 shadow-[0_0_10px_rgba(var(--brand-primary-rgb),0.1)]' :
-                                                        template.status === 'PENDING' ? 'bg-[color:var(--state-warning)]/10 text-[color:var(--state-warning)] border-[color:var(--state-warning)]/20' :
-                                                            template.status === 'REJECTED' ? 'bg-[color:var(--state-danger)]/10 text-[color:var(--state-danger)] border-[color:var(--state-danger)]/20' :
-                                                                'bg-[color:var(--text-muted)]/10 text-[color:var(--text-muted)] border-[color:var(--text-muted)]/20'
-                                                        }`}>
-                                                        {template.status}
-                                                    </span>
-                                                </td>
-                                                <td className={`px-8 py-5 ${T.tableCell} text-xs text-[color:var(--text-muted)] max-w-xs truncate italic font-medium opacity-60`}>
-                                                    {extractBodyPreview(template.components)}
-                                                </td>
+                        <>
+                            <div className="hidden overflow-hidden rounded-[32px] border border-[var(--border-default)] bg-[var(--bg-card)] shadow-2xl md:block">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full min-w-[880px] border-collapse text-left">
+                                        <thead>
+                                            <tr className="border-b border-[var(--border-default)] bg-[var(--bg-muted)]">
+                                                <th className={`px-8 py-6 ${T.tableHeader} ${S.meta} font-black uppercase tracking-[0.2em] italic text-[color:var(--text-muted)]`}>{COPY.name}</th>
+                                                <th className={`px-8 py-6 ${T.tableHeader} ${S.meta} font-black uppercase tracking-[0.2em] italic text-[color:var(--text-muted)]`}>{COPY.language}</th>
+                                                <th className={`px-8 py-6 ${T.tableHeader} ${S.meta} font-black uppercase tracking-[0.2em] italic text-[color:var(--text-muted)]`}>{COPY.category}</th>
+                                                <th className={`px-8 py-6 ${T.tableHeader} ${S.meta} font-black uppercase tracking-[0.2em] italic text-[color:var(--text-muted)]`}>{COPY.status}</th>
+                                                <th className={`px-8 py-6 ${T.tableHeader} ${S.meta} font-black uppercase tracking-[0.2em] italic text-[color:var(--text-muted)]`}>{COPY.snippet}</th>
                                             </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
+                                        </thead>
+                                        <tbody className="divide-y divide-[var(--border-default)]">
+                                            {templates.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={5} className={`px-8 py-24 text-center text-xs font-bold uppercase tracking-widest opacity-30 ${T.tableCell}`}>
+                                                        {COPY.noTemplates}
+                                                    </td>
+                                                </tr>
+                                            ) : (
+                                                templates.map((template) => (
+                                                    <tr key={template.id} className="group transition-colors hover:bg-[var(--brand-primary)]/[0.02]">
+                                                        <td className={`px-8 py-5 text-sm font-extrabold text-[var(--text-strong)] transition-colors group-hover:text-[var(--brand-primary)] ${T.tableCell}`}>{template.name}</td>
+                                                        <td className={`px-8 py-5 text-[10px] font-black uppercase tracking-widest text-[color:var(--brand-primary)] ${T.badgeText}`}>{template.language}</td>
+                                                        <td className="px-8 py-5">
+                                                            <span className={`rounded-full border px-3 py-1 text-[9px] font-black uppercase tracking-widest ${template.category === 'MARKETING' ? 'bg-[color:var(--state-info)]/10 text-[color:var(--state-info)] border-[color:var(--state-info)]/20' :
+                                                                template.category === 'UTILITY' ? 'bg-[color:var(--state-success)]/10 text-[color:var(--state-success)] border-[color:var(--state-success)]/20' :
+                                                                    'bg-[color:var(--state-warning)]/10 text-[color:var(--state-warning)] border-[color:var(--state-warning)]/20'
+                                                                }`}>
+                                                                {template.category}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-8 py-5">
+                                                            <span className={`rounded-full border px-3 py-1 text-[9px] font-black uppercase tracking-widest ${T.badgeText} ${template.status === 'APPROVED' ? 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] border-[var(--brand-primary)]/20 shadow-[0_0_10px_rgba(var(--brand-primary-rgb),0.1)]' :
+                                                                template.status === 'PENDING' ? 'bg-[color:var(--state-warning)]/10 text-[color:var(--state-warning)] border-[color:var(--state-warning)]/20' :
+                                                                    template.status === 'REJECTED' ? 'bg-[color:var(--state-danger)]/10 text-[color:var(--state-danger)] border-[color:var(--state-danger)]/20' :
+                                                                        'bg-[color:var(--text-muted)]/10 text-[color:var(--text-muted)] border-[color:var(--text-muted)]/20'
+                                                                }`}>
+                                                                {template.status}
+                                                            </span>
+                                                        </td>
+                                                        <td className={`max-w-xs truncate px-8 py-5 text-xs font-medium italic opacity-60 ${T.tableCell} text-[color:var(--text-muted)]`}>
+                                                            {extractBodyPreview(template.components)}
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4 md:hidden">
+                                {templates.length === 0 ? (
+                                    <div className="rounded-[28px] border border-[var(--border-default)] bg-[var(--bg-card)] px-6 py-16 text-center shadow-2xl">
+                                        <p className={`${T.tableCell} text-xs font-bold uppercase tracking-widest opacity-30`}>{COPY.noTemplates}</p>
+                                    </div>
+                                ) : (
+                                    templates.map((template) => (
+                                        <article key={template.id} className="space-y-4 rounded-[28px] border border-[var(--border-default)] bg-[var(--bg-card)] p-5 shadow-2xl">
+                                            <div className="flex items-start justify-between gap-3">
+                                                <h3 className={`${T.cardTitle} ${S.headingMd} max-w-[70%] break-words italic text-[var(--brand-primary)]`}>{template.name}</h3>
+                                                <span className={`rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest ${template.status === 'APPROVED' ? 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] border-[var(--brand-primary)]/20' :
+                                                    template.status === 'PENDING' ? 'bg-[color:var(--state-warning)]/10 text-[color:var(--state-warning)] border-[color:var(--state-warning)]/20' :
+                                                        'bg-[color:var(--state-danger)]/10 text-[color:var(--state-danger)] border-[color:var(--state-danger)]/20'
+                                                    }`}>
+                                                    {template.status}
+                                                </span>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <div className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-input)] p-3">
+                                                    <span className={`${T.helperText} ${S.meta} mb-1 block uppercase opacity-50`}>{COPY.language}</span>
+                                                    <span className={`${T.badgeText} ${S.meta} text-[var(--brand-primary)]`}>{template.language}</span>
+                                                </div>
+                                                <div className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-input)] p-3">
+                                                    <span className={`${T.helperText} ${S.meta} mb-1 block uppercase opacity-50`}>{COPY.category}</span>
+                                                    <span className={`${T.badgeText} ${S.meta}`}>{template.category}</span>
+                                                </div>
+                                            </div>
+                                            <div className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-input)] p-3">
+                                                <span className={`${T.helperText} ${S.meta} mb-1 block uppercase opacity-50`}>{COPY.snippet}</span>
+                                                <p className={`${T.messageText} ${S.body} text-[var(--text-muted)]`}>{extractBodyPreview(template.components)}</p>
+                                            </div>
+                                        </article>
+                                    ))
+                                )}
+                            </div>
+                        </>
                     ) : (
                         <TemplatesWhatsAppCards templates={templates} />
                     )}
 
                     {meta && meta.total > 0 && (
-                        <div className={`flex justify-between items-center ${T.helperText} ${S.meta} text-[10px] font-black text-[color:var(--text-muted)] uppercase tracking-[0.2em] italic opacity-60 px-4`}>
-                            <div>Sincronizados: <span className="text-[color:var(--text-strong)] not-italic">{templates.length} / {meta.total}</span></div>
-                            <div className="flex gap-2 items-center">
-                                <div className="h-[1px] w-12 bg-[var(--border-default)]"></div>
-                                Página {meta.page} de {meta.totalPages}
-                                <div className="h-[1px] w-12 bg-[var(--border-default)]"></div>
+                        <div className={`flex flex-col gap-3 px-2 text-[10px] font-black uppercase tracking-[0.2em] italic opacity-60 sm:flex-row sm:items-center sm:justify-between sm:px-4 ${T.helperText} text-[color:var(--text-muted)]`}>
+                            <div>{COPY.synced}: <span className="not-italic text-[color:var(--text-strong)]">{templates.length} / {meta.total}</span></div>
+                            <div className="flex items-center gap-2">
+                                <div className="h-[1px] w-8 bg-[var(--border-default)] sm:w-12"></div>
+                                {COPY.page} {meta.page} de {meta.totalPages}
+                                <div className="h-[1px] w-8 bg-[var(--border-default)] sm:w-12"></div>
                             </div>
                         </div>
                     )}

@@ -1,4 +1,5 @@
 import { tenancyAdapter } from '../modules/wabee/_adapters/tenancy.adapter';
+import { isSuperAdmin } from './auth-role.middleware';
 
 /**
  * Compatibility middleware for legacy WABEE code.
@@ -8,7 +9,7 @@ export const tenantMiddleware = (req: any, res: any, next: any) => {
     try {
         // En Core Starter, el tenant se extrae del contexto de la organización
         // Si es SUPER_ADMIN, permitimos que el tenantId sea opcional (ej: para rutas globales o dashboard admin)
-        if (req.user?.globalRole === 'admin') {
+        if (isSuperAdmin(req.user)) {
             try {
                 const tenantId = tenancyAdapter.getTenantId(req);
                 req.tenantId = tenantId;

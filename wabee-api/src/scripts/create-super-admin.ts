@@ -13,6 +13,12 @@ async function main() {
     }
 
     try {
+        const superadminRole = await prisma.role.findFirst({ where: { slug: 'superadmin' } });
+        if (!superadminRole) {
+            console.error('X No existe el rol "superadmin". Corre primero: npx tsx src/scripts/create-superadmin-role.ts');
+            process.exit(1);
+        }
+
         console.log(`> Buscando usuario con email: ${email}`);
         let user = await prisma.profile.findUnique({
             where: { email }
@@ -22,7 +28,7 @@ async function main() {
             console.log('> Usuario encontrado. Elevando permisos a SUPER_ADMIN...');
             await prisma.profile.update({
                 where: { email },
-                data: { globalRoleId: '1a06fe45-9c4a-47aa-a59b-500add6c51e4' }
+                data: { globalRoleId: superadminRole.id }
             });
             console.log('✓ Éxito: El usuario ahora es SUPER_ADMIN.');
         } else {
@@ -51,7 +57,7 @@ async function main() {
             // Update platformRole to SUPER_ADMIN
             await prisma.profile.update({
                 where: { id: userId },
-                data: { globalRoleId: '1a06fe45-9c4a-47aa-a59b-500add6c51e4' }
+                data: { globalRoleId: superadminRole.id }
             });
             
             // Generate a default organization / complete onboarding if needed

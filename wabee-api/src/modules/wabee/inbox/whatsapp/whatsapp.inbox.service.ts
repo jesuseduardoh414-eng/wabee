@@ -6,6 +6,8 @@ import { WhatsAppUtils } from './whatsapp.utils';
 import { WhatsAppSharedService } from './whatsapp.shared.service';
 import { AnalyticsService } from '../../analytics/analytics.service';
 import { RealtimeBus } from '@/modules/wabee/realtime/realtime.bus';
+import { CampaignMediaLinkService } from '@/modules/wabee/campaigns/services/campaign-media-link.service';
+import { CoreInternalService } from '@/modules/core/core.internal.service';
 
 export async function getMessagesByChannel(
     tenantId: string,
@@ -213,7 +215,11 @@ import { MessageSenderType, MessageGeneratedBy } from '@prisma/client';
 export async function sendMessage(
     tenantId: string,
     threadId: string,
-    text: string,
+    payload: {
+        text?: string;
+        mediaFileId?: string;
+        caption?: string;
+    },
     traceData?: {
         senderType: MessageSenderType;
         senderUserId?: string | null;
@@ -279,6 +285,45 @@ export async function sendMessage(
         }
     }
 
+    const text = payload.text?.trim() || '';
+    const mediaFileId = payload.mediaFileId || null;
+    const caption = payload.caption?.trim() || '';
+
+    let mediaMeta:
+        | {
+              kind: 'image' | 'video' | 'document';
+              link: string;
+              mimeType: string;
+              fileName: string;
+              mediaFileId: string;
+          }
+        | null = null;
+
+    if (mediaFileId) {
+        const mediaFile = await CoreInternalService.getMediaFileById(mediaFileId);
+
+        if (!mediaFile || mediaFile.tenantId !== tenantId) {
+            throw { status: 404, message: 'Archivo adjunto no encontrado o sin acceso.' };
+        }
+
+        let kind: 'image' | 'video' | 'document';
+        if (String(mediaFile.mimeType).startsWith('image/')) {
+            kind = 'image';
+        } else if (String(mediaFile.mimeType).startsWith('video/')) {
+            kind = 'video';
+        } else {
+            kind = 'document';
+        }
+
+        mediaMeta = {
+            kind,
+            link: await CampaignMediaLinkService.resolveMediaLink(tenantId, mediaFileId),
+            mimeType: mediaFile.mimeType,
+            fileName: mediaFile.fileName,
+            mediaFileId,
+        };
+    }
+
     // AUDIT LOG (Requested Format: PRE-FLIGHT)
     console.log("[WA SEND PRE-FLIGHT]", {
         tenantId,
@@ -287,7 +332,12 @@ export async function sendMessage(
         phoneNumberIdUsed,
         toOriginal,
         toNormalized,
-        payload: { text }
+        payload: {
+            text,
+            mediaFileId,
+            mediaKind: mediaMeta?.kind || null,
+            hasCaption: Boolean(caption),
+        }
     });
 
     // 4. Select Adaptor (Strategy Pattern)
@@ -303,8 +353,8 @@ export async function sendMessage(
             fromPhone: channel.displayPhone || 'system',
             toPhone: thread.contactPhone,
             remotePhone: thread.contactPhone,
-            type: 'text',
-            textBody: text,
+            type: mediaMeta?.kind || 'text',
+            textBody: mediaMeta ? (caption || `[${mediaMeta.kind}] ${mediaMeta.fileName}`) : text,
             timestamp: new Date(),
             status: 'SENDING',
             deliveryStatus: 'PENDING',
@@ -312,19 +362,40 @@ export async function sendMessage(
             senderUserId: traceData?.senderUserId,
             generatedBy: traceData?.generatedBy || MessageGeneratedBy.user,
             aiProfileId: traceData?.aiProfileId,
-            source: traceData?.senderType === MessageSenderType.ai ? 'AI' : 'SYSTEM'
+            source: traceData?.senderType === MessageSenderType.ai ? 'AI' : 'SYSTEM',
+            metadata: mediaMeta
+                ? {
+                      mediaFileId: mediaMeta.mediaFileId,
+                      mediaKind: mediaMeta.kind.toUpperCase(),
+                      mediaUrl: mediaMeta.link,
+                      mimeType: mediaMeta.mimeType,
+                      fileName: mediaMeta.fileName,
+                      caption: caption || null,
+                  }
+                : undefined,
         }
     });
 
     try {
         // 6. Send Message via Adaptor
-        const sendResult = await sender.sendText({
-            channel,
-            tenantId,
-            threadId,
-            to: toNormalized,
-            text
-        });
+        const sendResult = mediaMeta
+            ? await sender.sendMedia({
+                  channel,
+                  tenantId,
+                  threadId,
+                  to: toNormalized,
+                  mediaType: mediaMeta.kind,
+                  mediaLink: mediaMeta.link,
+                  caption: caption || undefined,
+                  filename: mediaMeta.fileName,
+              })
+            : await sender.sendText({
+                  channel,
+                  tenantId,
+                  threadId,
+                  to: toNormalized,
+                  text
+              });
 
         // AUDIT LOG (Requested Format: POST-FLIGHT)
         console.log("[WA SEND POST-FLIGHT]", {
@@ -360,8 +431,8 @@ export async function sendMessage(
                         fromPhone: channel.displayPhone || 'system',
                         toPhone: thread.contactPhone,
                         remotePhone: thread.contactPhone,
-                        type: 'text',
-                        textBody: text,
+                        type: mediaMeta?.kind || 'text',
+                        textBody: mediaMeta ? (caption || `[${mediaMeta.kind}] ${mediaMeta.fileName}`) : text,
                         waMessageId: sendResult.externalId,
                         timestamp: updatedMessage.timestamp || new Date(),
                         status: 'PENDING',
@@ -378,7 +449,9 @@ export async function sendMessage(
             where: { id: thread.id },
             data: {
                 lastMessageAt: newMessage.createdAt,
-                lastMessagePreview: text.substring(0, 100),
+                lastMessagePreview: mediaMeta
+                    ? (caption || `Adjunto: ${mediaMeta.fileName}`).substring(0, 100)
+                    : text.substring(0, 100),
                 updatedAt: new Date()
             }
         });

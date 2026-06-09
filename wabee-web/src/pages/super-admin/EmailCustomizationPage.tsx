@@ -409,18 +409,18 @@ export const EmailCustomizationPage = () => {
     );
 
     return (
-        <div className="max-w-[1200px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="max-w-[1200px] mx-auto px-4 pb-4 animate-in fade-in slide-in-from-bottom-4 duration-500 sm:px-0">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <div className="flex flex-col gap-4 mb-6 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                     <h1 className={`${T.pageTitle} ${S.displayMd} mb-1`}>Personalización de correos</h1>
                     <p className={`${T.pageSubtitle} ${S.body}`}>Administra el branding global y el contenido específico de las plantillas de correo.</p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                     <button 
                         onClick={handleResetAll}
                         disabled={isSaving}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 transition-all active:scale-95 group text-red-500"
+                        className="flex w-full items-center justify-center gap-2 px-4 py-2 rounded-xl border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 transition-all active:scale-95 group text-red-500 sm:w-auto"
                     >
                         <RefreshCcw size={16} className={isSaving ? 'animate-spin' : ''} />
                         <span className={`${T.buttonText} ${S.ui}`}>Restaurar</span>
@@ -428,7 +428,7 @@ export const EmailCustomizationPage = () => {
                     <button 
                         onClick={activeTab === 'branding' ? handleSaveGlobal : handleSaveTemplates}
                         disabled={isSaving || !hasChanges}
-                    className={`flex items-center gap-2 group px-6 py-2.5 rounded-2xl font-black text-sm tracking-[0.12em] uppercase transition-all duration-300 shadow-lg ${
+                    className={`flex w-full items-center justify-center gap-2 group px-6 py-2.5 rounded-2xl font-black text-sm tracking-[0.12em] uppercase transition-all duration-300 shadow-lg sm:w-auto ${
                             !hasChanges 
                                 ? 'bg-[var(--bg-input)] text-[var(--text-muted)] border border-[var(--border-default)] cursor-not-allowed' 
                                 : 'bg-[var(--brand-primary)] text-[var(--brand-primary-foreground)] hover:scale-[1.02] active:scale-95 shadow-[var(--brand-primary)]/20'
@@ -440,7 +440,7 @@ export const EmailCustomizationPage = () => {
                 </div>
             </div>
 
-            <div className="bg-[var(--bg-card)] border border-[var(--border-default)] p-6 mb-6 rounded-[2rem] overflow-hidden shadow-xl">
+            <div className="bg-[var(--bg-card)] border border-[var(--border-default)] p-4 sm:p-6 mb-6 rounded-[2rem] overflow-hidden shadow-xl">
                 {/* Main Tabs */}
                 <div className="flex bg-[var(--bg-input)] p-1 rounded-xl w-full max-w-4xl mx-auto mb-8 border border-[var(--border-default)]">
                     <button 
@@ -469,7 +469,7 @@ export const EmailCustomizationPage = () => {
                         </div>
 
                         {/* Identidad General Section */}
-                        <div className="border border-[var(--border-default)] rounded-3xl p-8 bg-[var(--bg-surface)] backdrop-blur-sm">
+                        <div className="border border-[var(--border-default)] rounded-3xl p-5 sm:p-8 bg-[var(--bg-surface)] backdrop-blur-sm">
                             <div className="flex items-center gap-3 mb-8">
                                 <div className="p-2.5 rounded-xl bg-[var(--brand-primary)] text-[var(--brand-primary-foreground)] shadow-lg shadow-[var(--brand-primary)]/20">
                                     <Globe size={20} />
@@ -478,7 +478,7 @@ export const EmailCustomizationPage = () => {
                             </div>
 
                             <div className="space-y-6">
-                                <div className="grid md:grid-cols-2 gap-6">
+                                <div className="grid gap-6 md:grid-cols-2">
                                     <div className="space-y-6">
                                         <div>
                                             <label className={`${T.labelText} ${S.ui} font-black mb-1.5 block`}>Logo de la empresa</label>
@@ -588,7 +588,7 @@ export const EmailCustomizationPage = () => {
                         </div>
 
                         {/* Layout Global Section */}
-                        <div className="border border-[var(--border-default)] rounded-3xl p-8 bg-[var(--bg-surface)] backdrop-blur-sm">
+                        <div className="border border-[var(--border-default)] rounded-3xl p-5 sm:p-8 bg-[var(--bg-surface)] backdrop-blur-sm">
                             <div className="flex items-center gap-3 mb-8">
                                 <div className="p-2.5 rounded-xl bg-[var(--brand-primary)] text-[var(--brand-primary-foreground)] shadow-lg shadow-[var(--brand-primary)]/20">
                                     <Palette size={20} />
@@ -596,7 +596,7 @@ export const EmailCustomizationPage = () => {
                                 <h4 className={`${T.sectionTitle} ${S.headingSm}`}>Layout global</h4>
                             </div>
 
-                            <div className="grid md:grid-cols-2 gap-x-8 gap-y-6">
+                            <div className="grid gap-x-8 gap-y-6 md:grid-cols-2">
                                 <ColorInput label="Fondo" value={globalConfig.layout.bg} onChange={(v) => updateConfig('layout', 'bg', v)} />
                                 <ColorInput label="Tarjeta" value={globalConfig.layout.card} onChange={(v) => updateConfig('layout', 'card', v)} />
                                 <ColorInput label="Borde" value={globalConfig.layout.border} onChange={(v) => updateConfig('layout', 'border', v)} />
@@ -607,7 +607,7 @@ export const EmailCustomizationPage = () => {
                         </div>
 
                         {/* Tipos de texto globales Section */}
-                        <div className="border border-[var(--border-default)] rounded-3xl p-8 bg-[var(--bg-surface)] backdrop-blur-sm">
+                        <div className="border border-[var(--border-default)] rounded-3xl p-5 sm:p-8 bg-[var(--bg-surface)] backdrop-blur-sm">
                             <div className="flex items-center gap-3 mb-8">
                                 <div className="p-2.5 rounded-xl bg-[var(--brand-primary)] text-[var(--brand-primary-foreground)] shadow-lg shadow-[var(--brand-primary)]/20">
                                     <Type size={20} />
@@ -615,7 +615,7 @@ export const EmailCustomizationPage = () => {
                                 <h4 className={`${T.sectionTitle} ${S.headingSm}`}>Tipos de texto globales</h4>
                             </div>
 
-                            <div className="overflow-x-auto">
+                            <div className="hidden overflow-x-auto md:block">
                                 <table className="w-full text-left">
                                     <thead>
                                         <tr className="border-b border-[var(--border-default)]">
@@ -686,11 +686,67 @@ export const EmailCustomizationPage = () => {
                                     </tbody>
                                 </table>
                             </div>
+
+                            <div className="space-y-4 md:hidden">
+                                {Object.entries(globalConfig.texts).map(([key, style]) => (
+                                    <div key={key} className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] p-4 shadow-sm">
+                                        <div className="mb-4 flex items-center justify-between gap-3">
+                                            <span className={`${T.cardTitle} text-sm font-bold`}>{style.label}</span>
+                                            <div className="relative">
+                                                <input
+                                                    type="color"
+                                                    value={style.color}
+                                                    onChange={(e) => updateTextStyle(key, 'color', e.target.value)}
+                                                    className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                                                />
+                                                <div
+                                                    className="h-6 w-10 rounded-md border border-[var(--border-default)]"
+                                                    style={{ backgroundColor: style.color }}
+                                                ></div>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <select
+                                                value={style.font}
+                                                onChange={(e) => updateTextStyle(key, 'font', e.target.value)}
+                                                className="w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-4 py-2 text-sm font-bold text-[var(--tx-inputText-color)] outline-none transition-all focus:border-[var(--brand-primary)] focus:ring-1 focus:ring-[var(--brand-primary)]/30"
+                                            >
+                                                {FONTS.map((f) => <option key={f} value={f}>{f}</option>)}
+                                            </select>
+                                            <div className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3">
+                                                {key === 'button' ? (
+                                                    <button
+                                                        className="rounded-xl px-5 py-2 text-xs font-bold transition-all"
+                                                        style={{
+                                                            backgroundColor: globalConfig.layout.buttonBg,
+                                                            color: style.color,
+                                                            fontFamily: style.font
+                                                        }}
+                                                    >
+                                                        {style.preview}
+                                                    </button>
+                                                ) : (
+                                                    <span
+                                                        className="font-bold"
+                                                        style={{
+                                                            color: style.color,
+                                                            fontFamily: style.font,
+                                                            fontSize: key === 'title' ? '1.1rem' : key === 'subtitle' ? '0.95rem' : '0.875rem'
+                                                        }}
+                                                    >
+                                                        {style.preview}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
                         {/* LIVE PREVIEW DE VERIFICACIÓN (Petición del Usuario) */}
-                        <div className="border border-[var(--border-default)] rounded-3xl p-8 bg-[var(--bg-surface)] backdrop-blur-sm">
-                            <div className="flex items-center justify-between mb-8">
+                        <div className="border border-[var(--border-default)] rounded-3xl p-5 sm:p-8 bg-[var(--bg-surface)] backdrop-blur-sm">
+                            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2.5 rounded-xl bg-[var(--brand-primary)] text-[var(--brand-primary-foreground)] shadow-lg shadow-[var(--brand-primary)]/20">
                                         <Monitor size={20} />
@@ -717,7 +773,7 @@ export const EmailCustomizationPage = () => {
                             </div>
 
                             <div 
-                                className={`mx-auto border shadow-sm overflow-hidden transition-all duration-500 bg-[var(--bg-card)] ${previewMode === 'desktop' ? 'w-full max-w-full' : 'w-[400px]'}`}
+                                className={`mx-auto border shadow-sm overflow-hidden transition-all duration-500 bg-[var(--bg-card)] ${previewMode === 'desktop' ? 'w-full max-w-full' : 'w-full max-w-[320px] sm:max-w-[360px]'}`}
                                 style={{ 
                                     backgroundColor: globalConfig.layout.bg,
                                     borderColor: globalConfig.layout.border,
@@ -730,7 +786,7 @@ export const EmailCustomizationPage = () => {
                                     <div className="h-3 w-3 rounded-full bg-green-400"></div>
                                 </div>
                                 
-                                <div className={`relative transition-all duration-500 overflow-hidden ${previewMode === 'desktop' ? 'h-[750px]' : 'h-[650px]'}`}>
+                                <div className={`relative transition-all duration-500 overflow-hidden ${previewMode === 'desktop' ? 'h-[750px]' : 'h-[560px] sm:h-[650px]'}`}>
                                     {isPreviewLoading && (
                                         <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 backdrop-blur-[2px]">
                                             <div className="flex flex-col items-center gap-3">
@@ -783,14 +839,14 @@ export const EmailCustomizationPage = () => {
                                     onClick={() => handleEditTemplate(template)}
                                     className={`group relative p-4 rounded-2xl border transition-all cursor-pointer ${template.status === 'published' ? 'bg-[var(--bg-card)] border-[var(--border-default)] hover:border-[var(--brand-primary)]/50' : 'bg-[var(--bg-input)]/50 border-dashed border-[var(--border-default)] hover:border-[var(--text-muted)]'}`}
                                 >
-                                    <div className="flex items-center justify-between gap-4">
-                                        <div className="flex items-center gap-3 min-w-0">
+                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                        <div className="flex items-start gap-3 min-w-0 sm:items-center">
                                             <div className={`p-2 rounded-xl transition-colors ${template.status === 'published' ? 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)]' : 'bg-[var(--text-muted)]/10 text-[var(--text-muted)]'}`}>
                                                 <Mail size={18} />
                                             </div>
                                             <div className="min-w-0">
-                                                <div className="flex items-center gap-2 mb-0.5">
-                                                    <h4 className={`${T.cardTitle} ${S.headingSm} truncate`}>{template.name}</h4>
+                                                <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                                                    <h4 className={`${T.cardTitle} ${S.headingSm} min-w-0 break-words`}>{template.name}</h4>
                                                     <span className={`${T.badgeText} text-[10px] px-2 py-0.5 rounded-full ${template.status === 'published' ? 'bg-green-500/10 text-green-500' : 'bg-orange-500/10 text-orange-500'}`}>
                                                         {template.status === 'published' ? 'Publicado' : 'Borrador'}
                                                     </span>
@@ -798,8 +854,8 @@ export const EmailCustomizationPage = () => {
                                                 <p className={`${T.helperText} ${S.meta} truncate`}>{template.code} • {template.category}</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3 shrink-0">
-                                            <span className={`${T.helperText} ${S.meta} group-hover:opacity-0 transition-opacity`}>{template.lastModified}</span>
+                                        <div className="flex items-center justify-between gap-3 sm:shrink-0">
+                                            <span className={`${T.helperText} ${S.meta} group-hover:opacity-70 transition-opacity`}>{template.lastModified}</span>
                                             <ChevronRight size={16} className="text-[var(--text-muted)] group-hover:translate-x-1 transition-transform" />
                                         </div>
                                     </div>
@@ -812,16 +868,16 @@ export const EmailCustomizationPage = () => {
                 {selectedTemplate && (
                     <div className="animate-in fade-in zoom-in-95 duration-500">
                         {/* Editor Header */}
-                        <div className="flex items-center justify-between mb-6">
-                            <div className="flex items-center gap-4">
+                        <div className="flex flex-col gap-4 mb-6 lg:flex-row lg:items-center lg:justify-between">
+                            <div className="flex items-start gap-4">
                                 <button 
                                     onClick={handleBackToList}
                                     className="p-2 rounded-xl border border-[var(--border-default)] hover:bg-[var(--bg-input)] transition-all"
                                 >
                                     <ArrowLeft size={18} />
                                 </button>
-                                <div>
-                                    <div className="flex items-center gap-2 mb-1">
+                                <div className="min-w-0">
+                                    <div className="flex flex-wrap items-center gap-2 mb-1">
                                         <h3 className={`${T.sectionTitle} ${S.headingLg}`}>{selectedTemplate.name}</h3>
                                         <span className={`${T.statusText} text-[9px] px-2 py-0.5 rounded-full bg-[var(--bg-input)] text-[var(--text-muted)] border border-[var(--border-default)]`}>
                                             {selectedTemplate.code}
@@ -863,7 +919,7 @@ export const EmailCustomizationPage = () => {
                                     <div className="space-y-6">
                                         {/* Global Variables */}
                                         <div className="space-y-3">
-                                            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block ml-1">Variables Globales</span>
+                                            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block ml-1">Variables Globales</span>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                                                 {getTemplateVariables(selectedTemplate.code).global.map((v) => (
                                                     <VariableBadge key={v.key} v={v} type="global" />
@@ -874,7 +930,7 @@ export const EmailCustomizationPage = () => {
                                         {/* Specific Variables */}
                                         {getTemplateVariables(selectedTemplate.code).specific.length > 0 && (
                                             <div className="space-y-3">
-                                                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block ml-1">Variables desta Plantilla</span>
+                                                <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block ml-1">Variables desta Plantilla</span>
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                                                     {getTemplateVariables(selectedTemplate.code).specific.map((v) => (
                                                         <VariableBadge key={v.key} v={v} type="specific" />
@@ -913,7 +969,7 @@ export const EmailCustomizationPage = () => {
                                             className="w-full bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-[var(--tx-inputText-color)] text-sm outline-none focus:border-[var(--brand-primary)]/50 transition-all resize-none"
                                         ></textarea>
                                     </div>
-                                    <div className="grid md:grid-cols-2 gap-6">
+                                    <div className="grid gap-6 md:grid-cols-2">
                                         <div>
                                             <label className={`${T.labelText} ${S.ui} font-black block mb-1.5`}>Texto del botón</label>
                                             <input 
@@ -937,7 +993,7 @@ export const EmailCustomizationPage = () => {
                             </div>
                         ) : (
                             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
-                                <div className="flex items-center justify-between mb-4">
+                                <div className="flex flex-col gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between">
                                     <div className="flex flex-col">
                                         <h4 className={`${T.cardTitle} ${S.headingSm} mb-0.5`}>Vista previa</h4>
                                         <p className={`${T.helperText} ${S.meta}`}>Basado en la configuración global de layout y textos.</p>
@@ -960,7 +1016,7 @@ export const EmailCustomizationPage = () => {
 
                                 {/* Email Preview Frame */}
                                 <div 
-                                    className={`mx-auto rounded-3xl border shadow-2xl overflow-hidden transition-all duration-500 ${previewMode === 'desktop' ? 'w-full max-w-4xl min-h-[600px]' : 'w-[360px] min-h-[600px]'}`}
+                                    className={`mx-auto rounded-3xl border shadow-2xl overflow-hidden transition-all duration-500 ${previewMode === 'desktop' ? 'w-full max-w-4xl min-h-[600px]' : 'w-full max-w-[320px] min-h-[560px] sm:max-w-[360px] sm:min-h-[600px]'}`}
                                     style={{ 
                                         backgroundColor: globalConfig.layout.bg,
                                         borderColor: globalConfig.layout.border

@@ -118,13 +118,13 @@ export default function WhatsAppTemplatesPage() {
             </div>
 
             {/* Filters */}
-            <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded-lg shadow">
+            <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 bg-[var(--bg-card)] border border-[var(--border-default)] p-4 rounded-lg shadow">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                    <label className="block text-sm font-medium text-[var(--text-body)] mb-1">Estado</label>
                     <select
                         value={filters.status}
                         onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-3 py-2 bg-[var(--bg-input)] text-[var(--text-strong)] border border-[var(--border-default)] rounded-md outline-none focus:border-[var(--brand-primary)]"
                     >
                         <option value="">Todos</option>
                         <option value="APPROVED">APPROVED</option>
@@ -135,22 +135,22 @@ export default function WhatsAppTemplatesPage() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Idioma</label>
+                    <label className="block text-sm font-medium text-[var(--text-body)] mb-1">Idioma</label>
                     <input
                         type="text"
                         value={filters.language}
                         onChange={(e) => setFilters({ ...filters, language: e.target.value })}
                         placeholder="ej: en_US"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-3 py-2 bg-[var(--bg-input)] text-[var(--text-strong)] border border-[var(--border-default)] rounded-md outline-none focus:border-[var(--brand-primary)]"
                     />
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                    <label className="block text-sm font-medium text-[var(--text-body)] mb-1">Categoría</label>
                     <select
                         value={filters.category}
                         onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-3 py-2 bg-[var(--bg-input)] text-[var(--text-strong)] border border-[var(--border-default)] rounded-md outline-none focus:border-[var(--brand-primary)]"
                     >
                         <option value="">Todas</option>
                         <option value="MARKETING">MARKETING</option>
@@ -160,13 +160,13 @@ export default function WhatsAppTemplatesPage() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
+                    <label className="block text-sm font-medium text-[var(--text-body)] mb-1">Buscar</label>
                     <input
                         type="text"
                         value={filters.q}
                         onChange={(e) => setFilters({ ...filters, q: e.target.value })}
                         placeholder="Nombre del template"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-3 py-2 bg-[var(--bg-input)] text-[var(--text-strong)] border border-[var(--border-default)] rounded-md outline-none focus:border-[var(--brand-primary)]"
                     />
                 </div>
 
@@ -187,44 +187,44 @@ export default function WhatsAppTemplatesPage() {
                 </div>
             ) : (
                 <>
-                    <div className="bg-white rounded-lg shadow overflow-hidden">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                    <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-lg shadow overflow-hidden">
+                        <table className="min-w-full divide-y divide-[var(--border-default)]">
+                            <thead className="bg-[var(--bg-surface)]">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
                                         Nombre
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
                                         Idioma
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
                                         Categoría
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
                                         Estado
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
                                         Preview
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
+                            <tbody className="bg-[var(--bg-card)] divide-y divide-[var(--border-default)]">
                                 {templates.length === 0 ? (
                                     <tr>
-                                        <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                                        <td colSpan={5} className="px-6 py-12 text-center text-[var(--text-muted)]">
                                             No hay templates. Haz clic en "Importar desde Meta" para obtenerlos.
                                         </td>
                                     </tr>
                                 ) : (
                                     templates.map((template) => (
-                                        <tr key={template.id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        <tr key={template.id} className="hover:bg-[var(--bg-hover)]">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[var(--text-strong)]">
                                                 {template.name}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-muted)]">
                                                 {template.language}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-muted)]">
                                                 <span className={`px-2 py-1 rounded text-xs ${template.category === 'MARKETING' ? 'bg-purple-100 text-purple-800' :
                                                     template.category === 'UTILITY' ? 'bg-blue-100 text-blue-800' :
                                                         'bg-green-100 text-green-800'
@@ -232,16 +232,16 @@ export default function WhatsAppTemplatesPage() {
                                                     {template.category}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-muted)]">
                                                 <span className={`px-2 py-1 rounded text-xs ${template.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
                                                     template.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
                                                         template.status === 'REJECTED' ? 'bg-red-100 text-red-800' :
-                                                            'bg-gray-100 text-gray-800'
+                                                            'bg-[var(--bg-hover)] text-[var(--text-muted)]'
                                                     }`}>
                                                     {template.status}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                                            <td className="px-6 py-4 text-sm text-[var(--text-muted)] max-w-xs truncate">
                                                 {extractBodyPreview(template.components)}
                                             </td>
                                         </tr>
@@ -252,7 +252,7 @@ export default function WhatsAppTemplatesPage() {
                     </div>
 
                     {meta && meta.total > 0 && (
-                        <div className="mt-4 flex justify-between items-center text-sm text-gray-700">
+                        <div className="mt-4 flex justify-between items-center text-sm text-[var(--text-body)]">
                             <div>
                                 Mostrando {templates.length} de {meta.total} templates
                             </div>

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-    Palette, Save, RefreshCcw, ArrowLeft, Info, 
+import {
+    Palette, Save, RefreshCcw, ArrowLeft, Info,
     Layout, Type, Square, MessageSquare, BarChart3,
-    CheckCircle2
+    CheckCircle2, Baseline, Megaphone
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { colorsApi, ColorsConfig, DEFAULT_COLORS } from '@/api/wabee/colors.api';
@@ -12,16 +12,23 @@ import { T, S } from '@/lib/text-tokens';
 // --- Grupos de Color ---
 const COLOR_CATEGORIES = [
     { id: 'brand',      name: 'Marca (Brand)',   icon: Palette,        description: 'Colores de identidad principal' },
+    { id: 'text',       name: 'Textos (Base)',   icon: Baseline,       description: 'Colores base de texto de toda la app' },
     { id: 'bg',         name: 'Fondos (BG)',     icon: Layout,         description: 'Superficies y capas de interfaz' },
     { id: 'border',     name: 'Bordes',          icon: Square,         description: 'Divisiones y estados de foco' },
     { id: 'status',     name: 'Estados',         icon: MessageSquare,  description: 'Semántica de sistema (Éxito, Error...)' },
     { id: 'charts',     name: 'Gráficos',        icon: BarChart3,      description: 'Paleta categórica para visualización' },
+    { id: 'marketing',  name: 'Marketing',       icon: Megaphone,      description: 'Sitio público (landing y login)' },
 ];
 
 const COLOR_TOKENS_METADATA: Record<string, { name: string, desc: string, impacts: string }> = {
     // Brand
     'brand-primary': { name: 'Primario', desc: 'Color principal de la marca', impacts: 'Botones primarios, acentos, links' },
     'brand-primary-foreground': { name: 'Contraste Primario', desc: 'Texto sobre el color primario', impacts: 'Texto en botones amarillos' },
+    // Textos base
+    'text-strong': { name: 'Texto Fuerte', desc: 'Texto principal / títulos', impacts: 'Títulos, valores, texto destacado' },
+    'text-body': { name: 'Texto Cuerpo', desc: 'Texto de párrafo', impacts: 'Descripciones y cuerpos de texto' },
+    'text-muted': { name: 'Texto Apagado', desc: 'Texto secundario', impacts: 'Labels, ayudas, metadatos' },
+    'text-inverse': { name: 'Texto Inverso', desc: 'Texto sobre fondos oscuros/color', impacts: 'Texto sobre superficies invertidas' },
     // Backgrounds
     'bg-page': { name: 'Fondo Página', desc: 'Base de fondo principal', impacts: 'Body de la aplicación' },
     'bg-surface': { name: 'Superficie', desc: 'Fondo secundario', impacts: 'Zonas de contenido lateral' },
@@ -49,6 +56,11 @@ const COLOR_TOKENS_METADATA: Record<string, { name: string, desc: string, impact
     'chart-axis': { name: 'Ejes', desc: 'Textos de escalas', impacts: 'Numbers en X/Y' },
     'chart-tooltip-bg': { name: 'Tooltip BG', desc: 'Fondo de flotante', impacts: 'Caja hover en charts' },
     'chart-tooltip-text': { name: 'Tooltip Texto', desc: 'Texto interior', impacts: 'Valores en tooltip' },
+    // Marketing / Landing
+    'mkt-surface': { name: 'Superficie Glass', desc: 'Tarjetas translúcidas del sitio público', impacts: 'Cards de landing, panel de login' },
+    'mkt-surface-2': { name: 'Superficie Glass 2', desc: 'Variante más translúcida', impacts: 'Tarjetas de tokens / secundarias' },
+    'mkt-border': { name: 'Borde Marketing', desc: 'Borde sutil de superficies', impacts: 'Contornos de cards públicas' },
+    'mkt-ink': { name: 'Tinta Oscura', desc: 'Chips y badges oscuros', impacts: 'Etiquetas oscuras en landing' },
 };
 
 // --- Componentes de Preview Internos ---
@@ -63,7 +75,7 @@ const LivePreview = ({ config }: { config: ColorsConfig }) => {
     }, [config]);
 
     return (
-        <div style={inlineStyles} className="bg-[var(--bg-page)] rounded-[2rem] p-6 space-y-6 w-full animate-in fade-in duration-500 min-h-[700px]">
+        <div style={inlineStyles} className="bg-[var(--bg-page)] rounded-[2rem] p-3 sm:p-6 space-y-4 sm:space-y-6 w-full animate-in fade-in duration-500 min-h-[700px]">
             {/* Header / Sidebar Mock */}
             <div className="flex gap-4 items-center border-b border-[var(--border-strong)] pb-4 mb-2">
                 <div className={`w-10 h-10 rounded-xl bg-[var(--brand-primary)] flex items-center justify-center  shadow-lg shadow-[var(--brand-primary)]/10 ${T.buttonPrimaryText}`}>
@@ -94,28 +106,28 @@ const LivePreview = ({ config }: { config: ColorsConfig }) => {
             </div>
 
             {/* Card de Ejemplo */}
-            <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-[2rem] p-6 shadow-xl relative overflow-hidden">
+            <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-[2rem] p-4 sm:p-6 shadow-xl relative overflow-hidden">
                 <div className={`absolute top-0 right-0 w-32 h-32 bg-[var(--brand-primary)] opacity-5 blur-3xl -mr-16 -mt-16 ${T.buttonPrimaryText}`} />
-                
-                <div className="flex justify-between items-start mb-6">
-                    <div>
+
+                <div className="flex flex-wrap justify-between items-start gap-2 mb-6">
+                    <div className="min-w-0">
                         <h3 className={`${T.cardTitle} text-[var(--tx-cardTitle-color)]`}>Dashboard de Métricas</h3>
                         <p className={`${T.cardSubtitle} text-[var(--tx-cardSubtitle-color)]`}>Visualización de tokens en tiempo real</p>
                     </div>
-                    <div className="bg-[var(--state-success)] text-[var(--tx-buttonText-color)] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+                    <div className="shrink-0 bg-[var(--state-success)] text-[var(--tx-buttonText-color)] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
                         Activo
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-default)]">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
+                    <div className="bg-[var(--bg-surface)] p-3 sm:p-4 rounded-2xl border border-[var(--border-default)] min-w-0">
                         <span className="text-[var(--tx-kpiLabel-color)] text-[10px] uppercase font-bold">Métrica A</span>
-                        <div className="text-[var(--tx-kpiValue-color)] text-2xl font-black mt-1">$45,280</div>
+                        <div className="text-[var(--tx-kpiValue-color)] text-lg sm:text-2xl font-black mt-1 tracking-tight truncate">$45,280</div>
                         <div className="text-[var(--state-success)] text-[10px] font-bold mt-1">↑ 12.5%</div>
                     </div>
-                    <div className="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-default)]">
+                    <div className="bg-[var(--bg-surface)] p-3 sm:p-4 rounded-2xl border border-[var(--border-default)] min-w-0">
                         <span className="text-[var(--tx-kpiLabel-color)] text-[10px] uppercase font-bold">Métrica B</span>
-                        <div className="text-[var(--tx-kpiValue-color)] text-2xl font-black mt-1">1,402</div>
+                        <div className="text-[var(--tx-kpiValue-color)] text-lg sm:text-2xl font-black mt-1 tracking-tight truncate">1,402</div>
                         <div className="text-[var(--state-danger)] text-[10px] font-bold mt-1">↓ 3.2%</div>
                     </div>
                 </div>
@@ -144,8 +156,8 @@ const LivePreview = ({ config }: { config: ColorsConfig }) => {
             </div>
 
             {/* Formulario / Input / Botones */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-[2rem] p-6 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-[2rem] p-4 sm:p-6 space-y-4">
                     <div className="space-y-1.5">
                         <label className="text-[var(--tx-labelText-color)] text-[11px] font-bold ml-1 uppercase tracking-wider">Campo de Entrada</label>
                         <input 
@@ -164,7 +176,7 @@ const LivePreview = ({ config }: { config: ColorsConfig }) => {
                     </div>
                 </div>
 
-                <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-[2rem] p-6 flex flex-col justify-center gap-3">
+                <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-[2rem] p-4 sm:p-6 flex flex-col justify-center gap-3">
                     <div className="flex items-center justify-between text-[var(--tx-tableHeader-color)] text-sm font-bold border-b border-[var(--border-strong)] pb-2 mb-2">
                         <span>Estado</span>
                         <span>Métricas</span>
@@ -183,7 +195,7 @@ const LivePreview = ({ config }: { config: ColorsConfig }) => {
             </div>
 
             {/* Simulación de Chart */}
-            <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-[2rem] p-6">
+            <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-[2rem] p-4 sm:p-6">
                 <div className="flex justify-between items-center mb-6">
                     <h4 className="text-[var(--text-strong)] font-bold text-sm">Visualización (Recharts)</h4>
                     <BarChart3 className="text-[var(--text-muted)]" size={18} />
@@ -263,6 +275,7 @@ export const BrandingColorsPage = () => {
         if (activeCategory === 'border') return tokens.filter(t => t.startsWith('border-'));
         if (activeCategory === 'status') return tokens.filter(t => t.startsWith('state-'));
         if (activeCategory === 'charts') return tokens.filter(t => t.startsWith('chart-'));
+        if (activeCategory === 'marketing') return tokens.filter(t => t.startsWith('mkt-'));
         return [];
     }, [activeCategory]);
 
@@ -383,10 +396,15 @@ export const BrandingColorsPage = () => {
 
                     <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-[1.5rem] p-5 space-y-5">
                         <div className="border-b border-[var(--border-default)] pb-4">
-                            <h3 className={`${T.cardTitle} font-black text-xs uppercase tracking-widest flex items-center gap-2`}>
-                                {COLOR_CATEGORIES.find(c => c.id === activeCategory)?.name}
-                            </h3>
-                            <p className={`${T.helperText} text-[10px] mt-1 font-bold`}>
+                            <div className="flex items-center justify-between gap-2">
+                                <h3 className={`${T.cardTitle} font-black text-xs uppercase tracking-widest flex items-center gap-2`}>
+                                    {COLOR_CATEGORIES.find(c => c.id === activeCategory)?.name}
+                                </h3>
+                                <span className="shrink-0 rounded-full bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] px-2.5 py-1 text-[10px] font-black">
+                                    {tokensByCategory.length} {tokensByCategory.length === 1 ? 'color' : 'colores'}
+                                </span>
+                            </div>
+                            <p className={`${T.helperText} text-[11px] mt-1.5 font-medium leading-snug`}>
                                 {COLOR_CATEGORIES.find(c => c.id === activeCategory)?.description}
                             </p>
                         </div>
@@ -396,46 +414,46 @@ export const BrandingColorsPage = () => {
                                 const meta = COLOR_TOKENS_METADATA[token];
                                 return (
                                     <div key={token} className="group p-4 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-2xl hover:border-[var(--border-strong)] transition-all">
-                                        <div className="flex justify-between items-start mb-3">
-                                            <div>
-                                                <h4 className={`${T.cardTitle} text-[10px] font-black uppercase tracking-wider`}>{meta?.name || token}</h4>
-                                                <code className="text-[7px] text-[var(--brand-primary)]/50 block mt-0.5">{`var(--${token})`}</code>
+                                        <div className="flex justify-between items-start gap-3 mb-2">
+                                            <div className="min-w-0">
+                                                <h4 className={`${T.cardTitle} text-sm font-black`}>{meta?.name || token}</h4>
+                                                <code className="text-[10px] text-[var(--brand-primary)]/70 block mt-1 font-mono">{`var(--${token})`}</code>
                                             </div>
-                                            <div 
-                                                className="w-8 h-8 rounded-lg border border-[var(--border-default)] shadow-inner"
+                                            <div
+                                                className="w-10 h-10 shrink-0 rounded-xl border border-[var(--border-strong)] shadow-inner"
                                                 style={{ backgroundColor: config[token] }}
                                             />
                                         </div>
-                                        
-                                        <p className={`${T.helperText} text-[9px] font-bold mb-4 italic leading-tight`}>
+
+                                        <p className={`text-[12px] text-[var(--text-body)] mb-2 leading-snug`}>
                                             {meta?.desc}
                                         </p>
 
+                                        {meta?.impacts && (
+                                            <div className={`mb-3 text-[11px] leading-snug text-[var(--text-muted)] flex items-start gap-1.5`}>
+                                                <CheckCircle2 size={12} className="text-[var(--brand-primary)] shrink-0 mt-0.5" />
+                                                <span><span className="font-bold text-[var(--text-body)]">Dónde se usa:</span> {meta.impacts}</span>
+                                            </div>
+                                        )}
+
                                         <div className="flex items-center gap-2">
                                             <div className="relative flex-1">
-                                                <input 
-                                                    type="text" 
+                                                <input
+                                                    type="text"
                                                     value={config[token]}
                                                     onChange={(e) => handleColorChange(token, e.target.value)}
-                                                    className={`w-full bg-[var(--bg-input)] border border-[var(--border-default)] rounded-lg py-1.5 px-3 text-[10px] font-mono ${T.inputText} outline-none focus:border-[var(--brand-primary)]/40`}
+                                                    className={`w-full bg-[var(--bg-input)] border border-[var(--border-default)] rounded-lg py-2 px-3 text-[12px] font-mono ${T.inputText} outline-none focus:border-[var(--brand-primary)]/40`}
                                                 />
-                                                <input 
-                                                    type="color" 
+                                                <input
+                                                    type="color"
                                                     value={config[token].startsWith('rgba') ? '#000000' : config[token]}
                                                     disabled={config[token].startsWith('rgba')}
                                                     onChange={(e) => handleColorChange(token, e.target.value)}
-                                                    className="absolute right-1 top-1 w-6 h-6 rounded cursor-pointer opacity-0"
+                                                    className="absolute right-1 top-1 w-7 h-7 rounded cursor-pointer opacity-0"
                                                 />
-                                                <Palette size={12} className={`absolute right-2.5 top-2.5 ${T.helperText} pointer-events-none`} />
+                                                <Palette size={14} className={`absolute right-2.5 top-2.5 ${T.helperText} pointer-events-none`} />
                                             </div>
                                         </div>
-
-                                        {meta?.impacts && (
-                                            <div className={`mt-3 pt-3 border-t border-[var(--border-default)]/50 text-[8px] font-bold ${T.helperText} flex items-center gap-1.5 uppercase`}>
-                                                <CheckCircle2 size={10} className="text-[var(--brand-primary)]/30" />
-                                                Impacto: {meta.impacts}
-                                            </div>
-                                        )}
                                     </div>
                                 );
                             })}
@@ -457,7 +475,7 @@ export const BrandingColorsPage = () => {
                     </div>
 
                     <div className="bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-[2.5rem] p-1 shadow-2xl overflow-hidden min-h-[700px]">
-                        <div className="bg-[var(--bg-card)] rounded-[2.2rem] p-6 sm:p-10 h-full overflow-y-auto max-h-[85vh]">
+                        <div className="bg-[var(--bg-card)] rounded-[2.2rem] p-3 sm:p-6 lg:p-10 h-full overflow-y-auto max-h-[85vh]">
                             <LivePreview config={config} />
                             
                             <div className={`mt-10 p-5 bg-[var(--brand-primary)]/5 border border-[var(--brand-primary)]/10 rounded-3xl flex gap-4 items-start ${T.buttonPrimaryText}`}>

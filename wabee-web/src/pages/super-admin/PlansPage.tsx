@@ -161,15 +161,15 @@ export const PlansPage = () => {
     };
 
     return (
-        <div className="p-4 sm:p-6 lg:p-8 w-full max-w-7xl mx-auto space-y-8 animate-in fade-in duration-300">
+        <div className="mx-auto w-full max-w-7xl space-y-6 p-4 animate-in fade-in duration-300 sm:space-y-8 sm:p-6 lg:p-8">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div className="flex-1">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <div className="max-w-3xl flex-1">
                     <h1 className={`${T.pageTitle} ${S.displayMd}`}>Planes <span className="text-[var(--brand-primary)]">Comerciales</span></h1>
                     <p className={`${T.pageSubtitle} ${S.body}`}>Gestiona el catálogo de planes, precios y versiones vigentes.</p>
                 </div>
-                <div className="flex flex-col sm:flex-row items-center gap-4">
-                    <label className={`flex items-center gap-2 cursor-pointer ${T.helperText} ${S.meta} text-white/60 hover:text-white transition-colors`}>
+                <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:w-auto lg:flex-shrink-0 lg:justify-end">
+                    <label className={`flex items-center justify-center gap-2 rounded-full px-1 py-1 cursor-pointer ${T.helperText} ${S.meta} text-[var(--text-muted)] transition-colors hover:text-[var(--text-strong)] sm:justify-start`}>
                         <div className="relative">
                             <input type="checkbox" className="sr-only" checked={includeDeleted} onChange={(e) => setIncludeDeleted(e.target.checked)} />
                             <div className={`block w-10 h-6 rounded-full transition-colors ${includeDeleted ? 'bg-[var(--brand-primary)]' : 'bg-[var(--border-default)]'}`}></div>
@@ -180,7 +180,7 @@ export const PlansPage = () => {
 
                     <button 
                         onClick={handleCreate}
-                        className={`flex items-center justify-center gap-2 px-6 py-3 bg-[var(--brand-primary)] rounded-full ${T.buttonPrimaryText} ${S.body} hover:scale-105 transition-all shadow-lg shadow-[var(--brand-primary)]/20 text-white w-full sm:w-auto`}
+                        className={`inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--brand-primary)] px-6 py-3 text-white ${T.buttonPrimaryText} ${S.body} shadow-lg shadow-[var(--brand-primary)]/20 transition-all hover:scale-[1.02] sm:w-auto sm:min-w-[220px]`}
                     >
                         <Plus size={20} /> Crear Plan
                     </button>
@@ -188,8 +188,8 @@ export const PlansPage = () => {
             </div>
 
             {/* Toolbar Filters */}
-            <div className="bg-[var(--bg-card)] border border-[var(--border-default)] p-4 rounded-2xl flex flex-col lg:flex-row gap-4 justify-between">
-                <div className="flex-1 flex items-center gap-3 bg-[var(--bg-surface)] px-4 py-2.5 rounded-xl border border-[var(--border-default)] focus-within:border-[var(--brand-primary)]/50 transition-colors">
+            <div className="flex flex-col gap-4 rounded-[1.75rem] border border-[var(--border-default)] bg-[var(--bg-card)] p-4 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex flex-1 items-center gap-3 rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-2.5 transition-colors focus-within:border-[var(--brand-primary)]/50">
                     <Search size={18} className="text-[var(--text-muted)]" />
                     <input 
                         type="text" 
@@ -200,13 +200,13 @@ export const PlansPage = () => {
                     />
                 </div>
 
-                <div className="flex gap-4">
-                    <div className="flex items-center gap-2 bg-[var(--bg-surface)] px-4 py-2.5 rounded-xl border border-[var(--border-default)]">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:flex lg:min-w-[460px] lg:justify-end">
+                    <div className="flex min-w-0 items-center gap-2 rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-2.5">
                         <Filter size={16} className="text-[var(--text-muted)]" />
                         <select 
                             value={statusFilter} 
                             onChange={(e) => setStatusFilter(e.target.value as any)}
-                            className={`bg-transparent outline-none ${T.inputText} ${S.body} text-[var(--text-strong)] cursor-pointer`}
+                            className={`min-w-0 flex-1 bg-transparent outline-none ${T.inputText} ${S.body} text-[var(--text-strong)] cursor-pointer`}
                         >
                             <option value="all">Todos los estados</option>
                             <option value="active">Publicados</option>
@@ -216,12 +216,12 @@ export const PlansPage = () => {
                         </select>
                     </div>
 
-                    <div className="flex items-center gap-2 bg-[var(--bg-surface)] px-4 py-2.5 rounded-xl border border-[var(--border-default)]">
+                    <div className="flex min-w-0 items-center gap-2 rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-2.5">
                         <SortDesc size={16} className="text-[var(--text-muted)]" />
                         <select 
                             value={sortBy} 
                             onChange={(e) => setSortBy(e.target.value as any)}
-                            className={`bg-transparent outline-none ${T.inputText} ${S.body} text-[var(--text-strong)] cursor-pointer`}
+                            className={`min-w-0 flex-1 bg-transparent outline-none ${T.inputText} ${S.body} text-[var(--text-strong)] cursor-pointer`}
                         >
                             <option value="popular">Más populares</option>
                             <option value="price">Precio (Mayor a menor)</option>
@@ -233,7 +233,7 @@ export const PlansPage = () => {
 
             {/* Listado */}
             {loading && plans.length === 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 justify-center">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                     {Array.from({ length: 3 }).map((_, i) => (
                         <div key={i} className="animate-pulse bg-[var(--bg-card)] rounded-[2rem] h-[600px] border border-[var(--border-default)]" />
                     ))}
@@ -256,7 +256,7 @@ export const PlansPage = () => {
                     )}
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 justify-center">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                     {filteredAndSortedPlans.map((plan) => (
                         <PlanCard 
                             key={plan.id}

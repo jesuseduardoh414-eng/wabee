@@ -32,6 +32,10 @@ export const DEFAULT_COLORS: ColorsConfig = {
     'chart-axis': '#B9B28E',
     'chart-tooltip-bg': '#242424',
     'chart-tooltip-text': '#F4F4DC',
+    'mkt-surface': 'rgba(255, 255, 255, 0.72)',
+    'mkt-surface-2': 'rgba(255, 255, 255, 0.64)',
+    'mkt-border': 'rgba(26, 26, 26, 0.08)',
+    'mkt-ink': '#1f1f1f',
 };
 
 export const colorsApi = {

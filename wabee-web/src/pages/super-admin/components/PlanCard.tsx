@@ -129,7 +129,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
             )}
 
             {/* Header Redesign */}
-            <div className="px-8 pt-10 pb-2 flex flex-col gap-3 relative">
+            <div className="px-5 pt-8 pb-2 flex flex-col gap-3 relative sm:px-8 sm:pt-10">
                 {/* Fila 1: Badges y Menú */}
                 <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-2 relative">
@@ -194,7 +194,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
             </div>
 
             {/* Pricing */}
-            <div className="px-8 pb-8 flex flex-col gap-1">
+            <div className="px-5 pb-6 flex flex-col gap-1 sm:px-8 sm:pb-8">
                 {cv ? (
                     <>
                         <div className="flex items-baseline gap-1.5">
@@ -227,10 +227,10 @@ export const PlanCard: React.FC<PlanCardProps> = ({
                 )}
             </div>
 
-            <div className="mx-8 bg-[var(--border-default)] h-[1px]" />
+            <div className="mx-5 bg-[var(--border-default)] h-[1px] sm:mx-8" />
 
             {/* Limits summary */}
-            <div className="px-8 py-8 flex-1 space-y-4">
+            <div className="px-5 py-6 flex-1 space-y-4 sm:px-8 sm:py-8">
                 {cv ? Object.entries(cv.limitsJson || {}).slice(0, 6).map(([key, val]) => (
                     <div key={key} className="flex items-center gap-3">
                         <div className="w-5 h-5 rounded-full bg-[var(--brand-primary)]/20 flex items-center justify-center shrink-0">

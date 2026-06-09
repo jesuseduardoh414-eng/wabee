@@ -108,6 +108,12 @@
   --chart-tooltip-bg: #242424;
   --chart-tooltip-text: #F4F4DC;
 
+  /* Marketing / Landing (sitio público) */
+  --mkt-surface: var(--mkt-surface);
+  --mkt-surface-2: var(--mkt-surface-2);
+  --mkt-border: var(--mkt-border);
+  --mkt-ink: #1f1f1f;
+
   /* ── TOKENS SEMÁNTICOS DE FORMULARIO ── */
   --input-bg: var(--bg-input);
   --input-text: var(--tx-inputText-color, var(--text-strong));
@@ -207,6 +213,12 @@
   --chart-axis: #837A72;
   --chart-tooltip-bg: #FFFAF3;
   --chart-tooltip-text: #1F1A1F;
+
+  /* Marketing / Landing (sitio público) */
+  --mkt-surface: var(--mkt-surface);
+  --mkt-surface-2: var(--mkt-surface-2);
+  --mkt-border: var(--mkt-border);
+  --mkt-ink: #1f1f1f;
 
   /* ── TOKENS SEMÁNTICOS DE FORMULARIO ── */
   --input-bg: var(--bg-input);
@@ -644,6 +656,7 @@ input::selection, textarea::selection {
     linear-gradient(180deg, var(--wabee-page-top) 0%, var(--wabee-page-bottom) 100%);
   color: var(--wabee-charcoal);
   font-family: 'Manrope', 'Segoe UI', sans-serif;
+  overflow-x: clip;
 }
 
 [data-wabee-theme-variant="dark"] .wabee-redesign {
@@ -826,6 +839,102 @@ input::selection, textarea::selection {
   background: color-mix(in srgb, var(--wabee-surface-solid), transparent 8%);
 }
 
+.wabee-nav-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 140;
+}
+
+.wabee-nav-drawer__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(20, 16, 12, 0.28);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.wabee-nav-drawer__panel {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  bottom: 16px;
+  width: min(420px, calc(100vw - 28px));
+  display: flex;
+  flex-direction: column;
+  border-radius: 32px;
+  border: 1px solid color-mix(in srgb, var(--wabee-charcoal), transparent 90%);
+  background:
+    linear-gradient(180deg, rgba(255, 252, 248, 0.95), rgba(255, 248, 240, 0.94));
+  box-shadow: 0 30px 90px color-mix(in srgb, var(--wabee-shadow), transparent 8%);
+  overflow: hidden;
+  animation: wabeeDrawerIn 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.wabee-nav-drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 24px 18px;
+}
+
+.wabee-nav-drawer__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--wabee-charcoal), transparent 88%);
+  background: var(--mkt-surface);
+  color: var(--wabee-charcoal);
+}
+
+.wabee-nav-drawer__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 0 24px 24px;
+}
+
+.wabee-nav-drawer__section {
+  display: grid;
+  gap: 4px;
+}
+
+.wabee-nav-drawer__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 68px;
+  padding: 0 4px;
+  border-bottom: 1px solid color-mix(in srgb, var(--wabee-charcoal), transparent 92%);
+  color: var(--wabee-copy);
+  font-size: 1.24rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.wabee-nav-drawer__link svg {
+  opacity: 0.58;
+}
+
+.wabee-nav-drawer__section--actions {
+  margin-top: auto;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.wabee-nav-drawer__section--actions .wabee-primary-button,
+.wabee-nav-drawer__section--actions .wabee-secondary-button {
+  width: 100%;
+  min-height: 60px;
+}
+
 .wabee-primary-button,
 .wabee-secondary-button {
   display: inline-flex;
@@ -864,6 +973,11 @@ input::selection, textarea::selection {
   padding: 62px 0 42px;
 }
 
+.wabee-hero__copy,
+.wabee-hero__visual {
+  min-width: 0;
+}
+
 .wabee-kicker,
 .wabee-section-heading span,
 .wabee-preview-copy span,
@@ -888,6 +1002,7 @@ input::selection, textarea::selection {
   font-size: clamp(3.1rem, 7vw, 5.5rem);
   line-height: 0.94;
   letter-spacing: -0.08em;
+  overflow-wrap: anywhere;
 }
 
 .wabee-hero h1 span {
@@ -933,7 +1048,7 @@ input::selection, textarea::selection {
 .wabee-flow article,
 .wabee-cta {
   border: 1px solid rgba(255, 255, 255, 0.62);
-  background: rgba(255, 255, 255, 0.72);
+  background: var(--mkt-surface);
   box-shadow: 0 24px 80px rgba(26, 26, 26, 0.1);
   backdrop-filter: blur(18px);
 }
@@ -981,7 +1096,7 @@ input::selection, textarea::selection {
 
 .wabee-chip {
   color: #fff;
-  background: linear-gradient(135deg, #1f1f1f, #474747);
+  background: linear-gradient(135deg, var(--mkt-ink), #474747);
 }
 
 .wabee-showcase__body {
@@ -1145,8 +1260,8 @@ input::selection, textarea::selection {
 .wabee-panel,
 .wabee-preview-card {
   border-radius: 24px;
-  border: 1px solid rgba(26, 26, 26, 0.08);
-  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--mkt-border);
+  background: var(--mkt-surface);
 }
 
 .wabee-metrics article {
@@ -1309,6 +1424,7 @@ input::selection, textarea::selection {
 .wabee-preview-section {
   gap: 22px;
   justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .wabee-preview-copy {
@@ -1348,8 +1464,8 @@ input::selection, textarea::selection {
 .wabee-token {
   padding: 16px;
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.64);
-  border: 1px solid rgba(26, 26, 26, 0.08);
+  background: var(--mkt-surface-2);
+  border: 1px solid var(--mkt-border);
 }
 
 .wabee-token span {
@@ -1392,7 +1508,7 @@ input::selection, textarea::selection {
   overflow: hidden;
   background:
     radial-gradient(circle at top right, color-mix(in srgb, var(--brand-primary), transparent 78%), transparent 36%),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 249, 238, 0.94));
+    linear-gradient(135deg, var(--mkt-surface), rgba(255, 249, 238, 0.94));
   border: 1px solid rgba(255, 194, 26, 0.18);
   box-shadow: 0 22px 60px rgba(56, 40, 0, 0.08);
 }
@@ -1441,8 +1557,8 @@ input::selection, textarea::selection {
   padding: 20px 18px;
   border-radius: 28px;
   min-height: 116px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(26, 26, 26, 0.08);
+  background: var(--mkt-surface);
+  border: 1px solid var(--mkt-border);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
 }
 
@@ -1484,7 +1600,7 @@ input::selection, textarea::selection {
   overflow: hidden;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 252, 247, 0.96));
-  border: 1px solid rgba(26, 26, 26, 0.08);
+  border: 1px solid var(--mkt-border);
   box-shadow: 0 20px 52px rgba(44, 34, 16, 0.08);
   isolation: isolate;
   transition:
@@ -1579,7 +1695,7 @@ input::selection, textarea::selection {
   padding: 14px 16px;
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(26, 26, 26, 0.08);
+  border: 1px solid var(--mkt-border);
 }
 
 .wabee-pricing-card__stats span,
@@ -1677,10 +1793,19 @@ input::selection, textarea::selection {
 
 @media (max-width: 1100px) {
   .wabee-hero,
-  .wabee-preview-section,
   .wabee-system-card,
   .wabee-pricing-hero {
     grid-template-columns: 1fr;
+  }
+
+  .wabee-preview-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .wabee-preview-copy,
+  .wabee-preview-stack {
+    max-width: none;
   }
 
   .wabee-pillars {
@@ -1705,10 +1830,6 @@ input::selection, textarea::selection {
     display: block;
   }
 
-  .wabee-nav {
-    flex-wrap: wrap;
-  }
-
   .wabee-pricing-grid,
   .wabee-pricing-card__stats,
   .wabee-pricing-hive {
@@ -1728,38 +1849,6 @@ input::selection, textarea::selection {
     display: flex;
   }
 
-  .wabee-nav--open .wabee-nav__links {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0;
-    width: 100%;
-    padding: 8px 0 4px;
-    border-top: 1px solid rgba(26, 26, 26, 0.07);
-    margin-top: 10px;
-  }
-
-  .wabee-nav--open .wabee-nav__links a {
-    padding: 12px 4px;
-    width: 100%;
-    border-bottom: 1px solid rgba(26, 26, 26, 0.05);
-    font-size: 1rem;
-  }
-
-  .wabee-nav--open .wabee-nav__actions {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    gap: 12px;
-    padding: 12px 0 4px;
-  }
-
-  .wabee-nav--open .wabee-nav__actions a {
-    flex: 1;
-    justify-content: center;
-    text-align: center;
-  }
-
   .wabee-showcase__sidebar {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
@@ -1776,6 +1865,93 @@ input::selection, textarea::selection {
 
   .wabee-hero {
     padding-top: 34px;
+    gap: 28px;
+  }
+
+  .wabee-nav {
+    padding: 16px 18px;
+    border-radius: 20px;
+  }
+
+  .wabee-nav-drawer__panel {
+    top: 12px;
+    right: 12px;
+    bottom: 12px;
+    width: min(360px, calc(100vw - 20px));
+    border-radius: 28px;
+  }
+
+  .wabee-nav-drawer__header {
+    padding: 20px 18px 14px;
+  }
+
+  .wabee-nav-drawer__body {
+    padding: 0 18px 18px;
+  }
+
+  .wabee-nav-drawer__close {
+    width: 46px;
+    height: 46px;
+    border-radius: 16px;
+  }
+
+  .wabee-nav-drawer__link {
+    min-height: 60px;
+    font-size: 1.08rem;
+  }
+
+  .wabee-brand {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .wabee-kicker {
+    width: 100%;
+    justify-content: center;
+    font-size: 0.72rem;
+    line-height: 1.25;
+    text-align: center;
+  }
+
+  .wabee-hero h1 {
+    font-size: clamp(2.65rem, 11vw, 4rem);
+    line-height: 0.96;
+    letter-spacing: -0.06em;
+  }
+
+  .wabee-hero p {
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+
+  .wabee-showcase {
+    border-radius: 28px;
+  }
+
+  .wabee-showcase__topbar {
+    padding: 12px 14px;
+  }
+
+  .wabee-showcase__headline,
+  .wabee-panel__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .wabee-showcase__headline a {
+    width: 100%;
+  }
+
+  .wabee-showcase__headline h2,
+  .wabee-section-heading h2,
+  .wabee-preview-copy h2,
+  .wabee-system-card__copy h2,
+  .wabee-cta h2 {
+    line-height: 0.98;
+  }
+
+  .wabee-showcase__tag {
+    display: none;
   }
 
   .wabee-pillars,
@@ -1796,6 +1972,48 @@ input::selection, textarea::selection {
     padding-right: 18px;
   }
 
+  .wabee-showcase__workspace,
+  .wabee-system-card,
+  .wabee-glass-card,
+  .wabee-module-card,
+  .wabee-preview-card,
+  .wabee-flow article,
+  .wabee-pricing-hero,
+  .wabee-pricing-card {
+    padding-top: 18px;
+    padding-bottom: 18px;
+    border-radius: 26px;
+  }
+
+  .wabee-system-card {
+    gap: 18px;
+  }
+
+  .wabee-pricing-hero {
+    margin-bottom: 20px;
+    gap: 18px;
+  }
+
+  .wabee-pricing-hive__cell {
+    min-height: 0;
+    border-radius: 22px;
+  }
+
+  .wabee-pricing-card__eyebrow {
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .wabee-pricing-card__price strong {
+    font-size: clamp(2.3rem, 12vw, 3.3rem);
+  }
+
+  .wabee-pricing-card__footer a,
+  .wabee-pricing-card__footer button {
+    width: 100%;
+    justify-content: center;
+  }
+
   .wabee-cta {
     flex-direction: column;
     align-items: flex-start;
@@ -1812,6 +2030,23 @@ input::selection, textarea::selection {
   .wabee-hero__actions a {
     width: 100%;
     justify-content: center;
+  }
+
+  .wabee-preview-card {
+    width: 100%;
+  }
+
+  .wabee-pricing-card h3,
+  .wabee-flow article p,
+  .wabee-section-heading h2,
+  .wabee-preview-copy h2,
+  .wabee-cta h2 {
+    overflow-wrap: anywhere;
+  }
+
+  .wabee-nav-drawer__section--actions .wabee-primary-button,
+  .wabee-nav-drawer__section--actions .wabee-secondary-button {
+    min-height: 56px;
   }
 }
 
@@ -1835,6 +2070,23 @@ input::selection, textarea::selection {
   background: #faf6ef;
   border: 1px solid rgba(0,0,0,0.07);
   box-shadow: 0 20px 52px rgba(26,26,26,0.14);
+}
+
+@media (max-width: 640px) {
+  .wabee-inbox-mock {
+    margin: 10px;
+    height: auto;
+    min-height: 0;
+  }
+
+  .wabee-inbox-mock__sidebar {
+    width: 100%;
+    border-right: 0;
+  }
+
+  .wabee-inbox-mock__chat {
+    display: none;
+  }
 }
 
 /* Sidebar */
@@ -2135,11 +2387,11 @@ input::selection, textarea::selection {
 .wabee-hero__microstat {
   padding: 16px 18px;
   border-radius: 22px;
-  border: 1px solid rgba(26, 26, 26, 0.08);
+  border: 1px solid var(--mkt-border);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.75)),
     linear-gradient(135deg, rgba(149, 36, 227, 0.08), rgba(255, 140, 0, 0.08));
-  box-shadow: 0 18px 40px rgba(26, 26, 26, 0.08);
+  box-shadow: 0 18px 40px var(--mkt-border);
 }
 
 .wabee-hero__microstat strong,
@@ -2717,7 +2969,23 @@ input::selection, textarea::selection {
   transition: color 180ms ease;
 }
 
+.wabee-auth-top-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  color: var(--wabee-auth-copy-soft);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  transition: color 180ms ease;
+}
+
 .wabee-auth-helper-link:hover {
+  color: var(--wabee-orange);
+}
+
+.wabee-auth-top-link:hover {
   color: var(--wabee-orange);
 }
 
@@ -3220,8 +3488,65 @@ input::selection, textarea::selection {
     width: min(100% - 20px, 1240px);
   }
 
+  .wabee-public-page__shell {
+    width: min(100% - 20px, 1240px);
+    min-height: 100svh;
+    padding: calc(20px + env(safe-area-inset-top, 0px)) 0 calc(24px + env(safe-area-inset-bottom, 0px));
+    align-items: flex-start;
+  }
+
+  .wabee-public-card {
+    padding: 26px 18px 22px;
+    border-radius: 28px;
+  }
+
+  .wabee-public-card__header {
+    margin-bottom: 22px;
+  }
+
+  .wabee-public-form {
+    gap: 16px;
+  }
+
+  .wabee-public-input {
+    min-height: 60px;
+    padding-left: 52px;
+    border-radius: 20px;
+  }
+
+  .wabee-public-submit {
+    min-height: 60px;
+    border-radius: 20px;
+  }
+
+  .wabee-public-divider {
+    margin-top: 22px;
+    padding-top: 18px;
+  }
+
+  .wabee-legal__nav-shell {
+    height: auto;
+    gap: 14px;
+    padding: calc(12px + env(safe-area-inset-top, 0px)) 0 12px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .wabee-legal__main {
+    padding: 28px 0 48px;
+  }
+
   .wabee-legal__title {
     line-height: 0.98;
+  }
+
+  .wabee-legal__meta {
+    margin-bottom: 18px;
+  }
+
+  .wabee-legal__summary {
+    padding: 18px 16px;
+    border-radius: 22px;
   }
 
   .wabee-legal__content {
@@ -3231,6 +3556,23 @@ input::selection, textarea::selection {
 
   .wabee-legal__tabs {
     gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wabee-legal__tab {
+    justify-content: center;
+    min-height: 46px;
+    text-align: center;
+  }
+
+  .wabee-legal__footer {
+    margin-top: 28px;
+    padding: 22px 8px 4px;
+  }
+
+  .wabee-legal__footer-links {
+    gap: 12px 16px;
   }
 }
 
@@ -3255,9 +3597,53 @@ input::selection, textarea::selection {
   }
 }
 
+@media (min-width: 641px) and (max-width: 980px) {
+  .wabee-auth__shell {
+    width: min(100% - 40px, 980px);
+    min-height: auto;
+    gap: 18px;
+    padding: 24px 0 36px;
+  }
+
+  .wabee-auth__panel--info {
+    max-width: 760px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .wabee-auth__brand {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .wabee-auth__title {
+    max-width: 760px;
+    margin: 14px auto 14px;
+    font-size: clamp(3rem, 7vw, 4.6rem);
+  }
+
+  .wabee-auth__copy {
+    max-width: 720px;
+    margin: 0 auto;
+    font-size: 1.03rem;
+    line-height: 1.75;
+  }
+
+  .wabee-auth__panel--form {
+    justify-content: center;
+  }
+
+  .wabee-auth-card {
+    max-width: 760px;
+    padding: 30px 28px 26px;
+  }
+}
+
 @media (max-width: 640px) {
   .wabee-auth__shell {
     width: min(100% - 20px, 1240px);
+    padding: calc(20px + env(safe-area-inset-top, 0px)) 0 calc(28px + env(safe-area-inset-bottom, 0px));
   }
 
   .wabee-auth__title {
@@ -3267,6 +3653,28 @@ input::selection, textarea::selection {
   .wabee-auth-card {
     padding: 28px 20px 24px;
     border-radius: 28px;
+  }
+
+  .wabee-auth__copy {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .wabee-auth-card__header {
+    margin-bottom: 22px;
+  }
+
+  .wabee-auth-input {
+    padding-right: 14px;
+  }
+
+  .wabee-auth-submit {
+    padding: 15px 18px;
+    border-radius: 18px;
+  }
+
+  .wabee-auth-check {
+    align-items: flex-start;
   }
 }
 
@@ -3279,6 +3687,21 @@ input::selection, textarea::selection {
     min-height: 100svh;
     padding: 20px 0 32px;
     align-content: center;
+  }
+
+  .wabee-auth-top-link {
+    margin-bottom: 16px;
+  }
+}
+
+@keyframes wabeeDrawerIn {
+  from {
+    opacity: 0;
+    transform: translate3d(32px, 0, 0) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
@@ -3340,6 +3763,42 @@ input::selection, textarea::selection {
   border-right: 1px solid var(--border-default);
   box-shadow: 20px 0 48px color-mix(in srgb, var(--wabee-admin-shadow), transparent 6%);
   backdrop-filter: blur(12px);
+}
+
+.wabee-admin__mobile-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+}
+
+.wabee-admin__mobile-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(18, 18, 14, 0.34);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.wabee-admin__mobile-panel {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  bottom: 12px;
+  width: min(320px, calc(100vw - 24px));
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 18px 16px;
+  border: 1px solid var(--border-default);
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--wabee-admin-panel-strong), transparent 3%), color-mix(in srgb, var(--wabee-admin-panel), transparent 10%)),
+    linear-gradient(180deg, color-mix(in srgb, var(--brand-primary), transparent 96%), color-mix(in srgb, var(--wabee-admin-purple), transparent 96%));
+  box-shadow: 0 30px 90px color-mix(in srgb, var(--wabee-admin-shadow), transparent 6%);
+  backdrop-filter: blur(14px);
+  animation: wabeeAdminDrawerIn 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  overflow-y: auto;
 }
 
 .wabee-admin .sidebar-item {
@@ -3531,5 +3990,76 @@ input::selection, textarea::selection {
 @media (max-width: 980px) {
   .wabee-admin__sidebar {
     width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .wabee-admin__mobile-panel {
+    top: 10px;
+    right: 10px;
+    bottom: 10px;
+    width: min(300px, calc(100vw - 20px));
+    padding: 16px 14px;
+    border-radius: 24px;
+  }
+
+  .wabee-admin__topbar {
+    padding-top: calc(0.45rem + env(safe-area-inset-top, 0px));
+    padding-bottom: 0.55rem;
+  }
+
+  .wabee-admin__profile-trigger {
+    max-width: 9.25rem;
+  }
+
+  .wabee-admin__profile-trigger img {
+    display: block;
+  }
+
+  .wabee-admin .sidebar-item {
+    padding: 12px 14px;
+    border-radius: 20px;
+  }
+
+  .wabee-role-dashboard {
+    overflow-x: clip;
+  }
+
+  .wabee-role-dashboard > div,
+  .wabee-role-dashboard section,
+  .wabee-role-dashboard article,
+  .wabee-role-dashboard aside,
+  .wabee-role-dashboard header,
+  .wabee-role-dashboard ul,
+  .wabee-role-dashboard li {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .wabee-role-dashboard [class*="recharts-responsive-container"] {
+    min-width: 0 !important;
+  }
+
+  .wabee-role-dashboard .recharts-default-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.4rem 0.85rem;
+    padding-top: 0.35rem;
+  }
+
+  .wabee-role-dashboard .recharts-legend-item {
+    margin-right: 0 !important;
+  }
+}
+
+@keyframes wabeeAdminDrawerIn {
+  from {
+    opacity: 0;
+    transform: translate3d(26px, 0, 0) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }

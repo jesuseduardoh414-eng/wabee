@@ -1,6 +1,6 @@
 
 import axios from 'axios';
-import { ChannelSender, SendResult, SendTextParams } from './ChannelSender';
+import { ChannelSender } from './ChannelSender';
 import { env } from '@/config/env';
 import { decrypt } from '@/modules/wabee/channels/whatsapp/token.crypto';
 import { prisma } from '@/lib/prisma';
@@ -71,6 +71,51 @@ export class WhatsAppCloudSender implements ChannelSender {
             return { externalId: response.data.messages?.[0]?.id, raw: response.data };
         } catch (error: any) {
             console.error(`[WhatsAppCloudSender TEXT ERROR]`, error.response?.data || error);
+            this.handleError(error);
+        }
+    }
+
+    async sendMedia(params: any): Promise<any> {
+        const { channel, to, mediaType, mediaLink, caption, filename } = params;
+        const { url, accessToken } = await this.getRequestConfig(channel);
+
+        try {
+            const mediaPayload: Record<string, any> = { link: mediaLink };
+
+            if (caption) {
+                mediaPayload.caption = caption;
+            }
+
+            if (mediaType === 'document' && filename) {
+                mediaPayload.filename = filename;
+            }
+
+            const payload = {
+                messaging_product: 'whatsapp',
+                recipient_type: 'individual',
+                to,
+                type: mediaType,
+                [mediaType]: mediaPayload,
+            };
+
+            console.log(`[WhatsAppCloudSender MEDIA] URL: ${url}`);
+            console.log(`[WhatsAppCloudSender MEDIA] Payload:`, {
+                to,
+                mediaType,
+                hasCaption: Boolean(caption),
+                filename: filename || null,
+            });
+
+            const response = await axios.post(url, payload, {
+                headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' }
+            });
+
+            console.log(`[WhatsAppCloudSender MEDIA] Meta Response Status: ${response.status}`);
+            console.log(`[WhatsAppCloudSender MEDIA] Meta Response Data:`, JSON.stringify(response.data));
+
+            return { externalId: response.data.messages?.[0]?.id, raw: response.data };
+        } catch (error: any) {
+            console.error(`[WhatsAppCloudSender MEDIA ERROR]`, error.response?.data || error);
             this.handleError(error);
         }
     }

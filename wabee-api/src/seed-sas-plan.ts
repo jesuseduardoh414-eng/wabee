@@ -6,11 +6,17 @@ async function seed() {
     console.log('--- Seeding WABEE SaaS Plan ---');
     try {
         // 0. Asegurar que el usuario es SUPER_ADMIN para poder registrar productos
+        // NOTA: script legado. El rol de plataforma es `superadmin` (ver create-superadmin-role.ts).
         console.log('> Verificando permisos de SUPER_ADMIN...');
-        let superAdminRole = await (prisma as any).globalRole.findUnique({ where: { slug: 'super-admin' } });
+        let superAdminRole = await (prisma as any).role.findFirst({ where: { slug: 'superadmin' } });
         if (!superAdminRole) {
-            superAdminRole = await (prisma as any).globalRole.create({
-                data: { name: 'Super Admin', slug: 'super-admin', description: 'Sistema' }
+            superAdminRole = await (prisma as any).role.create({
+                data: {
+                    name: 'Super Admin',
+                    slug: 'superadmin',
+                    description: 'Acceso total a la plataforma.',
+                    productId: 'ebda5a05-fd05-440d-b9ca-c52f1bc35481'
+                }
             });
         }
         await (prisma as any).profile.update({

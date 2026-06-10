@@ -8,7 +8,7 @@
 // `launchEmbeddedSignup` lanza un error controlado en vez de romper la UI.
 
 const FB_SDK_SRC = 'https://connect.facebook.net/en_US/sdk.js';
-const GRAPH_VERSION = (import.meta.env.VITE_META_GRAPH_VERSION as string) || 'v19.0';
+const GRAPH_VERSION = (import.meta.env.VITE_META_GRAPH_VERSION as string) || 'v25.0';
 
 declare global {
     interface Window {

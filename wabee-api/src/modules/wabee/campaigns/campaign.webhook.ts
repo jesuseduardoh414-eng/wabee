@@ -7,6 +7,8 @@ import { AnalyticsService } from '../analytics/analytics.service';
 import { RealtimeBus } from '@/modules/wabee/realtime/realtime.bus';
 import { WhatsAppChannelAdapter } from '../whatsapp/adapters/whatsapp.channel.adapter';
 import { coreAdapter } from '@/modules/core/core.adapter';
+import { normalizePhone } from '../contacts/contacts.service';
+import { ThreadStateOrchestrator } from '../inbox/services/thread.state.orchestrator';
 
 // ─── Idempotency key format ───────────────────────────────────────────────────
 // Inbound messages  → `inbound:${waMessageId}`
@@ -68,9 +70,15 @@ export class CampaignWebhook {
                 const field = change?.field;
                 if (!value) continue;
 
-                // ── History sync (Coexistence) — recepción sin importación (diferido) ──
-                if (field === 'history' || field === 'smb_app_state_sync' || value.history) {
-                    CampaignWebhook.processHistorySync(field, value);
+                // ── History sync (Coexistence) ─────────────────────────────────────
+                if (field === 'history' || value.history) {
+                    await CampaignWebhook.processHistorySync(value);
+                    continue;
+                }
+
+                // ── App state sync / contactos (Coexistence) ───────────────────────
+                if (field === 'smb_app_state_sync' || value.state_sync) {
+                    await CampaignWebhook.processSmbAppStateSync(value);
                     continue;
                 }
 
@@ -384,7 +392,30 @@ export class CampaignWebhook {
 
         console.log(`[Webhook] 🔁 Echo persisted as OUTBOUND | msgId=${newMessage.id} threadId=${thread.id} tenantId=${tenantId}`);
 
-        // 5. Emitir realtime al Inbox
+        // 5. Anti-doble-respuesta: si la IA está activa en este thread, pausarla.
+        //    El dueño respondió desde su teléfono → Wabee no debe contestar encima.
+        try {
+            const threadState = await prisma.whatsappThread.findUnique({
+                where: { id: thread.id },
+                select: { handlingMode: true, aiPaused: true },
+            });
+            const aiIsActive = threadState &&
+                !threadState.aiPaused &&
+                (threadState.handlingMode === 'ai' || threadState.handlingMode === 'copilot');
+            if (aiIsActive) {
+                await ThreadStateOrchestrator.humanTakeover(
+                    thread.id,
+                    tenantId,
+                    'COEXISTENCE_PHONE',
+                    'coexistence_phone_response',
+                );
+                console.log(`[Webhook] 🔁 IA pausada por echo del teléfono | threadId=${thread.id}`);
+            }
+        } catch (takeoverErr) {
+            console.warn('[Webhook] ⚠️ No se pudo pausar IA tras echo:', takeoverErr);
+        }
+
+        // 7. Emitir realtime al Inbox
         try {
             RealtimeBus.publish(tenantId, {
                 type: 'inbox.message',
@@ -412,15 +443,138 @@ export class CampaignWebhook {
         }
     }
 
-    // ─── Sync de historial (Coexistence) — recepción sin importación ───────────
+    // ─── History sync (Coexistence) ───────────────────────────────────────────
     /**
-     * Coexistence puede enviar el historial reciente de chats vía `history` /
-     * `smb_app_state_sync`. La importación completa está fuera de alcance por ahora;
-     * aquí solo se acusa recibo y se loguea para no romper el flujo del webhook.
+     * Persiste el historial de chats que Meta envía al conectar un número en modo
+     * Coexistence. El payload llega en `value.history[]`, donde cada elemento es un
+     * thread con su `id` (teléfono del contacto) y un array `messages[]`.
+     *
+     * Idempotencia: cada mensaje usa `externalRef = hist:${wamid}` — el índice único
+     * parcial de WhatsappMessage garantiza que no se dupliquen si el chunk se reenvía.
      */
-    private static processHistorySync(field: string | undefined, value: any) {
-        const threadCount = Array.isArray(value?.history) ? value.history.length : undefined;
-        console.log(`[Webhook] 🗂️ History sync recibido (field=${field || 'history'}, items=${threadCount ?? 'n/a'}). Importación diferida — no se persiste todavía.`);
+    private static async processHistorySync(value: any) {
+        const threads: any[] = Array.isArray(value?.history) ? value.history : [];
+        const metadata = value?.metadata;
+        const phoneId = metadata?.phone_number_id;
+
+        if (!phoneId || threads.length === 0) {
+            console.log(`[Webhook] 🗂️ History sync recibido pero sin threads o sin phone_number_id, ignorando.`);
+            return;
+        }
+
+        const channel = await prisma.whatsappChannel.findFirst({ where: { phoneNumberId: phoneId } });
+        if (!channel) {
+            console.warn(`[Webhook] ⚠️ History sync: canal no encontrado para phone_number_id=${phoneId}`);
+            return;
+        }
+
+        const tenantId = channel.tenantId;
+        const businessPhone = channel.displayPhone || '';
+        let saved = 0;
+        let skipped = 0;
+
+        for (const threadData of threads) {
+            const contactPhone = threadData?.id;
+            const messages: any[] = Array.isArray(threadData?.messages) ? threadData.messages : [];
+            if (!contactPhone || messages.length === 0) continue;
+
+            const thread = await WhatsAppSharedService.resolveThread({
+                tenantId,
+                channelId: channel.id,
+                contactPhone,
+                isInbound: true,
+            });
+
+            for (const msg of messages) {
+                const wamid = msg?.id;
+                if (!wamid) continue;
+
+                const externalRef = `hist:${wamid}`;
+                const isInbound = msg.from !== businessPhone;
+                const ts = msg.timestamp ? new Date(parseInt(msg.timestamp) * 1000) : new Date();
+
+                try {
+                    await prisma.whatsappMessage.create({
+                        data: {
+                            tenantId,
+                            channelId: channel.id,
+                            threadId: thread.id,
+                            direction: isInbound ? 'INBOUND' : 'OUTBOUND',
+                            fromPhone: msg.from || (isInbound ? contactPhone : businessPhone),
+                            toPhone: msg.to || (isInbound ? businessPhone : contactPhone),
+                            remotePhone: contactPhone,
+                            type: msg.type || 'text',
+                            textBody: msg.text?.body || msg.caption || null,
+                            waMessageId: wamid,
+                            timestamp: ts,
+                            status: isInbound ? 'RECEIVED' : 'SENT',
+                            deliveryStatus: msg.history_context?.status || (isInbound ? 'DELIVERED' : 'SENT'),
+                            externalRef,
+                            source: 'history_sync',
+                            rawPayload: msg,
+                        },
+                    });
+                    saved++;
+                } catch (err: any) {
+                    if (err.code === 'P2002') { skipped++; continue; }
+                    console.error(`[Webhook] ❌ Error persistiendo history msg ${wamid}:`, err.message);
+                }
+            }
+        }
+
+        console.log(`[Webhook] 🗂️ History sync completo | channel=${channel.id} threads=${threads.length} saved=${saved} skipped(dup)=${skipped}`);
+    }
+
+    // ─── App state sync / contactos (Coexistence) ─────────────────────────────
+    /**
+     * Meta envía los contactos del negocio vía `smb_app_state_sync` al conectar y
+     * cuando cambian. Cada elemento de `value.state_sync[]` con `type="contact"` se
+     * upsertea en la tabla de contactos del tenant.
+     */
+    private static async processSmbAppStateSync(value: any) {
+        const stateSync: any[] = Array.isArray(value?.state_sync) ? value.state_sync : [];
+        const metadata = value?.metadata;
+        const phoneId = metadata?.phone_number_id;
+
+        if (!phoneId || stateSync.length === 0) {
+            console.log(`[Webhook] 📇 smb_app_state_sync recibido sin datos, ignorando.`);
+            return;
+        }
+
+        const channel = await prisma.whatsappChannel.findFirst({ where: { phoneNumberId: phoneId } });
+        if (!channel) {
+            console.warn(`[Webhook] ⚠️ smb_app_state_sync: canal no encontrado para phone_number_id=${phoneId}`);
+            return;
+        }
+
+        const tenantId = channel.tenantId;
+        let upserted = 0;
+
+        for (const entry of stateSync) {
+            if (entry?.type !== 'contact' || !entry?.contact?.phone_number) continue;
+
+            const rawPhone = entry.contact.phone_number as string;
+            const name = entry.contact.full_name || entry.contact.first_name || null;
+
+            try {
+                const phone = normalizePhone(rawPhone);
+                await prisma.contact.upsert({
+                    where: { tenantId_phone: { tenantId, phone } },
+                    update: { ...(name ? { name } : {}), updatedAt: new Date() },
+                    create: {
+                        tenantId,
+                        phone,
+                        name,
+                        sourceSystem: 'whatsapp_coexistence',
+                    },
+                });
+                upserted++;
+            } catch (err: any) {
+                console.error(`[Webhook] ❌ Error upserting contacto ${rawPhone}:`, err.message);
+            }
+        }
+
+        console.log(`[Webhook] 📇 smb_app_state_sync completo | channel=${channel.id} upserted=${upserted}`);
     }
 
     // ─── Procesamiento de status updates ──────────────────────────────────────

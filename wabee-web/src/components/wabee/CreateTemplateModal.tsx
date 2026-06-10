@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { T, S } from '@/lib/text-tokens';
 import { templatesApi, CreateTemplatePayload } from '@/api/wabee/templates.api';
 import { useToast } from '@/context/ToastContext';
@@ -18,27 +18,54 @@ const LANGUAGES = [
     { code: 'pt_BR', label: 'Portugués (Brasil)' },
 ];
 
-const EMPTY: CreateTemplatePayload = {
+const EMPTY = {
     name: '',
-    category: 'UTILITY',
+    category: 'UTILITY' as const,
     language: 'es_MX',
     headerText: '',
     body: '',
     footer: '',
 };
 
-function replaceVars(text: string) {
-    return text.replace(/\{\{(\d+)\}\}/g, (_, n) => `[variable ${n}]`);
+function detectVars(text: string): number {
+    const matches = text.match(/\{\{(\d+)\}\}/g);
+    if (!matches) return 0;
+    const nums = matches.map(m => parseInt(m.replace(/\D/g, '')));
+    return Math.max(...nums);
+}
+
+function replaceWithExamples(text: string, examples: string[]) {
+    return text.replace(/\{\{(\d+)\}\}/g, (_, n) => {
+        const val = examples[parseInt(n) - 1];
+        return val?.trim() ? val : `[variable ${n}]`;
+    });
 }
 
 export default function CreateTemplateModal({ isOpen, channelId, onClose, onSuccess }: Props) {
-    const [form, setForm] = useState<CreateTemplatePayload>(EMPTY);
+    const [form, setForm] = useState(EMPTY);
+    const [examples, setExamples] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const [fieldError, setFieldError] = useState('');
     const { success: toastSuccess, error: toastError } = useToast();
 
-    const set = (key: keyof CreateTemplatePayload, value: string) =>
+    const varCount = useMemo(() => detectVars(form.body), [form.body]);
+
+    const set = (key: keyof typeof EMPTY, value: string) =>
         setForm(prev => ({ ...prev, [key]: value }));
+
+    const setExample = (i: number, value: string) =>
+        setExamples(prev => {
+            const next = [...prev];
+            next[i] = value;
+            return next;
+        });
+
+    const handleClose = () => {
+        setForm(EMPTY);
+        setExamples([]);
+        setFieldError('');
+        onClose();
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -52,6 +79,13 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
             setFieldError('El cuerpo del mensaje es obligatorio.');
             return;
         }
+        if (varCount > 0) {
+            const missing = Array.from({ length: varCount }, (_, i) => examples[i]?.trim()).findIndex(v => !v);
+            if (missing !== -1) {
+                setFieldError(`Ingresa un ejemplo para la variable {{${missing + 1}}}.`);
+                return;
+            }
+        }
 
         setLoading(true);
         try {
@@ -60,12 +94,14 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
                 category: form.category,
                 language: form.language,
                 body: form.body,
+                ...(varCount > 0 && { bodyExamples: Array.from({ length: varCount }, (_, i) => examples[i] || `ejemplo_${i + 1}`) }),
                 ...(form.headerText?.trim() && { headerText: form.headerText.trim() }),
                 ...(form.footer?.trim() && { footer: form.footer.trim() }),
             };
             await templatesApi.createTemplate(channelId, payload);
             toastSuccess('Plantilla enviada a revisión de Meta.');
             setForm(EMPTY);
+            setExamples([]);
             onSuccess();
             onClose();
         } catch (err: any) {
@@ -76,6 +112,8 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
     };
 
     if (!isOpen) return null;
+
+    const previewBody = varCount > 0 ? replaceWithExamples(form.body, examples) : form.body;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
@@ -93,7 +131,7 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
                                 La plantilla será enviada a revisión de Meta antes de publicarse.
                             </p>
                         </div>
-                        <button onClick={onClose} className="p-2 text-[color:var(--text-muted)] transition-colors hover:text-[color:var(--text-strong)]">
+                        <button onClick={handleClose} className="p-2 text-[color:var(--text-muted)] transition-colors hover:text-[color:var(--text-strong)]">
                             <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
@@ -110,13 +148,13 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
                                 type="text"
                                 value={form.name}
                                 onChange={e => set('name', e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-                                placeholder="ej: bienvenida_cliente"
+                                placeholder="ej: confirmacion_pedido"
                                 maxLength={512}
                                 required
                                 className={`${T.inputText} w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-5 py-3 font-mono text-sm text-[var(--text-strong)] outline-none transition-all placeholder:text-[var(--text-muted)] focus:border-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-primary)]/50`}
                             />
                             <p className={`${T.helperText} mt-1.5 text-[10px] text-[color:var(--text-muted)] opacity-70`}>
-                                Solo minúsculas, números y guiones bajos. Ej: <span className="font-mono">bienvenida_cliente_2024</span>
+                                Solo minúsculas, números y guiones bajos.
                             </p>
                         </div>
 
@@ -161,7 +199,7 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
                                 type="text"
                                 value={form.headerText}
                                 onChange={e => set('headerText', e.target.value)}
-                                placeholder="ej: ¡Bienvenido a Wabee!"
+                                placeholder="ej: ¡Tu pedido está listo!"
                                 maxLength={60}
                                 className={`${T.inputText} w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-5 py-3 text-sm text-[var(--text-strong)] outline-none transition-all placeholder:text-[var(--text-muted)] focus:border-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-primary)]/50`}
                             />
@@ -177,14 +215,41 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
                                 onChange={e => set('body', e.target.value)}
                                 placeholder="ej: Hola {{1}}, tu pedido {{2}} está listo para recoger."
                                 maxLength={1024}
-                                rows={5}
+                                rows={4}
                                 required
                                 className={`${T.inputText} w-full resize-y rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-5 py-3 text-sm text-[var(--text-strong)] outline-none transition-all placeholder:text-[var(--text-muted)] focus:border-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-primary)]/50`}
                             />
                             <p className={`${T.helperText} mt-1.5 text-[10px] text-[color:var(--text-muted)] opacity-70`}>
-                                Usa <span className="font-mono">{'{{1}}'}</span>, <span className="font-mono">{'{{2}}'}</span>… para variables dinámicas. Máx. 1024 caracteres.
+                                Usa <span className="font-mono">{'{{1}}'}</span>, <span className="font-mono">{'{{2}}'}</span>… para variables. Máx. 1024 caracteres.
                             </p>
                         </div>
+
+                        {/* Variable examples — shown only when body has {{n}} */}
+                        {varCount > 0 && (
+                            <div className="rounded-2xl border border-[var(--brand-primary)]/20 bg-[var(--brand-primary)]/5 p-4">
+                                <p className={`${T.labelText} ${S.meta} mb-3 font-black uppercase tracking-[0.2em] text-[var(--brand-primary)]`}>
+                                    Ejemplos de variables <span className="font-normal normal-case tracking-normal opacity-70 text-[var(--text-muted)]">— requeridos por Meta para aprobar la plantilla</span>
+                                </p>
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                    {Array.from({ length: varCount }, (_, i) => (
+                                        <div key={i}>
+                                            <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
+                                                Variable <span className="font-mono text-[var(--brand-primary)]">{`{{${i + 1}}}`}</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={examples[i] || ''}
+                                                onChange={e => setExample(i, e.target.value)}
+                                                placeholder={`ej: ${i === 0 ? 'Juan García' : i === 1 ? 'PED-00123' : `valor_${i + 1}`}`}
+                                                maxLength={100}
+                                                required
+                                                className={`${T.inputText} w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-4 py-2.5 text-sm text-[var(--text-strong)] outline-none transition-all placeholder:text-[var(--text-muted)] focus:border-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-primary)]/50`}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         {/* Footer (optional) */}
                         <div>
@@ -210,7 +275,7 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
                         <div className="flex gap-3 pt-2">
                             <button
                                 type="button"
-                                onClick={onClose}
+                                onClick={handleClose}
                                 className={`${T.buttonPrimaryText} flex-1 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-input)] px-6 py-3.5 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] transition-all hover:text-[var(--text-strong)]`}
                             >
                                 Cancelar
@@ -237,44 +302,36 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
                         Vista previa
                     </p>
 
-                    {/* Phone mockup */}
                     <div className="flex flex-1 items-start justify-center pt-4">
                         <div className="w-full max-w-[260px]">
                             <div
                                 className="relative overflow-hidden rounded-[28px] border-4 border-[var(--text-strong)] shadow-2xl"
                                 style={{ background: '#0d1117', minHeight: 320 }}
                             >
-                                {/* WhatsApp-like chat bg */}
                                 <div
                                     className="absolute inset-0 opacity-10"
                                     style={{
                                         backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.3'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
                                     }}
                                 />
-
                                 <div className="relative flex flex-col gap-3 p-3 pt-8">
-                                    {/* Template bubble */}
                                     <div className="ml-auto max-w-[90%] overflow-hidden rounded-[16px] rounded-tr-sm bg-[#005c4b] shadow-lg">
                                         {form.headerText?.trim() && (
                                             <div className="border-b border-white/10 px-3 py-2">
-                                                <p className="text-xs font-bold leading-snug text-white">
-                                                    {form.headerText}
-                                                </p>
+                                                <p className="text-xs font-bold leading-snug text-white">{form.headerText}</p>
                                             </div>
                                         )}
                                         <div className="px-3 py-2">
                                             <p className="whitespace-pre-wrap text-[11px] leading-relaxed text-white/90">
-                                                {form.body
-                                                    ? replaceVars(form.body)
+                                                {previewBody
+                                                    ? previewBody
                                                     : <span className="italic opacity-40">Escribe el cuerpo del mensaje...</span>
                                                 }
                                             </p>
                                         </div>
                                         {form.footer?.trim() && (
                                             <div className="border-t border-white/10 px-3 py-1.5">
-                                                <p className="text-[10px] leading-snug text-white/50">
-                                                    {form.footer}
-                                                </p>
+                                                <p className="text-[10px] leading-snug text-white/50">{form.footer}</p>
                                             </div>
                                         )}
                                         <div className="flex items-center justify-end gap-1 px-3 pb-2">
@@ -288,11 +345,10 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
                                 </div>
                             </div>
 
-                            {/* Meta info */}
                             <div className="mt-4 space-y-2 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] p-3">
                                 <div className="flex items-center justify-between">
                                     <span className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] opacity-60">Categoría</span>
-                                    <span className={`rounded-full px-2 py-0.5 text-[9px] font-black uppercase ${form.category === 'MARKETING' ? 'bg-[var(--state-info)]/10 text-[var(--state-info)]' : form.category === 'AUTHENTICATION' ? 'bg-[var(--state-warning)]/10 text-[var(--state-warning)]' : 'bg-[var(--state-success)]/10 text-[var(--state-success)]'}`}>
+                                    <span className={`rounded-full px-2 py-0.5 text-[9px] font-black uppercase ${{ MARKETING: 'bg-[var(--state-info)]/10 text-[var(--state-info)]', AUTHENTICATION: 'bg-[var(--state-warning)]/10 text-[var(--state-warning)]', UTILITY: 'bg-[var(--state-success)]/10 text-[var(--state-success)]' }[form.category]}`}>
                                         {form.category}
                                     </span>
                                 </div>

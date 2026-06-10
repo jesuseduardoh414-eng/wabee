@@ -27,6 +27,7 @@ export interface CreateTemplatePayload {
     language: string;
     headerText?: string;
     body: string;
+    bodyExamples?: string[];
     footer?: string;
 }
 

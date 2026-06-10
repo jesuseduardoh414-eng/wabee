@@ -23,6 +23,7 @@ export const CreateTemplateSchema = z.object({
     language: z.string().min(2).max(10),
     headerText: z.string().max(60).optional(),
     body: z.string().min(1).max(1024),
+    bodyExamples: z.array(z.string().max(100)).optional(),
     footer: z.string().max(60).optional(),
 });
 

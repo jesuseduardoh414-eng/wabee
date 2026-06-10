@@ -222,7 +222,17 @@ export class WhatsAppTemplatesService {
             components.push({ type: 'HEADER', format: 'TEXT', text: input.headerText });
         }
 
-        components.push({ type: 'BODY', text: input.body });
+        const bodyVarCount = (input.body.match(/\{\{\d+\}\}/g) || []).length;
+        const bodyComponent: any = { type: 'BODY', text: input.body };
+        if (bodyVarCount > 0) {
+            const examples = input.bodyExamples?.length
+                ? input.bodyExamples.slice(0, bodyVarCount)
+                : Array.from({ length: bodyVarCount }, (_, i) => `ejemplo_${i + 1}`);
+            // Pad with fallbacks if fewer examples than variables
+            while (examples.length < bodyVarCount) examples.push(`ejemplo_${examples.length + 1}`);
+            bodyComponent.example = { body_text: [examples] };
+        }
+        components.push(bodyComponent);
 
         if (input.footer) {
             components.push({ type: 'FOOTER', text: input.footer });

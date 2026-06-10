@@ -1,7 +1,7 @@
 import { prisma } from '../../../../config/core/core.prisma';
 import { decrypt } from './token.crypto';
-import { graphGet } from './meta.graph.client';
-import { ListTemplatesQuery } from './whatsapp.templates.schemas';
+import { graphGet, graphPost, graphDelete } from './meta.graph.client';
+import { ListTemplatesQuery, CreateTemplateInput } from './whatsapp.templates.schemas';
 import { env } from '@/config/env';
 
 interface ImportResult {
@@ -182,5 +182,110 @@ export class WhatsAppTemplatesService {
                 totalPages: Math.ceil(total / limit)
             }
         };
+    }
+
+    static async resolveToken(tenantId: string, channelId: string) {
+        const channel = await prisma.whatsappChannel.findFirst({
+            where: { id: channelId, tenantId },
+            include: { oauthSession: true }
+        });
+
+        if (!channel) throw { status: 404, message: 'Canal no encontrado' };
+        if (!channel.wabaId) throw { status: 400, message: 'Canal sin WABA ID' };
+
+        let accessToken: string;
+        if (channel.oauthSession) {
+            try {
+                accessToken = decrypt({
+                    ciphertext: channel.oauthSession.accessTokenCiphertext,
+                    iv: channel.oauthSession.accessTokenIv,
+                    tag: channel.oauthSession.accessTokenTag
+                });
+            } catch {
+                throw { status: 500, message: 'Error al descifrar el token de acceso' };
+            }
+        } else if (channel.phoneNumberId === env.WHATSAPP_PHONE_NUMBER_ID && env.WHATSAPP_ACCESS_TOKEN) {
+            accessToken = env.WHATSAPP_ACCESS_TOKEN;
+        } else {
+            throw { status: 400, message: 'Canal sin credenciales. Reconecta el canal con Meta OAuth.' };
+        }
+
+        return { channel, accessToken };
+    }
+
+    static async createTemplate(tenantId: string, channelId: string, input: CreateTemplateInput) {
+        const { channel, accessToken } = await WhatsAppTemplatesService.resolveToken(tenantId, channelId);
+
+        const components: any[] = [];
+
+        if (input.headerText) {
+            components.push({ type: 'HEADER', format: 'TEXT', text: input.headerText });
+        }
+
+        components.push({ type: 'BODY', text: input.body });
+
+        if (input.footer) {
+            components.push({ type: 'FOOTER', text: input.footer });
+        }
+
+        let metaResponse: any;
+        try {
+            metaResponse = await graphPost(
+                `/${channel.wabaId}/message_templates`,
+                accessToken,
+                {
+                    name: input.name,
+                    language: input.language,
+                    category: input.category,
+                    components,
+                }
+            );
+        } catch (error: any) {
+            const detail = error.response?.data?.error?.message || error.message;
+            throw { status: 502, message: 'Meta rechazó la plantilla', detail };
+        }
+
+        const created = await prisma.whatsappTemplate.create({
+            data: {
+                tenantId,
+                channelId,
+                name: input.name,
+                language: input.language,
+                category: input.category,
+                status: 'PENDING',
+                components,
+                metaTemplateId: metaResponse.id || null,
+            }
+        });
+
+        return created;
+    }
+
+    static async deleteTemplate(tenantId: string, channelId: string, templateId: string) {
+        const { channel, accessToken } = await WhatsAppTemplatesService.resolveToken(tenantId, channelId);
+
+        const template = await prisma.whatsappTemplate.findFirst({
+            where: { id: templateId, tenantId, channelId }
+        });
+
+        if (!template) throw { status: 404, message: 'Plantilla no encontrada' };
+
+        try {
+            await graphDelete(
+                `/${channel.wabaId}/message_templates`,
+                accessToken,
+                { name: template.name }
+            );
+        } catch (error: any) {
+            const meta = error.response?.data?.error;
+            // Code 100 = template already deleted on Meta side, proceed
+            if (meta?.code !== 100) {
+                throw { status: 502, message: 'Error al eliminar en Meta', detail: meta?.message || error.message };
+            }
+        }
+
+        await prisma.whatsappTemplate.delete({ where: { id: templateId } });
+
+        return { success: true };
     }
 }

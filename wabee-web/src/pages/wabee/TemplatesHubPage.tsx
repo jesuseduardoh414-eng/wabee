@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getChannels, Channel } from '@/api/wabee/whatsapp.api';
 import { templatesApi, Template } from '@/api/wabee/templates.api';
 import { TemplatesWhatsAppCards } from '@/components/wabee/TemplatesWhatsAppCards';
+import CreateTemplateModal from '@/components/wabee/CreateTemplateModal';
 import { useToast } from '@/context/ToastContext';
 import { useDialog } from '@/context/DialogContext';
 import { T, S } from '@/lib/text-tokens';
@@ -61,6 +62,7 @@ export default function TemplatesHubPage() {
     const [loadingTemplates, setLoadingTemplates] = useState(false);
     const [importing, setImporting] = useState(false);
     const [meta, setMeta] = useState<any>(null);
+    const [showCreateModal, setShowCreateModal] = useState(false);
     const [filters, setFilters] = useState({
         status: '',
         language: '',
@@ -238,6 +240,15 @@ export default function TemplatesHubPage() {
                             {COPY.visual}
                         </button>
                     </div>
+
+                    <button
+                        onClick={() => setShowCreateModal(true)}
+                        disabled={!selectedChannelId || !canImport}
+                        className={`flex w-full items-center justify-center gap-3 rounded-2xl bg-[var(--brand-primary)] px-6 py-3.5 text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[var(--brand-primary)]/20 transition-all disabled:cursor-not-allowed disabled:opacity-30 hover:brightness-110 active:scale-95 sm:w-auto sm:px-8 ${T.buttonPrimaryText}`}
+                    >
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" /></svg>
+                        Crear Plantilla
+                    </button>
 
                     <button
                         onClick={handleImport}
@@ -432,6 +443,13 @@ export default function TemplatesHubPage() {
                     )}
                 </div>
             )}
+
+            <CreateTemplateModal
+                isOpen={showCreateModal}
+                channelId={selectedChannelId}
+                onClose={() => setShowCreateModal(false)}
+                onSuccess={fetchTemplates}
+            />
         </div>
     );
 }

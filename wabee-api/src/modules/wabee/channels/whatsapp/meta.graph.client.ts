@@ -23,3 +23,14 @@ export async function graphPost(path: string, token: string, data: any = {}) {
     });
     return response.data;
 }
+
+export async function graphDelete(path: string, token: string, params: any = {}) {
+    const url = `${BASE_URL}${path}`;
+    const response = await axios.delete(url, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        params,
+    });
+    return response.data;
+}

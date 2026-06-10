@@ -121,6 +121,7 @@ export const DashboardPage = () => {
         day: 'numeric',
         month: 'long',
     }).format(new Date());
+    const operativeDay = new Intl.DateTimeFormat('es-MX', { weekday: 'long' }).format(new Date());
 
     const warmShadow = '0 24px 60px color-mix(in srgb, var(--text-strong), transparent 90%)';
     const dashboardShellStyle: React.CSSProperties = {
@@ -226,7 +227,7 @@ export const DashboardPage = () => {
                                 <div className="max-w-3xl">
                                     <span className="inline-flex max-w-full items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] sm:px-4 sm:py-2 sm:text-[11px]" style={tagStyle}>
                                         <Sparkles size={14} className="text-[var(--chart-4)]" />
-                                        Martes operativo
+                                        {operativeDay.charAt(0).toUpperCase() + operativeDay.slice(1)} operativo
                                     </span>
                                     <p className="mt-3 text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--text-muted)] sm:mt-4 sm:text-xs">
                                         {todayLabel}

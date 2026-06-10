@@ -321,13 +321,11 @@ const WebWidgetBuilderPage: React.FC = () => {
                         <WidgetPreviewFrame
                             widgetId={widgetId}
                             apiBaseUrl={(() => {
-                                const isRender = window.location.hostname.includes('onrender.com');
-                                const defaultBackend = isRender ? 'https://core-starter.onrender.com' : 'http://localhost:4000';
-                                const rawUrl = import.meta.env.VITE_API_URL || defaultBackend;
+                                const rawUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
                                 try {
                                     return new URL(rawUrl).origin;
                                 } catch {
-                                    return rawUrl.startsWith('/') ? defaultBackend : rawUrl.replace(/\/v1\/?$/, '');
+                                    return rawUrl.startsWith('/') ? 'http://localhost:4000' : rawUrl.replace(/\/v1\/?$/, '');
                                 }
                             })()}
                             draftConfig={{

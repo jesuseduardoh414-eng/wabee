@@ -21,6 +21,15 @@ export interface TemplatesResponse {
     };
 }
 
+export interface CreateTemplatePayload {
+    name: string;
+    category: 'MARKETING' | 'UTILITY' | 'AUTHENTICATION';
+    language: string;
+    headerText?: string;
+    body: string;
+    footer?: string;
+}
+
 export const templatesApi = {
     listTemplates: (channelId: string, filters: any = {}) => {
         const params = new URLSearchParams();
@@ -36,5 +45,17 @@ export const templatesApi = {
         apiClient<{ imported: number; updated: number; skipped: number }>(
             `/channels/${channelId}/templates/import`,
             { method: 'POST' }
-        )
+        ),
+
+    createTemplate: (channelId: string, payload: CreateTemplatePayload) =>
+        apiClient<Template>(
+            `/channels/${channelId}/templates`,
+            { method: 'POST', body: JSON.stringify(payload) }
+        ),
+
+    deleteTemplate: (channelId: string, templateId: string) =>
+        apiClient<{ success: boolean }>(
+            `/channels/${channelId}/templates/${templateId}`,
+            { method: 'DELETE' }
+        ),
 };

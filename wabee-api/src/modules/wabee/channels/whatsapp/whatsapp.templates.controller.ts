@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { WhatsAppTemplatesService } from './whatsapp.templates.service';
-import { ListTemplatesQuerySchema } from './whatsapp.templates.schemas';
+import { ListTemplatesQuerySchema, CreateTemplateSchema } from './whatsapp.templates.schemas';
 import { tenancyAdapter } from '../../_adapters/tenancy.adapter';
 import { GlobalAuditLogService } from '@/modules/audit/global-audit-log.service';
 import { getAuditContext } from '@/shared/http/request-audit-context';
@@ -61,6 +61,63 @@ export const importTemplates = async (req: Request, res: Response) => {
             error: error.message || 'Internal server error',
             detail: error.detail
         });
+    }
+};
+
+export const createTemplate = async (req: Request, res: Response) => {
+    const tenantId = tenancyAdapter.getTenantId(req);
+    const auditCtx = getAuditContext(req);
+    const { channelId } = req.params;
+
+    const validation = CreateTemplateSchema.safeParse(req.body);
+    if (!validation.success) {
+        return res.status(400).json({ error: validation.error.errors });
+    }
+
+    try {
+        const result = await WhatsAppTemplatesService.createTemplate(tenantId, channelId, validation.data);
+
+        await GlobalAuditLogService.logEvent({
+            category: 'templates',
+            eventType: 'template.created',
+            severity: 'info',
+            outcome: 'success',
+            message: `Plantilla "${validation.data.name}" creada y enviada a revisión de Meta`,
+            targetType: 'whatsapp_template',
+            targetId: result.id,
+        }, auditCtx);
+
+        return res.status(201).json(result);
+    } catch (error: any) {
+        const status = error.status || 500;
+        console.error('❌ [Templates] Create error:', error);
+        return res.status(status).json({ error: error.message, detail: error.detail });
+    }
+};
+
+export const deleteTemplate = async (req: Request, res: Response) => {
+    const tenantId = tenancyAdapter.getTenantId(req);
+    const auditCtx = getAuditContext(req);
+    const { channelId, templateId } = req.params;
+
+    try {
+        await WhatsAppTemplatesService.deleteTemplate(tenantId, channelId, templateId);
+
+        await GlobalAuditLogService.logEvent({
+            category: 'templates',
+            eventType: 'template.deleted',
+            severity: 'warning',
+            outcome: 'success',
+            message: `Plantilla eliminada del canal ${channelId}`,
+            targetType: 'whatsapp_template',
+            targetId: templateId,
+        }, auditCtx);
+
+        return res.json({ success: true });
+    } catch (error: any) {
+        const status = error.status || 500;
+        console.error('❌ [Templates] Delete error:', error);
+        return res.status(status).json({ error: error.message, detail: error.detail });
     }
 };
 

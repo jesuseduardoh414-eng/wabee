@@ -54,7 +54,6 @@ const WhatsAppChannelsPage = React.lazy(() => import('./pages/wabee/WhatsAppChan
 const GroupsPage = React.lazy(() => import('./pages/wabee/GroupsPage'));
 const WhatsAppTemplatesPage = React.lazy(() => import('./pages/wabee/WhatsAppTemplatesPage'));
 const AiProfilesPage = React.lazy(() => import('./pages/wabee/AiProfilesPage'));
-const WebWidgetsPage = React.lazy(() => import('./pages/wabee/WebWidgetsPage'));
 const WebWidgetBuilderPage = React.lazy(() => import('./pages/wabee/WebWidgetBuilderPage'));
 const TemplatesHubPage = React.lazy(() => import('./pages/wabee/TemplatesHubPage'));
 const TemplatesSelectChannelPage = React.lazy(() => import('./pages/wabee/TemplatesSelectChannelPage').then(m => ({ default: m.TemplatesSelectChannelPage })));
@@ -150,8 +149,6 @@ const App = () => {
                                             <Route path="notifications" element={<NotificationsPage />} />
                                             <Route path="audit" element={<ModuleGuard moduleKey="audit"><AuditLogsPage /></ModuleGuard>} />
                                             <Route path="widgets" element={<ModuleGuard moduleKey="webWidgets"><WebWidgetBuilderPage /></ModuleGuard>} />
-                                            <Route path="widgets/builder/:id" element={<ModuleGuard moduleKey="webWidgets"><WebWidgetBuilderPage /></ModuleGuard>} />
-                                            <Route path="widgets/builder/new" element={<ModuleGuard moduleKey="webWidgets"><WebWidgetBuilderPage /></ModuleGuard>} />
                                             <Route path="ai-integrations" element={<ModuleGuard moduleKey="integrationsTools"><AiIntegrationsPage /></ModuleGuard>} />
                                             <Route path="automations" element={<AutomationsPage />} />
                                             <Route path="automations/:id/builder" element={<AutomationBuilderPage />} />

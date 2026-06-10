@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notificationsApi, Notification } from '@/api/wabee/notifications.api';
-import { Bell, CheckCircle, Trash2, Info, AlertTriangle, ShieldAlert } from 'lucide-react';
+import { Bell, CheckCircle } from 'lucide-react';
 import { NotificationSeverityIcon } from '@/components/wabee/NotificationSeverityIcon';
 import { T, S } from '@/lib/text-tokens';
 
@@ -83,7 +83,7 @@ export default function NotificationsPage() {
                                     {!notif.isRead && (
                                         <button
                                             onClick={() => markAsReadMutation.mutate(notif.id)}
-                                            className={`${T.buttonPrimaryText} ${S.ui} mt-3 text-[var(--brand-primary)] border border-[var(--brand-primary)]/30 px-3 py-1 rounded-lg hover:bg-[var(--brand-primary)] hover: transition-colors`}
+                                            className={`${T.buttonPrimaryText} ${S.ui} mt-3 text-[var(--brand-primary)] border border-[var(--brand-primary)]/30 px-3 py-1 rounded-lg hover:bg-[var(--brand-primary)] transition-colors`}
                                         >
                                             Marcar leída
                                         </button>

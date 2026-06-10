@@ -216,26 +216,53 @@ export class WhatsAppTemplatesService {
     static async createTemplate(tenantId: string, channelId: string, input: CreateTemplateInput) {
         const { channel, accessToken } = await WhatsAppTemplatesService.resolveToken(tenantId, channelId);
 
-        const components: any[] = [];
+        let components: any[];
 
-        if (input.headerText) {
-            components.push({ type: 'HEADER', format: 'TEXT', text: input.headerText });
-        }
+        if (input.category === 'AUTHENTICATION') {
+            // Authentication: fixed Meta structure — no custom body text
+            components = [
+                { type: 'BODY', add_security_recommendation: input.addSecurityRecommendation ?? true },
+            ];
+            if (input.codeExpirationMinutes) {
+                components.push({ type: 'FOOTER', code_expiration_minutes: input.codeExpirationMinutes });
+            }
+            components.push({
+                type: 'BUTTONS',
+                buttons: [{ type: 'OTP', otp_type: 'COPY_CODE' }],
+            });
+        } else {
+            // Marketing / Utility: text + optional buttons
+            components = [];
 
-        const bodyVarCount = (input.body.match(/\{\{\d+\}\}/g) || []).length;
-        const bodyComponent: any = { type: 'BODY', text: input.body };
-        if (bodyVarCount > 0) {
-            const examples = input.bodyExamples?.length
-                ? input.bodyExamples.slice(0, bodyVarCount)
-                : Array.from({ length: bodyVarCount }, (_, i) => `ejemplo_${i + 1}`);
-            // Pad with fallbacks if fewer examples than variables
-            while (examples.length < bodyVarCount) examples.push(`ejemplo_${examples.length + 1}`);
-            bodyComponent.example = { body_text: [examples] };
-        }
-        components.push(bodyComponent);
+            if (input.headerText) {
+                components.push({ type: 'HEADER', format: 'TEXT', text: input.headerText });
+            }
 
-        if (input.footer) {
-            components.push({ type: 'FOOTER', text: input.footer });
+            const bodyVarCount = (input.body.match(/\{\{\d+\}\}/g) || []).length;
+            const bodyComponent: any = { type: 'BODY', text: input.body };
+            if (bodyVarCount > 0) {
+                const examples = input.bodyExamples?.length
+                    ? input.bodyExamples.slice(0, bodyVarCount)
+                    : Array.from({ length: bodyVarCount }, (_, i) => `ejemplo_${i + 1}`);
+                while (examples.length < bodyVarCount) examples.push(`ejemplo_${examples.length + 1}`);
+                bodyComponent.example = { body_text: [examples] };
+            }
+            components.push(bodyComponent);
+
+            if (input.footer) {
+                components.push({ type: 'FOOTER', text: input.footer });
+            }
+
+            if (input.buttons?.length) {
+                components.push({
+                    type: 'BUTTONS',
+                    buttons: input.buttons.map(btn => {
+                        if (btn.type === 'QUICK_REPLY') return { type: 'QUICK_REPLY', text: btn.text };
+                        if (btn.type === 'URL') return { type: 'URL', text: btn.text, url: btn.url };
+                        return { type: 'PHONE_NUMBER', text: btn.text, phone_number: btn.phone };
+                    }),
+                });
+            }
         }
 
         let metaResponse: any;
@@ -243,12 +270,7 @@ export class WhatsAppTemplatesService {
             metaResponse = await graphPost(
                 `/${channel.wabaId}/message_templates`,
                 accessToken,
-                {
-                    name: input.name,
-                    language: input.language,
-                    category: input.category,
-                    components,
-                }
+                { name: input.name, language: input.language, category: input.category, components }
             );
         } catch (error: any) {
             const detail = error.response?.data?.error?.message || error.message;

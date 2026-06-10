@@ -21,15 +21,31 @@ export interface TemplatesResponse {
     };
 }
 
-export interface CreateTemplatePayload {
-    name: string;
-    category: 'MARKETING' | 'UTILITY' | 'AUTHENTICATION';
-    language: string;
-    headerText?: string;
-    body: string;
-    bodyExamples?: string[];
-    footer?: string;
+export interface TemplateButton {
+    type: 'QUICK_REPLY' | 'URL' | 'PHONE_NUMBER';
+    text: string;
+    url?: string;
+    phone?: string;
 }
+
+export type CreateTemplatePayload =
+    | {
+          category: 'AUTHENTICATION';
+          name: string;
+          language: string;
+          addSecurityRecommendation?: boolean;
+          codeExpirationMinutes?: number;
+      }
+    | {
+          category: 'MARKETING' | 'UTILITY';
+          name: string;
+          language: string;
+          headerText?: string;
+          body: string;
+          bodyExamples?: string[];
+          footer?: string;
+          buttons?: TemplateButton[];
+      };
 
 export const templatesApi = {
     listTemplates: (channelId: string, filters: any = {}) => {

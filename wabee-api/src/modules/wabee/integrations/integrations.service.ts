@@ -121,6 +121,99 @@ export class IntegrationsService {
         return prisma.fieldMapping.findMany({ where: { integrationId } });
     }
 
+    // ── Manual pull sync ─────────────────────────────────────────────────────
+
+    async pullContactsFromCrm(tenantId: string, integrationId: string) {
+        const { getProvider } = await import('./provider.registry');
+        const { decrypt } = await import('../channels/whatsapp/token.crypto');
+
+        const integration = await prisma.externalIntegration.findFirst({
+            where: { id: integrationId, tenantId, status: 'CONNECTED' },
+        });
+        if (!integration) throw { status: 404, message: 'Integración no encontrada o no conectada' };
+
+        const account = await this.getAccount(integrationId, tenantId);
+        if (!account) throw { status: 400, message: 'Sin credenciales guardadas para esta integración' };
+
+        let accessToken: string;
+        try {
+            accessToken = decrypt(JSON.parse(account.accessToken));
+        } catch {
+            throw { status: 500, message: 'Error al descifrar el token de acceso' };
+        }
+
+        const provider = getProvider(integration.provider);
+        if (!provider) throw { status: 400, message: `Proveedor ${integration.provider} no disponible` };
+
+        const contacts = await provider.pullContacts(accessToken);
+
+        let imported = 0;
+        let updated = 0;
+        let skipped = 0;
+
+        for (const c of contacts) {
+            if (!c.phone && !c.email) { skipped++; continue; }
+
+            try {
+                const phone = c.phone ?? null;
+                const existing = phone
+                    ? await prisma.contact.findFirst({ where: { tenantId, phone } })
+                    : await prisma.contact.findFirst({ where: { tenantId, email: c.email! } });
+
+                const name = [c.firstName, c.lastName].filter(Boolean).join(' ') || null;
+
+                if (existing) {
+                    await prisma.contact.update({
+                        where: { id: existing.id },
+                        data: {
+                            name:           name ?? existing.name,
+                            email:          c.email ?? existing.email,
+                            externalCrmId:  c.externalId || existing.externalCrmId,
+                            sourceSystem:   integration.provider,
+                        },
+                    });
+                    updated++;
+                } else {
+                    await prisma.contact.create({
+                        data: {
+                            tenantId,
+                            phone:          phone ?? `crm-${c.externalId}`,
+                            name,
+                            email:          c.email ?? null,
+                            externalCrmId:  c.externalId || null,
+                            sourceSystem:   integration.provider,
+                            lifecycleStatus: 'LEAD',
+                            status:         'ACTIVE',
+                            tags:           [],
+                        },
+                    });
+                    imported++;
+                }
+
+                await this.writeSyncLog(integrationId, tenantId, {
+                    entityType: 'CONTACT',
+                    entityId:   c.externalId || undefined,
+                    operation:  existing ? 'UPDATE' : 'CREATE',
+                    direction:  'PULL',
+                    status:     'SUCCESS',
+                    meta:       { name, phone, email: c.email },
+                });
+            } catch (e) {
+                skipped++;
+                await this.writeSyncLog(integrationId, tenantId, {
+                    entityType:   'CONTACT',
+                    entityId:     c.externalId || undefined,
+                    operation:    'CREATE',
+                    direction:    'PULL',
+                    status:       'FAILED',
+                    errorMessage: (e as Error).message,
+                });
+            }
+        }
+
+        return { imported, updated, skipped, total: contacts.length };
+    }
+
     // ── Sync logs ─────────────────────────────────────────────────────────────
 
     async writeSyncLog(integrationId: string, tenantId: string, result: SyncResult) {

@@ -74,4 +74,10 @@ export const integrationsApi = {
             `${BASE}/seed-crm-ai-tools`,
             { method: 'POST' }
         ),
+
+    syncPull: (id: string) =>
+        apiClient<{ imported: number; updated: number; skipped: number; total: number }>(
+            `${BASE}/${id}/sync`,
+            { method: 'POST' }
+        ),
 };

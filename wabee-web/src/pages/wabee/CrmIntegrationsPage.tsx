@@ -45,6 +45,7 @@ export default function CrmIntegrationsPage() {
     const [tokenInput, setTokenInput] = useState('');
     const [savingToken, setSavingToken] = useState(false);
     const [seedingTools, setSeedingTools] = useState(false);
+    const [syncing, setSyncing] = useState(false);
 
     const { success: ok, error: err } = useToast();
     const { confirm } = useDialog();
@@ -148,6 +149,19 @@ export default function CrmIntegrationsPage() {
         const provider = integration.provider.toLowerCase();
         const base = provider === 'hubspot' ? `${apiRoot}/oauth/hubspot/start` : `${apiRoot}/oauth/crm/${provider}/start`;
         window.location.href = `${base}?integration_id=${integration.id}&tenant_id=${tenantId}`;
+    };
+
+    const handleSyncPull = async (integration: ExternalIntegration) => {
+        setSyncing(true);
+        try {
+            const result = await integrationsApi.syncPull(integration.id);
+            ok(`Sync completado: ${result.imported} importados, ${result.updated} actualizados, ${result.skipped} omitidos`);
+            await loadDetail(integration.id);
+        } catch (e: any) {
+            err(e.message || 'Error al sincronizar contactos');
+        } finally {
+            setSyncing(false);
+        }
     };
 
     const handleDelete = async (integration: ExternalIntegration) => {
@@ -263,12 +277,23 @@ export default function CrmIntegrationsPage() {
                                     )}
                                 </div>
 
-                                <button
-                                    onClick={() => handleDelete(selected)}
-                                    className="rounded-lg bg-red-500/10 px-3 py-2 text-xs font-bold uppercase tracking-widest text-red-400 transition hover:bg-red-500/20"
-                                >
-                                    Desconectar
-                                </button>
+                                <div className="flex shrink-0 gap-2">
+                                    {selected.status === 'CONNECTED' && (
+                                        <button
+                                            onClick={() => handleSyncPull(selected)}
+                                            disabled={syncing}
+                                            className="rounded-lg bg-[var(--brand-primary)]/10 px-3 py-2 text-xs font-bold uppercase tracking-widest text-[var(--brand-primary)] transition hover:bg-[var(--brand-primary)]/20 disabled:opacity-40"
+                                        >
+                                            {syncing ? 'Sincronizando...' : 'Sincronizar'}
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={() => handleDelete(selected)}
+                                        className="rounded-lg bg-red-500/10 px-3 py-2 text-xs font-bold uppercase tracking-widest text-red-400 transition hover:bg-red-500/20"
+                                    >
+                                        Desconectar
+                                    </button>
+                                </div>
                             </div>
 
                             {(selected.status === 'DISCONNECTED' || selected.status === 'EXPIRED') && (
@@ -375,7 +400,7 @@ export default function CrmIntegrationsPage() {
                                                                     {log.operation}
                                                                 </span>
                                                                 <span className={`rounded bg-[var(--bg-input)] px-1.5 py-0.5 text-[9px] ${T.helperText}`}>
-                                                                    {log.direction === 'PUSH' ? 'Wabee → HubSpot' : 'HubSpot → Wabee'}
+                                                                    {log.direction === 'PUSH' ? `Wabee → ${PROVIDER_LABELS[selected.provider]}` : `${PROVIDER_LABELS[selected.provider]} → Wabee`}
                                                                 </span>
                                                                 {lifecycle && (
                                                                     <span className="rounded bg-[var(--brand-primary)]/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-[var(--brand-primary)]">

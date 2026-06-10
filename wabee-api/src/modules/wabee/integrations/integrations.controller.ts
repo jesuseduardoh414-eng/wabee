@@ -215,4 +215,12 @@ export class IntegrationsController {
             res.json(logs);
         } catch (e: any) { res.status(e.status || 500).json({ error: e.message }); }
     }
+
+    static async syncPull(req: Request, res: Response) {
+        try {
+            const tenantId = (req as any).tenantId;
+            const result = await integrationsService.pullContactsFromCrm(tenantId, req.params.id);
+            res.json(result);
+        } catch (e: any) { res.status(e.status || 500).json({ error: e.message }); }
+    }
 }

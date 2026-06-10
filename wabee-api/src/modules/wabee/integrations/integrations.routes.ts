@@ -13,5 +13,6 @@ router.put('/:id/field-mappings',        adminOnly, IntegrationsController.upser
 router.post('/:id/connect-token',        adminOnly, IntegrationsController.connectToken);
 router.post('/seed-crm-ai-tools',        adminOnly, IntegrationsController.seedCrmAiTools);
 router.get('/:id/sync-logs',             adminOnly, IntegrationsController.getSyncLogs);
+router.post('/:id/sync',                 adminOnly, IntegrationsController.syncPull);
 
 export { router as integrationsRouter };

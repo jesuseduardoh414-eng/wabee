@@ -105,7 +105,8 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
             onSuccess();
             onClose();
         } catch (err: any) {
-            toastError(err.message || 'Error al crear la plantilla');
+            const msg = err.detail ? `${err.message}: ${err.detail}` : (err.message || 'Error al crear la plantilla');
+            toastError(msg);
         } finally {
             setLoading(false);
         }

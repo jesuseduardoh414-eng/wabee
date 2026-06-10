@@ -33,6 +33,7 @@ export async function apiClient<T>(
             );
             (err as any).status = error.response.status;
             (err as any).code = error.response.data?.code;
+            (err as any).detail = error.response.data?.detail;
             throw err;
         }
         throw error;

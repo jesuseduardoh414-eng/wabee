@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { T, S } from '@/lib/text-tokens';
+import { TourButton } from '../../components/TourButton';
 import {
     ArrowLeft,
     Bot,
@@ -467,7 +468,7 @@ export default function InboxPage() {
             } bg-[#FBFBF4]`}
         >
             {/* Channel rail */}
-            <aside className="hidden w-[54px] bg-[#F7F7EC] md:flex lg:w-[60px] flex-col items-center py-3 gap-3 border-r border-[rgba(26,26,26,0.08)] shrink-0 z-20">
+            <aside data-tour="inbox-channels" className="hidden w-[54px] bg-[#F7F7EC] md:flex lg:w-[60px] flex-col items-center py-3 gap-3 border-r border-[rgba(26,26,26,0.08)] shrink-0 z-20">
                 <div className="flex h-[34px] w-[34px] items-center justify-center rounded-[10px] bg-[var(--brand-primary)] shadow-[0_4px_12px_rgba(255,140,0,0.24)] lg:h-[38px] lg:w-[38px]">
                     <span className="text-[15px] font-bold text-white lg:text-[17px]">W</span>
                 </div>
@@ -495,7 +496,7 @@ export default function InboxPage() {
             </aside>
 
             {/* Thread list sidebar */}
-            <aside className={`${showThreadList ? 'flex' : 'hidden'} w-full md:w-[286px] lg:w-[344px] xl:w-[380px] bg-white border-r border-[rgba(26,26,26,0.08)] flex-col shrink-0 relative z-10 md:flex`}>
+            <aside data-tour="inbox-threads" className={`${showThreadList ? 'flex' : 'hidden'} w-full md:w-[286px] lg:w-[344px] xl:w-[380px] bg-white border-r border-[rgba(26,26,26,0.08)] flex-col shrink-0 relative z-10 md:flex`}>
                 {/* Header */}
                 <div className="px-3 pt-4 pb-3 border-b border-[rgba(26,26,26,0.08)] shrink-0 md:px-3.5 lg:px-4">
                     <div className="flex items-center justify-between mb-1">
@@ -518,6 +519,7 @@ export default function InboxPage() {
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
+                            <TourButton moduleKey="inbox" />
                             <span className={`${T.helperText} ${S.meta} text-[rgba(26,26,26,0.4)]`}>
                                 {connectedChannels}/{channels.length}
                             </span>
@@ -528,7 +530,7 @@ export default function InboxPage() {
                     </div>
 
                     {/* Search */}
-                    <div className="mt-3 flex items-center gap-2 px-3 h-[38px] bg-[#FBFBF4] border border-[rgba(26,26,26,0.1)] rounded-[10px] focus-within:border-[var(--brand-primary)] transition-colors">
+                    <div data-tour="inbox-search" className="mt-3 flex items-center gap-2 px-3 h-[38px] bg-[#FBFBF4] border border-[rgba(26,26,26,0.1)] rounded-[10px] focus-within:border-[var(--brand-primary)] transition-colors">
                         <svg className="w-4 h-4 text-[rgba(26,26,26,0.35)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
@@ -543,7 +545,7 @@ export default function InboxPage() {
                 </div>
 
                 {/* Filter chips — horizontal scrollable */}
-                <div className="flex gap-1.5 px-3 py-3 overflow-x-auto no-scrollbar border-b border-[rgba(26,26,26,0.08)] shrink-0 md:px-3.5 lg:px-4">
+                <div data-tour="inbox-filters" className="flex gap-1.5 px-3 py-3 overflow-x-auto no-scrollbar border-b border-[rgba(26,26,26,0.08)] shrink-0 md:px-3.5 lg:px-4">
                     {FILTER_TABS.filter((tab) => !tab.roles || tab.roles.includes(currentUser.role)).map((tab) => {
                         const count = getFilterCount(tab.id);
                         const isActive = filter === tab.id;
@@ -719,7 +721,7 @@ export default function InboxPage() {
                 {activeThread ? (
                     <div className="h-full flex flex-col">
                         {/* Action bar */}
-                        <div className="hidden bg-white px-3 py-2 border-b border-[rgba(26,26,26,0.08)] md:flex items-center justify-between gap-3 z-10 shrink-0 lg:px-4">
+                        <div data-tour="inbox-actions" className="hidden bg-white px-3 py-2 border-b border-[rgba(26,26,26,0.08)] md:flex items-center justify-between gap-3 z-10 shrink-0 lg:px-4">
                             <div className="flex flex-wrap items-center gap-2">
                                 {activeThread.assignedUserId ? (
                                     <div className="flex items-center gap-2">

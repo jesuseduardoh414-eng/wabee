@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { TourButton } from '../../components/TourButton';
 import { automationsApi, AutomationFlow, AutomationTrigger, AutomationFlowVersion } from '@/api/wabee/automations.api';
 import { useToast } from '@/context/ToastContext';
 import { useDialog } from '@/context/DialogContext';
@@ -186,17 +187,21 @@ export default function AutomationsPage() {
                             Crea flujos de conversación automáticos con triggers, preguntas y condiciones.
                         </p>
                     </div>
-                    <button
-                        onClick={() => setShowCreate(true)}
-                        className="w-full rounded-xl bg-[var(--brand-primary)] px-4 py-3 text-xs font-bold uppercase tracking-widest text-white transition hover:opacity-90 sm:w-auto sm:py-2"
-                    >
-                        + Nueva
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <TourButton moduleKey="automations" />
+                        <button
+                            data-tour="automations-create"
+                            onClick={() => setShowCreate(true)}
+                            className="w-full rounded-xl bg-[var(--brand-primary)] px-4 py-3 text-xs font-bold uppercase tracking-widest text-white transition hover:opacity-90 sm:w-auto sm:py-2"
+                        >
+                            + Nueva
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <div className="flex flex-1 flex-col overflow-hidden lg:flex-row">
-                <div className="shrink-0 overflow-y-auto border-b border-[var(--border-default)] lg:w-80 lg:border-b-0 lg:border-r">
+                <div data-tour="automations-list" className="shrink-0 overflow-y-auto border-b border-[var(--border-default)] lg:w-80 lg:border-b-0 lg:border-r">
                     {loading && <p className={`${T.cardSubtitle} p-6 text-center text-xs`}>Cargando...</p>}
 
                     {!loading && flows.length === 0 && (

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { TourButton } from '../../components/TourButton';
 import { apiClient } from '@/api/wabee/client';
 import { useToast } from '@/context/ToastContext';
 import { useDialog } from '@/context/DialogContext';
@@ -108,17 +109,21 @@ export default function WhatsAppTemplatesPage() {
         <div className="p-6 max-w-7xl mx-auto">
             <div className="mb-6 flex justify-between items-center">
                 <h1 className="text-2xl font-bold">WhatsApp Templates</h1>
-                <button
-                    onClick={handleImport}
-                    disabled={importing}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    {importing ? 'Importando...' : 'Importar desde Meta'}
-                </button>
+                <div className="flex items-center gap-3">
+                    <TourButton moduleKey="templates" />
+                    <button
+                        data-tour="templates-import"
+                        onClick={handleImport}
+                        disabled={importing}
+                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {importing ? 'Importando...' : 'Importar desde Meta'}
+                    </button>
+                </div>
             </div>
 
             {/* Filters */}
-            <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 bg-[var(--bg-card)] border border-[var(--border-default)] p-4 rounded-lg shadow">
+            <div data-tour="templates-filters" className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 bg-[var(--bg-card)] border border-[var(--border-default)] p-4 rounded-lg shadow">
                 <div>
                     <label className="block text-sm font-medium text-[var(--text-body)] mb-1">Estado</label>
                     <select
@@ -187,7 +192,7 @@ export default function WhatsAppTemplatesPage() {
                 </div>
             ) : (
                 <>
-                    <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-lg shadow overflow-hidden">
+                    <div data-tour="templates-table" className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-lg shadow overflow-hidden">
                         <table className="min-w-full divide-y divide-[var(--border-default)]">
                             <thead className="bg-[var(--bg-surface)]">
                                 <tr>

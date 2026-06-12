@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import client from '../api/client';
-import { Mail, Lock, Loader2, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Loader2, ArrowLeft, ArrowRight, MailCheck, X } from 'lucide-react';
 import { T, S } from '@/lib/text-tokens';
 import { toast } from 'sonner';
 import { BrandLogo } from '../components/BrandLogo';
@@ -23,6 +23,7 @@ export const LoginPage = () => {
     const location = useLocation();
     const verifiedMessage = (location.state as any)?.message || null;
     const shownStateMessageRef = useRef<string | null>(null);
+    const [showVerifyBanner, setShowVerifyBanner] = useState(!!verifiedMessage);
 
     useEffect(() => {
         if (verifiedMessage && shownStateMessageRef.current !== verifiedMessage) {
@@ -269,6 +270,24 @@ export const LoginPage = () => {
                             <h2 className={`${T.pageTitle} ${S.displayMd}`}>Bienvenido de nuevo</h2>
                             <p className={`${T.pageSubtitle} ${S.meta}`}>Ingresa tus credenciales para continuar</p>
                         </div>
+
+                        {showVerifyBanner && (
+                            <div className="wabee-auth-verify-callout">
+                                <MailCheck size={18} className="wabee-auth-verify-callout__icon" />
+                                <div className="wabee-auth-verify-callout__body">
+                                    <strong>Verifica tu correo antes de entrar</strong>
+                                    <p>Te enviamos un enlace de activación. Búscalo en tu bandeja de entrada y haz clic para activar tu cuenta.</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowVerifyBanner(false)}
+                                    className="wabee-auth-verify-callout__dismiss"
+                                    aria-label="Cerrar aviso"
+                                >
+                                    <X size={14} />
+                                </button>
+                            </div>
+                        )}
 
                         <form onSubmit={handleLogin} className="space-y-6 relative">
                             <div className="space-y-2">

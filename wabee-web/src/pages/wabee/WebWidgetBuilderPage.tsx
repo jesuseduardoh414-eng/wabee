@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { TourButton } from '../../components/TourButton';
 import { webWidgetApi } from '@/api/wabee/webwidget.api';
 import {
     XMarkIcon,
@@ -249,7 +250,7 @@ const WebWidgetBuilderPage: React.FC = () => {
         <div className="flex h-full flex-col overflow-hidden bg-[var(--bg-page)] text-[12px] text-[var(--text-strong)] selection:bg-[var(--brand-primary)]/30">
             <div className="sticky top-0 z-10 shrink-0 border-b border-[var(--border-default)] bg-[var(--bg-card)] px-3 py-2 shadow-2xl">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <nav className="flex flex-wrap gap-1 sm:gap-2">
+                    <nav data-tour="widgets-tabs" className="flex flex-wrap gap-1 sm:gap-2">
                         {tabs.map((tab) => (
                             <button
                                 key={tab.id}
@@ -270,6 +271,7 @@ const WebWidgetBuilderPage: React.FC = () => {
                     </nav>
 
                     <div className="flex items-center justify-between gap-3 md:justify-end">
+                        <TourButton moduleKey="widgets" />
                         {isDirty && (
                             <div className="flex items-center gap-1.5 rounded-full border border-[var(--brand-primary)]/20 bg-[var(--brand-primary)]/10 px-2.5 py-1 text-[var(--brand-primary)] md:hidden">
                                 <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--brand-primary)]" />
@@ -316,7 +318,7 @@ const WebWidgetBuilderPage: React.FC = () => {
                     </div>
                 </section>
 
-                <section className="order-1 shrink-0 border-b border-[var(--border-default)] bg-[var(--bg-card)] px-3 py-4 xl:order-2 xl:w-[400px] xl:border-b-0 xl:border-l xl:px-4 xl:py-5 2xl:w-[450px]">
+                <section data-tour="widgets-preview" className="order-1 shrink-0 border-b border-[var(--border-default)] bg-[var(--bg-card)] px-3 py-4 xl:order-2 xl:w-[400px] xl:border-b-0 xl:border-l xl:px-4 xl:py-5 2xl:w-[450px]">
                     <div className="mx-auto flex w-full max-w-[420px] justify-center">
                         <WidgetPreviewFrame
                             widgetId={widgetId}

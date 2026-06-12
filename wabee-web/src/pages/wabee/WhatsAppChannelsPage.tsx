@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { TourButton } from '../../components/TourButton';
 import { T, S } from '@/lib/text-tokens';
 import {
     getChannels,
@@ -227,6 +228,9 @@ export default function WhatsAppChannelsPage() {
                     </div>
 
                     <div className="flex flex-col gap-3 lg:items-end">
+                        <div className="flex items-center justify-end">
+                            <TourButton moduleKey="channels" />
+                        </div>
                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:flex xl:flex-wrap xl:justify-end">
                             <button
                                 onClick={handleDiscover}
@@ -278,6 +282,7 @@ export default function WhatsAppChannelsPage() {
                             </button>
 
                             <button
+                                data-tour="channels-create"
                                 onClick={() => setModalOpen(true)}
                                 disabled={isChannelsDisabled || isLimitReached}
                                 title={isChannelsDisabled ? 'Módulo no incluido en tu plan' : isLimitReached ? 'Límite de canales alcanzado' : ''}
@@ -460,7 +465,7 @@ export default function WhatsAppChannelsPage() {
                         </button>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    <div data-tour="channels-list" className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                         {channels.map((channel) => (
                             <div key={channel.id} className="relative">
                                 <ChannelCard

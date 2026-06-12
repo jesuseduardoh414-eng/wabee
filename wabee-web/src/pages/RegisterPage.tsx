@@ -70,9 +70,39 @@ export const RegisterPage = () => {
                         <span>y activa tu operacion desde el primer dia</span>
                     </h1>
                     <p className="wabee-auth__copy">
-                        Registra tu cuenta, crea tu organizacion y prepara a tu equipo para gestionar
-                        conversaciones, campanas y automatizacion desde una experiencia mas clara y consistente.
+                        Crea tu espacio de trabajo y empieza a operar con tu equipo desde el primer dia.
                     </p>
+
+                    <ol className="wabee-onboarding-steps" aria-label="Pasos para empezar">
+                        <li className="wabee-onboarding-step">
+                            <span className="wabee-onboarding-step__num" aria-hidden="true">1</span>
+                            <div className="wabee-onboarding-step__content">
+                                <strong>Crea tu cuenta</strong>
+                                <p>Registra tu email, contraseña y el nombre de tu organización.</p>
+                            </div>
+                        </li>
+                        <li className="wabee-onboarding-step">
+                            <span className="wabee-onboarding-step__num" aria-hidden="true">2</span>
+                            <div className="wabee-onboarding-step__content">
+                                <strong>Verifica tu correo</strong>
+                                <p>Recibirás un enlace de activación. Úsalo antes de iniciar sesión.</p>
+                            </div>
+                        </li>
+                        <li className="wabee-onboarding-step">
+                            <span className="wabee-onboarding-step__num" aria-hidden="true">3</span>
+                            <div className="wabee-onboarding-step__content">
+                                <strong>Conecta WhatsApp</strong>
+                                <p>Vincula tu número de WhatsApp Business desde la configuración.</p>
+                            </div>
+                        </li>
+                        <li className="wabee-onboarding-step">
+                            <span className="wabee-onboarding-step__num" aria-hidden="true">4</span>
+                            <div className="wabee-onboarding-step__content">
+                                <strong>Opera con tu equipo</strong>
+                                <p>Invita agentes y gestiona conversaciones, campañas y contactos.</p>
+                            </div>
+                        </li>
+                    </ol>
                 </div>
 
                 <div className="wabee-auth__panel wabee-auth__panel--form">
@@ -118,6 +148,7 @@ export const RegisterPage = () => {
                                         required
                                     />
                                 </div>
+                                <p className="wabee-auth-field-hint">Es el espacio de trabajo compartido con tu equipo. Podrás invitar agentes más tarde.</p>
                             </div>
 
                             <div className="space-y-2">
@@ -133,6 +164,7 @@ export const RegisterPage = () => {
                                         required
                                     />
                                 </div>
+                                <p className="wabee-auth-field-hint">Recibirás un enlace de verificación en este correo antes de poder ingresar.</p>
                             </div>
 
                             <div className="space-y-2">

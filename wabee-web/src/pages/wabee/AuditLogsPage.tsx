@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { TourButton } from '../../components/TourButton';
 import { useQuery } from '@tanstack/react-query';
 import { auditApi, AuditLogFilter } from '@/api/wabee/audit.api';
 import { ShieldAlert, Search, Filter, Download, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
@@ -64,18 +65,23 @@ export default function AuditLogsPage() {
         <div className="mx-auto max-w-7xl space-y-6 px-4 py-5 sm:space-y-8 sm:px-6 sm:py-6">
             <div className="rounded-[28px] border border-[var(--border-default)] bg-[var(--bg-card)] p-5 shadow-xl sm:p-6">
                 <div className="flex flex-col gap-3">
-                    <h1 className={`${T.pageTitle} ${S.displayMd} flex flex-wrap items-center gap-3`}>
-                        <ShieldAlert className="text-[var(--state-danger)]" size={28} />
-                        <span>Registro de</span>
-                        <span className="text-[var(--brand-primary)]">Auditoría</span>
-                    </h1>
-                    <p className={`${T.pageSubtitle} ${S.meta} uppercase tracking-widest`}>
-                        Registro inmutable de acciones críticas — solo administradores
-                    </p>
+                    <div className="flex items-start justify-between gap-4">
+                        <div>
+                            <h1 className={`${T.pageTitle} ${S.displayMd} flex flex-wrap items-center gap-3`}>
+                                <ShieldAlert className="text-[var(--state-danger)]" size={28} />
+                                <span>Registro de</span>
+                                <span className="text-[var(--brand-primary)]">Auditoría</span>
+                            </h1>
+                            <p className={`${T.pageSubtitle} ${S.meta} uppercase tracking-widest`}>
+                                Registro inmutable de acciones críticas — solo administradores
+                            </p>
+                        </div>
+                        <TourButton moduleKey="audit" />
+                    </div>
                 </div>
             </div>
 
-            <div className="inline-flex w-full rounded-2xl border border-[var(--border-default)] bg-[var(--bg-elevated)] p-1 sm:w-auto">
+            <div data-tour="audit-tabs" className="inline-flex w-full rounded-2xl border border-[var(--border-default)] bg-[var(--bg-elevated)] p-1 sm:w-auto">
                 {([
                     { key: 'system', label: 'Auditoría de sistema' },
                     { key: 'attention', label: 'Auditoría de atención' },
@@ -98,7 +104,7 @@ export default function AuditLogsPage() {
 
             {activeTab === 'system' && (
                 <>
-                    <div className="rounded-[24px] border border-[var(--border-default)] bg-[var(--bg-card)] p-4 sm:p-5">
+                    <div data-tour="audit-filters" className="rounded-[24px] border border-[var(--border-default)] bg-[var(--bg-card)] p-4 sm:p-5">
                         <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center">
                             <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-3 py-2">
                                 <Filter size={14} className="shrink-0 text-[color:var(--tx-helperText-color)]" />
@@ -135,7 +141,7 @@ export default function AuditLogsPage() {
                         </div>
                     </div>
 
-                    <div className="overflow-hidden rounded-[28px] border border-[var(--border-default)] bg-[var(--bg-card)] shadow-2xl">
+                    <div data-tour="audit-table" className="overflow-hidden rounded-[28px] border border-[var(--border-default)] bg-[var(--bg-card)] shadow-2xl">
                         <div className="overflow-x-auto">
                             <table className="min-w-[760px] w-full border-collapse text-left">
                                 <thead className="border-b border-[var(--border-default)] bg-[var(--bg-elevated)]">

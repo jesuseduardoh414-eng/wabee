@@ -24,6 +24,7 @@ import {
     X,
 } from 'lucide-react';
 import { BrandLogo } from '../components/BrandLogo';
+import { OnboardingModal } from '../components/OnboardingModal';
 
 const NAV_LINKS = [
     { label: 'Funcionalidades', href: '#features' },
@@ -279,6 +280,7 @@ export const LandingPage = () => {
 
     return (
         <div className="wabee-redesign min-h-screen text-[var(--text-strong)]">
+            <OnboardingModal />
             <div className="wabee-redesign__bg" />
             <div className="wabee-bee wabee-bee--one" aria-hidden="true">
                 <span className="wabee-bee__wing wabee-bee__wing--left" />
@@ -320,7 +322,7 @@ export const LandingPage = () => {
                             <Link to="/login" className="wabee-link-button" onClick={closeMenu}>
                                 Iniciar sesion
                             </Link>
-                            <Link to="/register" className="wabee-primary-button" onClick={closeMenu}>
+                            <Link to="/onboarding" className="wabee-primary-button" onClick={closeMenu}>
                                 Crear cuenta
                             </Link>
                         </div>
@@ -376,7 +378,7 @@ export const LandingPage = () => {
                                 <Link to="/login" className="wabee-secondary-button" onClick={closeMenu}>
                                     Iniciar sesion
                                 </Link>
-                                <Link to="/register" className="wabee-primary-button" onClick={closeMenu}>
+                                <Link to="/onboarding" className="wabee-primary-button" onClick={closeMenu}>
                                     Crear cuenta
                                 </Link>
                             </div>
@@ -412,7 +414,7 @@ export const LandingPage = () => {
                         </motion.p>
 
                         <motion.div className="wabee-hero__actions" variants={titleVariants}>
-                            <Link to="/register" className="wabee-primary-button">
+                            <Link to="/onboarding" className="wabee-primary-button">
                                 Crear cuenta gratis <ArrowRight size={18} />
                             </Link>
                             <Link to="/login" className="wabee-secondary-button">
@@ -771,7 +773,7 @@ export const LandingPage = () => {
                                 </div>
 
                                 <div className="wabee-pricing-card__footer">
-                                    <Link to="/register" className={plan.id === highlightedPlanId ? 'wabee-primary-button' : 'wabee-secondary-button'}>
+                                    <Link to="/onboarding" className={plan.id === highlightedPlanId ? 'wabee-primary-button' : 'wabee-secondary-button'}>
                                         Crear cuenta <ArrowRight size={16} />
                                     </Link>
                                 </div>
@@ -817,7 +819,7 @@ export const LandingPage = () => {
                     </motion.div>
 
                     <motion.div className="wabee-cta__actions" variants={titleVariants}>
-                        <Link to="/register" className="wabee-primary-button">
+                        <Link to="/onboarding" className="wabee-primary-button">
                             Crear cuenta
                         </Link>
                         <Link to="/login" className="wabee-secondary-button">

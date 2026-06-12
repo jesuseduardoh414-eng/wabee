@@ -17,6 +17,7 @@ import { DashboardLayout } from './layouts/DashboardLayout';
 // Lazy loaded pages
 const LoginPage = React.lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
 const RegisterPage = React.lazy(() => import('./pages/RegisterPage').then(m => ({ default: m.RegisterPage })));
+const OnboardingPage = React.lazy(() => import('./pages/OnboardingPage').then(m => ({ default: m.OnboardingPage })));
 const RecoverPage = React.lazy(() => import('./pages/RecoverPage').then(m => ({ default: m.RecoverPage })));
 const DashboardPage = React.lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
 const DashboardIndex = React.lazy(() => import('./pages/DashboardIndex').then(m => ({ default: m.DashboardIndex })));
@@ -106,6 +107,7 @@ const App = () => {
                                     <Route path="/data-deletion/confirm/:id" element={<DataDeletionConfirmPage />} />
 
                                     {/* Rutas de Autenticación */}
+                                    <Route path="/onboarding" element={<OnboardingPage />} />
                                     <Route path="/login" element={<LoginPage />} />
                                     <Route path="/register" element={<RegisterPage />} />
                                     <Route path="/recover" element={<RecoverPage />} />

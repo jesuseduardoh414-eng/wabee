@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { TourButton } from '../../components/TourButton';
 import { contactsApi } from '@/api/wabee/contacts.api';
 import { resolveThread } from '@/api/wabee/inbox.api';
 import { getChannels, Channel } from '@/api/wabee/whatsapp.api';
@@ -300,7 +301,9 @@ const ContactsPage: React.FC = () => {
                 </div>
                 <div className="flex flex-col gap-2 lg:items-end">
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:flex lg:flex-wrap lg:justify-end">
+                        <TourButton moduleKey="contacts" />
                         <button
+                            data-tour="contacts-import"
                             onClick={() => setShowImport(true)}
                             disabled={isContactsDisabled || isLimitReached}
                             className={`${T.buttonText} ${S.meta} flex items-center justify-center gap-3 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-input)] px-5 py-3 transition-all hover:border-[var(--brand-primary)]/50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-30 sm:px-6`}
@@ -310,6 +313,7 @@ const ContactsPage: React.FC = () => {
                             {COPY.importCsv}
                         </button>
                         <button
+                            data-tour="contacts-create"
                             onClick={() => setShowCreate(true)}
                             disabled={isContactsDisabled || isLimitReached}
                             className={`${T.buttonPrimaryText} ${S.meta} flex items-center justify-center gap-2 rounded-2xl bg-[var(--brand-primary)] px-5 py-3 shadow-xl transition-all hover:brightness-110 active:scale-95 disabled:cursor-not-allowed disabled:grayscale disabled:opacity-30 sm:px-8`}
@@ -392,7 +396,7 @@ const ContactsPage: React.FC = () => {
                 </div>
             )}
 
-            <div className="flex flex-col gap-4 rounded-3xl border border-[var(--border-default)] bg-[var(--bg-card)] p-4 shadow-2xl sm:p-6 lg:flex-row lg:items-center lg:gap-6">
+            <div data-tour="contacts-search" className="flex flex-col gap-4 rounded-3xl border border-[var(--border-default)] bg-[var(--bg-card)] p-4 shadow-2xl sm:p-6 lg:flex-row lg:items-center lg:gap-6">
                 <div className="group relative w-full min-w-0 flex-1">
                     <div className="pointer-events-none absolute inset-y-0 left-4 flex items-center">
                         <svg className="h-5 w-5 text-[var(--text-muted)]/30 transition-colors group-focus-within:text-[var(--brand-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
@@ -424,7 +428,7 @@ const ContactsPage: React.FC = () => {
                 </div>
             </div>
 
-            <div className="overflow-hidden rounded-[32px] border border-[var(--border-default)] bg-[var(--bg-card)] shadow-2xl">
+            <div data-tour="contacts-table" className="overflow-hidden rounded-[32px] border border-[var(--border-default)] bg-[var(--bg-card)] shadow-2xl">
                 <div className="divide-y divide-[var(--border-default)] md:hidden">
                     {loading && (
                         <div className="px-6 py-16 text-center">

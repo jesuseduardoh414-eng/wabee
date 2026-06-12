@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { TourButton } from '../../components/TourButton';
 import { contactsApi } from '@/api/wabee/contacts.api';
 import { Filter, Trash2, Layers, PlusCircle, Play, Calendar } from 'lucide-react';
 import { CreateSegmentModal } from './contacts/components/CreateSegmentModal';
@@ -87,16 +88,20 @@ const SegmentsPage: React.FC = () => {
                     </h1>
                     <p className={`${T.pageSubtitle} ${S.body} max-w-xl`}>{COPY.subtitle}</p>
                 </div>
-                <button
-                    onClick={() => setIsCreateModalOpen(true)}
-                    className={`${T.buttonPrimaryText} ${S.meta} flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--brand-primary)] px-6 py-3 shadow-xl transition-all hover:brightness-110 active:scale-95 sm:w-auto sm:px-8`}
-                >
-                    <PlusCircle size={18} />
-                    {COPY.newSegment}
-                </button>
+                <div className="flex items-center gap-2">
+                    <TourButton moduleKey="segments" />
+                    <button
+                        data-tour="segments-create"
+                        onClick={() => setIsCreateModalOpen(true)}
+                        className={`${T.buttonPrimaryText} ${S.meta} flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--brand-primary)] px-6 py-3 shadow-xl transition-all hover:brightness-110 active:scale-95 sm:w-auto sm:px-8`}
+                    >
+                        <PlusCircle size={18} />
+                        {COPY.newSegment}
+                    </button>
+                </div>
             </header>
 
-            <div className="grid grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <div data-tour="segments-list" className="grid grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {loading && (
                     <div className="col-span-full flex flex-col items-center gap-6 py-24 sm:py-32">
                         <div className="h-16 w-16 animate-spin rounded-full border-4 border-[var(--brand-primary)]/10 border-t-[var(--brand-primary)]"></div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { TourButton } from '../../components/TourButton';
 import { aiApi, AiProfile, KbFile, KbSource, ConsolidatedProfileTool } from '@/api/wabee/ai.api';
 import { useToast } from '@/context/ToastContext';
 import { useDialog } from '@/context/DialogContext';
@@ -885,12 +886,16 @@ const AiProfilesPage: React.FC = () => {
                     <p className={`${T.pageSubtitle} ${S.body}`}>Configura los perfiles conversacionales y base de conocimiento.</p>
                 </div>
                 {!showCreate && !editingId && (
-                    <button
-                        onClick={() => { setShowCreate(true); setEditingId(null); resetForm(); }}
-                        className={`bg-[var(--brand-primary)]  px-5 py-2.5 rounded-xl font-bold shadow-lg hover:brightness-110 transition active:scale-95 ${T.buttonPrimaryText}`}
-                    >
-                        + Nuevo Perfil
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <TourButton moduleKey="ai-profiles" />
+                        <button
+                            data-tour="ai-profiles-create"
+                            onClick={() => { setShowCreate(true); setEditingId(null); resetForm(); }}
+                            className={`bg-[var(--brand-primary)]  px-5 py-2.5 rounded-xl font-bold shadow-lg hover:brightness-110 transition active:scale-95 ${T.buttonPrimaryText}`}
+                        >
+                            + Nuevo Perfil
+                        </button>
+                    </div>
                 )}
             </header>
 
@@ -1402,7 +1407,7 @@ const AiProfilesPage: React.FC = () => {
             
             {/* Profiles List */}
             {!showCreate && !editingId && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div data-tour="ai-profiles-list" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {loading && Array(3).fill(0).map((_, i) => (
                         <div key={i} className="h-64 bg-[var(--bg-card)] animate-pulse rounded-2xl border border-[var(--border-default)]"></div>
                     ))}

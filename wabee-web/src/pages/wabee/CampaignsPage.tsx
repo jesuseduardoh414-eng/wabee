@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { TourButton } from '../../components/TourButton';
 import { getCampaigns, operateCampaign, Campaign } from '@/api/wabee/campaigns.api';
 import { connectCampaignStream, RealtimeEventType } from '@/services/wabee/realtime.client';
 import CampaignWizard from '@/components/wabee/CampaignWizard';
@@ -225,16 +226,20 @@ export default function CampaignsPage() {
                         Gestiona y monitorea tus campañas masivas de WhatsApp Cloud API.
                     </p>
                 </div>
-                <button
-                    onClick={() => setShowWizard(true)}
-                    className={`${T.buttonPrimaryText} ${S.body} group flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--brand-primary)] px-5 py-3 font-black shadow-xl shadow-[#ead018]/10 transition-all active:scale-95 md:w-auto md:min-w-[220px] hover:brightness-110`}
-                >
-                    <Plus size={18} className="transition-transform group-hover:rotate-90" />
-                    Nueva campaña
-                </button>
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                    <TourButton moduleKey="campaigns" />
+                    <button
+                        data-tour="campaigns-create"
+                        onClick={() => setShowWizard(true)}
+                        className={`${T.buttonPrimaryText} ${S.body} group flex flex-1 items-center justify-center gap-2 rounded-2xl bg-[var(--brand-primary)] px-5 py-3 font-black shadow-xl shadow-[#ead018]/10 transition-all active:scale-95 md:flex-none md:min-w-[220px] hover:brightness-110`}
+                    >
+                        <Plus size={18} className="transition-transform group-hover:rotate-90" />
+                        Nueva campaña
+                    </button>
+                </div>
             </div>
 
-            <div className="relative mb-6 max-w-none md:mb-8 md:max-w-md">
+            <div data-tour="campaigns-search" className="relative mb-6 max-w-none md:mb-8 md:max-w-md">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[color:var(--tx-helperText-color)]" size={16} />
                 <input
                     type="text"
@@ -265,7 +270,7 @@ export default function CampaignsPage() {
                     </p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 gap-4">
+                <div data-tour="campaigns-list" className="grid grid-cols-1 gap-4">
                     {filteredCampaigns.map((campaign) => (
                         <div
                             key={campaign.id}

@@ -10,12 +10,14 @@ export class WhatsAppCloudSender implements ChannelSender {
         let accessToken: string;
         let phoneNumberId: string;
 
-        const TEST_PHONE_NUMBER_ID = env.WHATSAPP_PHONE_NUMBER_ID || '879122178627116';
-        const TEST_TOKEN = env.WHATSAPP_ACCESS_TOKEN;
+        // Número configurado por variables de entorno: su token global se usa
+        // SOLO para ese número; los demás canales usan su sesión OAuth propia.
+        const envPhoneNumberId = env.WHATSAPP_PHONE_NUMBER_ID;
+        const envToken = env.WHATSAPP_ACCESS_TOKEN;
 
-        if (channel.phoneNumberId === TEST_PHONE_NUMBER_ID && TEST_TOKEN) {
-            accessToken = TEST_TOKEN;
-            phoneNumberId = TEST_PHONE_NUMBER_ID;
+        if (envPhoneNumberId && envToken && channel.phoneNumberId === envPhoneNumberId) {
+            accessToken = envToken;
+            phoneNumberId = envPhoneNumberId;
         } else if (channel.oauthSessionId) {
             const session = await prisma.metaOauthSession.findUnique({
                 where: { id: channel.oauthSessionId }

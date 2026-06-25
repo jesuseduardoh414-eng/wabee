@@ -1,8 +1,28 @@
 import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
 import { CreateWebWidgetSchema, UpdateWebWidgetSchema, InboundMessageSchema } from './webwidget.schemas';
 import { WebWidgetService } from './webwidget.service';
 import { GlobalAuditLogService } from '@/modules/audit/global-audit-log.service';
 import { getAuditContext } from '@/shared/http/request-audit-context';
+import { requireJwtSecret } from '@/config/env';
+
+// Entrega un token corto para el preview del dashboard. El usuario ya viene
+// autenticado por authMiddleware (cookie httpOnly de sesión); re-firmamos sus
+// claims en un JWT de corta duración para inyectarlo en el iframe del preview,
+// porque el JS del navegador no puede leer la cookie httpOnly.
+export async function getPreviewToken(req: any, res: Response, next: NextFunction) {
+    try {
+        const user = req.user;
+        if (!user) {
+            return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Sesión no válida.' } });
+        }
+        const { iat, exp, ...claims } = user;
+        const token = jwt.sign(claims, requireJwtSecret(), { expiresIn: '30m' });
+        res.json({ token });
+    } catch (error) {
+        next(error);
+    }
+}
 
 // --- Admin Endpoints ---
 export async function listWidgets(req: any, res: Response, next: NextFunction) {

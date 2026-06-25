@@ -13,10 +13,26 @@ const WidgetPreviewFrame: React.FC<WidgetPreviewFrameProps> = ({ widgetId, apiBa
         if (!iframeRef.current) return;
 
         const iframe = iframeRef.current;
+
+        const buildPreview = async () => {
         const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
         if (!iframeDoc) return;
 
-        const previewToken = localStorage.getItem('wabee_token') || '';
+        // Token de preview: super-admin lo tiene en localStorage; un usuario normal
+        // lo pide al backend (autenticado por la cookie httpOnly de sesión, que el
+        // JS no puede leer). Sin esto el preview daba 401 para usuarios normales.
+        let previewToken = localStorage.getItem('wabee_token') || '';
+        if (!previewToken) {
+            try {
+                const resp = await fetch(`${apiBaseUrl}/v1/wabee/web-widgets/preview-token`, { credentials: 'include' });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    previewToken = data.token || '';
+                }
+            } catch (e) {
+                console.error('[PREVIEW] No se pudo obtener token de preview', e);
+            }
+        }
 
         const iframeHTML = `
 <!DOCTYPE html>
@@ -93,6 +109,9 @@ const WidgetPreviewFrame: React.FC<WidgetPreviewFrameProps> = ({ widgetId, apiBa
         iframeDoc.open();
         iframeDoc.write(iframeHTML);
         iframeDoc.close();
+        };
+
+        buildPreview();
     }, [widgetId, apiBaseUrl]);
 
     useEffect(() => {

@@ -50,6 +50,7 @@ webWidgetAdminRouter.patch('/:id', webWidgetController.updateWidget);
 // El token JWT se pasa en el header Authorization.
 // NO valida domainAllowed, pero es RUTEADO independientemente para saltar el tenantMiddleware.
 export const webWidgetPreviewRouter = Router();
+webWidgetPreviewRouter.get('/preview-token', webWidgetController.getPreviewToken);
 webWidgetPreviewRouter.post('/:id/preview-message', webWidgetController.sendPreviewMessage);
 
 export default router;

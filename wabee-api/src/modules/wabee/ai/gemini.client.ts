@@ -1,5 +1,10 @@
 import { env } from '../../../config/env';
 
+// Mensaje neutro para el cliente final cuando la IA falla (timeout, error de API,
+// config faltante). El detalle técnico queda en los logs (console.error), nunca
+// se expone al usuario para no confundirlo ni dañar la confianza en el negocio.
+const AI_FALLBACK_MESSAGE = 'Permíteme un momento, en seguida continúo con tu consulta. 😊';
+
 interface GeminiResponse {
     candidates?: Array<{
         content?: {
@@ -50,7 +55,7 @@ export async function chatGemini(opts: {
 
     if (!apiKey) {
         console.error('[GeminiClient] MISSING_API_KEY: Please set GEMINI_API_KEY in .env');
-        return { text: 'Configuración de IA incompleta (Gemini API Key faltante).' };
+        return { text: AI_FALLBACK_MESSAGE };
     }
 
     const { model, system, messages, tools, maxTokens, temperature, timeoutMs, responseMimeType, responseSchema } = opts;
@@ -161,7 +166,7 @@ export async function chatGemini(opts: {
             const duration = Date.now() - startTime;
             if (error.name === 'AbortError') {
                 console.error(`[GeminiClient] CHAT_ERR ms=${duration} msg=Timeout`);
-                return { text: 'La respuesta de la IA tardó demasiado.' };
+                return { text: AI_FALLBACK_MESSAGE };
             }
 
             // Si es otro error y hay reintentos
@@ -173,7 +178,7 @@ export async function chatGemini(opts: {
             }
 
             console.error(`[GeminiClient] CHAT_ERR ms=${duration} msg=${error.message}`);
-            return { text: 'Tuve un problema al conectar con Gemini.' };
+            return { text: AI_FALLBACK_MESSAGE };
         }
     }
 

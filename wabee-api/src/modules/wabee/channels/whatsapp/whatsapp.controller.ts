@@ -3,10 +3,11 @@ import { prisma } from '../../../../config/core/core.prisma';
 import { CreateWhatsAppChannelSchema, TestMessageSchema, EmbeddedSignupSchema } from './whatsapp.schemas';
 import { exchangeEmbeddedSignupCode, registerCoexistenceChannel } from '@/modules/oauth/meta/meta.oauth.service';
 import { decrypt } from './token.crypto';
-import { graphGet } from './meta.graph.client';
+import { graphGet, graphPost } from './meta.graph.client';
 import { tenancyAdapter } from '../../_adapters/tenancy.adapter';
 import { GlobalAuditLogService } from '@/modules/audit/global-audit-log.service';
 import { getAuditContext } from '@/shared/http/request-audit-context';
+import { env } from '@/config/env';
 
 // POST /
 export const createChannel = async (req: Request, res: Response) => {
@@ -84,6 +85,22 @@ export const createChannel = async (req: Request, res: Response) => {
                     status: 'CONNECTED',
                 }
               });
+
+        // Suscribir la app al WABA para que Meta entregue webhooks a este canal.
+        // La conexión manual antes no lo hacía, dejando el webhook en PENDING y
+        // sin recibir mensajes entrantes. Best-effort: si falla, se loguea y sigue.
+        if (env.WHATSAPP_ACCESS_TOKEN) {
+            try {
+                await graphPost(`/${wabaId}/subscribed_apps`, env.WHATSAPP_ACCESS_TOKEN, {});
+                await prisma.whatsappChannel.update({
+                    where: { id: channel.id },
+                    data: { webhookStatus: 'SUBSCRIBED' },
+                });
+                console.log(`[Channel] App suscrita al WABA ${wabaId} (canal ${channel.id})`);
+            } catch (subErr: any) {
+                console.error(`[Channel] No se pudo suscribir la app al WABA ${wabaId}:`, subErr.response?.data || subErr.message);
+            }
+        }
 
         await GlobalAuditLogService.logEvent({
             category: 'channels',

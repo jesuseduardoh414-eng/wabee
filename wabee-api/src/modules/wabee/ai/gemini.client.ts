@@ -115,7 +115,10 @@ export async function chatGemini(opts: {
     console.log(`[GeminiClient] CHAT_START model=${targetModel} url=${url.split('?')[0]} chars=${messages.reduce((acc, m) => acc + (m.content ? m.content.length : 0), 0)}`);
 
     let retryCount = 0;
-    const maxRetries = 3;
+    // Más reintentos para sobrevivir los 503 intermitentes (sobre todo en tier
+    // gratuito de Gemini). Con backoff corto y con tope, el peor caso queda bien
+    // por debajo del límite del webhook de Meta (~20s).
+    const maxRetries = 5;
 
     while (retryCount < maxRetries) {
         const iterationStart = Date.now();
@@ -138,7 +141,9 @@ export async function chatGemini(opts: {
                 // Si es un error 503 o 429 y no hemos agotado reintentos, esperamos y seguimos
                 if ((response.status === 503 || response.status === 429) && retryCount < maxRetries - 1) {
                     retryCount++;
-                    const waitTime = Math.pow(2, retryCount) * 1000;
+                    // Backoff corto con tope (2s) + jitter. Los 503 son transitorios,
+                    // reintentar pronto suele funcionar sin alargar la espera del cliente.
+                    const waitTime = Math.min(700 * retryCount, 2000) + Math.floor(Math.random() * 250);
                     console.warn(`[GeminiClient] CHAT_RETRY ${retryCount}/${maxRetries} status=${response.status} waiting=${waitTime}ms`);
                     await new Promise(resolve => setTimeout(resolve, waitTime));
                     continue;

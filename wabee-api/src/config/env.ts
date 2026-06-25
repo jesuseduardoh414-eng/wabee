@@ -125,7 +125,7 @@ export const env = {
     ENABLE_AI_WIDGET: process.env.ENABLE_AI_WIDGET || '',
     AI_WIDGET_ALWAYS_RESPOND: process.env.AI_WIDGET_ALWAYS_RESPOND || '',
     KB_TOP_K: process.env.KB_TOP_K || '3',
-    AI_REQUEST_TIMEOUT_MS: process.env.AI_REQUEST_TIMEOUT_MS || '15000',
+    AI_REQUEST_TIMEOUT_MS: process.env.AI_REQUEST_TIMEOUT_MS || '30000',
     AI_DEBUG_LEVEL: process.env.AI_DEBUG_LEVEL || 'none',
 } as const;
 

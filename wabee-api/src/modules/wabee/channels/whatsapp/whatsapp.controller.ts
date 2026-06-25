@@ -26,8 +26,9 @@ export const createChannel = async (req: Request, res: Response) => {
         const limit = plan?.limits?.channels ?? null;
 
         if (limit !== -1) {
+            // Solo cuentan los canales activos (no archivados), consistente con LimitsService.countChannels.
             const currentCount = await prisma.whatsappChannel.count({
-                where: { tenantId }
+                where: { tenantId, archivedAt: null }
             });
 
             if (limit === null || currentCount >= limit) {
@@ -142,7 +143,8 @@ export const embeddedSignup = async (req: Request, res: Response) => {
                 where: { tenantId, phoneNumberId }
             });
             if (!existing) {
-                const currentCount = await prisma.whatsappChannel.count({ where: { tenantId } });
+                // Solo cuentan los canales activos (no archivados), consistente con LimitsService.countChannels.
+                const currentCount = await prisma.whatsappChannel.count({ where: { tenantId, archivedAt: null } });
                 if (limit === null || currentCount >= limit) {
                     await GlobalAuditLogService.logEvent({
                         category: 'channels',

@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, X } from 'lucide-react';
+import { ArrowRight, Bot, Inbox, Sparkles, Users, X } from 'lucide-react';
 import { T, S } from '@/lib/text-tokens';
 
 import bienvenidaImg from '../../../imagenes/bienvenida.png';
@@ -20,6 +20,10 @@ const SLIDES = [
         imageAlt: 'Pantalla de bienvenida de Wabee',
         tone: 'gold',
         art: 'welcome',
+        badge: 'Vista central',
+        stat: 'Todo en un lugar',
+        statCaption: 'Canales, conversaciones y seguimiento sin brincar entre herramientas.',
+        icon: Sparkles,
     },
     {
         title: 'Inbox colaborativo',
@@ -28,22 +32,34 @@ const SLIDES = [
         imageAlt: 'Pantalla de inbox colaborativo',
         tone: 'charcoal',
         art: 'inbox',
+        badge: 'Inbox compartido',
+        stat: 'Seguimiento visible',
+        statCaption: 'Cada conversacion tiene responsable, contexto y siguiente paso claro.',
+        icon: Inbox,
     },
     {
         title: 'Tu equipo colabora mejor',
-        body: 'Comparte contexto, historial y siguientes pasos sin salir de la operación diaria.',
+        body: 'Comparte contexto, historial y siguientes pasos sin salir de la operacion diaria.',
         image: teamImg,
-        imageAlt: 'Pantalla de colaboración de equipo',
+        imageAlt: 'Pantalla de colaboracion de equipo',
         tone: 'amber',
         art: 'team',
+        badge: 'Trabajo coordinado',
+        stat: 'Menos rebote interno',
+        statCaption: 'Ventas, soporte y operacion colaboran con el mismo historial.',
+        icon: Users,
     },
     {
         title: 'IA que trabaja contigo',
-        body: 'Activa copiloto y automatizaciones para responder más rápido sin perder control.',
+        body: 'Activa copiloto y automatizaciones para responder mas rapido sin perder control.',
         image: aiImg,
         imageAlt: 'Pantalla de inteligencia artificial',
         tone: 'gold',
         art: 'ai',
+        badge: 'Automatizacion guiada',
+        stat: 'IA con control humano',
+        statCaption: 'Acelera respuestas y deja la intervencion humana donde aporta mas valor.',
+        icon: Bot,
     },
 ] as const;
 
@@ -54,17 +70,16 @@ const slideVariants = {
 };
 
 export const OnboardingModal: React.FC = () => {
-    const [visible, setVisible] = useState(false);
+    const [visible, setVisible] = useState(() => {
+        try {
+            return !window.localStorage.getItem(SEEN_KEY);
+        } catch {
+            return false;
+        }
+    });
     const [current, setCurrent] = useState(0);
     const [dir, setDir] = useState(1);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        if (!localStorage.getItem(SEEN_KEY)) {
-            const t = setTimeout(() => setVisible(true), 500);
-            return () => clearTimeout(t);
-        }
-    }, []);
 
     const dismiss = () => {
         localStorage.setItem(SEEN_KEY, '1');
@@ -91,6 +106,7 @@ export const OnboardingModal: React.FC = () => {
 
     const slide = SLIDES[current];
     const isLast = current === SLIDES.length - 1;
+    const SlideIcon = slide.icon;
 
     return createPortal(
         <AnimatePresence>
@@ -135,10 +151,16 @@ export const OnboardingModal: React.FC = () => {
 
                                 <div className="wabee-ob-hero__glow wabee-ob-hero__glow--one" />
                                 <div className="wabee-ob-hero__glow wabee-ob-hero__glow--two" />
+                                <div className={`wabee-ob-hero__badge wabee-ob-hero__badge--top wabee-ob-hero__badge--${slide.tone}`}>
+                                    <SlideIcon size={14} />
+                                    <span>{slide.badge}</span>
+                                </div>
+                                <div className="wabee-ob-hero__badge wabee-ob-hero__badge--bottom">
+                                    <Sparkles size={14} />
+                                    <span>{slide.stat}</span>
+                                </div>
 
-                                <div
-                                    className={`wabee-ob-hero__art wabee-ob-hero__art--modal wabee-ob-hero__art--${slide.art}`}
-                                >
+                                <div className="wabee-ob-hero__art wabee-ob-hero__art--modal">
                                     <img
                                         src={slide.image}
                                         alt={slide.imageAlt}
@@ -148,12 +170,26 @@ export const OnboardingModal: React.FC = () => {
                             </div>
 
                             <div className="wabee-ob2-body wabee-ob-panel wabee-ob-panel--modal">
-                                <span className={`${T.kpiLabel} ${S.meta} wabee-ob2-kicker`}>
-                                    Paso {current + 1} de {SLIDES.length}
-                                </span>
+                                <div className="wabee-ob-panel__meta">
+                                    <div className="wabee-ob-panel__meta-copy">
+                                        <span className={`${T.kpiLabel} ${S.meta} wabee-ob2-kicker`}>
+                                            Paso {current + 1} de {SLIDES.length}
+                                        </span>
+                                        <span className="wabee-ob-panel__count">Recorrido inicial</span>
+                                    </div>
+                                    <div className={`wabee-ob-tone-pill wabee-ob-tone-pill--${slide.tone}`}>
+                                        <SlideIcon size={14} />
+                                        <span>{slide.badge}</span>
+                                    </div>
+                                </div>
 
                                 <h2 className="wabee-ob2-title">{slide.title}</h2>
                                 <p className={`${T.pageSubtitle} ${S.body} wabee-ob2-desc`}>{slide.body}</p>
+
+                                <div className={`wabee-ob-highlight wabee-ob-highlight--${slide.tone}`}>
+                                    <strong>{slide.stat}</strong>
+                                    <p>{slide.statCaption}</p>
+                                </div>
 
                                 <div className="wabee-ob2-dots" role="tablist" aria-label="Paso actual">
                                     {SLIDES.map((_, i) => (

@@ -18,20 +18,24 @@ const WidgetPreviewFrame: React.FC<WidgetPreviewFrameProps> = ({ widgetId, apiBa
         const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
         if (!iframeDoc) return;
 
-        // Token de preview: super-admin lo tiene en localStorage; un usuario normal
-        // lo pide al backend (autenticado por la cookie httpOnly de sesión, que el
-        // JS no puede leer). Sin esto el preview daba 401 para usuarios normales.
-        let previewToken = localStorage.getItem('wabee_token') || '';
-        if (!previewToken) {
-            try {
-                const resp = await fetch(`${apiBaseUrl}/v1/wabee/web-widgets/preview-token`, { credentials: 'include' });
-                if (resp.ok) {
-                    const data = await resp.json();
-                    previewToken = data.token || '';
-                }
-            } catch (e) {
-                console.error('[PREVIEW] No se pudo obtener token de preview', e);
+        // Token de preview: SIEMPRE pedimos uno fresco al backend (la cookie httpOnly
+        // de sesión autentica). NO confiamos en localStorage.wabee_token primero,
+        // porque puede estar viejo/expirado (de una sesión de super-admin previa) y
+        // daría 401. Solo se usa como último recurso si el fetch falla.
+        let previewToken = '';
+        try {
+            const resp = await fetch(`${apiBaseUrl}/v1/wabee/web-widgets/preview-token`, { credentials: 'include' });
+            if (resp.ok) {
+                const data = await resp.json();
+                previewToken = data.token || '';
+            } else {
+                console.error('[PREVIEW] preview-token respondió', resp.status);
             }
+        } catch (e) {
+            console.error('[PREVIEW] No se pudo obtener token de preview', e);
+        }
+        if (!previewToken) {
+            previewToken = localStorage.getItem('wabee_token') || '';
         }
 
         const iframeHTML = `

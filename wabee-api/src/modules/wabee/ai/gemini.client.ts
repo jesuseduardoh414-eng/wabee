@@ -84,6 +84,10 @@ export async function chatGemini(opts: {
         generationConfig: {
             maxOutputTokens: maxTokens || 1024,
             temperature: temperature ?? 0.7,
+            // gemini-2.5-flash "piensa" por defecto y esos tokens se restan del
+            // presupuesto de salida, truncando respuestas largas. Lo desactivamos
+            // para que todos los tokens vayan a la respuesta visible.
+            thinkingConfig: { thinkingBudget: 0 },
             ...(responseMimeType ? { responseMimeType } : {}),
             ...(responseSchema ? { responseSchema } : {})
         }

@@ -47,6 +47,7 @@ import {
     XAxis,
     YAxis,
 } from 'recharts';
+import { Link } from 'react-router-dom';
 import { T, S } from '@/lib/text-tokens';
 
 type DashboardPeriod = 'today' | '7d' | '30d' | 'custom';
@@ -113,7 +114,6 @@ export const DashboardPage = () => {
     });
 
     const highlightedCampaign = topCampaigns?.[0];
-    const highlightedAgent = agents?.[0];
     const automationRate = `${((summary?.automationRate || 0) * 100).toFixed(0)}%`;
     const responseRate = `${((summary?.conversationRate || 0) * 100).toFixed(1)}%`;
     const todayLabel = new Intl.DateTimeFormat('es-MX', {
@@ -233,11 +233,10 @@ export const DashboardPage = () => {
                                         {todayLabel}
                                     </p>
                                     <h1 className="mt-2 max-w-4xl text-[clamp(1.9rem,10.5vw,3.3rem)] font-black leading-[0.9] tracking-[-0.065em] text-[var(--text-strong)] md:text-6xl">
-                                        Todo el equipo sabe que atender primero
+                                        Resumen de hoy
                                     </h1>
                                     <p className="mt-3 max-w-2xl text-[14px] leading-7 text-[var(--text-body)] sm:mt-4 sm:text-[15px] md:text-lg">
-                                        El dashboard deja de sentirse tecnico y se convierte en una vista operativa
-                                        con contexto, accion y lectura inmediata para ventas, soporte e inteligencia.
+                                        Lo que necesita tu atencion, de un vistazo.
                                     </p>
                                 </div>
 
@@ -290,7 +289,7 @@ export const DashboardPage = () => {
                             <HeroMetricCard
                                 label="Leads nuevos"
                                 value={summary?.leadsGenerated ?? 0}
-                                helper="+18% vs ayer"
+                                helper="leads en este periodo"
                             />
                             <HeroMetricCard
                                 label="IA resolviendo"
@@ -317,27 +316,28 @@ export const DashboardPage = () => {
                                             Conversacion prioritaria
                                         </p>
                                         <h2 className="mt-2 text-2xl font-black tracking-[-0.04em] text-[var(--text-strong)] sm:text-3xl">
-                                            Hay trabajo claro para hacer hoy
+                                            Atiende lo pendiente
                                         </h2>
                                     </div>
-                                    <span className="rounded-full px-4 py-2 text-[11px] font-black uppercase tracking-[0.18em] bg-[var(--bg-elevated)] text-[var(--text-strong)]">
-                                        IA pausada
-                                    </span>
                                 </div>
 
                                 <div className="mt-5 grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-                                    <div className="rounded-[22px] p-4 bg-[color:color-mix(in_srgb,var(--bg-card),white_10%)] sm:rounded-[26px] sm:p-5">
-                                        <div className="space-y-3">
-                                            <ChatBubble
-                                                mode="client"
-                                                text="Hola, quiero ver como funcionaria Wabee con mi equipo comercial."
-                                            />
-                                            <ChatBubble
-                                                mode="agent"
-                                                text="Te comparto una propuesta y agendamos una demostracion."
-                                            />
+                                    <Link
+                                        to="/dashboard/wabee/inbox"
+                                        className="flex flex-col justify-between rounded-[22px] p-5 bg-[color:color-mix(in_srgb,var(--bg-card),white_10%)] transition-all hover:brightness-105 sm:rounded-[26px]"
+                                    >
+                                        <div>
+                                            <p className="text-[3rem] font-black leading-none tracking-[-0.05em] text-[var(--text-strong)]">
+                                                {inbox?.pending || 0}
+                                            </p>
+                                            <p className="mt-2 text-sm text-[var(--text-body)]">
+                                                conversaciones esperan seguimiento
+                                            </p>
                                         </div>
-                                    </div>
+                                        <span className="mt-4 inline-flex w-fit items-center gap-2 rounded-full bg-[var(--bg-elevated)] px-4 py-2 text-[12px] font-black uppercase tracking-[0.16em] text-[var(--text-strong)]">
+                                            Ir al inbox <ArrowUpRight size={14} />
+                                        </span>
+                                    </Link>
 
                                     <div className="space-y-3">
                                         <MiniInsight
@@ -417,7 +417,7 @@ export const DashboardPage = () => {
                                         </h2>
                                     </div>
                                     <span className="rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em]" style={tagStyle}>
-                                        Dashboard concept
+                                        {period === 'today' ? 'Hoy' : period === '7d' ? 'Ultimos 7 dias' : period === '30d' ? 'Ultimos 30 dias' : 'Personalizado'}
                                     </span>
                                 </div>
 
@@ -588,24 +588,6 @@ export const DashboardPage = () => {
                             </article>
                         </section>
 
-                        {highlightedAgent && (
-                            <section className="rounded-[24px] border p-4 sm:p-5 md:rounded-[30px] md:p-6" style={lightPanelStyle}>
-                                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                                    <div>
-                                        <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[var(--text-muted)]">
-                                            Insight final
-                                        </p>
-                                        <h2 className="mt-2 text-[1.9rem] font-black tracking-[-0.04em] text-[var(--text-strong)] sm:text-2xl">
-                                            El panel ahora cuenta una historia operativa
-                                        </h2>
-                                    </div>
-                                    <div className="inline-flex max-w-full items-center gap-2 rounded-full px-4 py-2 text-[11px] font-black uppercase tracking-[0.16em]" style={tagStyle}>
-                                        <ArrowUpRight size={14} />
-                                        Agente destacado {highlightedAgent.agentId.split('-')[0]}
-                                    </div>
-                                </div>
-                            </section>
-                        )}
                     </div>
                 </section>
         </div>

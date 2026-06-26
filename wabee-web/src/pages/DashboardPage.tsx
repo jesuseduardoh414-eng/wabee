@@ -202,7 +202,7 @@ export const DashboardPage = () => {
                                 icon={<Users size={15} />}
                                 title="Contactos"
                                 text={`${summary?.leadsGenerated || 0} leads nuevos`}
-                                hint="Lectura rapida del embudo"
+                                hint="Lectura rápida del embudo"
                             />
                             <SidebarFeature
                                 icon={<Bot size={15} />}
@@ -216,7 +216,7 @@ export const DashboardPage = () => {
                             <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--brand-primary)]">Pulso operativo</p>
                             <h3 className="mt-2 text-2xl font-black leading-none text-[var(--text-strong)]">{automationRate}</h3>
                             <p className="mt-2 text-[13px] leading-6 text-[var(--text-body)] sm:text-sm">
-                                Automatizacion actual con lectura clara para saber cuando intervenir.
+                                Automatización actual con lectura clara para saber cuándo intervenir.
                             </p>
                         </div>
                     </aside>
@@ -236,7 +236,7 @@ export const DashboardPage = () => {
                                         Resumen de hoy
                                     </h1>
                                     <p className="mt-3 max-w-2xl text-[14px] leading-7 text-[var(--text-body)] sm:mt-4 sm:text-[15px] md:text-lg">
-                                        Lo que necesita tu atencion, de un vistazo.
+                                        Lo que necesita tu atención, de un vistazo.
                                     </p>
                                 </div>
 
@@ -297,7 +297,7 @@ export const DashboardPage = () => {
                                 helper={`${aiVsHuman?.takeovers || 0} chats listos para handoff`}
                             />
                             <HeroMetricCard
-                                label="Campana activa"
+                                label="Campaña activa"
                                 value={highlightedCampaign ? `${Math.round((highlightedCampaign.delivered || 0) / 100) / 10}k` : '0'}
                                 helper="entregados en esta ventana"
                             />
@@ -313,7 +313,7 @@ export const DashboardPage = () => {
                                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                                     <div>
                                         <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[var(--text-muted)]">
-                                            Conversacion prioritaria
+                                            Conversación prioritaria
                                         </p>
                                         <h2 className="mt-2 text-2xl font-black tracking-[-0.04em] text-[var(--text-strong)] sm:text-3xl">
                                             Atiende lo pendiente
@@ -391,15 +391,15 @@ export const DashboardPage = () => {
 
                                 <div className="mt-6 rounded-[22px] bg-[color:color-mix(in_srgb,var(--bg-card),white_8%)] p-4 sm:rounded-[24px]">
                                     <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)]">
-                                        Campana destacada
+                                        Campaña destacada
                                     </p>
                                     <h3 className="mt-2 text-xl font-black text-[var(--text-strong)]">
-                                        {highlightedCampaign?.name || 'Sin campanas activas'}
+                                        {highlightedCampaign?.name || 'Sin campañas activas'}
                                     </h3>
                                     <p className="mt-2 text-sm text-[var(--text-body)]">
                                         {highlightedCampaign
                                             ? `${highlightedCampaign.delivered} entregados y ${highlightedCampaign.responded} respuestas`
-                                            : 'Cuando exista actividad, este bloque mostrara el mejor pulso comercial.'}
+                                            : 'Cuando exista actividad, este bloque mostrará el mejor pulso comercial.'}
                                     </p>
                                 </div>
                             </article>
@@ -417,7 +417,7 @@ export const DashboardPage = () => {
                                         </h2>
                                     </div>
                                     <span className="rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em]" style={tagStyle}>
-                                        {period === 'today' ? 'Hoy' : period === '7d' ? 'Ultimos 7 dias' : period === '30d' ? 'Ultimos 30 dias' : 'Personalizado'}
+                                        {period === 'today' ? 'Hoy' : period === '7d' ? 'Últimos 7 días' : period === '30d' ? 'Últimos 30 días' : 'Personalizado'}
                                     </span>
                                 </div>
 
@@ -487,7 +487,7 @@ export const DashboardPage = () => {
 
                                 <div className="mt-2 rounded-[22px] p-4 bg-[color:color-mix(in_srgb,var(--bg-card),white_10%)]">
                                     <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[var(--text-muted)]">
-                                        Automatizacion actual
+                                        Automatización actual
                                     </p>
                                     <div className="mt-2 flex items-end justify-between gap-3">
                                         <span className="text-[2.15rem] font-black leading-none tracking-[-0.05em] text-[var(--text-strong)] sm:text-4xl">
@@ -509,7 +509,7 @@ export const DashboardPage = () => {
                                             Equipo
                                         </p>
                                         <h2 className="mt-2 text-[1.9rem] font-black tracking-[-0.04em] text-[var(--text-strong)] sm:text-2xl">
-                                            Desempeno visible del equipo
+                                            Desempeño visible del equipo
                                         </h2>
                                     </div>
                                     <div className="rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-[0.16em]" style={tagStyle}>
@@ -549,7 +549,7 @@ export const DashboardPage = () => {
                                     ))}
 
                                     {!agents?.length && (
-                                        <EmptyState text="Cuando haya actividad del equipo, esta columna se llenara con su pulso real." />
+                                        <EmptyState text="Cuando haya actividad del equipo, esta columna se llenará con su pulso real." />
                                     )}
                                 </div>
                             </article>
@@ -561,7 +561,7 @@ export const DashboardPage = () => {
                                             Estado del inbox
                                         </p>
                                         <h2 className="mt-2 text-[1.9rem] font-black tracking-[-0.04em] text-[var(--text-strong)] sm:text-2xl">
-                                            Operacion y alertas
+                                            Operación y alertas
                                         </h2>
                                     </div>
                                     <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[color:color-mix(in_srgb,var(--brand-primary),transparent_86%)] text-[var(--brand-primary)]">
@@ -578,7 +578,7 @@ export const DashboardPage = () => {
 
                                 <div className="mt-5 rounded-[24px] bg-[color:color-mix(in_srgb,var(--bg-card),white_8%)] p-4">
                                     <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[var(--text-muted)]">
-                                        Asignacion actual
+                                        Asignación actual
                                     </p>
                                     <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                                         <AssignmentTile label="Asignados" value={inbox?.assigned || 0} />

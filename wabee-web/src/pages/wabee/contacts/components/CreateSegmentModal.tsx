@@ -13,19 +13,19 @@ interface CreateSegmentModalProps {
 const COPY = {
     edit: 'Editar',
     segment: 'Segmento',
-    smart: 'Inteligente',
-    editHelp: 'Modifica las reglas de filtrado para este segmento.',
-    createHelp: 'Define reglas dinámicas para automatizar tu audiencia en tiempo real.',
-    name: 'Nombre del Segmento',
+    smart: '',
+    editHelp: 'Modifica las reglas de este segmento.',
+    createHelp: 'Define las reglas para agrupar contactos automáticamente.',
+    name: 'Nombre del segmento',
     namePlaceholder: 'Ej: Clientes VIP Veracruz',
     description: 'Descripción',
     descriptionPlaceholder: '¿Qué contactos incluye este segmento?',
-    algorithm: 'Algoritmo de Filtrado',
-    lifecycle: 'Ciclo de Vida',
+    algorithm: 'Filtros',
+    lifecycle: 'Ciclo de vida',
     tags: 'Etiquetas',
     addTagPlaceholder: 'Presiona Enter para agregar...',
     cancel: 'Cancelar',
-    save: 'Guardar y Ejecutar',
+    save: 'Guardar',
 } as const;
 
 export const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({ onClose, onSuccess, initialData }) => {

@@ -9,27 +9,27 @@ import { useDialog } from '@/context/DialogContext';
 import { T, S } from '@/lib/text-tokens';
 
 const COPY = {
-    title: 'Segmentación',
-    highlight: 'Inteligente',
-    subtitle: 'Filtros dinámicos que se actualizan automáticamente según tus reglas de negocio definidas.',
-    newSegment: 'Nuevo Segmento',
-    loading: 'Sincronizando Algoritmos...',
-    emptyTitle: 'Zona Desértica',
-    emptyBody: 'No se han detectado reglas de segmentación en este entorno. Comienza a definir tu audiencia.',
-    startNow: 'Comenzar ahora',
-    editTitle: 'Editar Segmento',
-    deleteTitle: 'Eliminar Segmento',
-    noDescription: 'Procesamiento de datos sin descripción extendida.',
+    title: 'Segmentos',
+    highlight: '',
+    subtitle: 'Agrupa contactos automáticamente según tus reglas (etapa o etiquetas).',
+    newSegment: 'Nuevo segmento',
+    loading: 'Cargando…',
+    emptyTitle: 'Aún no tienes segmentos',
+    emptyBody: 'Crea tu primer segmento para agrupar contactos por etapa o etiquetas.',
+    startNow: 'Crear segmento',
+    editTitle: 'Editar segmento',
+    deleteTitle: 'Eliminar segmento',
+    noDescription: 'Sin descripción.',
     stage: 'Etapa',
-    query: 'Query',
-    match: 'Match',
-    generated: 'Generado',
-    execute: 'Ejecutar Visión',
-    footer: 'WABEE CORE V2 // Engine',
-    confirmTitle: 'Eliminar Segmento',
-    confirmDescription: '¿Estás seguro de eliminar este segmento dinámico?',
+    query: 'Filtro',
+    match: 'Coinciden',
+    generated: 'Creado',
+    execute: 'Ejecutar',
+    footer: '',
+    confirmTitle: 'Eliminar segmento',
+    confirmDescription: '¿Eliminar este segmento?',
     confirmButton: 'Eliminar',
-    deleted: 'Segmento eliminado con éxito',
+    deleted: 'Segmento eliminado',
     deleteError: 'Error al eliminar el segmento',
 } as const;
 
@@ -80,11 +80,9 @@ const SegmentsPage: React.FC = () => {
         <div className="mx-auto min-h-screen max-w-7xl space-y-8 bg-[var(--bg-page)] px-4 py-6 sm:space-y-10 sm:px-6 sm:py-8 lg:px-8">
             <header className="mb-2 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                 <div className="max-w-2xl space-y-3">
-                    <h1 className={`${T.pageTitle} ${S.displayMd} flex items-center gap-3 italic sm:gap-4`}>
+                    <h1 className={`${T.pageTitle} ${S.displayMd} flex items-center gap-3 sm:gap-4`}>
                         <Layers size={34} className="shrink-0 text-[var(--brand-primary)] sm:size-[48px]" />
-                        <span className="leading-tight">
-                            {COPY.title} <span className="text-[var(--brand-primary)]">{COPY.highlight}</span>
-                        </span>
+                        <span className="leading-tight">{COPY.title}</span>
                     </h1>
                     <p className={`${T.pageSubtitle} ${S.body} max-w-xl`}>{COPY.subtitle}</p>
                 </div>

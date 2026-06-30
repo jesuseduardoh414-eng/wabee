@@ -87,6 +87,9 @@ export const env = {
 
     // ─── Token encryption (for OAuth session storage) ────────────────────────────
     // Must be a 64-char hex string (32 bytes) in production.
+    // OJO: el valor por defecto de abajo está en el repositorio (es PÚBLICO) y solo
+    // debe usarse en desarrollo. En producción DEBE definirse TOKEN_ENC_KEY propio;
+    // ver guard más abajo.
     TOKEN_ENC_KEY: process.env.TOKEN_ENC_KEY
         || '00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff',
 
@@ -150,6 +153,16 @@ if (env.NODE_ENV === 'production') {
         console.error(`[Config] ❌ Missing required env vars in production: ${missing.join(', ')}`);
         // Do not throw — let the service start and surface the error via health check.
         // Remove the comment above if you prefer a hard crash on startup.
+    }
+
+    // TOKEN_ENC_KEY: en producción NO se permite el valor por defecto (está en el repo,
+    // es público). Con esa clave, los tokens de WhatsApp/OAuth quedarían cifrados con un
+    // secreto conocido y serían triviales de descifrar para cualquiera con acceso a la BD.
+    const INSECURE_DEFAULT_TOKEN_ENC_KEY = '00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff';
+    if (!process.env.TOKEN_ENC_KEY || process.env.TOKEN_ENC_KEY === INSECURE_DEFAULT_TOKEN_ENC_KEY) {
+        console.error('[Config] ❌ SEGURIDAD: TOKEN_ENC_KEY no está configurado o usa el valor por defecto público del repositorio. Define una clave hex de 64 caracteres (32 bytes) propia en producción; de lo contrario los tokens de WhatsApp/OAuth quedan cifrados con una clave conocida.');
+    } else if (!/^[0-9a-fA-F]{64}$/.test(process.env.TOKEN_ENC_KEY)) {
+        console.error('[Config] ❌ SEGURIDAD: TOKEN_ENC_KEY debe ser una cadena hex de 64 caracteres (32 bytes). El cifrado de tokens fallará con el valor actual.');
     }
 }
 

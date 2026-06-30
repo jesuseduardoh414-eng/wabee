@@ -224,6 +224,11 @@ app.use(express.urlencoded({ limit: '5mb', extended: true }));
 // ─── Request ID + structured request logging ───────────────────────────────────
 // Asigna un requestId a cada petición (correlación de logs) y registra método,
 // ruta, status y duración con pino. Reemplaza el console.log plano anterior.
+// Evita filtrar credenciales en los logs (p.ej. ?token=JWT que usan EventSource/SSE,
+// que no pueden enviar cabeceras y pasan el token por query string).
+const redactUrl = (url: string): string =>
+    url.replace(/([?&](?:token|access_token|refresh_token|password)=)[^&]*/gi, '$1[REDACTED]');
+
 app.use((req: Request, res: Response, next: NextFunction) => {
     const requestId = (req.headers['x-request-id'] as string) || crypto.randomUUID();
     (req as any).id = requestId;
@@ -233,9 +238,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     const start = Date.now();
     res.on('finish', () => {
         const durationMs = Date.now() - start;
+        const safeUrl = redactUrl(req.url);
         (req as any).log.info(
-            { method: req.method, url: req.url, status: res.statusCode, durationMs },
-            `${req.method} ${req.url} ${res.statusCode} ${durationMs}ms`
+            { method: req.method, url: safeUrl, status: res.statusCode, durationMs },
+            `${req.method} ${safeUrl} ${res.statusCode} ${durationMs}ms`
         );
     });
     next();

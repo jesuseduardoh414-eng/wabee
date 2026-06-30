@@ -26,8 +26,12 @@ export const tenancyAdapter = {
             || req.query.tenantId;
 
         if (!tenantId) {
-            console.error('[TenancyAdapter] req.user payload:', JSON.stringify(user));
-            console.error('[TenancyAdapter] req.headers:', JSON.stringify(req.headers));
+            // No volcar headers/user completos: contienen el JWT (Authorization/Cookie)
+            // y datos personales. Registramos solo señales mínimas para diagnóstico.
+            console.error('[TenancyAdapter] No se pudo resolver tenant', {
+                userId: user?.id || user?.sub || null,
+                hasTenantHeader: Boolean(req.headers['x-tenant-id'] || req.headers['x-organization-id']),
+            });
             throw new Error('TENANCY_REQUIRED: No se pudo identificar la organización en el contexto (Adapter).');
         }
 

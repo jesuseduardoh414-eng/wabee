@@ -1,40 +1,68 @@
 import { Request, Response, NextFunction } from 'express';
+import { coreAdapter } from '@/modules/core/core.adapter';
+import { isSuperAdmin } from '@/middleware/auth-role.middleware';
 
 // Estos tipos deben casar con lo que exista en el Core (member.role.name) o similar
 export type OrgRoleType = 'Admin' | 'Supervisor' | 'Agent' | string;
 
 /**
- * Adapter para verificar Roles.
- * El legacy tenía roles estáticos en User o claims.
- * El Nuevo Core maneja The roles de forma global o vía `OrganizationMember` -> `Role`.
+ * Adapter para verificar Roles a nivel de organización.
+ *
+ * El rol funcional del usuario vive en `core.organization_members -> core.roles.slug`
+ * (mismo SSOT que usa el guard del inbox y `verifyAdminPrivileges`). Se consulta vía
+ * `coreAdapter.organizations.getMembership(tenantId, userId)`.
  */
 export const rbacAdapter = {
     /**
-     * Middleware sugerido para que el Controller lo use directamente 
-     * protegiendo rutas sensibles (EJ: Configurar Canales de WS).
+     * Middleware que protege rutas sensibles exigiendo uno de los roles indicados.
+     *
+     * IMPORTANTE: debe montarse DESPUÉS de `authMiddleware` y `tenantMiddleware`
+     * (necesita `req.user` y `req.tenantId`). Antes este middleware era un no-op que
+     * dejaba pasar a cualquier usuario autenticado — lo que volvía inútiles los
+     * `adminOnly` de automatizaciones e integraciones.
      */
     requireOrgRole: (allowedRoles: OrgRoleType[]) => {
+        const allowed = allowedRoles.map(r => String(r).toLowerCase());
+
         return async (req: Request, res: Response, next: NextFunction) => {
             try {
-                // El core de Supabase u otro MW ya inyectó `req.user`.
-                // Asumimos que `req.user.role` o similar tiene el scope, o necesitamos consultar Prisma.
-                // Para simplificar la migración temprana sin romper la compilación, comprobamos un array de permisos inyectados o logueamos.
-
-                const userObj = (req as any).user;
-                if (!userObj) {
-                    res.status(401).json({ error: 'Unauthorized: Missing User' });
+                const user = (req as any).user;
+                if (!user) {
+                    res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'No autenticado.' } });
                     return;
                 }
 
-                // Logica de Core (placeholder hasta ver el mw real de Core)
-                // Usualmente app.use('/admin', requireOrgRole('Admin')) requerirá leer Prisma OrganizationMember.
+                // Super admin de plataforma: acceso total.
+                if (isSuperAdmin(user)) {
+                    next();
+                    return;
+                }
 
-                // FIXME: Si el core yatiene un middleware `requireOrgRole`, lo ideal es importar ESE mismo aquí
-                // y re-exportarlo. 
+                const tenantId = (req as any).tenantId;
+                const userId = user.id || user.sub;
+
+                if (!tenantId || !userId) {
+                    res.status(403).json({ error: { code: 'FORBIDDEN', message: 'Contexto de organización no resuelto.' } });
+                    return;
+                }
+
+                const membership = await coreAdapter.organizations.getMembership(tenantId, userId);
+                const slug = String((membership as any)?.role?.slug || '').toLowerCase();
+
+                if (!membership || !allowed.includes(slug)) {
+                    res.status(403).json({
+                        error: {
+                            code: 'FORBIDDEN',
+                            message: 'No tienes permisos suficientes para realizar esta acción.'
+                        }
+                    });
+                    return;
+                }
 
                 next();
             } catch (error) {
-                res.status(403).json({ error: 'Forbidden' });
+                console.error('[rbacAdapter.requireOrgRole] Error verificando rol:', error);
+                res.status(403).json({ error: { code: 'FORBIDDEN', message: 'No autorizado.' } });
             }
         };
     }

@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { Request, Response } from 'express';
 import { prisma } from '@/lib/prisma';
 import { env } from '@/config/env';
@@ -6,11 +7,19 @@ import { getProvider } from '../integrations/provider.registry';
 import { integrationsService } from '../integrations/integrations.service';
 import { decrypt, encrypt } from '../channels/whatsapp/token.crypto';
 
+// Comparación en tiempo constante para no filtrar la clave vía timing attack.
+function safeKeyEqual(a: string, b: string): boolean {
+    const ab = Buffer.from(a);
+    const bb = Buffer.from(b);
+    if (ab.length !== bb.length) return false;
+    return crypto.timingSafeEqual(ab, bb);
+}
+
 // Simple internal key guard — this endpoint is called by the AI tool executor
 function guardInternalKey(req: Request, res: Response): boolean {
     const auth = req.headers.authorization ?? '';
     const key  = auth.replace('Bearer ', '').trim();
-    if (!env.CRM_TOOLS_INTERNAL_KEY || key !== env.CRM_TOOLS_INTERNAL_KEY) {
+    if (!env.CRM_TOOLS_INTERNAL_KEY || !safeKeyEqual(key, env.CRM_TOOLS_INTERNAL_KEY)) {
         res.status(401).json({ error: 'Unauthorized' });
         return false;
     }

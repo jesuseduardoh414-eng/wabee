@@ -50,7 +50,8 @@ export class WhatsAppCloudSender implements ChannelSender {
     }
 
     async sendText(params: any): Promise<any> {
-        const { channel, to, text } = params;
+        const { channel, to: rawTo, text } = params;
+        const to = this.normalizeRecipient(rawTo);
         const { url, accessToken } = await this.getRequestConfig(channel);
 
         try {
@@ -78,7 +79,8 @@ export class WhatsAppCloudSender implements ChannelSender {
     }
 
     async sendMedia(params: any): Promise<any> {
-        const { channel, to, mediaType, mediaLink, caption, filename } = params;
+        const { channel, to: rawTo, mediaType, mediaLink, caption, filename } = params;
+        const to = this.normalizeRecipient(rawTo);
         const { url, accessToken } = await this.getRequestConfig(channel);
 
         try {
@@ -123,7 +125,8 @@ export class WhatsAppCloudSender implements ChannelSender {
     }
 
     async sendTemplate(params: any): Promise<any> {
-        const { channel, to, template } = params;
+        const { channel, to: rawTo, template } = params;
+        const to = this.normalizeRecipient(rawTo);
         const { url, accessToken } = await this.getRequestConfig(channel);
 
         try {
@@ -150,6 +153,18 @@ export class WhatsAppCloudSender implements ChannelSender {
         } catch (error: any) {
             this.handleError(error);
         }
+    }
+
+    /**
+     * Normaliza el número destinatario antes de enviarlo a Meta.
+     * México: WhatsApp agrega un "1" tras el código 52 (521XXXXXXXXXX), pero Meta
+     * recomienda enviar SIN ese "1" (52XXXXXXXXXX). El sandbox/allowlist y algunos
+     * envíos lo rechazan con error 131030 si lleva el "1". Lo quitamos para México.
+     */
+    private normalizeRecipient(to: string): string {
+        const digits = String(to ?? '').replace(/\D/g, '');
+        if (/^521\d{10}$/.test(digits)) return '52' + digits.slice(3);
+        return digits;
     }
 
     private handleError(error: any) {

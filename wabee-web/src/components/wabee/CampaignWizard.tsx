@@ -223,6 +223,14 @@ export default function CampaignWizard({ initialData, onClose, onSuccess }: Camp
             const validation = selectedTemplate ? validateMapping(selectedTemplate, generateMapping()) : { valid: true };
             return !validation.valid;
         }
+        if (step === STEP_AUDIENCE) {
+            // No permitir finalizar si la audiencia elegida no tiene una selección válida.
+            const f = formData.audienceFilter || {};
+            if (formData.audienceType === 'SEGMENT') return !f.segmentId;
+            if (formData.audienceType === 'GROUP') return !f.groupId;
+            if (formData.audienceType === 'TAGS') return !(f.tags && f.tags.filter((t: string) => t && t.trim()).length > 0);
+            return false; // ALL_ACTIVE: válido sin selección extra
+        }
         return false;
     };
 
@@ -300,7 +308,7 @@ export default function CampaignWizard({ initialData, onClose, onSuccess }: Camp
     const renderStep1 = () => (
         <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
             <div>
-                <label className="block text-[10px] font-black text-[color:var(--tx-helperText-color)] uppercase tracking-widest mb-2">Nombre de la Campaña</label>
+                <label className="block text-[10px] font-bold text-[color:var(--tx-helperText-color)] uppercase tracking-widest mb-2">Nombre de la Campaña</label>
                 <input
                     type="text"
                     placeholder="Ej: Promo Hot Sale 2024"
@@ -315,7 +323,7 @@ export default function CampaignWizard({ initialData, onClose, onSuccess }: Camp
 
             </div>
             <div>
-                <label className="block text-[10px] font-black text-[color:var(--tx-helperText-color)] uppercase tracking-widest mb-2">Canal de Envío</label>
+                <label className="block text-[10px] font-bold text-[color:var(--tx-helperText-color)] uppercase tracking-widest mb-2">Canal de Envío</label>
                 <div className="grid grid-cols-1 gap-3">
                     {channels.map(ch => (
                         <div
@@ -346,11 +354,12 @@ export default function CampaignWizard({ initialData, onClose, onSuccess }: Camp
 
     const renderStep2 = () => {
         const filteredTemplates = templates.filter(t =>
+            t.status === 'APPROVED' &&
             t.name.toLowerCase().includes(templateSearch.toLowerCase())
         );
         return (
             <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                <label className="block text-[10px] font-black text-[color:var(--tx-helperText-color)] uppercase tracking-widest">Selecciona una Plantilla de WhatsApp</label>
+                <label className="block text-[10px] font-bold text-[color:var(--tx-helperText-color)] uppercase tracking-widest">Selecciona una Plantilla de WhatsApp</label>
 
                 {/* 🔍 Buscador por nombre */}
                 <div className="relative">
@@ -383,7 +392,7 @@ export default function CampaignWizard({ initialData, onClose, onSuccess }: Camp
                                     } ${T.buttonPrimaryText}`}
                             >
                                 <div className="flex justify-between items-start">
-                                    <h4 className="text-[11px] font-black uppercase tracking-tight text-[color:var(--tx-sectionTitle-color)]">{tmpl.name}</h4>
+                                    <h4 className="text-[11px] font-bold uppercase tracking-tight text-[color:var(--tx-sectionTitle-color)]">{tmpl.name}</h4>
                                     <div className="flex gap-1">
                                         {tmplHasInputs && (
                                             <span className={`text-[8px] bg-[var(--brand-primary)]/10 border border-[var(--brand-primary)]/20 px-1.5 py-0.5 rounded text-[var(--brand-primary)] font-bold ${T.buttonPrimaryText}`}>
@@ -437,7 +446,7 @@ export default function CampaignWizard({ initialData, onClose, onSuccess }: Camp
                 <div className="flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-2">
                         <Sliders size={16} className="text-[var(--brand-primary)]" />
-                        <p className="text-[10px] font-black text-[color:var(--tx-helperText-color)] uppercase tracking-widest">
+                        <p className="text-[10px] font-bold text-[color:var(--tx-helperText-color)] uppercase tracking-widest">
                             Personalización de Mensaje ({completedInputs.length} de {templateInputs.length} completas)
                         </p>
                     </div>
@@ -451,7 +460,7 @@ export default function CampaignWizard({ initialData, onClose, onSuccess }: Camp
                         {progress === 100 && (
                             <div className="flex items-center gap-1.5 text-green-600 bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20 font-bold">
                                 <CheckCircle2 size={12} />
-                                <span className="text-[9px] font-black uppercase tracking-wider">Completo</span>
+                                <span className="text-[9px] font-bold uppercase tracking-wider">Completo</span>
                             </div>
                         )}
                     </div>
@@ -463,7 +472,7 @@ export default function CampaignWizard({ initialData, onClose, onSuccess }: Camp
                             {mediaInputs.map(input => (
                                 <div key={input.id} className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-xl p-3 flex flex-col gap-2 shadow-sm">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-[10px] font-black text-[color:var(--tx-sectionTitle-color)] uppercase tracking-wider">
+                                        <span className="text-[10px] font-bold text-[color:var(--tx-sectionTitle-color)] uppercase tracking-wider">
                                             Adjunto de Encabezado ({input.meta.format})
                                         </span>
                                         {((inlineValues[input.id]?.trim()?.length || 0) > 0) ? (
@@ -561,7 +570,7 @@ export default function CampaignWizard({ initialData, onClose, onSuccess }: Camp
     const renderStep4Audience = () => (
         <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
             <div>
-                <label className="block text-[10px] font-black text-[color:var(--tx-helperText-color)] uppercase tracking-widest mb-3">Segmentación de Audiencia</label>
+                <label className="block text-[10px] font-bold text-[color:var(--tx-helperText-color)] uppercase tracking-widest mb-3">Segmentación de Audiencia</label>
                 <div className="flex gap-2 mb-6 p-1 bg-[var(--bg-elevated)] rounded-xl border border-[var(--border-default)]">
                     {[
                         { id: 'ALL_ACTIVE', label: 'Todos', icon: Users },
@@ -571,7 +580,7 @@ export default function CampaignWizard({ initialData, onClose, onSuccess }: Camp
                     ].map(type => (
                         <button
                             key={type.id}
-                            onClick={() => setFormData({ ...formData, audienceType: type.id as any, audienceFilter: {} })}
+                            onClick={() => setFormData({ ...formData, audienceType: type.id as any })}
                             className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-bold transition-all ${formData.audienceType === type.id ? 'bg-[var(--brand-primary)]  shadow-md' : 'text-[color:var(--tx-helperText-color)] hover:text-[var(--brand-primary)]'
                                 } ${T.buttonPrimaryText}`}
                         >
@@ -584,7 +593,8 @@ export default function CampaignWizard({ initialData, onClose, onSuccess }: Camp
                 {formData.audienceType === 'SEGMENT' && (
                     <select
                         className="w-full bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl py-3 px-4 text-sm text-[color:var(--tx-inputText-color)] font-bold outline-none cursor-pointer"
-                        onChange={(e) => setFormData({ ...formData, audienceFilter: { segmentId: e.target.value } })}
+                        value={formData.audienceFilter?.segmentId || ''}
+                        onChange={(e) => setFormData({ ...formData, audienceFilter: { ...formData.audienceFilter, segmentId: e.target.value } })}
                     >
                         <option className="bg-[var(--bg-card)]" value="">Selecciona un segmento guardado</option>
                         {segments.map(s => <option className="bg-[var(--bg-card)]" key={s.id} value={s.id}>{s.name}</option>)}
@@ -594,7 +604,8 @@ export default function CampaignWizard({ initialData, onClose, onSuccess }: Camp
                 {formData.audienceType === 'GROUP' && (
                     <select
                         className="w-full bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl py-3 px-4 text-sm text-[color:var(--tx-inputText-color)] font-bold outline-none cursor-pointer"
-                        onChange={(e) => setFormData({ ...formData, audienceFilter: { groupId: e.target.value } })}
+                        value={formData.audienceFilter?.groupId || ''}
+                        onChange={(e) => setFormData({ ...formData, audienceFilter: { ...formData.audienceFilter, groupId: e.target.value } })}
                     >
                         <option className="bg-[var(--bg-card)]" value="">Selecciona un grupo</option>
                         {groups.map(g => <option className="bg-[var(--bg-card)]" key={g.id} value={g.id}>{g.name}</option>)}
@@ -606,13 +617,14 @@ export default function CampaignWizard({ initialData, onClose, onSuccess }: Camp
                         type="text"
                         placeholder="Escribe etiquetas separadas por coma..."
                         className="w-full bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl py-3 px-4 text-sm text-[color:var(--tx-inputText-color)] font-bold outline-none focus:border-[var(--brand-primary)] font-bold"
-                        onChange={(e) => setFormData({ ...formData, audienceFilter: { tags: e.target.value.split(',').map(t => t.trim()) } })}
+                        value={(formData.audienceFilter?.tags || []).join(',')}
+                        onChange={(e) => setFormData({ ...formData, audienceFilter: { ...formData.audienceFilter, tags: e.target.value.split(',').map(t => t.trim()) } })}
                     />
                 )}
             </div>
 
             <div>
-                <label className="block text-[10px] font-black text-[color:var(--tx-helperText-color)] uppercase tracking-widest mb-3">Programación (Opcional)</label>
+                <label className="block text-[10px] font-bold text-[color:var(--tx-helperText-color)] uppercase tracking-widest mb-3">Programación (Opcional)</label>
                 <div className="relative">
                     <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-[color:var(--tx-helperText-color)]" size={16} />
                     <input
@@ -640,8 +652,8 @@ export default function CampaignWizard({ initialData, onClose, onSuccess }: Camp
                             <Send size={18} className="text-[var(--brand-primary-foreground)]" />
                         </div>
                         <div className="min-w-0">
-                            <h2 className="text-lg font-black italic leading-tight text-[color:var(--tx-sectionTitle-color)] sm:text-xl">Constructor de Campaña</h2>
-                            <p className="text-[8px] font-black text-[var(--brand-primary)] uppercase tracking-[0.2em]">
+                            <h2 className="text-lg font-bold italic leading-tight text-[color:var(--tx-sectionTitle-color)] sm:text-xl">Constructor de Campaña</h2>
+                            <p className="text-[8px] font-bold text-[var(--brand-primary)] uppercase tracking-[0.2em]">
                                 Paso {visualStep()} de {totalSteps} • {stepLabel()}
                             </p>
                         </div>
@@ -686,7 +698,7 @@ export default function CampaignWizard({ initialData, onClose, onSuccess }: Camp
                     <button
                         onClick={isLastStep ? handleSubmit : nextStep}
                         disabled={isNextDisabled() || loading}
-                        className={`flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand-primary)] px-8 py-3 text-[10px] font-black uppercase tracking-widest transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-30 sm:w-auto sm:py-2 shadow-lg shadow-[#ead018]/10 ${T.buttonPrimaryText}`}
+                        className={`flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand-primary)] px-8 py-3 text-[10px] font-bold uppercase tracking-widest transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-30 sm:w-auto sm:py-2 shadow-lg shadow-[#ead018]/10 ${T.buttonPrimaryText}`}
                     >
                         {loading ? 'Guardando...' : isLastStep ? 'Finalizar y Guardar' : 'Siguiente'}
                         {!loading && !isLastStep && <ChevronRight size={14} />}

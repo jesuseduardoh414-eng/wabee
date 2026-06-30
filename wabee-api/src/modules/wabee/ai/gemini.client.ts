@@ -187,5 +187,7 @@ export async function chatGemini(opts: {
         }
     }
 
-    return { text: 'Tuve un problema al conectar con Gemini.' };
+    // Tras agotar todos los reintentos (todos 503/429): NO filtrar el error técnico
+    // al cliente final; usar el mensaje neutro.
+    return { text: AI_FALLBACK_MESSAGE };
 }

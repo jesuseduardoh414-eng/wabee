@@ -1,5 +1,8 @@
 import dotenv from 'dotenv';
-dotenv.config();
+// override: true → el archivo .env SIEMPRE gana sobre variables ya presentes en el
+// entorno de la sesión (ej. un token viejo exportado en la terminal). En producción
+// (.env no existe, está en .gitignore) esto es no-op y se usan las vars del host.
+dotenv.config({ override: true });
 
 /**
  * Centralized environment configuration for WABEE API.

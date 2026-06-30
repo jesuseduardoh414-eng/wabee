@@ -8,6 +8,8 @@ interface ImportResult {
     imported: number;
     updated: number;
     skipped: number;
+    removed: number;      // estaban en DB pero ya NO en Meta → borradas
+    markedStale: number;  // no se pudieron borrar (referenciadas por campañas) → marcadas DELETED
 }
 
 export class WhatsAppTemplatesService {
@@ -74,6 +76,8 @@ export class WhatsAppTemplatesService {
         let imported = 0;
         let updated = 0;
         let skipped = 0;
+        let removed = 0;
+        let markedStale = 0;
 
         for (const template of templates) {
             try {
@@ -119,9 +123,34 @@ export class WhatsAppTemplatesService {
             }
         }
 
-        console.log(`✅ [Templates] Import complete: ${imported} imported, ${updated} updated, ${skipped} skipped`);
+        // 5. Reconciliar (espejo de Meta): lo que está en DB pero ya NO en Meta se quita.
+        //    Guard: solo si Meta devolvió al menos 1 plantilla, para no borrar todo por una
+        //    respuesta vacía transitoria. Si una plantilla está referenciada por una campaña
+        //    (FK), no se puede borrar → se marca status='DELETED' para ocultarla del selector.
+        if (templates.length > 0) {
+            const metaKeys = new Set(templates.map((t: any) => `${t.name}|${t.language}`));
+            const dbTemplates = await prisma.whatsappTemplate.findMany({
+                where: { tenantId, channelId },
+                select: { id: true, name: true, language: true },
+            });
+            for (const dbt of dbTemplates) {
+                if (metaKeys.has(`${dbt.name}|${dbt.language}`)) continue; // sigue en Meta
+                try {
+                    await prisma.whatsappTemplate.delete({ where: { id: dbt.id } });
+                    removed++;
+                } catch {
+                    await prisma.whatsappTemplate.update({
+                        where: { id: dbt.id },
+                        data: { status: 'DELETED' },
+                    });
+                    markedStale++;
+                }
+            }
+        }
 
-        return { imported, updated, skipped };
+        console.log(`✅ [Templates] Import complete: ${imported} imported, ${updated} updated, ${skipped} skipped, ${removed} removed, ${markedStale} marked stale`);
+
+        return { imported, updated, skipped, removed, markedStale };
     }
 
     /**

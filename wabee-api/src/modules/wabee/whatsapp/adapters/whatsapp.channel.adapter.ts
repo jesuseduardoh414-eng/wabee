@@ -7,6 +7,7 @@ import { WhatsappMessage, ChannelAiMode, MessageSenderType, MessageGeneratedBy }
 import { ChannelAiConfigService } from '../../channels/channel.ai-config.service';
 import { ThreadStateOrchestrator } from '../../inbox/services/thread.state.orchestrator';
 import { InboxAuditService } from '../../audit/inbox-audit.service';
+import { AutomationRunnerService } from '../../automations/automation.runner.service';
 
 export class WhatsAppChannelAdapter {
 
@@ -48,6 +49,10 @@ export class WhatsAppChannelAdapter {
 
         if (!channel) return false;
 
+        // Señal de "conversación nueva" para los triggers de automatización,
+        // ANTES de que el paso 3 inicialice handlingMode.
+        const wasNewConversation = !thread?.handlingMode;
+
         // ─── 3. Inicializar thread si no tiene handling_mode aún ────────────
         if (!thread?.handlingMode) {
             await ThreadStateOrchestrator.openThread(threadId, tenantId, channelId);
@@ -82,6 +87,27 @@ export class WhatsAppChannelAdapter {
         }
 
         console.log(`[AI-Adapter] ✅ Gate OK. ProfileId=${resolved.profileId}, source=${resolved.source}, mode=${channel.aiMode}`);
+
+        // ─── 4.5 Automatizaciones (antes de la IA) ───────────────────────────
+        // Si hay una automatización activa para este hilo/trigger, corre el
+        // motor. Si maneja el mensaje, se envía su respuesta y se SALTA la IA.
+        const automationResult = await AutomationRunnerService.run({
+            tenantId,
+            threadId,
+            messageText: inboundMessage.textBody || '',
+            isNewConversation: wasNewConversation,
+        });
+        if (automationResult.handled) {
+            if (automationResult.outboundText) {
+                await this.sendOutbound(tenantId, channelId, threadId, inboundMessage.remotePhone, automationResult.outboundText, {
+                    senderType: MessageSenderType.system,
+                    aiProfileId: null,
+                    generatedBy: MessageGeneratedBy.workflow,
+                });
+            }
+            console.log(`[AI-Adapter] 🤖 Automatización manejó el mensaje (completed=${automationResult.completed}). IA omitida.`);
+            return true;
+        }
 
         // ─── 5. Mapear contexto universal ────────────────────────────────────
         const context: UniversalMessageContext = {

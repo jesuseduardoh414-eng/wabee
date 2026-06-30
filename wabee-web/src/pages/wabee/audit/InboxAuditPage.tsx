@@ -193,13 +193,13 @@ export default function InboxAuditPage() {
                     >
                         {loading ? 'Cargando...' : 'Filtrar'}
                     </button>
-                    <a
-                        href={inboxAuditApi.exportCsv(filters as any)}
-                        download="audit_attention.csv"
+                    <button
+                        type="button"
+                        onClick={() => { inboxAuditApi.exportCsv(filters as any).catch(console.error); }}
                         className={`${T.buttonText} ${S.meta} rounded-xl border border-[var(--border-default)] px-4 py-2.5 text-center text-[color:var(--tx-helperText-color)] shadow-sm transition-all hover:bg-[var(--bg-hover)]`}
                     >
                         ↓ CSV
-                    </a>
+                    </button>
                 </div>
             </div>
 

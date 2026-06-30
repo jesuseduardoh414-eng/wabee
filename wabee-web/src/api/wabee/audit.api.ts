@@ -110,8 +110,18 @@ export const inboxAuditApi = {
         const { data } = await client.get(`/wabee/audit/attention/threads/${threadId}`);
         return data;
     },
-    exportCsv: (filters: AttentionFilters): string => {
-        const params = new URLSearchParams(filters as any).toString();
-        return `/wabee/audit/attention/export?${params}`;
+    exportCsv: async (filters: AttentionFilters): Promise<void> => {
+        // Descarga vía el cliente autenticado. Antes devolvía una URL relativa que,
+        // al abrirse, pegaba al frontend (Vercel) y devolvía index.html sin auth.
+        const { data } = await client.get('/wabee/audit/attention/export', {
+            params: filters,
+            responseType: 'blob',
+        });
+        const url = window.URL.createObjectURL(data as Blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `auditoria_atencion_${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        window.URL.revokeObjectURL(url);
     },
 };

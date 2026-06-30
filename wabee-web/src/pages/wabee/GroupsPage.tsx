@@ -385,7 +385,7 @@ const GroupsPage: React.FC = () => {
                                                 className="group/item flex w-full items-center justify-between rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)]/50 p-4 text-left transition-all hover:border-[var(--brand-primary)]/40 hover:bg-[var(--brand-primary)]/5"
                                             >
                                                 <div className="flex min-w-0 items-center gap-3">
-                                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--bg-page)] text-[10px] font-black text-[var(--brand-primary)]">
+                                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--bg-page)] text-[10px] font-bold text-[var(--brand-primary)]">
                                                         {(c.name || 'S')[0].toUpperCase()}
                                                     </div>
                                                     <div className="min-w-0">
@@ -409,7 +409,7 @@ const GroupsPage: React.FC = () => {
                             <div className="flex flex-col gap-5 p-5 md:p-8">
                                 <div className="flex items-center justify-between rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] p-4 shadow-inner">
                                     <h3 className={`${T.helperText} ${S.meta} opacity-50`}>{COPY.currentMembers}</h3>
-                                    <span className={`${S.kpiMd} font-black italic tracking-tighter`}><span className="text-[var(--brand-primary)]">{groupMembers.length}</span></span>
+                                    <span className={`${S.kpiMd} font-bold italic tracking-tighter`}><span className="text-[var(--brand-primary)]">{groupMembers.length}</span></span>
                                 </div>
 
                                 <div className="min-h-[8rem] flex-1 space-y-2 overflow-y-auto no-scrollbar">
@@ -421,7 +421,7 @@ const GroupsPage: React.FC = () => {
                                         groupMembers.map(m => (
                                             <div key={m.id} className="group/member flex items-center justify-between rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)]/40 p-3 transition-all hover:border-[var(--state-danger)]/20">
                                                 <div className="flex min-w-0 items-center gap-3">
-                                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--bg-page)] text-[9px] font-black text-[var(--brand-primary)]">
+                                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--bg-page)] text-[9px] font-bold text-[var(--brand-primary)]">
                                                         {(m.name || 'C')[0].toUpperCase()}
                                                     </div>
                                                     <div className="min-w-0">

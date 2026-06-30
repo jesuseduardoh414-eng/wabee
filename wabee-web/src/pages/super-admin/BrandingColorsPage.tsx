@@ -82,7 +82,7 @@ const LivePreview = ({ config }: { config: ColorsConfig }) => {
                     <Palette size={20} />
                 </div>
                 <div>
-                  <h4 className="text-[var(--tx-pageTitle-color)] text-sm font-black uppercase tracking-[0.2em]">Live Preview</h4>
+                  <h4 className="text-[var(--tx-pageTitle-color)] text-sm font-bold uppercase tracking-[0.2em]">Live Preview</h4>
                   <p className="text-[var(--tx-pageSubtitle-color)] text-[9px] font-bold">bg-page + border-strong</p>
                 </div>
             </div>
@@ -90,7 +90,7 @@ const LivePreview = ({ config }: { config: ColorsConfig }) => {
             {/* List Selection Example (para bg-selected y text-body) */}
             <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-2xl overflow-hidden">
                 <div className="bg-[var(--bg-surface)] px-4 py-2 border-b border-[var(--border-default)] flex justify-between items-center">
-                    <span className="text-[var(--tx-sectionSubtitle-color)] text-[8px] font-black uppercase tracking-widest">Ejemplo de Listado</span>
+                    <span className="text-[var(--tx-sectionSubtitle-color)] text-[8px] font-bold uppercase tracking-widest">Ejemplo de Listado</span>
                     <div className="w-2 h-2 rounded-full bg-[var(--state-success)]" />
                 </div>
                 <div className="p-1 space-y-0.5">
@@ -114,7 +114,7 @@ const LivePreview = ({ config }: { config: ColorsConfig }) => {
                         <h3 className={`${T.cardTitle} text-[var(--tx-cardTitle-color)]`}>Dashboard de Métricas</h3>
                         <p className={`${T.cardSubtitle} text-[var(--tx-cardSubtitle-color)]`}>Visualización de tokens en tiempo real</p>
                     </div>
-                    <div className="shrink-0 bg-[var(--state-success)] text-[var(--tx-buttonText-color)] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+                    <div className="shrink-0 bg-[var(--state-success)] text-[var(--tx-buttonText-color)] px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
                         Activo
                     </div>
                 </div>
@@ -122,12 +122,12 @@ const LivePreview = ({ config }: { config: ColorsConfig }) => {
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
                     <div className="bg-[var(--bg-surface)] p-3 sm:p-4 rounded-2xl border border-[var(--border-default)] min-w-0">
                         <span className="text-[var(--tx-kpiLabel-color)] text-[10px] uppercase font-bold">Métrica A</span>
-                        <div className="text-[var(--tx-kpiValue-color)] text-lg sm:text-2xl font-black mt-1 tracking-tight truncate">$45,280</div>
+                        <div className="text-[var(--tx-kpiValue-color)] text-lg sm:text-2xl font-bold mt-1 tracking-tight truncate">$45,280</div>
                         <div className="text-[var(--state-success)] text-[10px] font-bold mt-1">↑ 12.5%</div>
                     </div>
                     <div className="bg-[var(--bg-surface)] p-3 sm:p-4 rounded-2xl border border-[var(--border-default)] min-w-0">
                         <span className="text-[var(--tx-kpiLabel-color)] text-[10px] uppercase font-bold">Métrica B</span>
-                        <div className="text-[var(--tx-kpiValue-color)] text-lg sm:text-2xl font-black mt-1 tracking-tight truncate">1,402</div>
+                        <div className="text-[var(--tx-kpiValue-color)] text-lg sm:text-2xl font-bold mt-1 tracking-tight truncate">1,402</div>
                         <div className="text-[var(--state-danger)] text-[10px] font-bold mt-1">↓ 3.2%</div>
                     </div>
                 </div>
@@ -167,10 +167,10 @@ const LivePreview = ({ config }: { config: ColorsConfig }) => {
                         />
                     </div>
                     <div className="flex gap-3">
-                        <button className={`flex-1 bg-[var(--brand-primary)]  px-4 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-[var(--brand-primary)]/20 ${T.buttonPrimaryText}`}>
+                        <button className={`flex-1 bg-[var(--brand-primary)]  px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-[var(--brand-primary)]/20 ${T.buttonPrimaryText}`}>
                             Primario
                         </button>
-                        <button className="flex-1 border border-[var(--border-default)] text-[var(--tx-buttonText-color)] px-4 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-[var(--bg-hover)] transition-all">
+                        <button className="flex-1 border border-[var(--border-default)] text-[var(--tx-buttonText-color)] px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-[var(--bg-hover)] transition-all">
                             Outline
                         </button>
                     </div>
@@ -357,7 +357,7 @@ export const BrandingColorsPage = () => {
                     <button
                         onClick={handleSave}
                         disabled={!hasChanges || saving}
-                        className={`flex items-center gap-2 px-7 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${
+                        className={`flex items-center gap-2 px-7 py-2.5 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${
                             saveSuccess
                                 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                                 : hasChanges && !saving
@@ -389,7 +389,7 @@ export const BrandingColorsPage = () => {
                                 }`}
                             >
                                 <cat.icon size={16} />
-                                <span className="text-[9px] font-black uppercase tracking-tighter">{cat.name}</span>
+                                <span className="text-[9px] font-bold uppercase tracking-tighter">{cat.name}</span>
                             </button>
                         ))}
                     </div>
@@ -397,10 +397,10 @@ export const BrandingColorsPage = () => {
                     <div className="bg-[var(--bg-card)] border border-[var(--border-default)] rounded-[1.5rem] p-5 space-y-5">
                         <div className="border-b border-[var(--border-default)] pb-4">
                             <div className="flex items-center justify-between gap-2">
-                                <h3 className={`${T.cardTitle} font-black text-xs uppercase tracking-widest flex items-center gap-2`}>
+                                <h3 className={`${T.cardTitle} font-bold text-xs uppercase tracking-widest flex items-center gap-2`}>
                                     {COLOR_CATEGORIES.find(c => c.id === activeCategory)?.name}
                                 </h3>
-                                <span className="shrink-0 rounded-full bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] px-2.5 py-1 text-[10px] font-black">
+                                <span className="shrink-0 rounded-full bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] px-2.5 py-1 text-[10px] font-bold">
                                     {tokensByCategory.length} {tokensByCategory.length === 1 ? 'color' : 'colores'}
                                 </span>
                             </div>
@@ -416,7 +416,7 @@ export const BrandingColorsPage = () => {
                                     <div key={token} className="group p-4 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-2xl hover:border-[var(--border-strong)] transition-all">
                                         <div className="flex justify-between items-start gap-3 mb-2">
                                             <div className="min-w-0">
-                                                <h4 className={`${T.cardTitle} text-sm font-black`}>{meta?.name || token}</h4>
+                                                <h4 className={`${T.cardTitle} text-sm font-bold`}>{meta?.name || token}</h4>
                                                 <code className="text-[10px] text-[var(--brand-primary)]/70 block mt-1 font-mono">{`var(--${token})`}</code>
                                             </div>
                                             <div
@@ -464,7 +464,7 @@ export const BrandingColorsPage = () => {
                 {/* Preview (Lado Derecho) */}
                 <div className="sticky top-10">
                     <div className="mb-4 flex items-center justify-between">
-                        <h3 className={`${T.sectionTitle} font-black text-xs uppercase tracking-[0.2em] flex items-center gap-2`}>
+                        <h3 className={`${T.sectionTitle} font-bold text-xs uppercase tracking-[0.2em] flex items-center gap-2`}>
                             <Layout size={14} className="text-[var(--brand-primary)]" /> Live Preview
                         </h3>
                         <div className="flex gap-2">
@@ -501,7 +501,7 @@ export const BrandingColorsPage = () => {
                         <button
                             onClick={handleSave}
                             disabled={saving}
-                            className={`bg-[var(--brand-primary)]  px-5 py-1.5 rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg disabled:opacity-60 ${T.buttonPrimaryText}`}
+                            className={`bg-[var(--brand-primary)]  px-5 py-1.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg disabled:opacity-60 ${T.buttonPrimaryText}`}
                         >
                             {saving ? 'Guardando...' : 'Aplicar'}
                         </button>

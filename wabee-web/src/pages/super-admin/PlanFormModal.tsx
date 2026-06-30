@@ -12,7 +12,21 @@ interface PlanFormModalProps {
 const CURRENCIES = ['mxn', 'usd', 'eur', 'cop', 'ars'];
 const INTERVALS = [{ value: 'month', label: 'Mensual' }, { value: 'year', label: 'Anual' }];
 
-const DEFAULT_LIMITS = { channels: 1, contacts: 500, aiTokensPerMonth: 10000, aiAgents: 1, storageMb: 50, campaignsPerMonth: 1, users: 5 };
+// Orden = orden en que se renderizan los campos en el formulario.
+const DEFAULT_LIMITS = {
+    channels: 1,
+    contacts: 500,
+    users: 3,
+    aiProfiles: 1,
+    aiMessagesPerMonth: 1000,
+    aiTrainingSources: 1,
+    automations: 1,
+    campaignsPerMonth: 1,
+    templatesIncludedPerMonth: 100,
+    templateOveragePriceMxn: 0.95,
+    webWidgets: 1,
+    storageMb: 256,
+};
 const DEFAULT_MODULES = { 
     team: true, audit: true, dashboard: true, inbox: true, 
     contacts: true, segments: true, groups: true, channels: true,
@@ -22,15 +36,39 @@ const DEFAULT_MODULES = {
 
 const VERSION_TRIGGER_FIELDS = ['monthlyPrice', 'annualPrice', 'currency', 'limitsJson', 'modulesJson'];
 
-const LIMIT_LABELS: Record<string, string> = {
-    aiAgents: 'Agentes de IA',
-    aiTokensPerMonth: 'Tokens IA / Mes',
-    campaignsPerMonth: 'Campañas / Mes',
-    storageMb: 'Almacenamiento (MB)',
-    channels: 'Canales',
+const MODULE_LABELS: Record<string, string> = {
+    dashboard: 'Panel principal',
+    inbox: 'Bandeja de entrada',
     contacts: 'Contactos',
-    users: 'Usuarios/Agentes'
+    segments: 'Segmentos',
+    groups: 'Grupos',
+    templatesHub: 'Plantillas',
+    aiProfiles: 'Agentes de IA',
+    campaigns: 'Campañas',
+    webWidgets: 'Widgets web',
+    integrationsTools: 'Integraciones y herramientas',
+    channels: 'Canales',
+    audit: 'Auditoría',
+    team: 'Equipo',
 };
+
+const LIMIT_LABELS: Record<string, string> = {
+    channels: 'Canales WhatsApp',
+    contacts: 'Contactos',
+    users: 'Miembros del equipo',
+    aiProfiles: 'Agentes de IA (perfiles)',
+    aiMessagesPerMonth: 'Mensajes de IA / mes',
+    aiTrainingSources: 'Fuentes de entrenamiento IA',
+    automations: 'Automatizaciones (flujos)',
+    campaignsPerMonth: 'Campañas / mes',
+    templatesIncludedPerMonth: 'Plantillas incluidas / mes',
+    templateOveragePriceMxn: 'Excedente por plantilla (MXN)',
+    webWidgets: 'Widgets web',
+    storageMb: 'Almacenamiento (MB)',
+};
+
+// Claves cuyo valor es un precio con decimales (no un contador entero).
+const DECIMAL_LIMITS = new Set(['templateOveragePriceMxn']);
 
 export const PlanFormModal: React.FC<PlanFormModalProps> = ({ plan, onClose, onSaved }) => {
     const isEdit = !!plan;
@@ -48,25 +86,18 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({ plan, onClose, onS
 
     // Campos de la versión (materiales)
     const [monthlyPrice, setMonthlyPrice] = useState(cv?.monthlyPrice?.toString() || '0');
-    const [annualPrice, setAnnualPrice] = useState(cv?.annualPrice?.toString() || '0');
     const [currency, setCurrency] = useState(cv?.currency || 'mxn');
     
     // Estados de Sync (sólo lectura de la versión actual si existe)
     const stripeSyncStatus = cv?.stripeSyncStatus || 'PENDING';
     const stripeSyncError = cv?.stripeSyncError || '';
 
-    // Límites (Omitimos 'automations' si viene de versiones antiguas)
-    const [limits, setLimits] = useState(() => {
-        const base = { ...DEFAULT_LIMITS, ...(cv?.limitsJson || {}) };
-        const { automations, ...rest } = base as any;
-        return rest;
-    });
+    // Límites: parte de las claves canónicas y sobreescribe con lo que traiga la versión actual.
+    const [limits, setLimits] = useState<Record<string, number>>(() => ({ ...DEFAULT_LIMITS, ...(cv?.limitsJson || {}) }));
     // Modules
     const [modules, setModules] = useState<Record<string, boolean>>({ ...DEFAULT_MODULES, ...(cv?.modulesJson || {}) });
 
-    const isPriceFree = Number(monthlyPrice) === 0 && Number(annualPrice) === 0;
-    const hasMonthly = Number(monthlyPrice) > 0;
-    const hasAnnual = Number(annualPrice) > 0;
+    const isPriceFree = Number(monthlyPrice) === 0;
 
     const checkWillVersion = (field: string, value: any) => {
         if (!isEdit) return;
@@ -83,8 +114,9 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({ plan, onClose, onS
         if (key === 'aiProfiles' && !checked) {
             updatedModules.webWidgets = false;
             updatedModules.integrationsTools = false;
-            updatedLimits.aiTokensPerMonth = 0; 
-            updatedLimits.aiAgents = 0;
+            updatedLimits.aiMessagesPerMonth = 0;
+            updatedLimits.aiProfiles = 0;
+            updatedLimits.aiTrainingSources = 0;
         }
         if (key === 'campaigns' || key === 'templatesHub') {
             updatedModules.campaigns = checked;
@@ -109,9 +141,10 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({ plan, onClose, onS
 
         // Si se activa, restaurar límites mínimos o dejar que el admin los edite
         if (checked) {
-            if (key === 'aiProfiles' && (updatedLimits.aiTokensPerMonth === 0 || updatedLimits.aiTokensPerMonth === null)) {
-                updatedLimits.aiTokensPerMonth = 10000;
-                updatedLimits.aiAgents = 1;
+            if (key === 'aiProfiles' && (updatedLimits.aiMessagesPerMonth === 0 || updatedLimits.aiMessagesPerMonth === null)) {
+                updatedLimits.aiMessagesPerMonth = 1000;
+                updatedLimits.aiProfiles = 1;
+                updatedLimits.aiTrainingSources = 1;
             }
             if (key === 'campaigns' && (updatedLimits.campaignsPerMonth === 0 || updatedLimits.campaignsPerMonth === null)) updatedLimits.campaignsPerMonth = 1;
             if (key === 'contacts' && (updatedLimits.contacts === 0 || updatedLimits.contacts === null)) updatedLimits.contacts = 500;
@@ -133,7 +166,7 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({ plan, onClose, onS
         setSaving(true);
         try {
             const mPrice = Number(monthlyPrice) || 0;
-            const aPrice = Number(annualPrice) || 0;
+            const aPrice = 0; // Sin anualidad: el precio anual siempre es 0.
 
             // Limpieza de límites: Si el módulo está apagado, forzar null/0
             // El backend tratará los 0/null como 'no disponible'
@@ -142,8 +175,9 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({ plan, onClose, onS
             if (!modules.contacts) processedLimits.contacts = null as any;
             if (!modules.campaigns) processedLimits.campaignsPerMonth = null as any;
             if (!modules.aiProfiles) {
-                processedLimits.aiTokensPerMonth = null as any;
-                processedLimits.aiAgents = null as any;
+                processedLimits.aiMessagesPerMonth = null as any;
+                processedLimits.aiProfiles = null as any;
+                processedLimits.aiTrainingSources = null as any;
             }
             if (!modules.team) processedLimits.users = null as any;
 
@@ -174,7 +208,11 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({ plan, onClose, onS
             }
             onSaved();
         } catch (e: any) {
-            setError(e.response?.data?.error?.message || 'Error al guardar el plan.');
+            const err = e.response?.data?.error;
+            const detailMsg = Array.isArray(err?.details)
+                ? err.details.map((d: any) => `${(d.path || []).join('.')}: ${d.message}`).join(' · ')
+                : null;
+            setError(err?.message || detailMsg || err?.code || 'Error al guardar el plan.');
         } finally {
             setSaving(false);
         }
@@ -212,11 +250,11 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({ plan, onClose, onS
                     {/* Banner Informativo sobre Stripe */}
                     {!isPriceFree && (
                         <div className="p-4 rounded-xl bg-[var(--brand-primary)]/5 border border-[var(--brand-primary)]/20">
-                            <p className={`${T.helperText} ${S.body} font-black uppercase tracking-wider text-[var(--brand-primary)]`}>
+                            <p className={`${T.helperText} ${S.body} font-bold uppercase tracking-wider text-[var(--brand-primary)]`}>
                                 ✨ Sincronización Automática Activa
                             </p>
                             <p className={`${T.helperText} ${S.meta} text-[var(--text-muted)] mt-1`}>
-                                Al guardar, el sistema creará automáticamente los productos y precios en Stripe para {hasMonthly && 'Mensual'}{hasMonthly && hasAnnual && ' y '}{hasAnnual && 'Anual'}.
+                                Al guardar, el sistema creará automáticamente el producto y el precio mensual en Stripe.
                             </p>
                         </div>
                     )}
@@ -266,8 +304,8 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({ plan, onClose, onS
                         <h3 className={`${T.sectionTitle} ${S.meta} uppercase tracking-widest mb-1`}>Configuración Comercial</h3>
                         <p className={`${T.helperText} ${S.meta} mb-4 opacity-60`}>Define los precios. El sistema sincronizará con Stripe automáticamente.</p>
                         
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 xl:items-end">
-                            <div className="sm:col-span-1">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div>
                                 <label className={`${T.helperText} ${S.meta} block mb-2`}>Moneda</label>
                                 <div className="relative">
                                     <select value={currency} onChange={e => { setCurrency(e.target.value); checkWillVersion('currency', e.target.value); }} className={`w-full appearance-none bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl py-3 px-4 pr-10 ${T.inputText} ${S.body} focus:border-[var(--brand-primary)]/50 outline-none transition-all`}>
@@ -279,18 +317,6 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({ plan, onClose, onS
                             <div>
                                 <label className={`${T.helperText} ${S.meta} block mb-2`}>Precio Mensual</label>
                                 <input type="number" min={0} step={0.01} value={monthlyPrice} onChange={e => { setMonthlyPrice(e.target.value); checkWillVersion('monthlyPrice', e.target.value); }} className={`w-full bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl py-3 px-4 ${T.inputText} ${S.body} focus:border-[var(--brand-primary)]/50 outline-none transition-all`} />
-                            </div>
-                            <div>
-                                <label className={`${T.helperText} ${S.meta} block mb-2`}>Precio Anual</label>
-                                <input type="number" min={0} step={0.01} value={annualPrice} onChange={e => { setAnnualPrice(e.target.value); checkWillVersion('annualPrice', e.target.value); }} className={`w-full bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl py-3 px-4 ${T.inputText} ${S.body} focus:border-[var(--brand-primary)]/50 outline-none transition-all`} />
-                            </div>
-                            <div className="flex h-full flex-col justify-end">
-                                <label className={`${T.helperText} ${S.meta} text-[var(--text-muted)] mb-2`}>Periodicidad</label>
-                                <div className="p-3 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-xl text-center">
-                                    <span className={`${S.meta} font-bold opacity-60 text-[var(--text-muted)]`}>
-                                        {(Number(monthlyPrice) > 0 && Number(annualPrice) > 0) ? 'Ambas' : (Number(monthlyPrice) > 0 ? 'Sólo Mensual' : (Number(annualPrice) > 0 ? 'Sólo Anual' : 'Gratis'))}
-                                    </span>
-                                </div>
                             </div>
                         </div>
                     </section>
@@ -374,7 +400,7 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({ plan, onClose, onS
                                             className="accent-[var(--brand-primary)] w-4 h-4 rounded" 
                                         />
                                         <div className="flex flex-col">
-                                            <span className={`${T.helperText} ${S.body} capitalize leading-tight`}>{key.replace(/([A-Z])/g, ' $1').replace(/_/, ' ')}</span>
+                                            <span className={`${T.helperText} ${S.body} leading-tight`}>{MODULE_LABELS[key] || key.replace(/([A-Z])/g, ' $1').replace(/_/, ' ')}</span>
                                             {isDependent && <span className="text-[10px] text-[var(--state-danger)] opacity-80">Requiere módulo padre</span>}
                                         </div>
                                     </label>
@@ -386,14 +412,18 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({ plan, onClose, onS
                     {/* Límites */}
                     <section>
                         <h3 className={`${T.sectionTitle} ${S.meta} uppercase tracking-widest mb-1`}>Límites</h3>
-                        <p className={`${T.helperText} ${S.meta} mb-4 opacity-60`}>Cambios aquí crean una nueva versión</p>
+                        <p className={`${T.helperText} ${S.meta} mb-4 opacity-60`}>Cambios aquí crean una nueva versión. Usa <b>-1</b> para ilimitado y <b>0</b> para bloqueado. El excedente admite decimales (MXN por plantilla).</p>
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                            {Object.entries(limits).map(([key, val]) => (
-                                <div key={key}>
-                                    <label className={`${T.helperText} ${S.meta} block mb-2 capitalize`}>{LIMIT_LABELS[key] || key.replace(/([A-Z])/g, ' $1')}</label>
-                                    <input type="number" min={0} value={String(val)} onChange={e => { const updated = { ...limits, [key]: Number(e.target.value) }; setLimits(updated); checkWillVersion('limitsJson', updated); }} className={`w-full bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl py-3 px-4 ${T.inputText} ${S.body} focus:border-[var(--brand-primary)]/50 outline-none transition-all`} />
-                                </div>
-                            ))}
+                            {Object.entries(limits).map(([key, val]) => {
+                                const isDecimal = DECIMAL_LIMITS.has(key);
+                                return (
+                                    <div key={key}>
+                                        <label className={`${T.helperText} ${S.meta} block mb-2 capitalize`}>{LIMIT_LABELS[key] || key.replace(/([A-Z])/g, ' $1')}</label>
+                                        <input type="number" min={-1} step={isDecimal ? 0.01 : 1} value={String(val)} onChange={e => { const updated = { ...limits, [key]: Number(e.target.value) }; setLimits(updated); checkWillVersion('limitsJson', updated); }} className={`w-full bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl py-3 px-4 ${T.inputText} ${S.body} focus:border-[var(--brand-primary)]/50 outline-none transition-all`} />
+                                        {Number(val) === -1 && <p className={`${T.helperText} ${S.meta} mt-1 opacity-60`}>Ilimitado</p>}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </section>
 

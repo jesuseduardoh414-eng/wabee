@@ -150,7 +150,7 @@ export const DataDeletionPage: React.FC = () => {
                         <button 
                             type="submit"
                             disabled={loading}
-                            className="w-full md:w-auto px-12 py-3 bg-[var(--brand-primary)] text-[var(--brand-primary-foreground)] rounded-xl font-black uppercase tracking-widest transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            className="w-full md:w-auto px-12 py-3 bg-[var(--brand-primary)] text-[var(--brand-primary-foreground)] rounded-xl font-bold uppercase tracking-widest transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                             {loading ? (
                                 <>

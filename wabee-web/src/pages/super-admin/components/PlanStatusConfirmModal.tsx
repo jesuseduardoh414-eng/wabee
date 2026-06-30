@@ -80,7 +80,7 @@ export const PlanStatusConfirmModal: React.FC<PlanStatusConfirmModalProps> = ({
                     </div>
                 </div>
 
-                <h2 className={`${T.cardTitle} ${S.displaySm} text-center mb-4 font-black tracking-tight`}>{getTitle()}</h2>
+                <h2 className={`${T.cardTitle} ${S.displaySm} text-center mb-4 font-bold tracking-tight`}>{getTitle()}</h2>
                 <div className={`${T.helperText} ${S.body} text-center text-[var(--text-muted)] mb-10 leading-relaxed`}>
                     {getMessage()}
                 </div>

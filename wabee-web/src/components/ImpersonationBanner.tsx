@@ -56,7 +56,7 @@ export const ImpersonationBanner: React.FC = () => {
                     </p>
                     <p className="text-xs text-amber-400/80 truncate">
                         Navegando como&nbsp;
-                        <span className="font-black text-amber-300">{displayName}</span>
+                        <span className="font-bold text-amber-300">{displayName}</span>
                         &nbsp;— Todas las acciones son auditadas con tu identidad real.
                     </p>
                 </div>

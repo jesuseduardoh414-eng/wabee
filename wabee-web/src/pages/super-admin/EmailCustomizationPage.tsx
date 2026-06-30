@@ -370,7 +370,7 @@ export const EmailCustomizationPage = () => {
                 className="group relative flex flex-col gap-0.5 px-3 py-2 bg-[var(--bg-input)] border border-[var(--border-default)] rounded-xl cursor-pointer hover:border-[var(--brand-primary)]/40 hover:bg-[var(--bg-card)] transition-all overflow-hidden"
             >
                 <div className="flex items-center gap-2">
-                    <code className="text-[12px] font-black tracking-tight" style={{ color: badgeColor }}>{v.key}</code>
+                    <code className="text-[12px] font-bold tracking-tight" style={{ color: badgeColor }}>{v.key}</code>
                     <div className="h-1.5 w-1.5 rounded-full opacity-30" style={{ backgroundColor: badgeColor }}></div>
                 </div>
                 <span className="text-[11px] text-[var(--text-body)] font-medium leading-tight opacity-85 group-hover:opacity-100 transition-opacity pr-2">
@@ -428,7 +428,7 @@ export const EmailCustomizationPage = () => {
                     <button 
                         onClick={activeTab === 'branding' ? handleSaveGlobal : handleSaveTemplates}
                         disabled={isSaving || !hasChanges}
-                    className={`flex w-full items-center justify-center gap-2 group px-6 py-2.5 rounded-2xl font-black text-sm tracking-[0.12em] uppercase transition-all duration-300 shadow-lg sm:w-auto ${
+                    className={`flex w-full items-center justify-center gap-2 group px-6 py-2.5 rounded-2xl font-bold text-sm tracking-[0.12em] uppercase transition-all duration-300 shadow-lg sm:w-auto ${
                             !hasChanges 
                                 ? 'bg-[var(--bg-input)] text-[var(--text-muted)] border border-[var(--border-default)] cursor-not-allowed' 
                                 : 'bg-[var(--brand-primary)] text-[var(--brand-primary-foreground)] hover:scale-[1.02] active:scale-95 shadow-[var(--brand-primary)]/20'
@@ -445,13 +445,13 @@ export const EmailCustomizationPage = () => {
                 <div className="flex bg-[var(--bg-input)] p-1 rounded-xl w-full max-w-4xl mx-auto mb-8 border border-[var(--border-default)]">
                     <button 
                         onClick={() => { setActiveTab('branding'); setSelectedTemplate(null); }}
-                        className={`flex-1 py-2 rounded-lg text-base font-black transition-all ${activeTab === 'branding' ? 'bg-[var(--bg-card)] text-[var(--brand-primary)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-body)]'}`}
+                        className={`flex-1 py-2 rounded-lg text-base font-bold transition-all ${activeTab === 'branding' ? 'bg-[var(--bg-card)] text-[var(--brand-primary)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-body)]'}`}
                     >
                         Global
                     </button>
                     <button 
                         onClick={() => { setActiveTab('templates'); setSelectedTemplate(null); }}
-                        className={`flex-1 py-2 rounded-lg text-base font-black transition-all ${activeTab === 'templates' ? 'bg-[var(--bg-card)] text-[var(--brand-primary)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-body)]'}`}
+                        className={`flex-1 py-2 rounded-lg text-base font-bold transition-all ${activeTab === 'templates' ? 'bg-[var(--bg-card)] text-[var(--brand-primary)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-body)]'}`}
                     >
                         Plantillas
                     </button>
@@ -481,7 +481,7 @@ export const EmailCustomizationPage = () => {
                                 <div className="grid gap-6 md:grid-cols-2">
                                     <div className="space-y-6">
                                         <div>
-                                            <label className={`${T.labelText} ${S.ui} font-black mb-1.5 block`}>Logo de la empresa</label>
+                                            <label className={`${T.labelText} ${S.ui} font-bold mb-1.5 block`}>Logo de la empresa</label>
                                             <div 
                                                 className="group relative h-32 border-2 border-dashed border-[var(--border-default)] rounded-2xl flex flex-col items-center justify-center gap-2 bg-[var(--bg-card)] hover:border-[var(--brand-primary)]/50 transition-all cursor-pointer overflow-hidden"
                                                 onClick={() => document.getElementById('logo-upload')?.click()}
@@ -541,7 +541,7 @@ export const EmailCustomizationPage = () => {
                                         </div>
                                     </div>
                                     <div>
-                                            <label className={`${T.labelText} ${S.ui} font-black mb-1.5 block`}>Nombre de marca</label>
+                                            <label className={`${T.labelText} ${S.ui} font-bold mb-1.5 block`}>Nombre de marca</label>
                                             <input 
                                                 type="text" 
                                                 value={globalConfig.identidad.brandName}
@@ -553,7 +553,7 @@ export const EmailCustomizationPage = () => {
                                     </div>
                                     <div className="space-y-6">
                                         <div>
-                                            <label className={`${T.labelText} ${S.ui} font-black mb-1.5 block`}>Nombre del remitente</label>
+                                            <label className={`${T.labelText} ${S.ui} font-bold mb-1.5 block`}>Nombre del remitente</label>
                                             <input 
                                                 type="text" 
                                                 value={globalConfig.identidad.senderName}
@@ -563,7 +563,7 @@ export const EmailCustomizationPage = () => {
                                             />
                                         </div>
                                         <div>
-                                            <label className={`${T.labelText} ${S.ui} font-black mb-1.5 block`}>Email de soporte</label>
+                                            <label className={`${T.labelText} ${S.ui} font-bold mb-1.5 block`}>Email de soporte</label>
                                             <input 
                                                 type="email" 
                                                 value={globalConfig.identidad.supportEmail}
@@ -573,7 +573,7 @@ export const EmailCustomizationPage = () => {
                                             />
                                         </div>
                                         <div>
-                                            <label className={`${T.labelText} ${S.ui} font-black mb-1.5 block`}>Footer global</label>
+                                            <label className={`${T.labelText} ${S.ui} font-bold mb-1.5 block`}>Footer global</label>
                                             <textarea 
                                                 rows={2}
                                                 value={globalConfig.identidad.globalFooter}
@@ -619,10 +619,10 @@ export const EmailCustomizationPage = () => {
                                 <table className="w-full text-left">
                                     <thead>
                                         <tr className="border-b border-[var(--border-default)]">
-                                            <th className={`${T.labelText} ${S.ui} py-4 px-2 font-black uppercase tracking-widest`}>Tipo</th>
-                                            <th className={`${T.labelText} ${S.ui} py-4 px-2 font-black uppercase tracking-widest`}>Color</th>
-                                            <th className={`${T.labelText} ${S.ui} py-4 px-2 font-black uppercase tracking-widest`}>Fuente</th>
-                                            <th className={`${T.labelText} ${S.ui} py-4 px-2 font-black uppercase tracking-widest`}>Preview</th>
+                                            <th className={`${T.labelText} ${S.ui} py-4 px-2 font-bold uppercase tracking-widest`}>Tipo</th>
+                                            <th className={`${T.labelText} ${S.ui} py-4 px-2 font-bold uppercase tracking-widest`}>Color</th>
+                                            <th className={`${T.labelText} ${S.ui} py-4 px-2 font-bold uppercase tracking-widest`}>Fuente</th>
+                                            <th className={`${T.labelText} ${S.ui} py-4 px-2 font-bold uppercase tracking-widest`}>Preview</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-[var(--border-default)]/50">
@@ -913,7 +913,7 @@ export const EmailCustomizationPage = () => {
                                 <div className="p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-default)] shadow-sm">
                                     <div className="flex items-center gap-2 mb-6">
                                         <div className="w-1.5 h-4 bg-[var(--brand-primary)] rounded-full"></div>
-                                        <span className="text-[11px] font-black uppercase tracking-widest text-[var(--text-body)]">Guía de Variables Dinámicas</span>
+                                        <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--text-body)]">Guía de Variables Dinámicas</span>
                                     </div>
                                     
                                     <div className="space-y-6">
@@ -943,7 +943,7 @@ export const EmailCustomizationPage = () => {
 
                                 <div className="grid gap-6">
                                     <div>
-                                        <label className={`${T.labelText} ${S.ui} font-black block mb-1.5`}>Asunto del correo</label>
+                                        <label className={`${T.labelText} ${S.ui} font-bold block mb-1.5`}>Asunto del correo</label>
                                         <input 
                                             type="text" 
                                             value={selectedTemplate.subject}
@@ -952,7 +952,7 @@ export const EmailCustomizationPage = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className={`${T.labelText} ${S.ui} font-black block mb-1.5`}>Título principal</label>
+                                        <label className={`${T.labelText} ${S.ui} font-bold block mb-1.5`}>Título principal</label>
                                         <input 
                                             type="text" 
                                             value={selectedTemplate.title}
@@ -961,7 +961,7 @@ export const EmailCustomizationPage = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className={`${T.labelText} ${S.ui} font-black block mb-1.5`}>Mensaje principal</label>
+                                        <label className={`${T.labelText} ${S.ui} font-bold block mb-1.5`}>Mensaje principal</label>
                                         <textarea 
                                             rows={5}
                                             value={selectedTemplate.body}
@@ -971,7 +971,7 @@ export const EmailCustomizationPage = () => {
                                     </div>
                                     <div className="grid gap-6 md:grid-cols-2">
                                         <div>
-                                            <label className={`${T.labelText} ${S.ui} font-black block mb-1.5`}>Texto del botón</label>
+                                            <label className={`${T.labelText} ${S.ui} font-bold block mb-1.5`}>Texto del botón</label>
                                             <input 
                                                 type="text" 
                                                 value={selectedTemplate.cta}
@@ -980,7 +980,7 @@ export const EmailCustomizationPage = () => {
                                             />
                                         </div>
                                         <div>
-                                            <label className={`${T.labelText} ${S.ui} font-black block mb-1.5`}>Texto auxiliar / footer específico</label>
+                                            <label className={`${T.labelText} ${S.ui} font-bold block mb-1.5`}>Texto auxiliar / footer específico</label>
                                             <input 
                                                 type="text" 
                                                 value={selectedTemplate.footer}
@@ -1047,11 +1047,11 @@ export const EmailCustomizationPage = () => {
                                             {/* Subject & Sender Info */}
                                             <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
                                                 <div className="space-y-1">
-                                                    <div className="flex items-center gap-2 text-[10px] uppercase font-black tracking-[0.2em] text-[var(--brand-primary)]">
+                                                    <div className="flex items-center gap-2 text-[10px] uppercase font-bold tracking-[0.2em] text-[var(--brand-primary)]">
                                                         <Mail size={10} />
                                                         <span>Bandeja de Entrada</span>
                                                     </div>
-                                                    <h3 className="text-xl font-black text-[var(--tx-inputText-color)] tracking-tight">
+                                                    <h3 className="text-xl font-bold text-[var(--tx-inputText-color)] tracking-tight">
                                                         {selectedTemplate.subject.replace('{{org_name}}', globalConfig.identidad.brandName).replace('{{release_title}}', 'WABEE V7.0')}
                                                     </h3>
                                                     <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
@@ -1060,7 +1060,7 @@ export const EmailCustomizationPage = () => {
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-2">
-                                                    <span className="px-3 py-1.5 rounded-full bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] text-[9px] font-black uppercase tracking-widest border border-[var(--brand-primary)]/20">
+                                                    <span className="px-3 py-1.5 rounded-full bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] text-[9px] font-bold uppercase tracking-widest border border-[var(--brand-primary)]/20">
                                                         {selectedTemplate.category}
                                                     </span>
                                                 </div>
@@ -1085,7 +1085,7 @@ export const EmailCustomizationPage = () => {
                                                     />
                                                 ) : (
                                                     <div 
-                                                        className="w-16 h-16 rounded-3xl flex items-center justify-center text-white font-black text-2xl shadow-xl mb-6 rotate-3"
+                                                        className="w-16 h-16 rounded-3xl flex items-center justify-center text-white font-bold text-2xl shadow-xl mb-6 rotate-3"
                                                         style={{ backgroundColor: globalConfig.layout.buttonBg }}
                                                     >{globalConfig.identidad.brandName.charAt(0)}</div>
                                                 )}
@@ -1095,7 +1095,7 @@ export const EmailCustomizationPage = () => {
                                             {/* Structured Content Area */}
                                             <div className="space-y-4 text-center md:text-left">
                                                 <h2 
-                                                    className="text-lg md:text-2xl font-black leading-[1.1] tracking-[-0.03em]"
+                                                    className="text-lg md:text-2xl font-bold leading-[1.1] tracking-[-0.03em]"
                                                     style={{ color: globalConfig.texts.title.color, fontFamily: globalConfig.texts.title.font }}
                                                 >
                                                     {selectedTemplate.title
@@ -1122,7 +1122,7 @@ export const EmailCustomizationPage = () => {
                                                 
                                                 <div className="pt-4 pb-2 flex justify-center md:justify-start">
                                                     <button 
-                                                        className="group relative px-6 py-3 font-black text-xs md:text-sm rounded-xl shadow-xl transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]"
+                                                        className="group relative px-6 py-3 font-bold text-xs md:text-sm rounded-xl shadow-xl transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]"
                                                         style={{ 
                                                             backgroundColor: globalConfig.layout.buttonBg,
                                                             color: globalConfig.texts.button.color,
@@ -1150,10 +1150,10 @@ export const EmailCustomizationPage = () => {
                                                         <div className="pt-10 flex flex-col items-center justify-center gap-8">
                                                             <div className="space-y-3 text-center">
                                                                 <div 
-                                                                    className="font-black text-2xl tracking-tighter"
+                                                                    className="font-bold text-2xl tracking-tighter"
                                                                     style={{ color: globalConfig.texts.title.color }}
                                                                 >{globalConfig.identidad.brandName}</div>
-                                                                <p className="text-[10px] opacity-40 uppercase font-black tracking-widest leading-loose">
+                                                                <p className="text-[10px] opacity-40 uppercase font-bold tracking-widest leading-loose">
                                                                     {globalConfig.identidad.globalFooter.replace('{{current_year}}', '2026')}
                                                                 </p>
                                                             </div>

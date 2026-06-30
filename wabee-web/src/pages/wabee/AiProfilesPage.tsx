@@ -1420,7 +1420,7 @@ const AiProfilesPage: React.FC = () => {
                         <div key={profile.id} className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-default)] shadow-lg hover:shadow-[var(--brand-primary)]/5 hover:border-[var(--brand-primary)]/30 transition-all group border-b-4 border-b-[var(--border-default)] active:translate-y-1">
                             <div className="p-6">
                                 <div className="flex justify-between items-center mb-3">
-                                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter ${profile.channelType === 'WHATSAPP' ? 'bg-green-500/10 text-green-600' : 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)]'}`}>
+                                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter ${profile.channelType === 'WHATSAPP' ? 'bg-green-500/10 text-green-600' : 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)]'}`}>
                                         {profile.channelType || 'WIDGET'}
                                     </span>
                                     <div className="flex gap-1">

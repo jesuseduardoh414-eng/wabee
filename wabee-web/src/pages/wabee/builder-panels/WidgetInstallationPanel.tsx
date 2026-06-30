@@ -81,7 +81,7 @@ const WidgetInstallationPanel: React.FC<WidgetInstallationPanelProps> = ({
                     style={{ minHeight: '220px' }}
                 >
                     {/* Indicador de posición */}
-                    <div className={`absolute top-2 text-[8px] font-black uppercase tracking-widest opacity-40 ${T.helperText} ${position === 'bottom-left' ? 'left-3' : 'right-3'}`}>
+                    <div className={`absolute top-2 text-[8px] font-bold uppercase tracking-widest opacity-40 ${T.helperText} ${position === 'bottom-left' ? 'left-3' : 'right-3'}`}>
                         {position === 'bottom-left' ? '← Izquierda' : 'Derecha →'}
                     </div>
 
@@ -104,7 +104,7 @@ const WidgetInstallationPanel: React.FC<WidgetInstallationPanelProps> = ({
                             }}
                         >
                             <div className="flex flex-col">
-                                <span className="text-white font-black text-[10px] leading-tight truncate">{title}</span>
+                                <span className="text-white font-bold text-[10px] leading-tight truncate">{title}</span>
                                 {subtitle && <span className="text-white/80 text-[8px] leading-tight truncate">{subtitle}</span>}
                             </div>
                             <span className="text-white/70 text-[10px] cursor-pointer shrink-0">✕</span>
@@ -136,7 +136,7 @@ const WidgetInstallationPanel: React.FC<WidgetInstallationPanelProps> = ({
                                 Escribe un mensaje...
                             </div>
                             <button
-                                className="text-[8px] text-white font-black px-2 py-1 shrink-0"
+                                className="text-[8px] text-white font-bold px-2 py-1 shrink-0"
                                 style={{ backgroundColor: primaryColor, borderRadius: `${radius}px` }}
                             >
                                 Send
@@ -172,11 +172,11 @@ const WidgetInstallationPanel: React.FC<WidgetInstallationPanelProps> = ({
                         <div className="w-2.5 h-2.5 rounded-full bg-red-500/30"></div>
                         <div className="w-2.5 h-2.5 rounded-full bg-amber-500/30"></div>
                         <div className="w-2.5 h-2.5 rounded-full bg-green-500/30"></div>
-                        <span className={`ml-2 text-[10px] font-black uppercase tracking-widest opacity-80 ${T.helperText}`}>Wabee Snippet .html</span>
+                        <span className={`ml-2 text-[10px] font-bold uppercase tracking-widest opacity-80 ${T.helperText}`}>Wabee Snippet .html</span>
                     </div>
                     <button
                         onClick={handleCopy}
-                        className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-xl transition-all active:scale-95 ${copied ? 'bg-green-500/10 text-green-500' : 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] border border-[var(--brand-primary)]/20 hover:bg-[var(--brand-primary)] hover:text-white'}`}
+                        className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-xl transition-all active:scale-95 ${copied ? 'bg-green-500/10 text-green-500' : 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] border border-[var(--brand-primary)]/20 hover:bg-[var(--brand-primary)] hover:text-white'}`}
                     >
                         {copied ? <CheckIcon className="h-4 w-4 stroke-[3px]" /> : <ClipboardIcon className="h-4 w-4 stroke-[3px]" />}
                         {copied ? 'Sistema Copiado' : 'Copiar Fragmento'}
@@ -196,7 +196,7 @@ const WidgetInstallationPanel: React.FC<WidgetInstallationPanelProps> = ({
                         <path fillRule="evenodd" d="M9.401 3.003c.115-.224.347-.348.599-.348s.484.124.599.348l7.023 13.664a.675.675 0 0 1-.599.985H2.977a.675.675 0 0 1-.599-.985l7.023-13.664Zm.599 10.622a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0-7.125a.75.75 0 0 0-.75.75v3.375a.75.75 0 0 0 1.5 0V7.25a.75.75 0 0 0-.75-.75Z" clipRule="evenodd" />
                     </svg>
                     <div className="space-y-1">
-                        <p className="font-black uppercase tracking-widest text-red-500 text-[10px]">Protocolo de Inseguridad detectado</p>
+                        <p className="font-bold uppercase tracking-widest text-red-500 text-[10px]">Protocolo de Inseguridad detectado</p>
                         <p className="text-[#a0a080] font-medium leading-relaxed italic opacity-80">
                             Estás utilizando una URL no cifrada (HTTP). El widget requiere un entorno <strong>HTTPS</strong> certificado para operar en dominios externos de producción.
                         </p>

@@ -635,10 +635,10 @@ export default function AiIntegrationsPage() {
                                                         </td>
                                                         <td className="px-8 py-6">
                                                             <div className="flex items-center gap-3">
-                                                                <span className={`${S.meta} rounded-lg border border-[var(--brand-primary)]/20 bg-[var(--brand-primary)]/10 px-2 py-0.5 text-[9px] font-black text-[var(--brand-primary)]`}>
+                                                                <span className={`${S.meta} rounded-lg border border-[var(--brand-primary)]/20 bg-[var(--brand-primary)]/10 px-2 py-0.5 text-[9px] font-bold text-[var(--brand-primary)]`}>
                                                                     {tool.method}
                                                                 </span>
-                                                                <span className={`${S.meta} max-w-[220px] truncate text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]`}>
+                                                                <span className={`${S.meta} max-w-[220px] truncate text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]`}>
                                                                     {tool.endpointUrl}
                                                                 </span>
                                                             </div>
@@ -711,7 +711,7 @@ export default function AiIntegrationsPage() {
                                                         ID: {tool.name}
                                                     </p>
                                                     <div className="mt-3 flex flex-wrap items-center gap-2">
-                                                        <span className={`${S.meta} rounded-lg border border-[var(--brand-primary)]/20 bg-[var(--brand-primary)]/10 px-2 py-0.5 text-[9px] font-black text-[var(--brand-primary)]`}>
+                                                        <span className={`${S.meta} rounded-lg border border-[var(--brand-primary)]/20 bg-[var(--brand-primary)]/10 px-2 py-0.5 text-[9px] font-bold text-[var(--brand-primary)]`}>
                                                             {tool.method}
                                                         </span>
                                                         <span className={`${T.helperText} ${S.meta} rounded bg-[var(--bg-input)] px-2 py-0.5`}>
@@ -1024,7 +1024,7 @@ export default function AiIntegrationsPage() {
                                         <div className="space-y-2">
                                             <div className="flex items-center justify-between px-2">
                                                 <label className={`${T.labelText} ${S.meta} uppercase tracking-[4px] text-[color:var(--brand-primary)]`}>Input Schema</label>
-                                                {toolJsonErrorSchema && <span className="text-[10px] font-black text-[color:var(--state-danger)]">{toolJsonErrorSchema}</span>}
+                                                {toolJsonErrorSchema && <span className="text-[10px] font-bold text-[color:var(--state-danger)]">{toolJsonErrorSchema}</span>}
                                             </div>
                                             <textarea
                                                 className={`${T.inputText} h-48 w-full rounded-[1.5rem] border-2 bg-[var(--bg-page)] p-5 font-mono text-[10px] outline-none ${toolJsonErrorSchema ? 'border-[var(--state-danger)]/50' : 'border-[var(--border-default)]'}`}
@@ -1038,7 +1038,7 @@ export default function AiIntegrationsPage() {
                                         <div className="space-y-2">
                                             <div className="flex items-center justify-between px-2">
                                                 <label className={`${T.labelText} ${S.meta} uppercase tracking-[4px] text-[color:var(--brand-primary)]`}>Output Schema</label>
-                                                {toolJsonErrorOutput && <span className="text-[10px] font-black text-[color:var(--state-danger)]">{toolJsonErrorOutput}</span>}
+                                                {toolJsonErrorOutput && <span className="text-[10px] font-bold text-[color:var(--state-danger)]">{toolJsonErrorOutput}</span>}
                                             </div>
                                             <textarea
                                                 className={`${T.inputText} h-48 w-full rounded-[1.5rem] border-2 bg-[var(--bg-page)] p-5 font-mono text-[10px] outline-none ${toolJsonErrorOutput ? 'border-[var(--state-danger)]/50' : 'border-[var(--border-default)]'}`}
@@ -1052,7 +1052,7 @@ export default function AiIntegrationsPage() {
                                         <div className="space-y-2">
                                             <div className="flex items-center justify-between px-2">
                                                 <label className={`${T.labelText} ${S.meta} uppercase tracking-[4px] text-[color:var(--brand-primary)]`}>Response Mapping</label>
-                                                {toolJsonErrorMapping && <span className="text-[10px] font-black text-[color:var(--state-danger)]">{toolJsonErrorMapping}</span>}
+                                                {toolJsonErrorMapping && <span className="text-[10px] font-bold text-[color:var(--state-danger)]">{toolJsonErrorMapping}</span>}
                                             </div>
                                             <textarea
                                                 className={`${T.inputText} h-48 w-full rounded-[1.5rem] border-2 bg-[var(--bg-page)] p-5 font-mono text-[10px] outline-none ${toolJsonErrorMapping ? 'border-[var(--state-danger)]/50' : 'border-[var(--border-default)]'}`}
@@ -1109,7 +1109,7 @@ export default function AiIntegrationsPage() {
                                             <div className="min-h-[160px] rounded-[1.5rem] border border-[var(--border-default)] bg-[var(--bg-page)] p-5 shadow-inner">
                                                 <div className="flex flex-wrap gap-2">
                                                     {(Array.isArray(toolFormData.exampleUtterances) ? toolFormData.exampleUtterances : []).map((tag, index) => (
-                                                        <span key={index} className="flex items-center gap-2 rounded-lg border border-[var(--brand-primary)]/20 bg-[var(--brand-primary)]/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[color:var(--brand-primary)]">
+                                                        <span key={index} className="flex items-center gap-2 rounded-lg border border-[var(--brand-primary)]/20 bg-[var(--brand-primary)]/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[color:var(--brand-primary)]">
                                                             {tag}
                                                             <button type="button" onClick={() => handleRemoveTag(index)} className="text-[color:var(--brand-primary)]/40 hover:text-[color:var(--text-strong)]">
                                                                 <X size={12} />
@@ -1118,7 +1118,7 @@ export default function AiIntegrationsPage() {
                                                     ))}
                                                     <input
                                                         placeholder="Escribe una frase y pulsa Enter..."
-                                                        className={`${S.meta} min-w-[200px] flex-1 bg-transparent text-[10px] font-black uppercase tracking-widest text-[color:var(--brand-primary)] outline-none placeholder:text-[color:var(--text-muted)]`}
+                                                        className={`${S.meta} min-w-[200px] flex-1 bg-transparent text-[10px] font-bold uppercase tracking-widest text-[color:var(--brand-primary)] outline-none placeholder:text-[color:var(--text-muted)]`}
                                                         value={toolTagInput}
                                                         onChange={(e) => setToolTagInput(e.target.value)}
                                                         onKeyDown={handleTagKeyDown}
@@ -1192,7 +1192,7 @@ export default function AiIntegrationsPage() {
 
                             <div className="flex-1 space-y-8 overflow-y-auto px-6 py-6 sm:px-8">
                                 <div className="flex flex-wrap items-center gap-3 rounded-[1.25rem] border border-[var(--border-default)] bg-[var(--bg-page)] p-4 font-mono text-xs shadow-inner">
-                                    <span className="rounded bg-[var(--brand-primary)] px-3 py-1 text-[10px] font-black uppercase">{testTool?.method}</span>
+                                    <span className="rounded bg-[var(--brand-primary)] px-3 py-1 text-[10px] font-bold uppercase">{testTool?.method}</span>
                                     <span className={`${T.helperText} ${S.meta} truncate text-[color:var(--text-muted)]`}>{testTool?.endpointUrl}</span>
                                 </div>
 

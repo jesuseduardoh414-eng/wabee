@@ -45,7 +45,7 @@ const StatusDot: React.FC<{ status: Member['status'] }> = ({ status }) => {
     const normalizedStatus = (status || '').toUpperCase() as keyof typeof map;
     const conf = map[normalizedStatus] || map.ACTIVE;
     return (
-        <span className={`flex items-center gap-2 ${S.meta} font-black uppercase tracking-[2px] ${conf.text}`}>
+        <span className={`flex items-center gap-2 ${S.meta} font-bold uppercase tracking-[2px] ${conf.text}`}>
             <span className={`h-2 w-2 rounded-full ${conf.cls}`} />
             {conf.label}
         </span>
@@ -104,7 +104,7 @@ const RowActions: React.FC<RowActionsProps> = ({
                         {canSuspend && (
                             <button
                                 onClick={() => { setOpen(false); onSuspend(member); }}
-                                className={`w-full rounded-xl px-4 py-3 text-left ${S.meta} font-black uppercase tracking-widest text-red-500 transition-all hover:bg-red-500/10`}
+                                className={`w-full rounded-xl px-4 py-3 text-left ${S.meta} font-bold uppercase tracking-widest text-red-500 transition-all hover:bg-red-500/10`}
                             >
                                 <span className="flex items-center gap-3">
                                     <UserX size={16} />
@@ -116,7 +116,7 @@ const RowActions: React.FC<RowActionsProps> = ({
                         {canReactivate && (
                             <button
                                 onClick={() => { setOpen(false); onReactivate(member); }}
-                                className={`w-full rounded-xl px-4 py-3 text-left ${S.meta} font-black uppercase tracking-widest text-emerald-500 transition-all hover:bg-emerald-500/10`}
+                                className={`w-full rounded-xl px-4 py-3 text-left ${S.meta} font-bold uppercase tracking-widest text-emerald-500 transition-all hover:bg-emerald-500/10`}
                             >
                                 <span className="flex items-center gap-3">
                                     <UserCheck size={16} />
@@ -541,7 +541,7 @@ export const SettingsTeamPage = () => {
                     <h3 className={`${T.cardTitle} ${S.meta}`}>Colaboradores</h3>
                     <div className="flex items-center gap-3 self-start rounded-full border border-green-500 border-opacity-20 bg-green-500 bg-opacity-10 px-4 py-2 sm:self-auto">
                         <span className="h-2 w-2 animate-pulse rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
-                        <span className={`${S.meta} font-black uppercase tracking-widest text-green-500 opacity-80`}>Sincronizado</span>
+                        <span className={`${S.meta} font-bold uppercase tracking-widest text-green-500 opacity-80`}>Sincronizado</span>
                     </div>
                 </div>
 

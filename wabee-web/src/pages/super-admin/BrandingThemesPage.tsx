@@ -244,7 +244,7 @@ export const BrandingThemesPage = () => {
                         <button
                             type="submit"
                             disabled={creating}
-                            className={`flex items-center justify-center gap-2 rounded-xl bg-[var(--brand-primary)] px-6 py-3 font-black text-xs uppercase tracking-widest transition-all hover:scale-[1.02] disabled:opacity-50 ${T.buttonPrimaryText}`}
+                            className={`flex items-center justify-center gap-2 rounded-xl bg-[var(--brand-primary)] px-6 py-3 font-bold text-xs uppercase tracking-widest transition-all hover:scale-[1.02] disabled:opacity-50 ${T.buttonPrimaryText}`}
                         >
                             <Plus size={16} /> {creating ? 'Creando...' : 'Nuevo Tema'}
                         </button>
@@ -268,21 +268,21 @@ export const BrandingThemesPage = () => {
                             {theme.isActive ? (
                                 <div className="flex items-center gap-1.5 px-3 py-1 bg-yellow-500/15 text-yellow-500 border border-yellow-500/30 rounded-full shadow-[0_0_10px_rgba(234,208,24,0.1)]">
                                     <Star size={12} className="fill-current" />
-                                    <span className="text-[10px] font-black uppercase tracking-widest leading-none">Global Default</span>
+                                    <span className="text-[10px] font-bold uppercase tracking-widest leading-none">Global Default</span>
                                 </div>
                             ) : null}
 
                             {!theme.isActive && theme.isPublished ? (
                                 <div className="flex items-center gap-1.5 px-3 py-1 bg-[var(--state-success)]/15 text-[var(--state-success)] border border-[var(--state-success)]/30 rounded-full">
                                     <Globe size={10} />
-                                    <span className="text-[10px] font-black uppercase tracking-widest leading-none">Publicado (Alternativo)</span>
+                                    <span className="text-[10px] font-bold uppercase tracking-widest leading-none">Publicado (Alternativo)</span>
                                 </div>
                             ) : null}
 
                             {!theme.isActive && !theme.isPublished ? (
                                 <div className="flex items-center gap-1.5 px-3 py-1 bg-[var(--bg-elevated)] text-[var(--text-muted)] border border-[var(--border-default)] rounded-full">
                                     <EyeOff size={10} />
-                                    <span className="text-[10px] font-black uppercase tracking-widest leading-none">Borrador</span>
+                                    <span className="text-[10px] font-bold uppercase tracking-widest leading-none">Borrador</span>
                                 </div>
                             ) : null}
                         </div>
@@ -299,11 +299,11 @@ export const BrandingThemesPage = () => {
                                         if (e.key === 'Escape') setEditingThemeId(null);
                                     }}
                                     onBlur={() => handleSaveName(theme.id)}
-                                    className="bg-[var(--bg-input)] border border-[var(--brand-primary)] rounded px-2 py-1 text-xl font-black text-[var(--text-strong)] outline-none w-full"
+                                    className="bg-[var(--bg-input)] border border-[var(--brand-primary)] rounded px-2 py-1 text-xl font-bold text-[var(--text-strong)] outline-none w-full"
                                 />
                             ) : (
                                 <h3 
-                                    className={`${T.cardTitle} text-xl font-black cursor-pointer hover:text-[var(--brand-primary)] transition-colors flex items-center gap-2 group/title`}
+                                    className={`${T.cardTitle} text-xl font-bold cursor-pointer hover:text-[var(--brand-primary)] transition-colors flex items-center gap-2 group/title`}
                                     onClick={() => {
                                         setEditingThemeId(theme.id);
                                         setThemeDraftName(theme.name);
@@ -345,13 +345,13 @@ export const BrandingThemesPage = () => {
                             <div className="flex flex-col gap-2 sm:flex-row">
                                 <button
                                     onClick={() => navigate(`/dashboard/super-admin/themes/${theme.id}/colors`)}
-                                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-default)] ${T.buttonText} hover:bg-[var(--bg-hover)] transition-all font-black text-[10px] uppercase tracking-widest`}
+                                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-default)] ${T.buttonText} hover:bg-[var(--bg-hover)] transition-all font-bold text-[10px] uppercase tracking-widest`}
                                 >
                                     <Layout size={14} /> Colores
                                 </button>
                                 <button
                                     onClick={() => navigate(`/dashboard/super-admin/themes/${theme.id}/typography`)}
-                                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-default)] ${T.buttonText} hover:bg-[var(--bg-hover)] transition-all font-black text-[10px] uppercase tracking-widest`}
+                                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-default)] ${T.buttonText} hover:bg-[var(--bg-hover)] transition-all font-bold text-[10px] uppercase tracking-widest`}
                                 >
                                     <Type size={14} /> Textos
                                 </button>
@@ -362,7 +362,7 @@ export const BrandingThemesPage = () => {
                                     onClick={() => handleSetDefault(theme)}
                                     disabled={theme.isActive}
                                     title={theme.isActive ? 'Este es el tema global por defecto' : 'Marcar como tema global por defecto'}
-                                    className={`flex items-center justify-center gap-2 px-4 py-3 rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest w-full disabled:cursor-not-allowed border ${
+                                    className={`flex items-center justify-center gap-2 px-4 py-3 rounded-2xl transition-all font-bold text-[10px] uppercase tracking-widest w-full disabled:cursor-not-allowed border ${
                                         theme.isActive
                                             ? 'bg-yellow-500/10 border-yellow-500/40 text-yellow-500'
                                             : 'bg-[var(--bg-card)] border-[var(--border-default)] text-[var(--text-muted)] hover:border-yellow-500/30 hover:text-yellow-500 hover:bg-yellow-500/5'

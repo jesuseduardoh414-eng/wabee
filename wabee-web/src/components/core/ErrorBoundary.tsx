@@ -32,7 +32,7 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="min-h-screen bg-[#121208] flex items-center justify-center p-10 text-center">
           <div className="space-y-6 max-w-md">
-            <h1 className="text-white text-3xl font-black italic uppercase tracking-tighter">
+            <h1 className="text-white text-3xl font-bold italic uppercase tracking-tighter">
               Ups, algo <span className="text-[#ead018]">salió mal</span>
             </h1>
             <p className="text-[#a0a080] text-sm">
@@ -44,7 +44,7 @@ export class ErrorBoundary extends Component<Props, State> {
             </div>
             <button 
               onClick={() => window.location.reload()}
-              className="px-8 py-3 bg-[#ead018] text-[#121208] rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all"
+              className="px-8 py-3 bg-[#ead018] text-[#121208] rounded-xl font-bold text-xs uppercase tracking-widest hover:scale-105 transition-all"
             >
               Recargar Versión
             </button>

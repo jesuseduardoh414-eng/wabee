@@ -184,7 +184,7 @@ export default function CampaignsPage() {
         switch (connectionState) {
             case 'live':
                 return (
-                    <span className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-green-400">
+                    <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-green-400">
                         <Wifi size={10} />
                         <span className="relative flex h-1.5 w-1.5">
                             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
@@ -195,14 +195,14 @@ export default function CampaignsPage() {
                 );
             case 'polling':
                 return (
-                    <span className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-[var(--brand-primary)]">
+                    <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-[var(--brand-primary)]">
                         <WifiOff size={10} />
                         Polling (5s)
                     </span>
                 );
             case 'connecting':
                 return (
-                    <span className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-[color:var(--tx-helperText-color)]">
+                    <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-[color:var(--tx-helperText-color)]">
                         <span className="h-2 w-2 animate-spin rounded-full border border-[color:var(--tx-helperText-color)] border-t-transparent" />
                         Conectando...
                     </span>
@@ -231,7 +231,7 @@ export default function CampaignsPage() {
                     <button
                         data-tour="campaigns-create"
                         onClick={() => setShowWizard(true)}
-                        className={`${T.buttonPrimaryText} ${S.body} group flex flex-1 items-center justify-center gap-2 rounded-2xl bg-[var(--brand-primary)] px-5 py-3 font-black shadow-xl shadow-[#ead018]/10 transition-all active:scale-95 md:flex-none md:min-w-[220px] hover:brightness-110`}
+                        className={`${T.buttonPrimaryText} ${S.body} group flex flex-1 items-center justify-center gap-2 rounded-2xl bg-[var(--brand-primary)] px-5 py-3 font-bold shadow-xl shadow-[#ead018]/10 transition-all active:scale-95 md:flex-none md:min-w-[220px] hover:brightness-110`}
                     >
                         <Plus size={18} className="transition-transform group-hover:rotate-90" />
                         Nueva campaña

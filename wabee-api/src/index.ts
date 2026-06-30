@@ -641,10 +641,13 @@ app.listen(port, '0.0.0.0', async () => {
                     ALTER TABLE core.plan_templates ADD COLUMN IF NOT EXISTS limits JSONB DEFAULT '{}';
                     ALTER TABLE core.plan_templates ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}';
                 EXCEPTION WHEN OTHERS THEN null; END $$;
-                -- Migrar is_active → status
+                -- Migrar is_active → status (SOLO promueve activos; NO archiva borradores).
+                -- OJO: este bloque corre en cada arranque. Si se archivaran los drafts aqui,
+                -- cada plan recien creado desde el panel (draft + is_active=false) quedaria
+                -- archivado al siguiente reinicio. Por eso solo promovemos los ya activos.
                 UPDATE core.plan_templates
-                SET status = CASE WHEN is_active = true THEN 'active' ELSE 'archived' END
-                WHERE status = 'draft';
+                SET status = 'active'
+                WHERE status = 'draft' AND is_active = true;
 
                 -- 2. Tabla plan_versions
                 CREATE TABLE IF NOT EXISTS core.plan_versions (

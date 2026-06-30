@@ -433,7 +433,7 @@ export default function WhatsAppChannelsPage() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
                         </div>
-                        <span className="text-sm font-black uppercase tracking-tighter">{successMessage}</span>
+                        <span className="text-sm font-bold uppercase tracking-tighter">{successMessage}</span>
                     </div>
                 )}
 
@@ -495,7 +495,7 @@ export default function WhatsAppChannelsPage() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
                             </div>
-                            <h3 className={`${T.sectionTitle} text-2xl font-black uppercase tracking-tighter text-red-500`}>¿Archivar canal?</h3>
+                            <h3 className={`${T.sectionTitle} text-2xl font-bold uppercase tracking-tighter text-red-500`}>¿Archivar canal?</h3>
                         </div>
                         <p className={`${T.helperText} mb-8 font-medium leading-relaxed text-[color:var(--text-muted)]`}>
                             Esta acción retirará el canal del listado activo, pero <span className="border-b border-[var(--brand-primary)]/30 text-[color:var(--text-strong)]">mantendrá intactos todos los chats e hilos</span> de conversación asociados.
@@ -504,7 +504,7 @@ export default function WhatsAppChannelsPage() {
                             <button onClick={() => setArchivingId(null)} className="flex-1 rounded-xl bg-[var(--bg-elevated)] px-6 py-3 font-bold text-[color:var(--text-muted)] transition-all active:scale-95 hover:text-[color:var(--text-strong)]">
                                 Cancelar
                             </button>
-                            <button onClick={handleConfirmArchive} className="flex-1 rounded-xl bg-red-600 px-6 py-3 font-black uppercase tracking-widest text-white shadow-lg shadow-red-600/20 transition-all active:scale-95 hover:brightness-110">
+                            <button onClick={handleConfirmArchive} className="flex-1 rounded-xl bg-red-600 px-6 py-3 font-bold uppercase tracking-widest text-white shadow-lg shadow-red-600/20 transition-all active:scale-95 hover:brightness-110">
                                 Archivar
                             </button>
                         </div>

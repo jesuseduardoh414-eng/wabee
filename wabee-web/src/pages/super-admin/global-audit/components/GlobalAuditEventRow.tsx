@@ -62,16 +62,16 @@ export const GlobalAuditEventRow: React.FC<Props> = ({ event, onViewDetail }) =>
             {/* Event Info */}
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-1">
-                    <p className={`${T.tableCell} ${S.body} font-black group-hover:text-[var(--brand-primary)] transition-colors text-[var(--text-strong)]`}>
+                    <p className={`${T.tableCell} ${S.body} font-bold group-hover:text-[var(--brand-primary)] transition-colors text-[var(--text-strong)]`}>
                         {eventLabel}
                     </p>
-                    <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded border ${
+                    <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${
                         event.severity === 'critical' ? 'border-red-500/30 text-red-600 bg-red-500/5' : 'border-[var(--border-default)] text-[var(--text-muted)]'
                     }`}>
                         {severityLabel}
                     </span>
                     {event.isImpersonation && (
-                        <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded border border-purple-500/30 text-purple-600 bg-purple-500/5 flex items-center gap-1">
+                        <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border border-purple-500/30 text-purple-600 bg-purple-500/5 flex items-center gap-1">
                             <Zap size={10} /> Suplantación
                         </span>
                     )}

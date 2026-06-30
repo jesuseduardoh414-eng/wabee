@@ -66,7 +66,7 @@ export const NotificationDropdown = () => {
                 <Bell size={14} className={unreadCount > 0 ? 'text-[var(--brand-primary)]' : 'text-[var(--text-muted)]'} />
                 {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-[var(--bg-card)] flex items-center justify-center animate-pulse shadow-sm">
-                        <span className="text-[7px] text-white font-black">{unreadCount > 9 ? '9+' : unreadCount}</span>
+                        <span className="text-[7px] text-white font-bold">{unreadCount > 9 ? '9+' : unreadCount}</span>
                     </span>
                 )}
             </div>

@@ -51,7 +51,7 @@ function FlowNode({ data, selected }: NodeProps) {
     return (
         <div className={`min-w-[140px] max-w-[200px] cursor-pointer rounded-xl border-2 px-3 py-2 shadow-md transition-all ${colorClass} ${selected ? 'ring-2 ring-white/40' : ''}`}>
             <Handle type="target" position={Position.Top} className="!h-3 !w-3 !border-2 !border-[var(--bg-surface)] !bg-[var(--brand-primary)]" />
-            <p className="mb-0.5 text-[9px] font-black uppercase tracking-widest opacity-60">{NODE_LABELS[type] ?? type}</p>
+            <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest opacity-60">{NODE_LABELS[type] ?? type}</p>
             <p className="line-clamp-2 text-xs font-medium leading-tight text-white">{(data as any).label || '...'}</p>
             {type === 'condition' ? (
                 <>

@@ -85,8 +85,8 @@ export interface AssignPlanPayload {
 
 export const superAdminPlansApi = {
     /** Lista todos los planes con versión vigente y popularidad real */
-    listPlans: async (includeDeleted: boolean = false): Promise<Plan[]> => {
-        const res = await api.get('/super-admin/plans', { params: { includeDeleted } });
+    listPlans: async (includeDeleted: boolean = false, includeArchived: boolean = true): Promise<Plan[]> => {
+        const res = await api.get('/super-admin/plans', { params: { includeDeleted, includeArchived } });
         return res.data.plans;
     },
 

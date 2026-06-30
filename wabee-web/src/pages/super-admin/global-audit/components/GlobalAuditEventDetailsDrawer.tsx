@@ -66,7 +66,7 @@ export const GlobalAuditEventDetailsDrawer: React.FC<Props> = ({ event, isOpen, 
                             <Shield size={20} />
                         </div>
                         <div>
-                            <h2 className={`${T.cardTitle} text-lg font-black text-[var(--text-strong)]`}>Detalle del Evento</h2>
+                            <h2 className={`${T.cardTitle} text-lg font-bold text-[var(--text-strong)]`}>Detalle del Evento</h2>
                             <p className={`${T.helperText} text-[10px] uppercase tracking-widest font-bold opacity-60`}>ID: {event.id}</p>
                         </div>
                     </div>
@@ -85,7 +85,7 @@ export const GlobalAuditEventDetailsDrawer: React.FC<Props> = ({ event, isOpen, 
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 px-3 py-1 bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] border border-[var(--brand-primary)]/20 rounded-full w-fit">
                             <Info size={14} />
-                            <span className="text-[10px] font-black uppercase tracking-widest">{eventLabel}</span>
+                            <span className="text-[10px] font-bold uppercase tracking-widest">{eventLabel}</span>
                         </div>
                         <h3 className={`${T.pageTitle} ${S.displaySm} leading-tight`}>{event.message}</h3>
                         <p className={`${T.helperText} ${S.meta} uppercase tracking-wide text-[var(--text-muted)]/60`}>
@@ -136,7 +136,7 @@ export const GlobalAuditEventDetailsDrawer: React.FC<Props> = ({ event, isOpen, 
                     {/* JSON Data Viewer */}
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                            <h4 className="text-[10px] uppercase font-black tracking-[0.2em] text-[var(--text-muted)]">Carga de Datos (Payload)</h4>
+                            <h4 className="text-[10px] uppercase font-bold tracking-[0.2em] text-[var(--text-muted)]">Carga de Datos (Payload)</h4>
                             <button 
                                 onClick={handleCopyJson}
                                 className="flex items-center gap-2 text-[10px] px-3 py-1.5 bg-[var(--bg-hover)] border border-[var(--border-default)] rounded-lg hover:border-[var(--brand-primary)]/30 transition-all font-bold uppercase"
@@ -148,7 +148,7 @@ export const GlobalAuditEventDetailsDrawer: React.FC<Props> = ({ event, isOpen, 
                         
                         <div className="bg-[var(--bg-input)] border border-[var(--border-default)] rounded-2xl p-6 font-mono text-xs overflow-x-auto relative group">
                             {event.isSensitive && (
-                                <div className="absolute top-4 right-4 px-2 py-1 bg-yellow-500/10 text-yellow-600 border border-yellow-500/20 rounded text-[9px] font-black uppercase tracking-widest">
+                                <div className="absolute top-4 right-4 px-2 py-1 bg-yellow-500/10 text-yellow-600 border border-yellow-500/20 rounded text-[9px] font-bold uppercase tracking-widest">
                                     Datos Sanitizados
                                 </div>
                             )}
@@ -167,7 +167,7 @@ export const GlobalAuditEventDetailsDrawer: React.FC<Props> = ({ event, isOpen, 
                 <div className="p-6 border-t border-[var(--border-default)] bg-[var(--bg-card)]">
                     <button 
                         onClick={onClose}
-                        className="w-full py-4 bg-[var(--bg-hover)] border border-[var(--border-default)] rounded-2xl font-black text-xs uppercase tracking-widest hover:border-[var(--brand-primary)]/30 transition-all"
+                        className="w-full py-4 bg-[var(--bg-hover)] border border-[var(--border-default)] rounded-2xl font-bold text-xs uppercase tracking-widest hover:border-[var(--brand-primary)]/30 transition-all"
                     >
                         Cerrar Panel
                     </button>
@@ -181,10 +181,10 @@ const InfoItem = ({ icon: Icon, label, value, subValue, isShorten }: any) => (
     <div className="space-y-1.5">
         <div className="flex items-center gap-2 opacity-40">
             <Icon size={14} />
-            <span className="text-[10px] font-black uppercase tracking-wider">{label}</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider">{label}</span>
         </div>
         <div>
-            <p className={`${T.tableCell} ${S.body} font-black text-[var(--text-strong)] ${isShorten ? 'truncate max-w-[250px]' : ''}`} title={value}>
+            <p className={`${T.tableCell} ${S.body} font-bold text-[var(--text-strong)] ${isShorten ? 'truncate max-w-[250px]' : ''}`} title={value}>
                 {value}
             </p>
             {subValue && <p className="text-[10px] text-[var(--text-muted)] font-medium mt-0.5">{subValue}</p>}

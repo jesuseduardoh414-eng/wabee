@@ -122,7 +122,7 @@ export const ContactDetailModal: React.FC<ContactDetailModalProps> = ({ contactI
             <div className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-[28px] border border-[var(--border-default)] bg-[var(--bg-card)] shadow-[0_32px_120px_-20px_rgba(0,0,0,0.8)] animate-in zoom-in-95 duration-500 md:max-h-[90vh] md:rounded-[40px]">
                 <div className="flex items-start justify-between gap-4 bg-gradient-to-b from-[var(--brand-primary)]/5 to-transparent p-5 pb-4 md:p-10 md:pb-6">
                     <div className="flex min-w-0 items-center gap-4 md:gap-6">
-                        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[22px] border-2 border-[var(--bg-card)] bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-primary)]/80 text-2xl font-black italic text-[var(--brand-primary-foreground)] shadow-2xl shadow-[var(--brand-primary)]/20 md:h-20 md:w-20 md:rounded-3xl md:text-3xl">
+                        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[22px] border-2 border-[var(--bg-card)] bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-primary)]/80 text-2xl font-bold italic text-[var(--brand-primary-foreground)] shadow-2xl shadow-[var(--brand-primary)]/20 md:h-20 md:w-20 md:rounded-3xl md:text-3xl">
                             {(formData.name || 'S').charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0">

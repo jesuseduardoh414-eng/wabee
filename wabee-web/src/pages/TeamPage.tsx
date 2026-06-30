@@ -38,7 +38,7 @@ const StatusBadge: React.FC<{ status: Member['status'] }> = ({ status }) => {
     const conf = map[status] || map.ACTIVE;
     const Icon = conf.icon;
     return (
-        <span className={`inline-flex items-center gap-1 ${T.badgeText} ${S.meta} font-black px-2 py-0.5 rounded border ${conf.cls}`}>
+        <span className={`inline-flex items-center gap-1 ${T.badgeText} ${S.meta} font-bold px-2 py-0.5 rounded border ${conf.cls}`}>
             <Icon size={10} />
             {conf.label}
         </span>
@@ -412,12 +412,12 @@ export const TeamPage = () => {
                         <table className="w-full">
                             <thead>
                                 <tr className={`${T.tableHeader} ${S.meta} text-left border-b border-[var(--border-default)]`}>
-                                    <th className="pb-4 px-4 font-black uppercase tracking-widest text-[var(--text-muted)]">Colaborador</th>
-                                    <th className="pb-4 px-4 font-black uppercase tracking-widest text-[var(--text-muted)]">Rol</th>
-                                    <th className="pb-4 px-4 font-black uppercase tracking-widest text-[var(--text-muted)]">Estado</th>
-                                    <th className="pb-4 px-4 font-black uppercase tracking-widest text-[var(--text-muted)]">2FA</th>
-                                    <th className="pb-4 px-4 font-black uppercase tracking-widest text-[var(--text-muted)]">Ingresó</th>
-                                    {isAdmin && <th className="pb-4 px-4 text-right font-black uppercase tracking-widest text-[var(--text-muted)]">Acciones</th>}
+                                    <th className="pb-4 px-4 font-bold uppercase tracking-widest text-[var(--text-muted)]">Colaborador</th>
+                                    <th className="pb-4 px-4 font-bold uppercase tracking-widest text-[var(--text-muted)]">Rol</th>
+                                    <th className="pb-4 px-4 font-bold uppercase tracking-widest text-[var(--text-muted)]">Estado</th>
+                                    <th className="pb-4 px-4 font-bold uppercase tracking-widest text-[var(--text-muted)]">2FA</th>
+                                    <th className="pb-4 px-4 font-bold uppercase tracking-widest text-[var(--text-muted)]">Ingresó</th>
+                                    {isAdmin && <th className="pb-4 px-4 text-right font-bold uppercase tracking-widest text-[var(--text-muted)]">Acciones</th>}
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[var(--border-default)]">
@@ -443,7 +443,7 @@ export const TeamPage = () => {
                                                     <p className={`${T.tableCell} ${S.body} font-bold truncate text-[var(--text-strong)]`}>
                                                         {member.name}
                                                         {member.userId === currentUserId && (
-                                                            <span className={`${T.badgeText} ${S.meta} ml-1.5 text-[var(--brand-primary)]/60 font-black uppercase`}> (tú)</span>
+                                                            <span className={`${T.badgeText} ${S.meta} ml-1.5 text-[var(--brand-primary)]/60 font-bold uppercase`}> (tú)</span>
                                                         )}
                                                     </p>
                                                     <p className={`${T.helperText} ${S.meta} truncate text-[var(--text-muted)]`}>{member.email}</p>
@@ -452,7 +452,7 @@ export const TeamPage = () => {
                                         </td>
                                         {/* Rol */}
                                         <td className="py-4 px-4">
-                                            <span className={`${T.badgeText} ${S.meta} font-black bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] px-2 py-1 rounded uppercase tracking-wider`}>
+                                            <span className={`${T.badgeText} ${S.meta} font-bold bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] px-2 py-1 rounded uppercase tracking-wider`}>
                                                 {member.role}
                                             </span>
                                         </td>
@@ -518,10 +518,10 @@ export const TeamPage = () => {
                         <table className="w-full">
                             <thead>
                                 <tr className={`${T.tableHeader} ${S.meta} text-left border-b border-[var(--border-default)]`}>
-                                    <th className="pb-4 px-4 font-black uppercase tracking-widest text-[var(--text-muted)]">Email</th>
-                                    <th className="pb-4 px-4 font-black uppercase tracking-widest text-[var(--text-muted)]">Rol</th>
-                                    <th className="pb-4 px-4 font-black uppercase tracking-widest text-[var(--text-muted)]">Expiración</th>
-                                    <th className="pb-4 px-4 text-right font-black uppercase tracking-widest text-[var(--text-muted)]">Acciones</th>
+                                    <th className="pb-4 px-4 font-bold uppercase tracking-widest text-[var(--text-muted)]">Email</th>
+                                    <th className="pb-4 px-4 font-bold uppercase tracking-widest text-[var(--text-muted)]">Rol</th>
+                                    <th className="pb-4 px-4 font-bold uppercase tracking-widest text-[var(--text-muted)]">Expiración</th>
+                                    <th className="pb-4 px-4 text-right font-bold uppercase tracking-widest text-[var(--text-muted)]">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[var(--border-default)]">
@@ -536,7 +536,7 @@ export const TeamPage = () => {
                                             </div>
                                         </td>
                                         <td className="py-4 px-4">
-                                            <span className={`${T.badgeText} ${S.meta} font-black bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] px-2 py-1 rounded uppercase tracking-wider`}>
+                                            <span className={`${T.badgeText} ${S.meta} font-bold bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] px-2 py-1 rounded uppercase tracking-wider`}>
                                                 {invite.role?.name || 'AGENT'}
                                             </span>
                                         </td>

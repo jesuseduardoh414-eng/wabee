@@ -185,7 +185,7 @@ export default function AuditLogsPage() {
                                                 </td>
                                                 <td className="p-4">
                                                     <span
-                                                        className={`${T.statusText} ${S.meta} inline-block rounded border px-3 py-1 font-black uppercase tracking-wider ${
+                                                        className={`${T.statusText} ${S.meta} inline-block rounded border px-3 py-1 font-bold uppercase tracking-wider ${
                                                             log.action.includes('DELETE') || log.action.includes('CANCEL') || log.action.includes('FAILED')
                                                                 ? 'border-red-500/20 bg-red-500/10 text-red-500'
                                                                 : log.action.includes('PARTIAL_FAILURE')

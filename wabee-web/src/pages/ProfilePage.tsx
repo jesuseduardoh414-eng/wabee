@@ -300,7 +300,7 @@ export const ProfilePage = () => {
                     saveStatus === 'success' ? 'bg-[var(--bg-card)] border-[var(--state-success)]/30 text-[var(--state-success)]' : 'bg-[var(--bg-card)] border-[var(--state-danger)]/30 text-[var(--state-danger)]'
                 }`}>
                     {saveStatus === 'success' ? <CheckCircle size={20} /> : <XCircle size={20} />}
-                    <span className={`${S.meta} font-black uppercase tracking-widest`}>{saveMsg}</span>
+                    <span className={`${S.meta} font-bold uppercase tracking-widest`}>{saveMsg}</span>
                 </div>
             )}
 
@@ -342,7 +342,7 @@ export const ProfilePage = () => {
                                     }`}
                             >
                                 <s.icon size={18} className={activeSection === s.id ? 'opacity-100' : 'opacity-40 group-hover:opacity-100'} />
-                                <span className={`${S.meta} font-black uppercase tracking-widest text-left flex-1`}>{s.label.split(' ')[0]}</span>
+                                <span className={`${S.meta} font-bold uppercase tracking-widest text-left flex-1`}>{s.label.split(' ')[0]}</span>
                                 <ChevronRight size={14} className={activeSection === s.id ? 'opacity-100' : 'opacity-20'} />
                             </button>
                         ))}
@@ -366,7 +366,7 @@ export const ProfilePage = () => {
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                                     <div className="space-y-4">
-                                        <label className={`${T.labelText} ${S.meta} text-[var(--text-muted)] font-black uppercase tracking-widest ml-1`}>Nombre Mostrado</label>
+                                        <label className={`${T.labelText} ${S.meta} text-[var(--text-muted)] font-bold uppercase tracking-widest ml-1`}>Nombre Mostrado</label>
                                         <input
                                             type="text" value={name} onChange={e => setName(e.target.value)}
                                             className={`${T.inputText} ${S.body} w-full bg-[var(--bg-input)] border border-[var(--border-default)] rounded-2xl py-4 px-6 text-[var(--text-strong)] focus:outline-none focus:border-[var(--brand-primary)]/50 transition-all`}
@@ -374,7 +374,7 @@ export const ProfilePage = () => {
                                         />
                                     </div>
                                     <div className="space-y-4">
-                                        <label className={`${T.labelText} ${S.meta} text-[var(--text-muted)] font-black uppercase tracking-widest ml-1`}>Email principal</label>
+                                        <label className={`${T.labelText} ${S.meta} text-[var(--text-muted)] font-bold uppercase tracking-widest ml-1`}>Email principal</label>
                                         <input
                                             type="email" value={profile?.email || ''} disabled
                                             className={`${T.inputText} ${S.body} w-full bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-2xl py-4 px-6 text-[var(--text-muted)] cursor-not-allowed`}
@@ -406,7 +406,7 @@ export const ProfilePage = () => {
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
                                 <div className="space-y-6">
-                                        <label className={`${T.labelText} ${S.meta} text-[var(--text-muted)] font-black uppercase tracking-widest ml-1`}>Tema Visual</label>
+                                        <label className={`${T.labelText} ${S.meta} text-[var(--text-muted)] font-bold uppercase tracking-widest ml-1`}>Tema Visual</label>
                                         
                                         {loadingThemes ? (
                                             <div className="flex items-center justify-center py-8">
@@ -435,14 +435,14 @@ export const ProfilePage = () => {
                                                             }`}
                                                         >
                                                             <div className="flex items-center justify-between mb-3">
-                                                                <span className={`${S.body} font-black uppercase tracking-[0.15em] ${
+                                                                <span className={`${S.body} font-bold uppercase tracking-[0.15em] ${
                                                                     isSelected ? 'text-[var(--brand-primary)]' : 'text-[var(--text-strong)]'
                                                                 }`}>
                                                                     {t.name}
                                                                 </span>
                                                                 {isSelected && <CheckCircle size={18} className="text-[var(--brand-primary)] shrink-0" />}
                                                                 {t.isActive && !isSelected && (
-                                                                    <span className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] border border-[var(--border-default)] px-2 py-0.5 rounded-full">Default</span>
+                                                                    <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] border border-[var(--border-default)] px-2 py-0.5 rounded-full">Default</span>
                                                                 )}
                                                             </div>
                                                             {/* Mini preview de colores */}
@@ -463,7 +463,7 @@ export const ProfilePage = () => {
                                     </div>
 
                                     <div className="space-y-6">
-                                        <label className={`${T.labelText} ${S.meta} text-[var(--text-muted)] font-black uppercase tracking-widest ml-1`}>Idioma de Interfaz</label>
+                                        <label className={`${T.labelText} ${S.meta} text-[var(--text-muted)] font-bold uppercase tracking-widest ml-1`}>Idioma de Interfaz</label>
                                         <div className="grid grid-cols-1 gap-4">
                                             {[{k:'es', l:'Español 🇲🇽'}, {k:'en', l:'English 🇺🇸'}].map(l => (
                                                 <button
@@ -475,7 +475,7 @@ export const ProfilePage = () => {
                                                             : 'bg-[var(--bg-input)] border-[var(--border-default)] text-[var(--text-muted)] hover:border-[var(--brand-primary)]/30'
                                                     }`}
                                                 >
-                                                    <span className={`${S.body} font-black uppercase tracking-[0.2em]`}>{l.l}</span>
+                                                    <span className={`${S.body} font-bold uppercase tracking-[0.2em]`}>{l.l}</span>
                                                     {prefs.language === l.k && <CheckCircle size={20} />}
                                                 </button>
                                             ))}
@@ -553,7 +553,7 @@ export const ProfilePage = () => {
 
                                 <div className="space-y-8 max-w-xl">
                                     <div className="space-y-4">
-                                        <label className={`${T.labelText} ${S.meta} text-[var(--text-muted)] font-black uppercase tracking-widest ml-1`}>Nueva Contraseña</label>
+                                        <label className={`${T.labelText} ${S.meta} text-[var(--text-muted)] font-bold uppercase tracking-widest ml-1`}>Nueva Contraseña</label>
                                         <div className="relative">
                                             <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" size={20} />
                                             <input
@@ -571,7 +571,7 @@ export const ProfilePage = () => {
                                     </div>
 
                                     <div className="space-y-4">
-                                        <label className={`${T.labelText} ${S.meta} text-[var(--text-muted)] font-black uppercase tracking-widest ml-1`}>Confirmar Nueva Contraseña</label>
+                                        <label className={`${T.labelText} ${S.meta} text-[var(--text-muted)] font-bold uppercase tracking-widest ml-1`}>Confirmar Nueva Contraseña</label>
                                         <div className="relative">
                                             <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" size={20} />
                                             <input
@@ -617,12 +617,12 @@ export const ProfilePage = () => {
                                         <p className={`${T.cardTitle} ${S.body} text-[var(--text-strong)]`}>
                                             {profile?.has2fa ? 'Tu cuenta está blindada' : 'Tu cuenta es vulnerable'}
                                         </p>
-                                        <p className={`${T.helperText} ${S.meta} mt-1 text-[var(--text-muted)] opacity-70 uppercase tracking-widest font-black`}>
+                                        <p className={`${T.helperText} ${S.meta} mt-1 text-[var(--text-muted)] opacity-70 uppercase tracking-widest font-bold`}>
                                             {profile?.has2fa ? 'Doble factor de autenticación activo' : 'Activa 2FA para prevenir accesos no autorizados'}
                                         </p>
                                     </div>
                                     {profile?.has2fa && (
-                                        <button onClick={disable2FA} className="text-[var(--state-danger)] hover:text-[var(--state-danger)]/80 font-black text-[10px] uppercase tracking-widest px-4 py-2 border border-[var(--state-danger)]/20 rounded-xl hover:bg-[var(--state-danger)]/10 transition-all">
+                                        <button onClick={disable2FA} className="text-[var(--state-danger)] hover:text-[var(--state-danger)]/80 font-bold text-[10px] uppercase tracking-widest px-4 py-2 border border-[var(--state-danger)]/20 rounded-xl hover:bg-[var(--state-danger)]/10 transition-all">
                                             Desactivar
                                         </button>
                                     )}
@@ -637,7 +637,7 @@ export const ProfilePage = () => {
                                             <div className="w-24 h-24 rounded-[2rem] bg-[var(--brand-primary)]  flex items-center justify-center shadow-lg shadow-[var(--brand-primary)]/30 group-hover:scale-110 transition-all">
                                                 <QrCode size={48} />
                                             </div>
-                                            <span className={`${S.meta} font-black uppercase tracking-[0.3em] text-[var(--brand-primary)] group-hover:brightness-125`}>Vincular Dispositivo</span>
+                                            <span className={`${S.meta} font-bold uppercase tracking-[0.3em] text-[var(--brand-primary)] group-hover:brightness-125`}>Vincular Dispositivo</span>
                                         </button>
                                     </div>
                                 )}
@@ -656,7 +656,7 @@ export const ProfilePage = () => {
                                             <input
                                                 type="text" maxLength={6} value={twoFACode}
                                                 onChange={e => setTwoFACode(e.target.value.replace(/\D/g, ''))}
-                                                className="w-full bg-[var(--bg-input)] border border-[var(--brand-primary)]/50 rounded-[2rem] py-6 text-center text-4xl font-black tracking-[0.5em] text-[var(--brand-primary)] focus:outline-none focus:shadow-lg focus:shadow-[var(--brand-primary)]/10 transition-all"
+                                                className="w-full bg-[var(--bg-input)] border border-[var(--brand-primary)]/50 rounded-[2rem] py-6 text-center text-4xl font-bold tracking-[0.5em] text-[var(--brand-primary)] focus:outline-none focus:shadow-lg focus:shadow-[var(--brand-primary)]/10 transition-all"
                                                 placeholder="000000"
                                             />
 
@@ -664,13 +664,13 @@ export const ProfilePage = () => {
                                                 <button 
                                                     onClick={confirm2FA} 
                                                     disabled={twoFACode.length !== 6 || saveStatus === 'saving'}
-                                                    className="flex-1 py-4 bg-[var(--brand-primary)]  rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-[var(--brand-primary)]/20 disabled:opacity-50"
+                                                    className="flex-1 py-4 bg-[var(--brand-primary)]  rounded-2xl font-bold uppercase tracking-widest text-xs shadow-lg shadow-[var(--brand-primary)]/20 disabled:opacity-50"
                                                 >
                                                     Activar Ahora
                                                 </button>
                                                 <button 
                                                     onClick={() => setTwoFAStep('idle')}
-                                                    className="px-8 py-4 border border-[var(--border-default)] text-[var(--text-muted)] rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[var(--bg-hover)] transition-all"
+                                                    className="px-8 py-4 border border-[var(--border-default)] text-[var(--text-muted)] rounded-2xl font-bold uppercase tracking-widest text-xs hover:bg-[var(--bg-hover)] transition-all"
                                                 >
                                                     Cancelar
                                                 </button>

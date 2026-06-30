@@ -264,7 +264,7 @@ export default function InboxAuditPage() {
                                     </td>
                                     <td className={`${T.tableCell} ${S.meta} px-3 py-2 text-center`}>{d.messagesSentByAgent}</td>
                                     <td className="px-3 py-2 text-center">
-                                        {d.hadAiHandoff ? <span className="font-black text-[var(--brand-primary)]">✓</span> : <span className="opacity-30">—</span>}
+                                        {d.hadAiHandoff ? <span className="font-bold text-[var(--brand-primary)]">✓</span> : <span className="opacity-30">—</span>}
                                     </td>
                                     <td className="whitespace-nowrap px-3 py-2">
                                         <span

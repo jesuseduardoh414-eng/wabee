@@ -146,6 +146,28 @@ async function ensureSchema() {
         ALTER TABLE core.plan_versions
         ADD COLUMN IF NOT EXISTS annual_price NUMERIC(12,2) NOT NULL DEFAULT 0;
     `);
+    // Columnas de sincronizacion con Stripe (las usa el panel de admin y StripeSyncService).
+    // Sin estas, crear un plan desde el panel falla con "column stripe_sync_status does not exist".
+    await prisma.$executeRawUnsafe(`
+        ALTER TABLE core.plan_versions
+        ADD COLUMN IF NOT EXISTS stripe_sync_status TEXT NOT NULL DEFAULT 'PENDING';
+    `);
+    await prisma.$executeRawUnsafe(`
+        ALTER TABLE core.plan_versions
+        ADD COLUMN IF NOT EXISTS stripe_price_monthly_id TEXT;
+    `);
+    await prisma.$executeRawUnsafe(`
+        ALTER TABLE core.plan_versions
+        ADD COLUMN IF NOT EXISTS stripe_price_annual_id TEXT;
+    `);
+    await prisma.$executeRawUnsafe(`
+        ALTER TABLE core.plan_versions
+        ADD COLUMN IF NOT EXISTS stripe_sync_error TEXT;
+    `);
+    await prisma.$executeRawUnsafe(`
+        ALTER TABLE core.plan_versions
+        ADD COLUMN IF NOT EXISTS stripe_synced_at TIMESTAMPTZ;
+    `);
     await prisma.$executeRawUnsafe(`
         ALTER TABLE core.subscriptions
         ADD COLUMN IF NOT EXISTS modules_snapshot JSONB;

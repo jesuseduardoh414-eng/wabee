@@ -1,0 +1,123 @@
+[
+  {
+    "numeroActividad": 1,
+    "titulo": "Analisis de costos y definicion del modelo de precios",
+    "descripcion": "Estimar costos reales por servicio (Meta/WhatsApp, Gemini, Supabase, Render, Redis, Stripe, correo) y definir el modelo de cupo de plantillas incluido + excedente para los 4 planes",
+    "estado": "COMPLETADO",
+    "prioridad": "ALTA",
+    "fechaInicio": "2025-06-26",
+    "venceEn": "2025-06-26",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 2,
+    "titulo": "Documento de planes y estrategia de precios v2",
+    "descripcion": "Crear Planes/Wabee_Planes_y_Precios_v2.md: 4 planes (Free/Starter/Pro/Business), margenes con Stripe, excedente blindado contra tipo de cambio y claves canonicas de limites",
+    "estado": "COMPLETADO",
+    "prioridad": "ALTA",
+    "fechaInicio": "2025-06-26",
+    "venceEn": "2025-06-26",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 3,
+    "titulo": "Actualizar formulario del panel de admin (PlanFormModal)",
+    "descripcion": "Agregar al formulario las dimensiones nuevas (aiMessagesPerMonth, templatesIncludedPerMonth, templateOveragePriceMxn, aiProfiles, aiTrainingSources, automations, webWidgets), soporte de decimales y convencion -1=ilimitado",
+    "estado": "COMPLETADO",
+    "prioridad": "ALTA",
+    "fechaInicio": "2025-06-26",
+    "venceEn": "2025-06-26",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 4,
+    "titulo": "Crear los 4 planes desde el panel de admin",
+    "descripcion": "Crear manualmente Free, Starter, Pro y Business en Super Admin > Planes con los limites del documento v2. Empezar por Free (sin Stripe)",
+    "estado": "EN_PROGRESO",
+    "prioridad": "ALTA",
+    "fechaInicio": "2025-06-26",
+    "venceEn": "",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 5,
+    "titulo": "Publicar planes nuevos y archivar los viejos",
+    "descripcion": "Marcar los 4 planes como Activos/Publicados y archivar los planes viejos no reales (Basico, Crecimiento) que estaban sembrados",
+    "estado": "PENDIENTE",
+    "prioridad": "MEDIA",
+    "venceEn": "",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 6,
+    "titulo": "Crear medidores de facturacion en la base de datos",
+    "descripcion": "Agregar modelos Prisma BillingUsageEvent y BillingMonthlyUsage (schema wabee) y correr la migracion (add_billing_usage_meters)",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "venceEn": "",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 7,
+    "titulo": "Crear UsageMeterService",
+    "descripcion": "Servicio que registra eventos de uso (mensajes de IA y plantillas iniciadas) e incrementa el agregado mensual de forma atomica",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "venceEn": "",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 8,
+    "titulo": "Implementar conteo real y quota-guard de IA y plantillas",
+    "descripcion": "Reemplazar el placeholder getAiTokensUsageThisMonth en LimitsService y agregar checkAiMessagesLimit (handoff al agotar) y checkTemplatesLimit (bloqueo/excedente)",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "venceEn": "",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 9,
+    "titulo": "Enganchar el conteo de uso en los puntos de envio",
+    "descripcion": "Llamar a UsageMeterService.record en ai.audit.service.ts (mensajes IA), campaign.worker.ts y whatsapp.outbound.service.ts (plantillas iniciadas, clasificando categoria)",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "venceEn": "",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 10,
+    "titulo": "Extender el endpoint de uso (billing.routes)",
+    "descripcion": "Exponer en la respuesta de uso aiMessages {used, limit} y templates {used, included, overage} para mostrarlo al cliente",
+    "estado": "PENDIENTE",
+    "prioridad": "MEDIA",
+    "venceEn": "",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 11,
+    "titulo": "Job de cierre de periodo y cobro de excedente",
+    "descripcion": "Calcular el excedente de plantillas al cierre del periodo y reportarlo a Stripe (metered o cargo adicional al renovar)",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "venceEn": "",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 12,
+    "titulo": "Migrar Stripe a llaves live para produccion",
+    "descripcion": "Reemplazar STRIPE_SECRET_KEY y STRIPE_WEBHOOK_SECRET de test (sk_test) por llaves live y re-sincronizar los planes con Stripe",
+    "estado": "PENDIENTE",
+    "prioridad": "ALTA",
+    "venceEn": "",
+    "asignadoEmail": ""
+  },
+  {
+    "numeroActividad": 13,
+    "titulo": "Verificar caveat de IA en Meta Billing Hub",
+    "descripcion": "Confirmar si las conversaciones de servicio gratis se pierden al usar IA en el numero; si aplica, recalcular el costo variable de los planes",
+    "estado": "PENDIENTE",
+    "prioridad": "MEDIA",
+    "venceEn": "",
+    "asignadoEmail": ""
+  }
+]

@@ -74,7 +74,7 @@ export const TemplatesWhatsAppCards: React.FC<Props> = ({ templates }) => {
                                 <span className={`${T.cardTitle} ${S.meta} max-w-[180px] truncate text-[10px] uppercase tracking-[0.2em] transition-colors group-hover/card:text-[var(--brand-primary)]`} title={template.name}>
                                     {template.name}
                                 </span>
-                                <span className={`rounded-full border px-2 py-0.5 text-[8px] font-black uppercase tracking-widest ${template.status === 'APPROVED' ? 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] border-[var(--brand-primary)]/20' :
+                                <span className={`rounded-full border px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest ${template.status === 'APPROVED' ? 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] border-[var(--brand-primary)]/20' :
                                     template.status === 'PENDING' ? 'bg-[color:var(--state-warning)]/10 text-[color:var(--state-warning)] border-[color:var(--state-warning)]/20' :
                                         'bg-[color:var(--state-danger)]/10 text-[color:var(--state-danger)] border-[color:var(--state-danger)]/20'
                                     }`}>

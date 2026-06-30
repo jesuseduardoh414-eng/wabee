@@ -204,7 +204,7 @@ export const DataDeletionAdminPage: React.FC = () => {
                             <div key={request.id} className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-elevated)]/20 p-4">
                                 <div className="flex items-start justify-between gap-3">
                                     <div className="min-w-0">
-                                        <span className={`${T.tableCell} ${S.body} font-black uppercase italic tracking-tighter break-words`}>{request.fullName}</span>
+                                        <span className={`${T.tableCell} ${S.body} font-bold uppercase italic tracking-tighter break-words`}>{request.fullName}</span>
                                         <span className={`${T.helperText} ${S.meta} block opacity-40`}>ID: {request.id.split('-')[0]}...</span>
                                     </div>
                                     <div className="flex items-center justify-end relative">
@@ -246,7 +246,7 @@ export const DataDeletionAdminPage: React.FC = () => {
                                                             }}
                                                         >
                                                             <div className="mb-1 border-b border-[var(--border-default)]/50 px-4 py-2">
-                                                                <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">Acciones</span>
+                                                                <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Acciones</span>
                                                             </div>
                                                             {request.status === 'PENDING' && (
                                                                 <button onClick={() => { handleUpdateStatus(request.id, 'IN_REVIEW'); setOpenMenuId(null); }} className="w-full px-4 py-2.5 text-left text-xs font-bold text-[var(--text-strong)] transition-all hover:bg-blue-500/10 hover:text-blue-400">
@@ -358,7 +358,7 @@ export const DataDeletionAdminPage: React.FC = () => {
                                     <tr key={request.id} className="border-b border-[var(--border-default)] hover:bg-[var(--bg-hover)] transition-colors group">
                                         <td className="p-4">
                                             <div className="flex flex-col">
-                                                <span className={`${T.tableCell} ${S.body} font-black uppercase italic tracking-tighter`}>{request.fullName}</span>
+                                                <span className={`${T.tableCell} ${S.body} font-bold uppercase italic tracking-tighter`}>{request.fullName}</span>
                                                 <span className={`${T.helperText} ${S.meta} opacity-40`}>ID: {request.id.split('-')[0]}...</span>
                                             </div>
                                         </td>
@@ -438,7 +438,7 @@ export const DataDeletionAdminPage: React.FC = () => {
                                                                     }}
                                                                 >
                                                                     <div className="px-4 py-2 border-b border-[var(--border-default)]/50 mb-1">
-                                                                        <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">Acciones</span>
+                                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Acciones</span>
                                                                     </div>
                                                                     {request.status === 'PENDING' && (
                                                                         <button 

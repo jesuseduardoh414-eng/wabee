@@ -218,7 +218,7 @@ const UpgradeModal = ({ plans, onClose, onSelect, isLoading, activePlan, current
                     <div className="flex bg-[var(--bg-page)] border border-[var(--border-default)] rounded-2xl p-1.5">
                         <button
                             onClick={() => setSelectedPeriod('monthly')}
-                            className={`px-8 py-3 rounded-xl ${S.meta} font-black uppercase tracking-widest transition-all ${
+                            className={`px-8 py-3 rounded-xl ${S.meta} font-bold uppercase tracking-widest transition-all ${
                                 selectedPeriod === 'monthly'
                                     ? 'bg-[var(--brand-primary)]  shadow-lg'
                                     : 'text-[var(--ty-dimmed)] hover:text-[var(--ty-strong)]'
@@ -228,7 +228,7 @@ const UpgradeModal = ({ plans, onClose, onSelect, isLoading, activePlan, current
                         </button>
                         <button
                             onClick={() => setSelectedPeriod('annual')}
-                            className={`px-8 py-3 rounded-xl ${S.meta} font-black uppercase tracking-widest transition-all flex items-center gap-3 ${
+                            className={`px-8 py-3 rounded-xl ${S.meta} font-bold uppercase tracking-widest transition-all flex items-center gap-3 ${
                                 selectedPeriod === 'annual'
                                     ? 'bg-[var(--brand-primary)]  shadow-lg'
                                     : 'text-[var(--ty-dimmed)] hover:text-[var(--ty-strong)]'
@@ -270,13 +270,13 @@ const UpgradeModal = ({ plans, onClose, onSelect, isLoading, activePlan, current
                             >
                                 {/* Badge "Plan Actual" */}
                                 {isCurrentPlan && (
-                                    <div className={`absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 bg-[var(--state-success)] text-white ${S.meta} font-black uppercase tracking-[0.2em] rounded-full flex items-center gap-2 shadow-xl z-10`}>
+                                    <div className={`absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 bg-[var(--state-success)] text-white ${S.meta} font-bold uppercase tracking-[0.2em] rounded-full flex items-center gap-2 shadow-xl z-10`}>
                                         <CheckCircle2 size={12} /> Plan Actual
                                     </div>
                                 )}
                                 {/* Badge "Recomendado" solo si NO es el plan actual */}
                                 {!isCurrentPlan && isFeatured && (
-                                    <div className={`absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 bg-[var(--brand-primary)]  ${S.meta} font-black uppercase tracking-[0.2em] rounded-full flex items-center gap-2 shadow-xl z-10`}>
+                                    <div className={`absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 bg-[var(--brand-primary)]  ${S.meta} font-bold uppercase tracking-[0.2em] rounded-full flex items-center gap-2 shadow-xl z-10`}>
                                         <Star size={12} /> Recomendado
                                     </div>
                                 )}
@@ -299,7 +299,7 @@ const UpgradeModal = ({ plans, onClose, onSelect, isLoading, activePlan, current
                                                     {displayPrice}
                                                 </p>
                                                 <div className="flex flex-col mb-2">
-                                                    <p className={`${T.helperText} ${S.meta} uppercase leading-tight font-black`}>{plan.currency}</p>
+                                                    <p className={`${T.helperText} ${S.meta} uppercase leading-tight font-bold`}>{plan.currency}</p>
                                                     <p className={`${T.helperText} ${S.meta} uppercase leading-tight opacity-50`}>/ {selectedPeriod === 'annual' ? 'año' : 'mes'}</p>
                                                 </div>
                                             </div>
@@ -319,7 +319,7 @@ const UpgradeModal = ({ plans, onClose, onSelect, isLoading, activePlan, current
                                     ].filter(Boolean).map((item, i) => (
                                         <div key={i} className="flex items-center gap-3">
                                             <CheckCircle2 size={15} className={`${isCurrentPlan ? 'text-[var(--state-success)]' : 'text-[var(--brand-primary)]'} shrink-0`} />
-                                            <p className={`${T.helperText} ${S.meta} font-black uppercase tracking-widest`}>{item}</p>
+                                            <p className={`${T.helperText} ${S.meta} font-bold uppercase tracking-widest`}>{item}</p>
                                         </div>
                                     ))}
                                     {/* Fallback cuando el plan actual sintético no tiene límites (ej: trial sin datos de límites) */}
@@ -847,7 +847,7 @@ export const SettingsPlanPage = () => {
                             </p>
                             {/* Badge de estado — contraste especial sobre fondo de marca */}
                             <span
-                                className={`${S.meta} shrink-0 font-black uppercase tracking-widest px-2.5 md:px-3 py-1 rounded-lg border ${
+                                className={`${S.meta} shrink-0 font-bold uppercase tracking-widest px-2.5 md:px-3 py-1 rounded-lg border ${
                                     activePlan?.isTrial
                                         ? currentStatus.classes
                                         : 'bg-[var(--brand-primary-foreground)]/15 border-[var(--brand-primary-foreground)]/25 text-[var(--brand-primary-foreground)]'
@@ -860,7 +860,7 @@ export const SettingsPlanPage = () => {
                         <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-1">
                             <h2
                                 style={{ color: activePlan?.isTrial ? 'var(--ty-strong)' : 'var(--brand-primary-foreground)' }}
-                                className={`${S.displayMd} text-[1.7rem] leading-none sm:text-[2.2rem] font-black italic uppercase tracking-tighter`}
+                                className={`${S.displayMd} text-[1.7rem] leading-none sm:text-[2.2rem] font-bold italic uppercase tracking-tighter`}
                             >
                                 {activePlan?.displayName}
                             </h2>
@@ -923,7 +923,7 @@ export const SettingsPlanPage = () => {
                                         />
                                         <span
                                             style={{ color: activePlan?.isTrial ? 'var(--ty-strong)' : 'var(--brand-primary-foreground)' }}
-                                            className={`${S.meta} font-black uppercase tracking-[0.15em]`}
+                                            className={`${S.meta} font-bold uppercase tracking-[0.15em]`}
                                         >
                                             {hasValue 
                                                 ? (isUnlimited ? `${item.label}: ${displayValue}` : (item.isNumeric || item.isK ? `${displayValue} ${item.label}` : displayValue))
@@ -943,7 +943,7 @@ export const SettingsPlanPage = () => {
                                         backgroundColor: activePlan?.isTrial ? 'var(--state-info)' : 'var(--brand-primary-foreground)',
                                         color:           activePlan?.isTrial ? '#ffffff'            : 'var(--brand-primary)'
                                     }}
-                                    className={`w-full py-3.5 md:py-4 font-black uppercase tracking-widest ${S.body} rounded-[1.25rem] md:rounded-[1.5rem] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 shadow-xl`}
+                                    className={`w-full py-3.5 md:py-4 font-bold uppercase tracking-widest ${S.body} rounded-[1.25rem] md:rounded-[1.5rem] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 shadow-xl`}
                                 >
                                     <ArrowUpRight size={18} />
                                     {activePlan?.isTrial ? 'Mejorar ahora' : 'Cambiar Plan'}
@@ -953,7 +953,7 @@ export const SettingsPlanPage = () => {
                                     <button
                                         onClick={() => manageSubscriptionMutation.mutate()}
                                         disabled={manageSubscriptionMutation.isPending}
-                                        className={`w-full py-3.5 md:py-4 border border-[var(--brand-primary-foreground)]/30 text-[var(--brand-primary-foreground)] font-black uppercase tracking-widest ${S.body} rounded-[1.25rem] md:rounded-[1.5rem] hover:bg-white/10 transition-all flex items-center justify-center gap-3`}
+                                        className={`w-full py-3.5 md:py-4 border border-[var(--brand-primary-foreground)]/30 text-[var(--brand-primary-foreground)] font-bold uppercase tracking-widest ${S.body} rounded-[1.25rem] md:rounded-[1.5rem] hover:bg-white/10 transition-all flex items-center justify-center gap-3`}
                                     >
                                         {manageSubscriptionMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <Settings size={18} />}
                                         Gestionar Facturación
@@ -963,7 +963,7 @@ export const SettingsPlanPage = () => {
                         ) : (
                             <p
                                 style={{ color: activePlan?.isTrial ? 'var(--ty-muted)' : 'var(--brand-primary-foreground)' }}
-                                className={`${S.meta} text-center mt-8 font-black uppercase tracking-widest opacity-40`}
+                                className={`${S.meta} text-center mt-8 font-bold uppercase tracking-widest opacity-40`}
                             >
                                 Solo administradores
                             </p>
@@ -1092,12 +1092,12 @@ export const SettingsPlanPage = () => {
                                                     href={inv.invoiceUrl} 
                                                     target="_blank" 
                                                     rel="noopener noreferrer"
-                                                    className="w-10 h-10 rounded-xl bg-[var(--bg-elevated)] flex items-center justify-center text-[var(--ty-dimmed)] group-hover:bg-[var(--brand-primary)] group-hover:text-[var(--brand-primary-foreground)] cursor-pointer transition-all duration-300 font-black text-[9px] uppercase tracking-tighter"
+                                                    className="w-10 h-10 rounded-xl bg-[var(--bg-elevated)] flex items-center justify-center text-[var(--ty-dimmed)] group-hover:bg-[var(--brand-primary)] group-hover:text-[var(--brand-primary-foreground)] cursor-pointer transition-all duration-300 font-bold text-[9px] uppercase tracking-tighter"
                                                 >
                                                     PDF
                                                 </a>
                                             ) : (
-                                                <div className="w-10 h-10 rounded-xl bg-[var(--bg-surface)] flex items-center justify-center text-[var(--ty-dimmed)] opacity-30 font-black text-[9px] uppercase tracking-tighter">
+                                                <div className="w-10 h-10 rounded-xl bg-[var(--bg-surface)] flex items-center justify-center text-[var(--ty-dimmed)] opacity-30 font-bold text-[9px] uppercase tracking-tighter">
                                                     PDF
                                                 </div>
                                             )}

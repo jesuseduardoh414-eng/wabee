@@ -224,7 +224,7 @@ export default function ChannelAiConfigSection({ channelId, onClose }: Props) {
                 )}
 
                 <div className="flex border-t border-[var(--border-default)] pt-6 items-center justify-end gap-4 mt-6">
-                    {success && <span className="text-sm font-black text-green-500 bg-green-500/10 px-4 py-2 rounded-xl border border-green-500/20 uppercase tracking-widest">Cambios Guardados</span>}
+                    {success && <span className="text-sm font-bold text-green-500 bg-green-500/10 px-4 py-2 rounded-xl border border-green-500/20 uppercase tracking-widest">Cambios Guardados</span>}
                     <button 
                          type="submit" 
                          disabled={saving}

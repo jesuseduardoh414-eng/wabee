@@ -83,7 +83,7 @@ export const OrganizationPage = () => {
                             <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--brand-primary)]/5 rounded-bl-full -mr-10 -mt-10 group-hover:bg-[var(--brand-primary)]/10 transition-all duration-500" />
 
                             <div className="relative z-10">
-                                <p className={`${T.badgeText} ${S.meta} text-[var(--brand-primary)] font-black uppercase tracking-[3px] mb-2`}>
+                                <p className={`${T.badgeText} ${S.meta} text-[var(--brand-primary)] font-bold uppercase tracking-[3px] mb-2`}>
                                     Detalles de Empresa
                                 </p>
                                 <h2 className={`${T.sectionTitle} ${S.displayLg} mb-8 tracking-tighter`}>
@@ -93,7 +93,7 @@ export const OrganizationPage = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     {/* ID Único */}
                                     <div>
-                                        <p className={`${T.labelText} ${S.meta} font-black uppercase tracking-widest mb-1`}>
+                                        <p className={`${T.labelText} ${S.meta} font-bold uppercase tracking-widest mb-1`}>
                                             ID Único
                                         </p>
                                         <div className="flex items-center gap-2">
@@ -105,10 +105,10 @@ export const OrganizationPage = () => {
 
                                     {/* Nivel de Acceso */}
                                     <div>
-                                        <p className={`${T.labelText} ${S.meta} font-black uppercase tracking-widest mb-1`}>
+                                        <p className={`${T.labelText} ${S.meta} font-bold uppercase tracking-widest mb-1`}>
                                             Tu Nivel de Acceso
                                         </p>
-                                        <span className={`inline-flex items-center px-3 py-1 rounded-full bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] ${T.badgeText} ${S.meta} font-black uppercase tracking-wider border border-[var(--brand-primary)]/20`}>
+                                        <span className={`inline-flex items-center px-3 py-1 rounded-full bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] ${T.badgeText} ${S.meta} font-bold uppercase tracking-wider border border-[var(--brand-primary)]/20`}>
                                             {role}
                                         </span>
                                     </div>
@@ -140,7 +140,7 @@ export const OrganizationPage = () => {
                                             <p className={`${T.kpiValue} ${S.kpiLg} text-[var(--brand-primary)]`}>
                                                 {formatSize(orgStats?.storageUsage || 0)}
                                             </p>
-                                            <p className={`${T.helperText} ${S.meta} font-black uppercase mt-1`}>
+                                            <p className={`${T.helperText} ${S.meta} font-bold uppercase mt-1`}>
                                                 Límite: {formatSize(orgStats?.storageLimit || 1024 * 1024 * 50)}
                                             </p>
                                         </>
@@ -159,7 +159,7 @@ export const OrganizationPage = () => {
                                         }}
                                     />
                                 </div>
-                                <div className={`flex justify-between ${T.badgeText} ${S.meta} font-black tracking-[2px] uppercase`}>
+                                <div className={`flex justify-between ${T.badgeText} ${S.meta} font-bold tracking-[2px] uppercase`}>
                                     <span className="text-[var(--ty-dimmed)]">Consumo de Datos</span>
                                     <span className={
                                         ((orgStats?.storageUsage || 0) / (orgStats?.storageLimit || 1)) > 0.8

@@ -104,7 +104,7 @@ export const AuditGlobalPage: React.FC = () => {
                             </div>
                              <div>
                                  <p className={`${T.helperText} ${S.meta} uppercase tracking-widest opacity-70 transition-opacity`}>{f.label}</p>
-                                 <p className={`${T.kpiValue} ${S.body} font-black text-[var(--text-strong)]`}>{f.count}</p>
+                                 <p className={`${T.kpiValue} ${S.body} font-bold text-[var(--text-strong)]`}>{f.count}</p>
                              </div>
                         </div>
                     </div>

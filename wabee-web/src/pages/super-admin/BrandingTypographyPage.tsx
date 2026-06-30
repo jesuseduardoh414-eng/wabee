@@ -217,7 +217,7 @@ export const BrandingTypographyPage = () => {
                     <button
                         onClick={handleSave}
                         disabled={!hasChanges || saving}
-                        className={`flex items-center gap-2 px-7 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${
+                        className={`flex items-center gap-2 px-7 py-2.5 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${
                             saveSuccess
                                 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                                 : hasChanges && !saving
@@ -255,10 +255,10 @@ export const BrandingTypographyPage = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="border-b border-[var(--border-default)] bg-[var(--bg-surface)]">
-                                <th className={`px-6 py-4 text-[9px] ${T.tableHeader} font-black uppercase tracking-widest whitespace-nowrap`}>Grupo Semántico</th>
-                                <th className={`px-6 py-4 text-[9px] ${T.tableHeader} font-black uppercase tracking-widest`}>Vista Previa Real</th>
-                                <th className={`px-6 py-4 text-[9px] ${T.tableHeader} font-black uppercase tracking-widest whitespace-nowrap`}>Tipografía</th>
-                                <th className={`px-6 py-4 text-[9px] ${T.tableHeader} font-black uppercase tracking-widest whitespace-nowrap`}>Color Hex</th>
+                                <th className={`px-6 py-4 text-[9px] ${T.tableHeader} font-bold uppercase tracking-widest whitespace-nowrap`}>Grupo Semántico</th>
+                                <th className={`px-6 py-4 text-[9px] ${T.tableHeader} font-bold uppercase tracking-widest`}>Vista Previa Real</th>
+                                <th className={`px-6 py-4 text-[9px] ${T.tableHeader} font-bold uppercase tracking-widest whitespace-nowrap`}>Tipografía</th>
+                                <th className={`px-6 py-4 text-[9px] ${T.tableHeader} font-bold uppercase tracking-widest whitespace-nowrap`}>Color Hex</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[var(--border-default)]/50">
@@ -274,7 +274,7 @@ export const BrandingTypographyPage = () => {
                                         <td className="px-6 py-4 min-w-[200px] align-top">
                                             <div className="flex flex-col gap-1.5">
                                                 <div className="flex items-center gap-2">
-                                                    <h3 className={`${T.tableCell} font-black text-[10px] uppercase tracking-widest`}>
+                                                    <h3 className={`${T.tableCell} font-bold text-[10px] uppercase tracking-widest`}>
                                                         {group.name}
                                                     </h3>
                                                     <code className={`text-[7.5px] bg-[var(--bg-surface)] px-1.5 py-0.5 rounded text-[var(--brand-primary)]/60 border border-[var(--border-default)] font-mono whitespace-nowrap mt-px`}>
@@ -370,7 +370,7 @@ export const BrandingTypographyPage = () => {
                         <button
                             onClick={handleSave}
                             disabled={saving}
-                            className={`bg-[var(--brand-primary)]  px-5 py-1.5 rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg disabled:opacity-60 ${T.buttonPrimaryText}`}
+                            className={`bg-[var(--brand-primary)]  px-5 py-1.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg disabled:opacity-60 ${T.buttonPrimaryText}`}
                         >
                             {saving ? 'Guardando...' : 'Aplicar Ahora'}
                         </button>

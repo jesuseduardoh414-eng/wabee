@@ -34,7 +34,7 @@ export const BrandingPage = () => {
                                 <Palette size={28} />
                             </div>
                             <div className="space-y-1">
-                                <h3 className={`${T.cardTitle} text-xl font-black uppercase tracking-tight`}>Temas Visuales</h3>
+                                <h3 className={`${T.cardTitle} text-xl font-bold uppercase tracking-tight`}>Temas Visuales</h3>
                                 <p className={`${T.helperText} text-xs leading-relaxed`}>
                                     Crea y gestiona paletas de colores y tipografías personalizadas para toda la plataforma.
                                 </p>
@@ -43,7 +43,7 @@ export const BrandingPage = () => {
 
                         <Link 
                             to="/dashboard/super-admin/branding/themes"
-                            className={`mt-8 w-full py-4 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-2xl ${T.buttonPrimaryText} font-black text-[10px] uppercase tracking-widest hover:bg-[var(--brand-primary)] hover: hover:border-[var(--brand-primary)] transition-all flex items-center justify-center gap-2 group/btn`}
+                            className={`mt-8 w-full py-4 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-2xl ${T.buttonPrimaryText} font-bold text-[10px] uppercase tracking-widest hover:bg-[var(--brand-primary)] hover: hover:border-[var(--brand-primary)] transition-all flex items-center justify-center gap-2 group/btn`}
                         >
                             Gestionar Temas <Palette size={14} className="group-hover/btn:scale-110 transition-transform" />
                         </Link>
@@ -61,7 +61,7 @@ export const BrandingPage = () => {
                             </div>
                             <Link 
                                 to="/dashboard/super-admin/branding/typography"
-                                className={`bg-[var(--brand-primary)]  px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-lg inline-block text-center`}
+                                className={`bg-[var(--brand-primary)]  px-4 py-2 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-lg inline-block text-center`}
                             >
                                 Configurar Grupos
                             </Link>
@@ -69,11 +69,11 @@ export const BrandingPage = () => {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="p-4 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-2xl space-y-2">
-                                <span className="tx-pageTitle text-[10px] font-black uppercase opacity-60">pageTitle</span>
+                                <span className="tx-pageTitle text-[10px] font-bold uppercase opacity-60">pageTitle</span>
                                 <div className="h-1.5 w-full bg-[var(--brand-primary)]/20 rounded-full" />
                             </div>
                             <div className="p-4 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-2xl space-y-2">
-                                <span className="tx-buttonText text-[10px] font-black uppercase opacity-60">buttonText</span>
+                                <span className="tx-buttonText text-[10px] font-bold uppercase opacity-60">buttonText</span>
                                 <div className="h-1.5 w-3/4 bg-[var(--brand-primary)]/20 rounded-full" />
                             </div>
                         </div>
@@ -127,7 +127,7 @@ export const BrandingPage = () => {
                             <div className="h-2 bg-[var(--brand-primary)]/10 w-1/2 rounded-full" />
                         </div>
 
-                        <button className={`w-full py-3 bg-[var(--brand-primary)] rounded-xl ${T.buttonPrimaryText} font-black text-[10px] uppercase tracking-widest`}>
+                        <button className={`w-full py-3 bg-[var(--brand-primary)] rounded-xl ${T.buttonPrimaryText} font-bold text-[10px] uppercase tracking-widest`}>
                             Botón de Ejemplo
                         </button>
                     </div>

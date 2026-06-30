@@ -176,13 +176,13 @@ export default function TemplatesHubPage() {
             <div className="mx-auto max-w-4xl p-6 text-center sm:p-12">
                 <div className="relative overflow-hidden rounded-[32px] border border-[var(--border-default)] bg-[var(--bg-card)] p-8 shadow-2xl sm:rounded-[40px] sm:p-16">
                     <div className={`pointer-events-none absolute left-1/2 top-0 h-64 w-64 -translate-x-1/2 bg-[var(--brand-primary)]/5 blur-[100px] ${T.buttonPrimaryText}`}></div>
-                    <h1 className={`${T.pageTitle} mb-6 text-4xl font-black uppercase italic tracking-tighter text-[var(--text-strong)]`}>
+                    <h1 className={`${T.pageTitle} mb-6 text-4xl font-bold uppercase italic tracking-tighter text-[var(--text-strong)]`}>
                         {COPY.inactiveTitle} <span className="text-[var(--brand-primary)]">{COPY.inactiveHighlight}</span>
                     </h1>
                     <p className={`${T.pageSubtitle} ${S.body} mx-auto mb-10 max-w-sm font-medium leading-relaxed text-[var(--text-muted)]`}>{COPY.inactiveBody}</p>
                     <button
                         onClick={() => navigate('/dashboard/wabee/channels')}
-                        className={`rounded-2xl bg-[var(--brand-primary)] px-10 py-4 text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[var(--brand-primary)]/20 transition-all hover:brightness-110 active:scale-95 ${T.buttonPrimaryText}`}
+                        className={`rounded-2xl bg-[var(--brand-primary)] px-10 py-4 text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-[var(--brand-primary)]/20 transition-all hover:brightness-110 active:scale-95 ${T.buttonPrimaryText}`}
                     >
                         {COPY.configureChannels}
                     </button>
@@ -196,7 +196,7 @@ export default function TemplatesHubPage() {
             <header className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                 <div className="space-y-4">
                     <div className="space-y-2">
-                        <h1 className={`${T.pageTitle} text-4xl font-black uppercase italic tracking-tighter text-[var(--text-strong)] sm:text-5xl`}>
+                        <h1 className={`${T.pageTitle} text-4xl font-bold uppercase italic tracking-tighter text-[var(--text-strong)] sm:text-5xl`}>
                             {COPY.title} <span className="text-[var(--brand-primary)]">{COPY.highlight}</span>
                         </h1>
                         <p className={`${T.pageSubtitle} ${S.body} max-w-md font-medium text-[var(--text-muted)]`}>{COPY.subtitle}</p>
@@ -209,7 +209,7 @@ export default function TemplatesHubPage() {
                         <select
                             value={selectedChannelId}
                             onChange={(e) => setSelectedChannelId(e.target.value)}
-                            className={`${T.inputText} ${S.body} min-w-0 flex-1 cursor-pointer appearance-none bg-transparent py-2 pr-2 text-[10px] font-black uppercase tracking-widest text-[var(--text-strong)] outline-none sm:pr-8`}
+                            className={`${T.inputText} ${S.body} min-w-0 flex-1 cursor-pointer appearance-none bg-transparent py-2 pr-2 text-[10px] font-bold uppercase tracking-widest text-[var(--text-strong)] outline-none sm:pr-8`}
                         >
                             {channels.map((channel) => (
                                 <option key={channel.id} value={channel.id} className="bg-[var(--bg-card)] text-[var(--text-strong)]">
@@ -219,7 +219,7 @@ export default function TemplatesHubPage() {
                         </select>
                         {!canImport && selectedChannelId && (
                             <div className="rounded-lg border border-[var(--state-danger)]/20 bg-[var(--state-danger)]/10 px-2 py-1 sm:px-3">
-                                <span className="text-[9px] font-black uppercase tracking-widest italic text-[var(--state-danger)]">{COPY.offline}</span>
+                                <span className="text-[9px] font-bold uppercase tracking-widest italic text-[var(--state-danger)]">{COPY.offline}</span>
                             </div>
                         )}
                     </div>
@@ -229,13 +229,13 @@ export default function TemplatesHubPage() {
                     <div className="flex flex-1 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] p-1.5">
                         <button
                             onClick={() => setViewMode('table')}
-                            className={`flex-1 rounded-xl px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'table' ? 'bg-[var(--brand-primary)] shadow-lg shadow-[var(--brand-primary)]/10' : 'text-[color:var(--text-muted)] hover:text-[color:var(--text-strong)]'} ${T.buttonPrimaryText}`}
+                            className={`flex-1 rounded-xl px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest transition-all ${viewMode === 'table' ? 'bg-[var(--brand-primary)] shadow-lg shadow-[var(--brand-primary)]/10' : 'text-[color:var(--text-muted)] hover:text-[color:var(--text-strong)]'} ${T.buttonPrimaryText}`}
                         >
                             {COPY.structure}
                         </button>
                         <button
                             onClick={() => setViewMode('whatsapp')}
-                            className={`flex-1 rounded-xl px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'whatsapp' ? 'bg-[var(--brand-primary)] shadow-lg shadow-[var(--brand-primary)]/10' : 'text-[color:var(--text-muted)] hover:text-[color:var(--text-strong)]'} ${T.buttonPrimaryText}`}
+                            className={`flex-1 rounded-xl px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest transition-all ${viewMode === 'whatsapp' ? 'bg-[var(--brand-primary)] shadow-lg shadow-[var(--brand-primary)]/10' : 'text-[color:var(--text-muted)] hover:text-[color:var(--text-strong)]'} ${T.buttonPrimaryText}`}
                         >
                             {COPY.visual}
                         </button>
@@ -244,7 +244,7 @@ export default function TemplatesHubPage() {
                     <button
                         onClick={() => setShowCreateModal(true)}
                         disabled={!selectedChannelId || !canImport}
-                        className={`flex w-full items-center justify-center gap-3 rounded-2xl bg-[var(--brand-primary)] px-6 py-3.5 text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[var(--brand-primary)]/20 transition-all disabled:cursor-not-allowed disabled:opacity-30 hover:brightness-110 active:scale-95 sm:w-auto sm:px-8 ${T.buttonPrimaryText}`}
+                        className={`flex w-full items-center justify-center gap-3 rounded-2xl bg-[var(--brand-primary)] px-6 py-3.5 text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-[var(--brand-primary)]/20 transition-all disabled:cursor-not-allowed disabled:opacity-30 hover:brightness-110 active:scale-95 sm:w-auto sm:px-8 ${T.buttonPrimaryText}`}
                     >
                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" /></svg>
                         Crear Plantilla
@@ -253,7 +253,7 @@ export default function TemplatesHubPage() {
                     <button
                         onClick={handleImport}
                         disabled={importing || !selectedChannelId || !canImport}
-                        className="flex w-full items-center justify-center gap-3 rounded-2xl border border-[var(--brand-primary)]/20 bg-[var(--bg-card)] px-6 py-3.5 text-[10px] font-black uppercase tracking-widest text-[color:var(--brand-primary)] shadow-xl shadow-[var(--brand-primary)]/5 transition-all disabled:grayscale disabled:opacity-20 hover:bg-[var(--brand-primary)] sm:w-auto sm:px-8"
+                        className="flex w-full items-center justify-center gap-3 rounded-2xl border border-[var(--brand-primary)]/20 bg-[var(--bg-card)] px-6 py-3.5 text-[10px] font-bold uppercase tracking-widest text-[color:var(--brand-primary)] shadow-xl shadow-[var(--brand-primary)]/5 transition-all disabled:grayscale disabled:opacity-20 hover:bg-[var(--brand-primary)] sm:w-auto sm:px-8"
                     >
                         {importing ? (
                             <>
@@ -272,11 +272,11 @@ export default function TemplatesHubPage() {
 
             <div className="grid grid-cols-1 gap-4 rounded-3xl border border-[var(--border-default)] bg-[var(--bg-card)] p-5 shadow-2xl sm:grid-cols-2 sm:gap-5 sm:p-6 xl:grid-cols-[150px_170px_190px_minmax(0,1fr)] xl:items-end">
                 <div>
-                    <label className={`${T.labelText} ${S.meta} mb-2 block px-1 font-black uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>{COPY.status}</label>
+                    <label className={`${T.labelText} ${S.meta} mb-2 block px-1 font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>{COPY.status}</label>
                     <select
                         value={filters.status}
                         onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                        className={`${T.inputText} ${S.body} w-full cursor-pointer appearance-none rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-5 py-3 text-[9px] font-black uppercase tracking-widest text-[var(--text-strong)] outline-none transition-all focus:border-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-primary)]/50`}
+                        className={`${T.inputText} ${S.body} w-full cursor-pointer appearance-none rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-5 py-3 text-[9px] font-bold uppercase tracking-widest text-[var(--text-strong)] outline-none transition-all focus:border-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-primary)]/50`}
                     >
                         <option value="" className="bg-[var(--bg-card)]">{COPY.all}</option>
                         <option value="APPROVED" className="bg-[var(--bg-card)]">{COPY.approved}</option>
@@ -286,7 +286,7 @@ export default function TemplatesHubPage() {
                 </div>
 
                 <div>
-                    <label className={`${T.labelText} ${S.meta} mb-2 block px-1 font-black uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>{COPY.language}</label>
+                    <label className={`${T.labelText} ${S.meta} mb-2 block px-1 font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>{COPY.language}</label>
                     <input
                         type="text"
                         value={filters.language}
@@ -297,11 +297,11 @@ export default function TemplatesHubPage() {
                 </div>
 
                 <div>
-                    <label className={`${T.labelText} ${S.meta} mb-2 block px-1 font-black uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>{COPY.category}</label>
+                    <label className={`${T.labelText} ${S.meta} mb-2 block px-1 font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>{COPY.category}</label>
                     <select
                         value={filters.category}
                         onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-                        className={`${T.inputText} ${S.body} w-full cursor-pointer appearance-none rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-5 py-3 text-[9px] font-black uppercase tracking-widest text-[var(--text-strong)] outline-none transition-all focus:border-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-primary)]/50`}
+                        className={`${T.inputText} ${S.body} w-full cursor-pointer appearance-none rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-5 py-3 text-[9px] font-bold uppercase tracking-widest text-[var(--text-strong)] outline-none transition-all focus:border-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-primary)]/50`}
                     >
                         <option value="" className="bg-[var(--bg-card)]">{COPY.allCategories}</option>
                         <option value="MARKETING" className="bg-[var(--bg-card)]">{COPY.marketing}</option>
@@ -311,7 +311,7 @@ export default function TemplatesHubPage() {
                 </div>
 
                 <div>
-                    <label className={`${T.labelText} ${S.meta} mb-2 block px-1 font-black uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>{COPY.identifier}</label>
+                    <label className={`${T.labelText} ${S.meta} mb-2 block px-1 font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>{COPY.identifier}</label>
                     <div className="flex gap-3">
                         <input
                             type="text"
@@ -322,7 +322,7 @@ export default function TemplatesHubPage() {
                         />
                         <button
                             onClick={fetchTemplates}
-                            className={`rounded-xl bg-[var(--brand-primary)] px-6 text-[9px] font-black uppercase tracking-widest shadow-lg shadow-[var(--brand-primary)]/20 transition-all hover:brightness-110 active:scale-95 sm:px-8 ${T.buttonPrimaryText}`}
+                            className={`rounded-xl bg-[var(--brand-primary)] px-6 text-[9px] font-bold uppercase tracking-widest shadow-lg shadow-[var(--brand-primary)]/20 transition-all hover:brightness-110 active:scale-95 sm:px-8 ${T.buttonPrimaryText}`}
                         >
                             {COPY.filter}
                         </button>
@@ -333,7 +333,7 @@ export default function TemplatesHubPage() {
             {loadingTemplates ? (
                 <div className="flex flex-col items-center gap-6 rounded-[32px] border border-[var(--border-default)] bg-[var(--bg-card)] py-24 shadow-2xl sm:rounded-[40px] sm:py-32">
                     <div className="h-16 w-16 animate-spin rounded-full border-4 border-[var(--brand-primary)]/10 border-t-[var(--brand-primary)]"></div>
-                    <p className={`${T.helperText} ${S.meta} text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--text-muted)] animate-pulse`}>{COPY.loading}</p>
+                    <p className={`${T.helperText} ${S.meta} text-[10px] font-bold uppercase tracking-[0.3em] text-[color:var(--text-muted)] animate-pulse`}>{COPY.loading}</p>
                 </div>
             ) : (
                 <div className="space-y-6 sm:space-y-8">
@@ -344,11 +344,11 @@ export default function TemplatesHubPage() {
                                     <table className="w-full min-w-[880px] border-collapse text-left">
                                         <thead>
                                             <tr className="border-b border-[var(--border-default)] bg-[var(--bg-muted)]">
-                                                <th className={`px-8 py-6 ${T.tableHeader} ${S.meta} font-black uppercase tracking-[0.2em] italic text-[color:var(--text-muted)]`}>{COPY.name}</th>
-                                                <th className={`px-8 py-6 ${T.tableHeader} ${S.meta} font-black uppercase tracking-[0.2em] italic text-[color:var(--text-muted)]`}>{COPY.language}</th>
-                                                <th className={`px-8 py-6 ${T.tableHeader} ${S.meta} font-black uppercase tracking-[0.2em] italic text-[color:var(--text-muted)]`}>{COPY.category}</th>
-                                                <th className={`px-8 py-6 ${T.tableHeader} ${S.meta} font-black uppercase tracking-[0.2em] italic text-[color:var(--text-muted)]`}>{COPY.status}</th>
-                                                <th className={`px-8 py-6 ${T.tableHeader} ${S.meta} font-black uppercase tracking-[0.2em] italic text-[color:var(--text-muted)]`}>{COPY.snippet}</th>
+                                                <th className={`px-8 py-6 ${T.tableHeader} ${S.meta} font-bold uppercase tracking-[0.2em] italic text-[color:var(--text-muted)]`}>{COPY.name}</th>
+                                                <th className={`px-8 py-6 ${T.tableHeader} ${S.meta} font-bold uppercase tracking-[0.2em] italic text-[color:var(--text-muted)]`}>{COPY.language}</th>
+                                                <th className={`px-8 py-6 ${T.tableHeader} ${S.meta} font-bold uppercase tracking-[0.2em] italic text-[color:var(--text-muted)]`}>{COPY.category}</th>
+                                                <th className={`px-8 py-6 ${T.tableHeader} ${S.meta} font-bold uppercase tracking-[0.2em] italic text-[color:var(--text-muted)]`}>{COPY.status}</th>
+                                                <th className={`px-8 py-6 ${T.tableHeader} ${S.meta} font-bold uppercase tracking-[0.2em] italic text-[color:var(--text-muted)]`}>{COPY.snippet}</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-[var(--border-default)]">
@@ -362,9 +362,9 @@ export default function TemplatesHubPage() {
                                                 templates.map((template) => (
                                                     <tr key={template.id} className="group transition-colors hover:bg-[var(--brand-primary)]/[0.02]">
                                                         <td className={`px-8 py-5 text-sm font-extrabold text-[var(--text-strong)] transition-colors group-hover:text-[var(--brand-primary)] ${T.tableCell}`}>{template.name}</td>
-                                                        <td className={`px-8 py-5 text-[10px] font-black uppercase tracking-widest text-[color:var(--brand-primary)] ${T.badgeText}`}>{template.language}</td>
+                                                        <td className={`px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-[color:var(--brand-primary)] ${T.badgeText}`}>{template.language}</td>
                                                         <td className="px-8 py-5">
-                                                            <span className={`rounded-full border px-3 py-1 text-[9px] font-black uppercase tracking-widest ${template.category === 'MARKETING' ? 'bg-[color:var(--state-info)]/10 text-[color:var(--state-info)] border-[color:var(--state-info)]/20' :
+                                                            <span className={`rounded-full border px-3 py-1 text-[9px] font-bold uppercase tracking-widest ${template.category === 'MARKETING' ? 'bg-[color:var(--state-info)]/10 text-[color:var(--state-info)] border-[color:var(--state-info)]/20' :
                                                                 template.category === 'UTILITY' ? 'bg-[color:var(--state-success)]/10 text-[color:var(--state-success)] border-[color:var(--state-success)]/20' :
                                                                     'bg-[color:var(--state-warning)]/10 text-[color:var(--state-warning)] border-[color:var(--state-warning)]/20'
                                                                 }`}>
@@ -372,7 +372,7 @@ export default function TemplatesHubPage() {
                                                             </span>
                                                         </td>
                                                         <td className="px-8 py-5">
-                                                            <span className={`rounded-full border px-3 py-1 text-[9px] font-black uppercase tracking-widest ${T.badgeText} ${template.status === 'APPROVED' ? 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] border-[var(--brand-primary)]/20 shadow-[0_0_10px_rgba(var(--brand-primary-rgb),0.1)]' :
+                                                            <span className={`rounded-full border px-3 py-1 text-[9px] font-bold uppercase tracking-widest ${T.badgeText} ${template.status === 'APPROVED' ? 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] border-[var(--brand-primary)]/20 shadow-[0_0_10px_rgba(var(--brand-primary-rgb),0.1)]' :
                                                                 template.status === 'PENDING' ? 'bg-[color:var(--state-warning)]/10 text-[color:var(--state-warning)] border-[color:var(--state-warning)]/20' :
                                                                     template.status === 'REJECTED' ? 'bg-[color:var(--state-danger)]/10 text-[color:var(--state-danger)] border-[color:var(--state-danger)]/20' :
                                                                         'bg-[color:var(--text-muted)]/10 text-[color:var(--text-muted)] border-[color:var(--text-muted)]/20'
@@ -401,7 +401,7 @@ export default function TemplatesHubPage() {
                                         <article key={template.id} className="space-y-4 rounded-[28px] border border-[var(--border-default)] bg-[var(--bg-card)] p-5 shadow-2xl">
                                             <div className="flex items-start justify-between gap-3">
                                                 <h3 className={`${T.cardTitle} ${S.headingMd} max-w-[70%] break-words italic text-[var(--brand-primary)]`}>{template.name}</h3>
-                                                <span className={`rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest ${template.status === 'APPROVED' ? 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] border-[var(--brand-primary)]/20' :
+                                                <span className={`rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest ${template.status === 'APPROVED' ? 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] border-[var(--brand-primary)]/20' :
                                                     template.status === 'PENDING' ? 'bg-[color:var(--state-warning)]/10 text-[color:var(--state-warning)] border-[color:var(--state-warning)]/20' :
                                                         'bg-[color:var(--state-danger)]/10 text-[color:var(--state-danger)] border-[color:var(--state-danger)]/20'
                                                     }`}>
@@ -432,7 +432,7 @@ export default function TemplatesHubPage() {
                     )}
 
                     {meta && meta.total > 0 && (
-                        <div className={`flex flex-col gap-3 px-2 text-[10px] font-black uppercase tracking-[0.2em] italic opacity-60 sm:flex-row sm:items-center sm:justify-between sm:px-4 ${T.helperText} text-[color:var(--text-muted)]`}>
+                        <div className={`flex flex-col gap-3 px-2 text-[10px] font-bold uppercase tracking-[0.2em] italic opacity-60 sm:flex-row sm:items-center sm:justify-between sm:px-4 ${T.helperText} text-[color:var(--text-muted)]`}>
                             <div>{COPY.synced}: <span className="not-italic text-[color:var(--text-strong)]">{templates.length} / {meta.total}</span></div>
                             <div className="flex items-center gap-2">
                                 <div className="h-[1px] w-8 bg-[var(--border-default)] sm:w-12"></div>

@@ -9,30 +9,30 @@ interface ImportContactsModalProps {
 }
 
 const COPY = {
-    title: 'Importación',
-    highlight: 'Masiva',
-    subtitle: 'Gestiona tu CRM con carga de archivos CSV',
-    noFormat: '¿Sin formato oficial?',
-    templateHelp: 'Usa nuestra plantilla para una carga perfecta.',
+    title: 'Importar',
+    highlight: 'contactos',
+    subtitle: 'Carga un archivo CSV para agregar contactos en lote.',
+    noFormat: '¿No tienes el formato?',
+    templateHelp: 'Descarga la plantilla para una carga sin errores.',
     required: '✦ Requerido: name, phone',
     optional: '◌ Opcional: email, tags',
     phoneRule: '⚠ Teléfono: texto plano',
-    downloadTemplate: 'Descargar Plantilla',
-    chooseFile: 'Seleccionar Archivo',
+    downloadTemplate: 'Descargar plantilla',
+    chooseFile: 'Arrastra o selecciona tu CSV',
     maxFile: 'Máximo 2MB · Formato CSV',
     newItems: 'Nuevos',
     updated: 'Actualizados',
     skipped: 'Omitidos',
     errors: 'Errores',
-    errorLog: 'Registro de Errores',
+    errorLog: 'Errores',
     row: 'Fila',
     phone: 'Teléfono',
-    failure: 'Descripción del Fallo',
-    success: 'Operación Finalizada con Éxito',
+    failure: 'Motivo',
+    success: '¡Importación completada!',
     cancel: 'Cancelar',
-    importAction: 'Ejecutar Importación',
-    importing: 'Inyectando...',
-    finish: 'Finalizar Transacción',
+    importAction: 'Importar',
+    importing: 'Importando...',
+    finish: 'Listo',
 } as const;
 
 export const ImportContactsModal: React.FC<ImportContactsModalProps> = ({ onClose, onSuccess }) => {
@@ -71,10 +71,10 @@ export const ImportContactsModal: React.FC<ImportContactsModalProps> = ({ onClos
             <div className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-[28px] border border-[var(--border-default)] bg-[var(--bg-card)] shadow-[0_32px_120px_-20px_rgba(0,0,0,0.8)] animate-in zoom-in-95 duration-500 sm:rounded-[40px]">
                 <div className="flex items-start justify-between gap-4 p-5 pb-4 sm:p-10 sm:pb-6">
                     <div className="min-w-0">
-                        <h2 className={`${T.sectionTitle} ${S.displayMd} mb-2 leading-none italic tracking-tighter uppercase`}>
+                        <h2 className={`${T.sectionTitle} ${S.displayMd} mb-2 leading-tight tracking-tight`}>
                             {COPY.title} <span className="text-[var(--brand-primary)]">{COPY.highlight}</span>
                         </h2>
-                        <p className={`${T.pageSubtitle} ${S.meta} uppercase tracking-wide opacity-80`}>{COPY.subtitle}</p>
+                        <p className={`${T.pageSubtitle} ${S.body} text-[var(--text-muted)]`}>{COPY.subtitle}</p>
                     </div>
                     <button
                         onClick={onClose}
@@ -91,7 +91,7 @@ export const ImportContactsModal: React.FC<ImportContactsModalProps> = ({ onClos
                                 <div className="absolute left-0 top-0 h-full w-1 bg-[var(--brand-primary)]/40"></div>
                                 <div className="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                                     <div>
-                                        <h3 className={`${T.cardTitle} ${S.headingMd} italic tracking-tight uppercase`}>{COPY.noFormat}</h3>
+                                        <h3 className={`${T.cardTitle} ${S.headingMd} tracking-tight`}>{COPY.noFormat}</h3>
                                         <p className={`${T.helperText} ${S.body} mt-1 text-[var(--text-muted)]`}>{COPY.templateHelp}</p>
                                         <div className="mt-3 flex flex-wrap gap-2">
                                             <span className={`${T.badgeText} ${S.meta} rounded-lg border border-[var(--brand-primary)]/20 bg-[var(--brand-primary)]/10 px-2 py-1 uppercase text-[var(--brand-primary)]`}>{COPY.required}</span>
@@ -123,7 +123,7 @@ export const ImportContactsModal: React.FC<ImportContactsModalProps> = ({ onClos
                                 </div>
 
                                 <div className="space-y-1">
-                                    <p className={`${T.buttonText} ${S.headingMd} break-all uppercase italic ${file ? 'text-[var(--text-strong)]' : 'text-[var(--text-muted)]'}`}>
+                                    <p className={`${T.buttonText} ${S.headingMd} break-all ${file ? 'text-[var(--text-strong)]' : 'text-[var(--text-muted)]'}`}>
                                         {file ? file.name : COPY.chooseFile}
                                     </p>
                                     <p className={`${T.helperText} ${S.meta} uppercase tracking-widest text-[var(--brand-primary)]/60`}>
@@ -143,19 +143,19 @@ export const ImportContactsModal: React.FC<ImportContactsModalProps> = ({ onClos
                         <div className="space-y-8 py-2 animate-in fade-in slide-in-from-top-4 duration-500 sm:space-y-10 sm:py-4">
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-4">
                                 <div className="rounded-[28px] border border-green-500/20 bg-green-500/10 p-5 transition-all hover:scale-[1.02] sm:rounded-[32px] sm:p-6">
-                                    <div className={`${T.kpiValue} ${S.displayMd} leading-none italic tracking-tighter text-green-500`}>{result.created}</div>
+                                    <div className={`${T.kpiValue} ${S.displayMd} leading-none tracking-tight text-green-500`}>{result.created}</div>
                                     <div className={`${T.helperText} ${S.meta} mt-2 uppercase tracking-widest text-green-500/80`}>{COPY.newItems}</div>
                                 </div>
                                 <div className="rounded-[28px] border border-blue-500/20 bg-blue-500/10 p-5 transition-all hover:scale-[1.02] sm:rounded-[32px] sm:p-6">
-                                    <div className={`${T.kpiValue} ${S.displayMd} leading-none italic tracking-tighter text-blue-500`}>{result.updated}</div>
+                                    <div className={`${T.kpiValue} ${S.displayMd} leading-none tracking-tight text-blue-500`}>{result.updated}</div>
                                     <div className={`${T.helperText} ${S.meta} mt-2 uppercase tracking-widest text-blue-500/80`}>{COPY.updated}</div>
                                 </div>
                                 <div className="rounded-[28px] border border-[var(--border-default)] bg-[var(--bg-input)] p-5 transition-all hover:scale-[1.02] sm:rounded-[32px] sm:p-6">
-                                    <div className={`${T.kpiValue} ${S.displayMd} leading-none italic tracking-tighter text-[var(--text-muted)]`}>{result.skipped}</div>
+                                    <div className={`${T.kpiValue} ${S.displayMd} leading-none tracking-tight text-[var(--text-muted)]`}>{result.skipped}</div>
                                     <div className={`${T.helperText} ${S.meta} mt-2 uppercase tracking-widest text-[var(--text-muted)]/80`}>{COPY.skipped}</div>
                                 </div>
                                 <div className="rounded-[28px] border border-red-500/20 bg-red-500/10 p-5 transition-all hover:scale-[1.02] sm:rounded-[32px] sm:p-6">
-                                    <div className={`${T.kpiValue} ${S.displayMd} leading-none italic tracking-tighter text-red-500`}>{result.errors?.length || 0}</div>
+                                    <div className={`${T.kpiValue} ${S.displayMd} leading-none tracking-tight text-red-500`}>{result.errors?.length || 0}</div>
                                     <div className={`${T.helperText} ${S.meta} mt-2 uppercase tracking-widest text-red-500/80`}>{COPY.errors}</div>
                                 </div>
                             </div>
@@ -205,7 +205,7 @@ export const ImportContactsModal: React.FC<ImportContactsModalProps> = ({ onClos
                                     <div className="rounded-full bg-[var(--brand-primary)] p-2">
                                         <CheckCircle2 size={20} />
                                     </div>
-                                    <p className={`${T.sectionTitle} ${S.body} uppercase italic tracking-tight text-[var(--brand-primary)]`}>{COPY.success}</p>
+                                    <p className={`${T.sectionTitle} ${S.body} tracking-tight text-[var(--brand-primary)]`}>{COPY.success}</p>
                                 </div>
                             )}
                         </div>
@@ -242,7 +242,7 @@ export const ImportContactsModal: React.FC<ImportContactsModalProps> = ({ onClos
                     ) : (
                         <button
                             onClick={() => { onSuccess(); onClose(); }}
-                            className={`${T.buttonPrimaryText} ${S.meta} w-full rounded-[24px] bg-[var(--text-strong)] px-10 py-5 uppercase tracking-[0.3em] text-[var(--bg-card)] shadow-xl transition-all hover:bg-[var(--brand-primary)]`}
+                            className={`${T.buttonPrimaryText} ${S.body} w-full rounded-2xl bg-[var(--brand-primary)] px-10 py-3.5 text-[var(--brand-primary-foreground)] transition-all hover:brightness-95 sm:w-auto`}
                         >
                             {COPY.finish}
                         </button>

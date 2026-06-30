@@ -95,7 +95,7 @@ export const DashboardGlobalPage = () => {
                         ].map((r, i) => (
                             <div key={i} className="space-y-2">
                                 <div className="flex justify-between items-center px-1">
-                                    <p className={`${T.helperText} ${S.meta} font-black uppercase tracking-widest flex items-center gap-2`}>
+                                    <p className={`${T.helperText} ${S.meta} font-bold uppercase tracking-widest flex items-center gap-2`}>
                                         <span>{r.flag}</span> {r.region}
                                     </p>
                                     <span className={`${T.helperText} ${S.meta} font-bold`}>{r.share}%</span>

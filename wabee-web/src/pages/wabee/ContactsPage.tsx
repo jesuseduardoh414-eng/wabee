@@ -444,7 +444,7 @@ const ContactsPage: React.FC = () => {
                     {!loading && contacts.map(c => (
                         <article key={c.id} className="space-y-4 p-4 sm:p-5">
                             <div className="flex items-start gap-4">
-                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-[var(--bg-card)] bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-primary)]/80 text-sm font-black text-[var(--brand-primary-foreground)] shadow-lg">
+                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-[var(--bg-card)] bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-primary)]/80 text-sm font-bold text-[var(--brand-primary-foreground)] shadow-lg">
                                     {(c.name || 'S').charAt(0).toUpperCase()}
                                 </div>
                                 <div className="min-w-0 flex-1">
@@ -500,7 +500,7 @@ const ContactsPage: React.FC = () => {
                                 <button
                                     onClick={() => handleWhatsAppClick(c)}
                                     disabled={resolvingId === c.id}
-                                    className={`flex items-center justify-center gap-2 rounded-2xl px-4 py-3 uppercase transition-all [font-family:var(--tx-buttonText-font)] text-[10px] font-black tracking-widest ${resolvingId === c.id ? 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)]' : 'bg-green-500/10 text-green-600 hover:bg-green-500/15'}`}
+                                    className={`flex items-center justify-center gap-2 rounded-2xl px-4 py-3 uppercase transition-all [font-family:var(--tx-buttonText-font)] text-[10px] font-bold tracking-widest ${resolvingId === c.id ? 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)]' : 'bg-green-500/10 text-green-600 hover:bg-green-500/15'}`}
                                 >
                                     <svg className={`h-4 w-4 ${resolvingId === c.id ? 'animate-spin' : 'transition-transform group-hover/wp:scale-125'}`} fill="currentColor" viewBox="0 0 24 24">
                                         {resolvingId === c.id ? (
@@ -547,7 +547,7 @@ const ContactsPage: React.FC = () => {
                                 <tr key={c.id} className="group transition-colors hover:bg-[var(--brand-primary)]/[0.02]">
                                     <td className="px-8 py-5">
                                         <div className="flex items-center gap-4">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[var(--bg-card)] bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-primary)]/80 text-sm font-black text-[var(--brand-primary-foreground)] shadow-lg">
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[var(--bg-card)] bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-primary)]/80 text-sm font-bold text-[var(--brand-primary-foreground)] shadow-lg">
                                                 {(c.name || 'S').charAt(0).toUpperCase()}
                                             </div>
                                             <div>
@@ -616,7 +616,7 @@ const ContactsPage: React.FC = () => {
                                             <button
                                                 onClick={() => handleWhatsAppClick(c)}
                                                 disabled={resolvingId === c.id}
-                                                className={`group/wp flex items-center gap-2 rounded-xl px-4 py-2 uppercase transition-all [font-family:var(--tx-buttonText-font)] text-[10px] font-black tracking-widest ${resolvingId === c.id ? 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)]' : 'bg-green-500/10 text-green-600 hover:bg-green-500/15'}`}
+                                                className={`group/wp flex items-center gap-2 rounded-xl px-4 py-2 uppercase transition-all [font-family:var(--tx-buttonText-font)] text-[10px] font-bold tracking-widest ${resolvingId === c.id ? 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)]' : 'bg-green-500/10 text-green-600 hover:bg-green-500/15'}`}
                                             >
                                                 <svg className={`h-4 w-4 ${resolvingId === c.id ? 'animate-spin' : 'transition-transform group-hover/wp:scale-125'}`} fill="currentColor" viewBox="0 0 24 24">
                                                     {resolvingId === c.id ? (

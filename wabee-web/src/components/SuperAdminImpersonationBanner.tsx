@@ -73,7 +73,7 @@ export const SuperAdminImpersonationBanner: React.FC = () => {
                 </div>
                 <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                        <p className="text-xs font-black text-white uppercase tracking-widest leading-none">
+                        <p className="text-xs font-bold text-white uppercase tracking-widest leading-none">
                             MODO SUPLANTACIÓN ACTIVO
                         </p>
                         {impersonationData?.effectiveRole && (

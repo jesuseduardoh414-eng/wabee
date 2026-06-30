@@ -111,7 +111,7 @@ export const AuthCallback = () => {
                             </p>
                             <a
                                 href="/login"
-                                className="inline-flex items-center justify-center wabee-public-submit px-8 text-sm font-black uppercase tracking-[0.12em]"
+                                className="inline-flex items-center justify-center wabee-public-submit px-8 text-sm font-bold uppercase tracking-[0.12em]"
                             >
                                 Ir al login
                             </a>

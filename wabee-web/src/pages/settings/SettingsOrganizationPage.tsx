@@ -230,7 +230,7 @@ export const SettingsOrganizationPage = () => {
                                 : 'bg-[var(--state-danger)]/10 border-[var(--state-danger)]/20 text-[var(--state-danger)]'
                         }`}>
                             {statusMes.type === 'success' ? <CheckCircle2 size={24} /> : <ShieldCheck size={24} />}
-                            <p className={`${T.messageText} ${S.body} uppercase tracking-widest font-black`}>
+                            <p className={`${T.messageText} ${S.body} uppercase tracking-widest font-bold`}>
                                 {statusMes.msg}
                             </p>
                         </div>

@@ -123,7 +123,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
             
             {/* Pop badge centered top */}
             {plan.isPopular && !isDeleted && (
-                <div className="absolute left-1/2 -translate-x-1/2 -top-4 px-6 py-1.5 rounded-full bg-[var(--brand-primary)] text-[#0f0f11] font-black text-xs tracking-widest uppercase flex items-center gap-1.5 z-10 shadow-md">
+                <div className="absolute left-1/2 -translate-x-1/2 -top-4 px-6 py-1.5 rounded-full bg-[var(--brand-primary)] text-[#0f0f11] font-bold text-xs tracking-widest uppercase flex items-center gap-1.5 z-10 shadow-md">
                     <Star size={14} fill="currentColor" /> RECOMENDADO
                 </div>
             )}
@@ -134,7 +134,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
                 <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-2 relative">
                         {/* Etiqueta de Estado Unificada */}
-                        <span className={`px-2 py-0.5 rounded border ${statusInfo.classes} font-black text-[0.6rem] uppercase tracking-wider`}>
+                        <span className={`px-2 py-0.5 rounded border ${statusInfo.classes} font-bold text-[0.6rem] uppercase tracking-wider`}>
                             {statusInfo.label}
                         </span>
                     </div>
@@ -208,17 +208,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
                                 / mes
                             </span>
                         </div>
-                        <div className="flex items-baseline gap-1.5 opacity-60">
-                            <span className={`${T.helperText} ${S.headingSm} text-[var(--text-strong)]`}>
-                                ${formatNumber(cv.annualPrice)}
-                            </span>
-                            <span className={`${T.helperText} ${S.meta} uppercase tracking-tight ml-1 mr-1`}>
-                                {cv.currency.toUpperCase()}
-                            </span>
-                            <span className={`${T.helperText} ${S.meta} uppercase tracking-widest mb-0.5`}>
-                                / año
-                            </span>
-                        </div>
+                        {/* Sin anualidad: la facturación es solo mensual. */}
                     </>
                 ) : (
                     <span className={`${T.pageTitle} ${S.displaySm} text-[var(--text-strong)] italic h-[72px] flex items-center tracking-tight`}>

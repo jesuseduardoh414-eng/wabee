@@ -66,7 +66,7 @@ export const SuperAdminTenantSelector: React.FC = () => {
                     SA
                 </div>
                 <div className="text-left flex flex-col justify-center max-w-[120px]">
-                    <span className="text-[10px] text-red-600 font-black uppercase tracking-wider leading-none">Super Admin</span>
+                    <span className="text-[10px] text-red-600 font-bold uppercase tracking-wider leading-none">Super Admin</span>
                     <span className={`text-xs font-bold truncate leading-tight mt-0.5 [color:var(--tx-menuText-color)]`}>
                         {currentTenant ? currentTenant.name : 'Select Tenant'}
                     </span>

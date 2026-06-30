@@ -49,12 +49,12 @@ const WebWidgetsPage: React.FC = () => {
         <div className="p-10 max-w-7xl mx-auto space-y-10 selection:bg-[#ead018]/30">
             <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
-                    <h1 className="text-5xl font-black text-white tracking-tighter uppercase italic">Web <span className="text-[#ead018]">Widgets</span></h1>
+                    <h1 className="text-5xl font-bold text-white tracking-tighter uppercase italic">Web <span className="text-[#ead018]">Widgets</span></h1>
                     <p className="text-[#a0a080] mt-2 font-medium">Integra WABEE en tu sitio web con widgets inteligentes y personalizados.</p>
                 </div>
                 <button
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="bg-[#ead018] hover:brightness-110 text-[#121208] px-6 py-3.5 rounded-2xl font-black uppercase tracking-widest flex items-center gap-2 shadow-xl shadow-[#ead018]/10 transition-all active:scale-95 transition-all"
+                    className="bg-[#ead018] hover:brightness-110 text-[#121208] px-6 py-3.5 rounded-2xl font-bold uppercase tracking-widest flex items-center gap-2 shadow-xl shadow-[#ead018]/10 transition-all active:scale-95 transition-all"
                 >
                     <PlusIcon className="h-5 w-5 stroke-[3px]" />
                     Nuevo Widget
@@ -65,7 +65,7 @@ const WebWidgetsPage: React.FC = () => {
                 {loading && (
                     <div className="col-span-full py-32 flex flex-col items-center justify-center gap-4">
                         <div className="animate-spin rounded-full h-10 w-10 border-2 border-t-[#ead018] border-transparent"></div>
-                        <span className="text-[#a0a080] text-[10px] font-black tracking-widest uppercase">Escaneando Widgets...</span>
+                        <span className="text-[#a0a080] text-[10px] font-bold tracking-widest uppercase">Escaneando Widgets...</span>
                     </div>
                 )}
                 {!loading && widgets.length === 0 && (
@@ -74,7 +74,7 @@ const WebWidgetsPage: React.FC = () => {
                         <p className="text-[#a0a080] font-bold uppercase tracking-widest text-xs">No tienes widgets web creados aún.</p>
                         <button
                             onClick={() => setIsCreateModalOpen(true)}
-                            className="mt-6 text-[#ead018] font-black uppercase tracking-widest text-[10px] hover:underline"
+                            className="mt-6 text-[#ead018] font-bold uppercase tracking-widest text-[10px] hover:underline"
                         >
                             + CREAR MI PRIMER WIDGET
                         </button>
@@ -90,15 +90,15 @@ const WebWidgetsPage: React.FC = () => {
                                 <GlobeAltIcon className="h-6 w-6 stroke-[2px]" />
                             </div>
                             <div className="px-3 py-1 bg-[#0a0a05] rounded-full border border-[#2a2a1a]">
-                                <span className="text-[9px] font-black text-[#505040] uppercase tracking-tighter">ID: {w.id.slice(0, 8)}</span>
+                                <span className="text-[9px] font-bold text-[#505040] uppercase tracking-tighter">ID: {w.id.slice(0, 8)}</span>
                             </div>
                         </div>
 
-                        <h3 className="text-2xl font-black text-white mb-2 tracking-tight transition-colors group-hover:text-[#ead018]">{w.title}</h3>
+                        <h3 className="text-2xl font-bold text-white mb-2 tracking-tight transition-colors group-hover:text-[#ead018]">{w.title}</h3>
                         <p className="text-sm text-[#a0a080] mb-8 line-clamp-2 font-medium italic">"{w.welcomeMessage || 'Sin mensaje de bienvenida'}"</p>
 
                         <div className="bg-[#0a0a05] p-5 rounded-2xl mb-8 text-[11px] font-mono text-[#a0a080] break-all overflow-hidden relative group/code border border-[#2a2a1a] shadow-inner">
-                            <div className="font-black mb-2 text-[#ead018] uppercase tracking-widest text-[9px]">Código de integración</div>
+                            <div className="font-bold mb-2 text-[#ead018] uppercase tracking-widest text-[9px]">Código de integración</div>
                             <code className="opacity-60 group-hover/code:opacity-100 transition-opacity">
                                 {`<script>
   window.WabeeWidgetConfig = {
@@ -118,7 +118,7 @@ const WebWidgetsPage: React.FC = () => {
                                     navigator.clipboard.writeText(code);
                                     toastSuccess('Código copiado al portapapeles');
                                 }}
-                                className="absolute top-4 right-4 bg-[#ead018] text-[#121208] border-none shadow-xl px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest opacity-0 hover:scale-105 active:scale-95 group-hover/code:opacity-100 transition-all cursor-pointer"
+                                className="absolute top-4 right-4 bg-[#ead018] text-[#121208] border-none shadow-xl px-2 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest opacity-0 hover:scale-105 active:scale-95 group-hover/code:opacity-100 transition-all cursor-pointer"
                             >
                                 COPIAR
                             </button>
@@ -127,7 +127,7 @@ const WebWidgetsPage: React.FC = () => {
                         <div className="pt-6 border-t border-[#2a2a1a] flex gap-3">
                             <button
                                 onClick={() => navigate(`/dashboard/wabee/widgets`)}
-                                className="flex-1 bg-[#1c1c10] hover:bg-[#2a2a1a] text-[#ead018] font-black text-xs uppercase tracking-widest py-3.5 rounded-2xl flex items-center justify-center gap-2 border border-[#ead018]/20 transition-all active:scale-95 shadow-lg"
+                                className="flex-1 bg-[#1c1c10] hover:bg-[#2a2a1a] text-[#ead018] font-bold text-xs uppercase tracking-widest py-3.5 rounded-2xl flex items-center justify-center gap-2 border border-[#ead018]/20 transition-all active:scale-95 shadow-lg"
                             >
                                 <EyeIcon className="h-4 w-4 stroke-[3px]" />
                                 Abrir Constructor
@@ -144,13 +144,13 @@ const WebWidgetsPage: React.FC = () => {
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#ead018] to-transparent"></div>
 
                         <div className="space-y-2">
-                            <h2 className="text-4xl font-black text-white tracking-tighter uppercase italic">Nuevo <span className="text-[#ead018]">Widget</span></h2>
+                            <h2 className="text-4xl font-bold text-white tracking-tighter uppercase italic">Nuevo <span className="text-[#ead018]">Widget</span></h2>
                             <p className="text-[#a0a080] text-sm font-medium">Define los parámetros básicos para tu nuevo asistente web.</p>
                         </div>
 
                         <form onSubmit={handleCreate} className="space-y-6">
                             <div className="space-y-2">
-                                <label className="block text-[10px] font-black text-[#a0a080] uppercase tracking-widest px-1">Título del Widget</label>
+                                <label className="block text-[10px] font-bold text-[#a0a080] uppercase tracking-widest px-1">Título del Widget</label>
                                 <input
                                     type="text"
                                     required
@@ -161,7 +161,7 @@ const WebWidgetsPage: React.FC = () => {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="block text-[10px] font-black text-[#a0a080] uppercase tracking-widest px-1">Subtítulo (Opcional)</label>
+                                <label className="block text-[10px] font-bold text-[#a0a080] uppercase tracking-widest px-1">Subtítulo (Opcional)</label>
                                 <input
                                     type="text"
                                     placeholder="Ej: Chat en vivo 24/7"
@@ -171,7 +171,7 @@ const WebWidgetsPage: React.FC = () => {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="block text-[10px] font-black text-[#a0a080] uppercase tracking-widest px-1">Mensaje de Bienvenida</label>
+                                <label className="block text-[10px] font-bold text-[#a0a080] uppercase tracking-widest px-1">Mensaje de Bienvenida</label>
                                 <textarea
                                     required
                                     placeholder="¡Hola! ¿Cómo podemos ayudarte hoy?"
@@ -181,8 +181,8 @@ const WebWidgetsPage: React.FC = () => {
                                 />
                             </div>
                             <div className="pt-8 flex gap-4">
-                                <button type="button" onClick={() => setIsCreateModalOpen(false)} className="flex-1 py-4 text-[#a0a080] font-black uppercase tracking-widest text-[11px] hover:text-white transition-colors">Cancelar</button>
-                                <button type="submit" className="flex-1 py-4 bg-[#ead018] text-[#121208] rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-lg shadow-[#ead018]/10 hover:brightness-110 active:scale-95 transition-all">Crear Widget</button>
+                                <button type="button" onClick={() => setIsCreateModalOpen(false)} className="flex-1 py-4 text-[#a0a080] font-bold uppercase tracking-widest text-[11px] hover:text-white transition-colors">Cancelar</button>
+                                <button type="submit" className="flex-1 py-4 bg-[#ead018] text-[#121208] rounded-2xl font-bold uppercase tracking-widest text-[11px] shadow-lg shadow-[#ead018]/10 hover:brightness-110 active:scale-95 transition-all">Crear Widget</button>
                             </div>
                         </form>
                     </div>

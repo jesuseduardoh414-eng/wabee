@@ -42,7 +42,7 @@ function MemberModalCard({
             <div className="mt-4 grid grid-cols-2 gap-3">
                 <div>
                     <p className={`${T.kpiLabel} ${S.meta} mb-1`}>Rol</p>
-                    <span className={`${T.badgeText} ${S.meta} rounded px-2 py-1 font-black uppercase tracking-wider bg-[var(--brand-primary)]/10 text-[var(--brand-primary)]`}>
+                    <span className={`${T.badgeText} ${S.meta} rounded px-2 py-1 font-bold uppercase tracking-wider bg-[var(--brand-primary)]/10 text-[var(--brand-primary)]`}>
                         {member.role}
                     </span>
                 </div>
@@ -69,7 +69,7 @@ function MemberModalCard({
                         className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand-primary)] px-4 py-2 shadow-lg shadow-[var(--brand-primary)]/20 transition-all hover:brightness-110 disabled:opacity-50"
                     >
                         {impersonatingId === member.userId ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserCheck className="h-4 w-4" />}
-                        <span className={`${T.buttonPrimaryText} ${S.meta} font-black`}>
+                        <span className={`${T.buttonPrimaryText} ${S.meta} font-bold`}>
                             {impersonatingId === member.userId ? 'Iniciando...' : 'Suplantar'}
                         </span>
                     </button>
@@ -195,10 +195,10 @@ export function OrganizationUsersModal({ isOpen, onClose, organization }: Organi
                                 <table className="w-full min-w-[760px]">
                                     <thead>
                                         <tr className={`${T.tableHeader} ${S.meta} border-b border-[var(--border-default)] text-left`}>
-                                            <th className="px-4 pb-4 font-black uppercase tracking-widest text-[var(--text-muted)]">Colaborador</th>
-                                            <th className="px-4 pb-4 font-black uppercase tracking-widest text-[var(--text-muted)]">Rol</th>
-                                            <th className="px-4 pb-4 font-black uppercase tracking-widest text-[var(--text-muted)]">Estado</th>
-                                            <th className="px-4 pb-4 text-right font-black uppercase tracking-widest text-[var(--text-muted)]">Acciones</th>
+                                            <th className="px-4 pb-4 font-bold uppercase tracking-widest text-[var(--text-muted)]">Colaborador</th>
+                                            <th className="px-4 pb-4 font-bold uppercase tracking-widest text-[var(--text-muted)]">Rol</th>
+                                            <th className="px-4 pb-4 font-bold uppercase tracking-widest text-[var(--text-muted)]">Estado</th>
+                                            <th className="px-4 pb-4 text-right font-bold uppercase tracking-widest text-[var(--text-muted)]">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-[var(--border-default)]">
@@ -218,7 +218,7 @@ export function OrganizationUsersModal({ isOpen, onClose, organization }: Organi
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-5">
-                                                    <span className={`${T.badgeText} ${S.meta} rounded px-2 py-1 font-black uppercase tracking-wider bg-[var(--brand-primary)]/10 text-[var(--brand-primary)]`}>
+                                                    <span className={`${T.badgeText} ${S.meta} rounded px-2 py-1 font-bold uppercase tracking-wider bg-[var(--brand-primary)]/10 text-[var(--brand-primary)]`}>
                                                         {member.role}
                                                     </span>
                                                 </td>
@@ -242,7 +242,7 @@ export function OrganizationUsersModal({ isOpen, onClose, organization }: Organi
                                                             className="inline-flex items-center gap-2 rounded-xl bg-[var(--brand-primary)] px-4 py-2 shadow-lg shadow-[var(--brand-primary)]/20 transition-all hover:brightness-110 disabled:opacity-50"
                                                         >
                                                             {impersonatingId === member.userId ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserCheck className="h-4 w-4" />}
-                                                            <span className={`${T.buttonPrimaryText} ${S.meta} font-black`}>
+                                                            <span className={`${T.buttonPrimaryText} ${S.meta} font-bold`}>
                                                                 {impersonatingId === member.userId ? 'Iniciando...' : 'Suplantar'}
                                                             </span>
                                                         </button>

@@ -37,7 +37,7 @@ export class ErrorBoundary extends Component<Props, State> {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                     </div>
-                    <h1 className="text-2xl font-black uppercase tracking-tighter mb-2 italic">Algo salió mal</h1>
+                    <h1 className="text-2xl font-bold uppercase tracking-tighter mb-2 italic">Algo salió mal</h1>
                     <p className="text-[#a0a080] text-sm max-w-md mb-8">
                         La aplicación encontró un error inesperado al intentar renderizar la interfaz.
                     </p>
@@ -48,7 +48,7 @@ export class ErrorBoundary extends Component<Props, State> {
                     </div>
                     <button
                         onClick={() => window.location.reload()}
-                        className="bg-[#ead018] text-[#121208] px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:brightness-110 transition-all shadow-xl shadow-[#ead018]/10"
+                        className="bg-[#ead018] text-[#121208] px-8 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest hover:brightness-110 transition-all shadow-xl shadow-[#ead018]/10"
                     >
                         Recargar Aplicación
                     </button>

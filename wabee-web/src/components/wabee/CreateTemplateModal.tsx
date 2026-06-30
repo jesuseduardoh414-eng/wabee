@@ -174,7 +174,7 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
                         {/* Name + Language */}
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                                <label className={`${T.labelText} ${S.meta} mb-2 block font-black uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>Nombre *</label>
+                                <label className={`${T.labelText} ${S.meta} mb-2 block font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>Nombre *</label>
                                 <input
                                     type="text"
                                     value={name}
@@ -187,8 +187,8 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
                                 <p className={`${T.helperText} mt-1 text-[10px] text-[color:var(--text-muted)] opacity-70`}>Solo minúsculas, números y guiones bajos.</p>
                             </div>
                             <div>
-                                <label className={`${T.labelText} ${S.meta} mb-2 block font-black uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>Idioma *</label>
-                                <select value={language} onChange={e => setLanguage(e.target.value)} className={`${T.inputText} ${S.body} w-full cursor-pointer appearance-none rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-5 py-3 text-[10px] font-black uppercase tracking-widest text-[var(--text-strong)] outline-none transition-all focus:border-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-primary)]/50`}>
+                                <label className={`${T.labelText} ${S.meta} mb-2 block font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>Idioma *</label>
+                                <select value={language} onChange={e => setLanguage(e.target.value)} className={`${T.inputText} ${S.body} w-full cursor-pointer appearance-none rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-[var(--text-strong)] outline-none transition-all focus:border-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-primary)]/50`}>
                                     {LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
                                 </select>
                             </div>
@@ -196,7 +196,7 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
 
                         {/* Category selector */}
                         <div>
-                            <label className={`${T.labelText} ${S.meta} mb-3 block font-black uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>Categoría *</label>
+                            <label className={`${T.labelText} ${S.meta} mb-3 block font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>Categoría *</label>
                             <div className="grid grid-cols-3 gap-2">
                                 {(['MARKETING', 'UTILITY', 'AUTHENTICATION'] as Category[]).map(cat => (
                                     <button
@@ -205,7 +205,7 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
                                         onClick={() => setCategory(cat)}
                                         className={`rounded-2xl border p-3 text-left transition-all ${category === cat ? 'border-[var(--brand-primary)] bg-[var(--brand-primary)]/10' : 'border-[var(--border-default)] bg-[var(--bg-input)] hover:border-[var(--brand-primary)]/40'}`}
                                     >
-                                        <span className={`block text-[9px] font-black uppercase tracking-widest ${category === cat ? 'text-[var(--brand-primary)]' : 'text-[var(--text-muted)]'}`}>{CATEGORY_LABEL[cat]}</span>
+                                        <span className={`block text-[9px] font-bold uppercase tracking-widest ${category === cat ? 'text-[var(--brand-primary)]' : 'text-[var(--text-muted)]'}`}>{CATEGORY_LABEL[cat]}</span>
                                         <span className="mt-1 block text-[9px] leading-tight text-[var(--text-muted)] opacity-70">{CATEGORY_HINT[cat]}</span>
                                     </button>
                                 ))}
@@ -215,7 +215,7 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
                         {/* ── AUTHENTICATION fields ── */}
                         {category === 'AUTHENTICATION' && (
                             <div className="space-y-4 rounded-2xl border border-[var(--brand-primary)]/20 bg-[var(--brand-primary)]/5 p-5">
-                                <p className={`${T.labelText} ${S.meta} font-black uppercase tracking-[0.15em] text-[var(--brand-primary)]`}>Configuración OTP</p>
+                                <p className={`${T.labelText} ${S.meta} font-bold uppercase tracking-[0.15em] text-[var(--brand-primary)]`}>Configuración OTP</p>
                                 <p className="text-[10px] text-[var(--text-muted)]">Meta genera automáticamente el cuerpo del mensaje con el código y el botón "Copiar código". Solo configura las opciones de seguridad.</p>
 
                                 {/* Preview of what Meta generates */}
@@ -233,7 +233,7 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
                                 </div>
 
                                 <div>
-                                    <label className={`${T.labelText} ${S.meta} mb-2 block font-black uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>
+                                    <label className={`${T.labelText} ${S.meta} mb-2 block font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>
                                         Expiración <span className="font-normal normal-case tracking-normal opacity-60">(minutos, opcional)</span>
                                     </label>
                                     <input
@@ -253,7 +253,7 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
                             <>
                                 {/* Header */}
                                 <div>
-                                    <label className={`${T.labelText} ${S.meta} mb-2 block font-black uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>
+                                    <label className={`${T.labelText} ${S.meta} mb-2 block font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>
                                         Encabezado <span className="font-normal normal-case tracking-normal opacity-60">(opcional, máx. 60 caracteres)</span>
                                     </label>
                                     <input type="text" value={headerText} onChange={e => setHeaderText(e.target.value)} placeholder="ej: ¡Tu pedido está listo!" maxLength={60}
@@ -262,7 +262,7 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
 
                                 {/* Body */}
                                 <div>
-                                    <label className={`${T.labelText} ${S.meta} mb-2 block font-black uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>Cuerpo del mensaje *</label>
+                                    <label className={`${T.labelText} ${S.meta} mb-2 block font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>Cuerpo del mensaje *</label>
                                     <textarea value={body} onChange={e => setBody(e.target.value)} placeholder="ej: Hola {{1}}, tu pedido #{{2}} fue confirmado." maxLength={1024} rows={4} required
                                         className={`${T.inputText} w-full resize-y rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-5 py-3 text-sm text-[var(--text-strong)] outline-none transition-all placeholder:text-[var(--text-muted)] focus:border-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-primary)]/50`} />
                                     <p className={`${T.helperText} mt-1.5 text-[10px] text-[color:var(--text-muted)] opacity-70`}>Usa <span className="font-mono">{'{{1}}'}</span>, <span className="font-mono">{'{{2}}'}</span>… para variables dinámicas.</p>
@@ -271,7 +271,7 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
                                 {/* Variable examples */}
                                 {varCount > 0 && (
                                     <div className="rounded-2xl border border-[var(--brand-primary)]/20 bg-[var(--brand-primary)]/5 p-4">
-                                        <p className={`${T.labelText} ${S.meta} mb-3 font-black uppercase tracking-[0.2em] text-[var(--brand-primary)]`}>
+                                        <p className={`${T.labelText} ${S.meta} mb-3 font-bold uppercase tracking-[0.2em] text-[var(--brand-primary)]`}>
                                             Ejemplos de variables <span className="font-normal normal-case tracking-normal opacity-70 text-[var(--text-muted)]">— requeridos por Meta</span>
                                         </p>
                                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -290,7 +290,7 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
 
                                 {/* Footer */}
                                 <div>
-                                    <label className={`${T.labelText} ${S.meta} mb-2 block font-black uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>
+                                    <label className={`${T.labelText} ${S.meta} mb-2 block font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>
                                         Pie de página <span className="font-normal normal-case tracking-normal opacity-60">(opcional, máx. 60 caracteres)</span>
                                     </label>
                                     <input type="text" value={footer} onChange={e => setFooter(e.target.value)} placeholder="ej: Este mensaje fue enviado por Wabee" maxLength={60}
@@ -300,14 +300,14 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
                                 {/* Buttons */}
                                 <div>
                                     <div className="mb-3 flex items-center justify-between">
-                                        <label className={`${T.labelText} ${S.meta} font-black uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>
+                                        <label className={`${T.labelText} ${S.meta} font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>
                                             Botones <span className="font-normal normal-case tracking-normal opacity-60">(opcional, máx. 3)</span>
                                         </label>
                                         {buttons.length < 3 && (
                                             <div className="flex gap-2">
-                                                <button type="button" onClick={() => addButton('QUICK_REPLY')} className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] transition-all hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]">+ Respuesta</button>
-                                                <button type="button" onClick={() => addButton('URL')} className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] transition-all hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]">+ URL</button>
-                                                <button type="button" onClick={() => addButton('PHONE_NUMBER')} className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] transition-all hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]">+ Teléfono</button>
+                                                <button type="button" onClick={() => addButton('QUICK_REPLY')} className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] transition-all hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]">+ Respuesta</button>
+                                                <button type="button" onClick={() => addButton('URL')} className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] transition-all hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]">+ URL</button>
+                                                <button type="button" onClick={() => addButton('PHONE_NUMBER')} className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-input)] px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] transition-all hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]">+ Teléfono</button>
                                             </div>
                                         )}
                                     </div>
@@ -317,7 +317,7 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
                                                 <div key={i} className="flex items-start gap-2 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-input)] p-3">
                                                     <div className="flex flex-1 flex-col gap-2">
                                                         <div className="flex items-center gap-2">
-                                                            <span className={`rounded-full px-2 py-0.5 text-[9px] font-black uppercase ${btn.type === 'QUICK_REPLY' ? 'bg-[var(--state-success)]/10 text-[var(--state-success)]' : btn.type === 'URL' ? 'bg-[var(--state-info)]/10 text-[var(--state-info)]' : 'bg-[var(--state-warning)]/10 text-[var(--state-warning)]'}`}>
+                                                            <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase ${btn.type === 'QUICK_REPLY' ? 'bg-[var(--state-success)]/10 text-[var(--state-success)]' : btn.type === 'URL' ? 'bg-[var(--state-info)]/10 text-[var(--state-info)]' : 'bg-[var(--state-warning)]/10 text-[var(--state-warning)]'}`}>
                                                                 {btn.type === 'QUICK_REPLY' ? 'Respuesta' : btn.type === 'URL' ? 'Enlace URL' : 'Teléfono'}
                                                             </span>
                                                         </div>
@@ -348,9 +348,9 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
                         )}
 
                         <div className="flex gap-3 pt-2">
-                            <button type="button" onClick={handleClose} className={`${T.buttonPrimaryText} flex-1 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-input)] px-6 py-3.5 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] transition-all hover:text-[var(--text-strong)]`}>Cancelar</button>
+                            <button type="button" onClick={handleClose} className={`${T.buttonPrimaryText} flex-1 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-input)] px-6 py-3.5 text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] transition-all hover:text-[var(--text-strong)]`}>Cancelar</button>
                             <button type="submit" disabled={loading || !name || (category !== 'AUTHENTICATION' && !body)}
-                                className={`${T.buttonPrimaryText} flex-1 rounded-2xl bg-[var(--brand-primary)] px-6 py-3.5 text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[var(--brand-primary)]/20 transition-all hover:brightness-110 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40`}>
+                                className={`${T.buttonPrimaryText} flex-1 rounded-2xl bg-[var(--brand-primary)] px-6 py-3.5 text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-[var(--brand-primary)]/20 transition-all hover:brightness-110 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40`}>
                                 {loading ? <span className="flex items-center justify-center gap-2"><span className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />Enviando...</span> : 'Crear Plantilla'}
                             </button>
                         </div>
@@ -359,7 +359,7 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
 
                 {/* ── Preview column ── */}
                 <div className="hidden w-80 flex-shrink-0 border-l border-[var(--border-default)] bg-[var(--bg-muted)] p-6 lg:flex lg:flex-col xl:w-96">
-                    <p className={`${T.labelText} ${S.meta} mb-4 font-black uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>Vista previa</p>
+                    <p className={`${T.labelText} ${S.meta} mb-4 font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]`}>Vista previa</p>
 
                     <div className="flex flex-1 items-start justify-center pt-4">
                         <div className="w-full max-w-[260px]">
@@ -409,16 +409,16 @@ export default function CreateTemplateModal({ isOpen, channelId, onClose, onSucc
 
                             <div className="mt-4 space-y-2 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] p-3">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] opacity-60">Categoría</span>
-                                    <span className={`rounded-full px-2 py-0.5 text-[9px] font-black uppercase ${{ MARKETING: 'bg-[var(--state-info)]/10 text-[var(--state-info)]', AUTHENTICATION: 'bg-[var(--state-warning)]/10 text-[var(--state-warning)]', UTILITY: 'bg-[var(--state-success)]/10 text-[var(--state-success)]' }[category]}`}>{CATEGORY_LABEL[category]}</span>
+                                    <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] opacity-60">Categoría</span>
+                                    <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase ${{ MARKETING: 'bg-[var(--state-info)]/10 text-[var(--state-info)]', AUTHENTICATION: 'bg-[var(--state-warning)]/10 text-[var(--state-warning)]', UTILITY: 'bg-[var(--state-success)]/10 text-[var(--state-success)]' }[category]}`}>{CATEGORY_LABEL[category]}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] opacity-60">Idioma</span>
+                                    <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] opacity-60">Idioma</span>
                                     <span className="font-mono text-[10px] font-bold text-[var(--brand-primary)]">{language}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] opacity-60">Estado</span>
-                                    <span className="rounded-full bg-[var(--state-warning)]/10 px-2 py-0.5 text-[9px] font-black uppercase text-[var(--state-warning)]">PENDING</span>
+                                    <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] opacity-60">Estado</span>
+                                    <span className="rounded-full bg-[var(--state-warning)]/10 px-2 py-0.5 text-[9px] font-bold uppercase text-[var(--state-warning)]">PENDING</span>
                                 </div>
                             </div>
                         </div>

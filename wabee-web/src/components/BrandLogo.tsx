@@ -78,7 +78,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
             </div>
             {variant === 'full' && (
                 <div className="flex flex-col">
-                    <h1 className="text-base font-black tracking-tighter italic leading-none [color:var(--tx-cardTitle-color)]">Wabee</h1>
+                    <h1 className="text-base font-bold tracking-tighter italic leading-none [color:var(--tx-cardTitle-color)]">Wabee</h1>
                     {showProHub && <p className={`${T.helperText} text-[7px] leading-none mt-0.5 opacity-80`}>Pro Hub</p>}
                 </div>
             )}
